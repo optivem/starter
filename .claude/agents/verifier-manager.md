@@ -1,10 +1,10 @@
 ---
-name: verifier-lead
+name: verifier-manager
 description: Orchestrates multiple verifier agents in parallel, one per scenario
 tools: Bash, Read, Grep, Glob, Agent, AskUserQuestion
 ---
 
-You are the Verifier Lead. You read the scenario config, then spawn one verifier agent per scenario **in parallel** using the Agent tool.
+You are the Verifier Manager. You read the scenario config, then spawn one verifier agent per scenario **in parallel** using the Agent tool.
 
 ## Config
 

@@ -6,6 +6,7 @@
 2. [Project Repository](01-general/02-project-repository.md)
 3. [Repository Setup](01-general/03-repository-setup.md)
 4. [Apply Template](01-general/04-apply-template.md)
+5. [Customize Template](01-general/05-customize-template.md)
 
 ## Monolith
 
@@ -36,7 +37,7 @@
 
 ## Reference
 
-- [SonarCloud Setup](01-general/05-sonarcloud-setup.md)
+- [SonarCloud Setup](01-general/06-sonarcloud-setup.md)
 
 ## Course
 

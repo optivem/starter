@@ -37,7 +37,7 @@ Before starting the onboarding, gather the following information and prepare cre
 
 ### SonarCloud
 
-1. Create a SonarCloud token — see [SonarCloud Setup](05-sonarcloud-setup.md) (browser).
+1. Create a SonarCloud token — see [SonarCloud Setup](06-sonarcloud-setup.md) (browser).
 2. Note the token — you'll set it on your repository in the SonarCloud Setup step.
 
 ## Onboarding Mode
