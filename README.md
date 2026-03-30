@@ -1,12 +1,10 @@
 # Starter
 
-A catalog of self-contained, copy-paste-ready project templates organized by two independent dimensions.
+A catalog of project templates organized by two independent dimensions: **system** (the application) and **system-test** (the test harness). Each template is self-contained and copy-paste-ready.
 
-## Dimensions
+## System Templates
 
-### System (the application)
-
-Pick **one** system template based on your architecture and language:
+Pick based on your architecture and language:
 
 | Architecture | Language | Directory | Framework | Port |
 |---|---|---|---|---|
@@ -18,9 +16,9 @@ Pick **one** system template based on your architecture and language:
 | Multi-component | TypeScript (backend) | `system/multi-component/backend-typescript/` | NestJS API | 8081 |
 | Multi-component | TypeScript (frontend) | `system/multi-component/frontend-react/` | React + Nginx | 8080 |
 
-### System Test (the test harness)
+## System-Test Templates
 
-Pick **one** system-test template based on your preferred test language (independent of system language):
+Pick based on your preferred test language (independent of system language):
 
 | Language | Directory | Framework |
 |---|---|---|
@@ -28,24 +26,22 @@ Pick **one** system-test template based on your preferred test language (indepen
 | .NET | `system-test/dotnet/` | xUnit + Playwright |
 | TypeScript | `system-test/typescript/` | Jest + Playwright |
 
-### Pipeline (CI/CD workflows)
+Each system-test includes `docker-compose.single.yml` and `docker-compose.multi.yml` — rename the appropriate one to `docker-compose.yml`.
 
-Pick pipeline workflows matching your system and system-test choices:
+## CI/CD Pipelines
 
-| Architecture | Directory | Contents |
-|---|---|---|
-| Single-component (Java) | `pipeline/single-component/java/` | 5 workflow files |
-| Single-component (.NET) | `pipeline/single-component/dotnet/` | 5 workflow files |
-| Single-component (TypeScript) | `pipeline/single-component/typescript/` | 5 workflow files |
-| Multi-component (Java system-test) | `pipeline/multi-component/java/` | 6 workflow files |
-| Multi-component (.NET system-test) | `pipeline/multi-component/dotnet/` | 6 workflow files |
-| Multi-component (TypeScript system-test) | `pipeline/multi-component/typescript/` | 6 workflow files |
+The `.github/workflows/` directory contains runnable pipelines for all 6 matched-language combinations (system + system-test):
 
-## Quick Start
+| Combination | Commit Stage | Acceptance | QA | Prod |
+|---|---|---|---|---|
+| Single-component Java | `single-component-java-commit-stage` | `single-component-java-acceptance-stage` | `single-component-java-qa-stage` | `single-component-java-prod-stage` |
+| Single-component .NET | `single-component-dotnet-commit-stage` | `single-component-dotnet-acceptance-stage` | `single-component-dotnet-qa-stage` | `single-component-dotnet-prod-stage` |
+| Single-component TypeScript | `single-component-typescript-commit-stage` | `single-component-typescript-acceptance-stage` | `single-component-typescript-qa-stage` | `single-component-typescript-prod-stage` |
+| Multi-component Java | `multi-component-backend-java-commit-stage` | `multi-component-java-acceptance-stage` | `multi-component-java-qa-stage` | `multi-component-java-prod-stage` |
+| Multi-component .NET | `multi-component-backend-dotnet-commit-stage` | `multi-component-dotnet-acceptance-stage` | `multi-component-dotnet-qa-stage` | `multi-component-dotnet-prod-stage` |
+| Multi-component TypeScript | `multi-component-backend-typescript-commit-stage` | `multi-component-typescript-acceptance-stage` | `multi-component-typescript-qa-stage` | `multi-component-typescript-prod-stage` |
 
-1. Create a new repo
-2. Copy your chosen **system** template into the repo (as `monolith/`, `backend/`, or `frontend/`)
-3. Copy your chosen **system-test** template into the repo (as `system-test/`)
-4. Copy the matching **pipeline** workflow files into `.github/workflows/`
-5. Replace placeholders (`YOUR_SONAR_PROJECT_KEY`, `<owner>/<repo>`, image paths)
-6. In `system-test/`, rename `docker-compose.single.yml` or `docker-compose.multi.yml` to `docker-compose.yml`
+Plus `multi-component-frontend-react-commit-stage` (shared across all multi-component variants).
+
+- **Commit stages** trigger automatically on push via path filters
+- **Acceptance/QA/Prod stages** are workflow_dispatch (manual trigger)
