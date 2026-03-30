@@ -23,6 +23,7 @@ gh secret set SONAR_TOKEN --body "<your-sonarcloud-token>" --repo <owner>/<repo>
 
 # Variables
 gh variable set DOCKERHUB_USERNAME --body "<your-dockerhub-username>" --repo <owner>/<repo>
+gh variable set SYSTEM_URL --body "http://localhost:8080" --repo <owner>/<repo>
 
 # Environment variables (SYSTEM_URL per environment)
 gh variable set SYSTEM_URL --body "http://localhost:8080" --env acceptance --repo <owner>/<repo>
@@ -40,4 +41,5 @@ gh variable set SYSTEM_URL --body "http://localhost:8080" --env production --rep
 3. `DOCKERHUB_TOKEN` secret is set
 4. `SONAR_TOKEN` secret is set
 5. `DOCKERHUB_USERNAME` variable is set
-6. `SYSTEM_URL` variable is set on each environment (acceptance, qa, production)
+6. `SYSTEM_URL` variable is set at repo level
+7. `SYSTEM_URL` variable is set on each environment (acceptance, qa, production)

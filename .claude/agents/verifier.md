@@ -34,6 +34,7 @@ Same as Scaffolder (including: do NOT use anything from memory), plus:
 - **Track problems and fixes** — whenever you encounter a problem (command fails, workflow fails, unexpected output), log it. If you apply a fix to proceed, log the fix too. Include both in the final report.
 - Don't modify docs — you are a student, not an author.
 - Poll workflows every 30 seconds, up to 10 attempts (~5 min). Stop as soon as `status` is `completed`. Each Bash call should return within ~70 seconds.
+- **GitHub Issue tracker** — create a setup tracking issue on the test repo and update it as you progress (see "Setup Tracking Issue" section below).
 
 ## Workflow
 
@@ -42,6 +43,64 @@ Same as Scaffolder (including: do NOT use anything from memory), plus:
 3. Read `docs/starter/index.md` and follow each step — same as the Scaffolder, but using provided config values instead of asking the user. The repo name must be derived from `SYSTEM_NAME` exactly as the docs describe (kebab-case + random suffix if needed) — do NOT invent your own naming scheme.
 5. After each step, report ✓/✗ for checklist items and ⚠ for doc issues found.
 6. At the end, produce the final report.
+
+## Setup Tracking Issue
+
+After creating the repository (Step 01), create a GitHub Issue to track setup progress. Update it after each step so an observer can follow along in real time.
+
+### Creating the issue
+
+After Step 01, create the issue with all steps as unchecked items:
+
+```bash
+gh issue create --repo <owner>/<repo> --title "Setup: <scenario_name>" --body "$(cat <<'EOF'
+## Setup Progress
+
+- [ ] Step 00: Prerequisites
+- [ ] Step 01: Project Repository
+- [ ] Step 02: Repository Setup
+- [ ] Step 03: Apply Template
+- [ ] Step 04: Namespace Replacement
+- [ ] Step 05: Commit, Push, and Verify
+- [ ] Step 06: Acceptance Stage
+
+## Issues Found
+
+_None yet_
+
+## Fixes Applied
+
+_None yet_
+EOF
+)"
+```
+
+### Updating the issue
+
+After completing each step, update the issue body to check off the completed step (change `- [ ]` to `- [x]`). Use `gh issue edit <number> --repo <owner>/<repo> --body "..."` to replace the full body with the updated checklist.
+
+When a problem is encountered or a fix is applied, also update the "Issues Found" or "Fixes Applied" sections, replacing `_None yet_` with a numbered list. For example:
+
+```
+## Issues Found
+
+1. [Step 02] SYSTEM_URL needs repo-level variable (not just environment-level)
+
+## Fixes Applied
+
+1. [Step 02] Set SYSTEM_URL at repo level in addition to environment-level
+```
+
+If a step fails and the run stops early, add a comment to the issue with the error details:
+
+```bash
+gh issue comment <number> --repo <owner>/<repo> --body "❌ Step XX failed: <error details>"
+```
+
+### Closing the issue
+
+- If all steps pass: close the issue with a comment saying "All steps passed."
+- If a step fails: leave the issue open so the failure is visible.
 
 ## Final Report
 
@@ -67,4 +126,5 @@ Issues Found:
   ...
 
 Test Project: https://github.com/<owner>/<repo>
+Setup Issue: https://github.com/<owner>/<repo>/issues/<number>
 ```
