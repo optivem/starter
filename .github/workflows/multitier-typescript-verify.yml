@@ -1,0 +1,68 @@
+name: multitier-typescript-verify
+
+on:
+  workflow_dispatch:
+
+jobs:
+  commit-stage:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        workflow:
+          - multitier-backend-typescript-commit-stage.yml
+          - multitier-frontend-react-commit-stage.yml
+    steps:
+      - name: Trigger ${{ matrix.workflow }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run "${{ matrix.workflow }}" \
+            --repo "${{ github.repository }}" \
+            --ref main
+
+      - name: Wait for ${{ matrix.workflow }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sleep 5
+
+          run_id=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow "${{ matrix.workflow }}" \
+            --event workflow_dispatch \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId')
+
+          echo "Waiting for run $run_id..."
+          gh run watch "$run_id" --repo "${{ github.repository }}" --exit-status
+
+  acceptance-stage:
+    needs: commit-stage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Acceptance Stage
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run multitier-system-typescript-acceptance-stage.yml \
+            --repo "${{ github.repository }}" \
+            --ref main
+
+      - name: Wait for Acceptance Stage
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sleep 5
+
+          run_id=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow "multitier-system-typescript-acceptance-stage.yml" \
+            --event workflow_dispatch \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId')
+
+          echo "Waiting for run $run_id..."
+          gh run watch "$run_id" --repo "${{ github.repository }}" --exit-status

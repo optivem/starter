@@ -1,0 +1,62 @@
+name: monolith-typescript-verify
+
+on:
+  workflow_dispatch:
+
+jobs:
+  commit-stage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Commit Stage
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run monolith-typescript-commit-stage.yml \
+            --repo "${{ github.repository }}" \
+            --ref main
+
+      - name: Wait for Commit Stage
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sleep 5
+
+          run_id=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow "monolith-typescript-commit-stage.yml" \
+            --event workflow_dispatch \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId')
+
+          echo "Waiting for run $run_id..."
+          gh run watch "$run_id" --repo "${{ github.repository }}" --exit-status
+
+  acceptance-stage:
+    needs: commit-stage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Acceptance Stage
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run monolith-typescript-acceptance-stage.yml \
+            --repo "${{ github.repository }}" \
+            --ref main
+
+      - name: Wait for Acceptance Stage
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sleep 5
+
+          run_id=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow "monolith-typescript-acceptance-stage.yml" \
+            --event workflow_dispatch \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId')
+
+          echo "Waiting for run $run_id..."
+          gh run watch "$run_id" --repo "${{ github.repository }}" --exit-status
