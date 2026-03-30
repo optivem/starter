@@ -102,7 +102,7 @@ The `.github/workflows/` directory contains runnable pipelines for all 6 matched
 
 ## Verification
 
-Orchestrator workflows that run commit stage + acceptance stage sequentially, failing fast on any error:
+Orchestrator workflows that run the full pipeline (commit stage, acceptance stage, QA stage, QA signoff, prod stage) sequentially, failing fast on any error:
 
 [![verify-all](https://github.com/optivem/starter/actions/workflows/verify-all.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/verify-all.yml)
 [![monolith-java-verify](https://github.com/optivem/starter/actions/workflows/monolith-java-verify.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/monolith-java-verify.yml)

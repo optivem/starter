@@ -32,9 +32,9 @@ Read `.claude/agents/verifier-config.json`. The file has:
 2. Determine which batch/scenarios to run. If not specified, list batches and ask:
    ```
    Available batches:
-     monolith-single-language: Monolith — same language for backend and tests (3 scenarios)
-     monolith-multi-language: Monolith — mixed languages (6 scenarios)
-     multi-architecture: Multi-component and multi-repo architectures (2 scenarios)
+     monolith-monolang: Monolith — same language for backend and tests (3 scenarios)
+     monolith-multilang: Monolith — mixed languages (6 scenarios)
+     multi-architecture: Multitier and multi-repo architectures (2 scenarios)
      all: Run all batches (11 scenarios)
    Which batch would you like to run?
    ```
@@ -57,7 +57,7 @@ GITHUB_OWNER=valentinajemuovic
 SYSTEM_DOMAIN=Book Store
 SYSTEM_NAME=Page Turner
 RANDOM_SUFFIX=true
-BACKEND_LANGUAGE=java
+SYSTEM_LANGUAGE=java
 SYSTEM_TEST_LANGUAGE=java
 ARCHITECTURE=monolith
 REPOSITORY_STRATEGY=mono-repo
