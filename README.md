@@ -100,7 +100,7 @@ The `.github/workflows/` directory contains runnable pipelines for all 6 matched
 - **Commit stages** trigger automatically on push via path filters
 - **Acceptance/QA/Prod stages** are workflow_dispatch (manual trigger)
 
-### Verify
+## Verification
 
 Orchestrator workflows that run commit stage + acceptance stage sequentially, failing fast on any error:
 
