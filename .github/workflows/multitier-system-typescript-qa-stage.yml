@@ -1,4 +1,4 @@
-name: multitier-system-typescript-qa-stage
+name: qa-stage
 
 on:
   workflow_dispatch:

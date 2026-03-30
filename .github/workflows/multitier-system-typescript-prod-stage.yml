@@ -1,4 +1,4 @@
-name: multitier-system-typescript-prod-stage
+name: prod-stage
 
 on:
   workflow_dispatch:

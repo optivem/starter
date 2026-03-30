@@ -1,4 +1,4 @@
-name: monolith-typescript-commit-stage
+name: monolith-commit-stage
 
 on:
   push:

@@ -1,6 +1,8 @@
-name: monolith-typescript-acceptance-stage
+name: acceptance-stage
 
 on:
+  schedule:
+    - cron: '0 * * * *'  # Run every hour
   workflow_dispatch:
 
 concurrency:

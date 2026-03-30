@@ -1,4 +1,4 @@
-name: monolith-dotnet-qa-signoff
+name: qa-signoff
 
 on:
   workflow_dispatch:

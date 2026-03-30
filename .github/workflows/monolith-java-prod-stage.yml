@@ -1,4 +1,4 @@
-name: monolith-java-prod-stage
+name: prod-stage
 
 on:
   workflow_dispatch:

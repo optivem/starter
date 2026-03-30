@@ -1,4 +1,4 @@
-name: monolith-java-commit-stage
+name: monolith-commit-stage
 
 on:
   push:
