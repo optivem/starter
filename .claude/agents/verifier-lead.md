@@ -34,7 +34,7 @@ Read `.claude/agents/verifier-config.json`. The file has:
    Available batches:
      monolith-monolang: Monolith — same language for backend and tests (3 scenarios)
      monolith-multilang: Monolith — mixed languages (6 scenarios)
-     multi-architecture: Multitier and multi-repo architectures (2 scenarios)
+     multi-architecture: Multitier and multirepo architectures (2 scenarios)
      all: Run all batches (11 scenarios)
    Which batch would you like to run?
    ```
@@ -60,7 +60,7 @@ RANDOM_SUFFIX=true
 SYSTEM_LANGUAGE=java
 SYSTEM_TEST_LANGUAGE=java
 ARCHITECTURE=monolith
-REPOSITORY_STRATEGY=mono-repo
+REPOSITORY_STRATEGY=monorepo
 ```
 
 ## Final Report

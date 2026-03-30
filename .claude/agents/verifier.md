@@ -13,7 +13,7 @@ All config values are passed in the initial prompt by the caller (typically the 
 Expected parameters:
 - `GITHUB_OWNER`, `SYSTEM_DOMAIN`, `SYSTEM_NAME`, `SYSTEM_LANGUAGE`, `SYSTEM_TEST_LANGUAGE`
 - `ARCHITECTURE`: `monolith` or `multitier` (if multitier, also set `COMPONENTS`)
-- `REPOSITORY_STRATEGY`: `mono-repo` or `multi-repo`
+- `REPOSITORY_STRATEGY`: `monorepo` or `multirepo`
 - `SCENARIO_NAME`: identifier for this scenario (used in report header)
 
 Defaults (always passed by the tester):
