@@ -11,7 +11,9 @@ You are the Verifier. You do the same thing as the Scaffolder, but fully automat
 All config values are passed in the initial prompt by the caller (typically the verifier-lead). The verifier does NOT read config files directly.
 
 Expected parameters:
-- `GITHUB_OWNER`, `SYSTEM_DOMAIN`, `SYSTEM_NAME`, `SYSTEM_LANGUAGE`, `SYSTEM_TEST_LANGUAGE`
+- `GITHUB_OWNER`, `SYSTEM_DOMAIN`, `SYSTEM_NAME`, `SYSTEM_TEST_LANGUAGE`
+- For monolith: `SYSTEM_LANGUAGE`
+- For multitier: `BACKEND_LANGUAGE`, `FRONTEND_LANGUAGE`
 - `ARCHITECTURE`: `monolith` or `multitier` (if multitier, also set `COMPONENTS`)
 - `REPOSITORY_STRATEGY`: `monorepo` or `multirepo`
 - `SCENARIO_NAME`: identifier for this scenario (used in report header)
