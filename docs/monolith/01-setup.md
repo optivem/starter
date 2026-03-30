@@ -57,25 +57,45 @@ This repository (`starter`) is the template. It contains workflows, system code,
    - In the README file, so that the status badges point to your workflows (not the template workflows)
    - In `system-test/docker-compose.yml`, to reference your Docker Image (not the template image)
    - In SonarCloud config (`sonar.projectKey` and `sonar.organization`), so analysis runs under your organization
-4. In the Docker Compose file, ensure that everything is lowercase in the image url.
-5. Add credentials and variables to your repository (CLI):
+3. In the Docker Compose file, ensure that everything is lowercase in the image url.
+4. Create the SonarCloud project (CLI).
+
+   The SonarCloud project key must match the `sonar.projectKey` in your build config file. After the sed replacement in step 2, check your build config to find the actual key:
+   - **Java:** `system/monolith/<lang>/build.gradle` → look for `sonar.projectKey`
+   - **.NET:** `.github/workflows/*-commit-stage.yml` → look for `/k:"..."` in the `dotnet sonarscanner begin` command
+   - **TypeScript:** `.github/workflows/*-commit-stage.yml` → look for `-Dsonar.projectKey=...`
+
    ```bash
-   gh variable set DOCKERHUB_USERNAME --body "<your-dockerhub-username>" --repo <owner>/<repo>
-   gh secret set DOCKERHUB_TOKEN --body "<your-dockerhub-token>" --repo <owner>/<repo>
-   gh variable set SYSTEM_URL --body "http://localhost:8080" --repo <owner>/<repo>
+   SONAR_ORG="<your-github-owner>"
+   SONAR_PROJECT="<project-key-from-build-config>"  # e.g. myowner_myrepo-monolith-java
+
+   # Create organization (skip if already exists)
+   curl -s -u "${SONAR_TOKEN}:" \
+     -X POST "https://sonarcloud.io/api/organizations/create" \
+     -d "key=${SONAR_ORG}&name=${SONAR_ORG}"
+
+   # Create project
+   curl -s -u "${SONAR_TOKEN}:" \
+     -X POST "https://sonarcloud.io/api/projects/create" \
+     -d "organization=${SONAR_ORG}&project=${SONAR_PROJECT}&name=${SONAR_PROJECT}"
+
+   # Rename default branch from master to main
+   curl -s -u "${SONAR_TOKEN}:" \
+     -X POST "https://sonarcloud.io/api/project_branches/rename" \
+     -d "project=${SONAR_PROJECT}&name=main"
    ```
-6. Commit and push (CLI):
+
+   > For more details, troubleshooting, and bulk operations, see [SonarCloud Setup](02a-sonarcloud-setup.md).
+
+5. Commit and push (CLI):
    ```bash
    git add -A && git commit -m "Apply pipeline template" && git push
    ```
-7. > **Note:** If SonarCloud analysis is enabled in the template workflow, the commit stage will fail unless the SonarCloud project already exists. Either complete [SonarCloud Setup](02a-sonarcloud-setup.md) before this step, or expect the first commit stage to fail on code analysis and re-run after setup.
-
-   Trigger the commit stage for your language and wait for it to finish (CLI):
+6. Wait for the commit stage to finish (it triggers automatically on push) (CLI):
    ```bash
-   gh workflow run "monolith-${LANG}-commit-stage.yml" --repo <owner>/<repo>
    gh run watch --repo <owner>/<repo>
    ```
-8. Trigger the acceptance stage and wait for it to finish (CLI):
+7. Trigger the acceptance stage and wait for it to finish (CLI):
    ```bash
    gh workflow run "monolith-${TEST_LANG}-acceptance-stage.yml" --repo <owner>/<repo>
    gh run watch --repo <owner>/<repo>
@@ -103,13 +123,8 @@ This repository (`starter`) is the template. It contains workflows, system code,
    ```bash
    git add -A && git commit -m "Customize monolith language" && git push
    ```
-5. Verify that `commit-stage-monolith` passes (CLI):
+5. Verify that the commit stage and acceptance stage workflows pass (CLI):
    ```bash
-   gh run watch --repo <owner>/<repo>
-   ```
-6. Trigger `acceptance-stage` and verify it passes (CLI):
-   ```bash
-   gh workflow run acceptance-stage.yml --repo <owner>/<repo>
    gh run watch --repo <owner>/<repo>
    ```
 
@@ -163,7 +178,8 @@ This repository (`starter`) is the template. It contains workflows, system code,
 
 1. Template has been applied to your repository (only your chosen language's files)
 2. All references to the template repository name have been replaced with your own
-3. Namespace customization is complete
-4. Root README file contains correct links to GitHub Actions
-5. Docker Compose file (in System Test) has the correct monolith image url
-6. Commit stage and acceptance stage workflows pass
+3. SonarCloud project created with correct project key from build config
+4. Namespace customization is complete
+5. Root README file contains correct links to GitHub Actions
+6. Docker Compose file (in System Test) has the correct monolith image url
+7. Commit stage and acceptance stage workflows pass

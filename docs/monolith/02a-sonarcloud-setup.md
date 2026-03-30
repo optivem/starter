@@ -4,9 +4,11 @@ This guide covers setting up SonarCloud static code analysis for public GitHub r
 
 All steps use the command line except where noted as (UI).
 
+> **Note:** SonarCloud project creation is now part of [Monolith - Setup](01-setup.md). This page is a reference for account setup, troubleshooting, and bulk operations.
+
 ## Prerequisites
 
-- A public GitHub repository with a working Commit Stage workflow (see [Commit Stage](02-commit-stage.md))
+- A public GitHub repository
 - `gh` CLI installed and authenticated
 - `curl` available
 
@@ -37,13 +39,19 @@ If the organization already exists, you will get an error saying so — that is 
 
 ## 3. Create the SonarCloud Project (CLI)
 
+The project key must match the `sonar.projectKey` in your build config. After applying the starter template and running the sed replacements, check your build config to find the actual key:
+- **Java:** `system/monolith/<lang>/build.gradle` → look for `sonar.projectKey`
+- **.NET:** `.github/workflows/*-commit-stage.yml` → look for `/k:"..."` in the `dotnet sonarscanner begin` command
+- **TypeScript:** `.github/workflows/*-commit-stage.yml` → look for `-Dsonar.projectKey=...`
+
+The key typically includes a component suffix (e.g. `myowner_myrepo-monolith-java`), not just `myowner_myrepo`.
+
 ```bash
-REPO_NAME="<your-repo>"  # e.g. acme-shop
-SONAR_PROJECT="${SONAR_ORG}_${REPO_NAME}"
+SONAR_PROJECT="<project-key-from-build-config>"  # e.g. myowner_myrepo-monolith-java
 
 curl -s -u "${SONAR_TOKEN}:" \
   -X POST "https://sonarcloud.io/api/projects/create" \
-  -d "organization=${SONAR_ORG}&project=${SONAR_PROJECT}&name=${REPO_NAME}"
+  -d "organization=${SONAR_ORG}&project=${SONAR_PROJECT}&name=${SONAR_PROJECT}"
 ```
 
 Verify the project was created:

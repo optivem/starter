@@ -1,22 +1,15 @@
 # Starter
 
-## Project Setup
+## Setup
 
 0. [Prerequisites](00-prerequisites.md)
 1. [Project Repository](01-project-repository.md)
-2. [Project Documentation](02-project-documentation.md)
-3. [Project Ticket Board](03-project-ticket-board.md)
-4. [System Architecture](05-system-architecture.md)
-
-## Course
-
-- [Project Submission](course/01-project-submission.md)
+2. [Repository Setup](02-repository-setup.md)
 
 ## Monolith
 
 1. [Setup](monolith/01-setup.md)
 2. [Commit Stage](monolith/02-commit-stage.md)
-   - [SonarCloud Setup](monolith/02a-sonarcloud-setup.md)
 3. [Acceptance Stage](monolith/03-acceptance-stage.md)
 4. [QA Stage](monolith/04-qa-stage.md)
 5. [Production Stage](monolith/05-production-stage.md)
@@ -35,3 +28,17 @@
 2. [Acceptance Stage](multirepo/02-acceptance-stage.md)
 3. [QA Stage](multirepo/03-qa-stage.md)
 4. [Production Stage](multirepo/04-production-stage.md)
+
+## Documentation
+
+1. [Project Documentation](02-project-documentation.md)
+2. [Project Ticket Board](03-project-ticket-board.md)
+3. [System Architecture](05-system-architecture.md)
+
+## Reference
+
+- [SonarCloud Setup](monolith/02a-sonarcloud-setup.md)
+
+## Course
+
+- [Project Submission](course/01-project-submission.md)

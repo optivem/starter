@@ -2,14 +2,6 @@
 
 For a working example, see the [Starter](https://github.com/optivem/starter) template.
 
-## Setup
-
-Create the `production` GitHub environment (CLI):
-
-```bash
-gh api repos/<owner>/<repo>/environments/production -X PUT
-```
-
 ## Verify the Production Stage
 
 1. Trigger the production stage with the RC version that passed QA signoff (CLI):
@@ -29,7 +21,6 @@ gh api repos/<owner>/<repo>/environments/production -X PUT
 
 ## Checklist
 
-1. `production` environment exists
-2. `prod-stage` workflow completes successfully
-3. Release is tagged and marked as Latest in GitHub Releases
-4. Monolith Package has final version tag (e.g. `-rc` suffix removed)
+1. `prod-stage` workflow completes successfully
+2. Release is tagged and marked as Latest in GitHub Releases
+3. Monolith Package has final version tag (e.g. `-rc` suffix removed)

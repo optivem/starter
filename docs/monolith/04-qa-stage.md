@@ -2,14 +2,6 @@
 
 For a working example, see the [Starter](https://github.com/optivem/starter) template.
 
-## Setup
-
-Create the `qa` GitHub environment (CLI):
-
-```bash
-gh api repos/<owner>/<repo>/environments/qa -X PUT
-```
-
 ## Verify the QA Stage
 
 1. Find the RC version (CLI):
@@ -51,8 +43,7 @@ After deployment, the QA Engineer does manual testing (exploratory testing, usab
 
 ## Checklist
 
-1. `qa` environment exists
-2. `qa-stage` workflow completes successfully
-3. Release is marked as QA deployed (e.g. `-rc-qa-deployed`)
-4. `qa-signoff` workflow completes successfully
-5. Release is marked as QA approved (e.g. `-rc-qa-approved`)
+1. `qa-stage` workflow completes successfully
+2. Release is marked as QA deployed (e.g. `-rc-qa-deployed`)
+3. `qa-signoff` workflow completes successfully
+4. Release is marked as QA approved (e.g. `-rc-qa-approved`)
