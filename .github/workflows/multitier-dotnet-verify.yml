@@ -14,27 +14,21 @@ jobs:
           - multitier-frontend-react-commit-stage.yml
     steps:
       - name: Trigger ${{ matrix.workflow }}
+        id: trigger-commit-stage
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh workflow run "${{ matrix.workflow }}" \
+          run_url=$(gh workflow run "${{ matrix.workflow }}" \
             --repo "${{ github.repository }}" \
-            --ref main
+            --ref main 2>&1)
+          run_id=$(echo "$run_url" | grep -oP '/runs/\K[0-9]+')
+          echo "run_id=$run_id" >> $GITHUB_OUTPUT
 
       - name: Wait for ${{ matrix.workflow }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          sleep 5
-
-          run_id=$(gh run list \
-            --repo "${{ github.repository }}" \
-            --workflow "${{ matrix.workflow }}" \
-            --event workflow_dispatch \
-            --limit 1 \
-            --json databaseId \
-            --jq '.[0].databaseId')
-
+          run_id="${{ steps.trigger-commit-stage.outputs.run_id }}"
           echo "Waiting for run $run_id..."
           gh run watch "$run_id" --repo "${{ github.repository }}" --exit-status
 
@@ -45,27 +39,21 @@ jobs:
       version: ${{ steps.get-version.outputs.version }}
     steps:
       - name: Trigger Acceptance Stage
+        id: trigger-acceptance-stage
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh workflow run multitier-system-dotnet-acceptance-stage.yml \
+          run_url=$(gh workflow run multitier-system-dotnet-acceptance-stage.yml \
             --repo "${{ github.repository }}" \
-            --ref main
+            --ref main 2>&1)
+          run_id=$(echo "$run_url" | grep -oP '/runs/\K[0-9]+')
+          echo "run_id=$run_id" >> $GITHUB_OUTPUT
 
       - name: Wait for Acceptance Stage
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          sleep 5
-
-          run_id=$(gh run list \
-            --repo "${{ github.repository }}" \
-            --workflow "multitier-system-dotnet-acceptance-stage.yml" \
-            --event workflow_dispatch \
-            --limit 1 \
-            --json databaseId \
-            --jq '.[0].databaseId')
-
+          run_id="${{ steps.trigger-acceptance-stage.outputs.run_id }}"
           echo "Waiting for run $run_id..."
           gh run watch "$run_id" --repo "${{ github.repository }}" --exit-status
 
@@ -85,28 +73,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger QA Stage
+        id: trigger-qa-stage
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh workflow run multitier-system-dotnet-qa-stage.yml \
+          run_url=$(gh workflow run multitier-system-dotnet-qa-stage.yml \
             --repo "${{ github.repository }}" \
             --ref main \
-            -f version=${{ needs.acceptance-stage.outputs.version }}
+            -f version=${{ needs.acceptance-stage.outputs.version }} 2>&1)
+          run_id=$(echo "$run_url" | grep -oP '/runs/\K[0-9]+')
+          echo "run_id=$run_id" >> $GITHUB_OUTPUT
 
       - name: Wait for QA Stage
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          sleep 5
-
-          run_id=$(gh run list \
-            --repo "${{ github.repository }}" \
-            --workflow "multitier-system-dotnet-qa-stage.yml" \
-            --event workflow_dispatch \
-            --limit 1 \
-            --json databaseId \
-            --jq '.[0].databaseId')
-
+          run_id="${{ steps.trigger-qa-stage.outputs.run_id }}"
           echo "Waiting for run $run_id..."
           gh run watch "$run_id" --repo "${{ github.repository }}" --exit-status
 
@@ -115,29 +97,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger QA Signoff
+        id: trigger-qa-signoff
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh workflow run multitier-system-dotnet-qa-signoff.yml \
+          run_url=$(gh workflow run multitier-system-dotnet-qa-signoff.yml \
             --repo "${{ github.repository }}" \
             --ref main \
             -f version=${{ needs.acceptance-stage.outputs.version }} \
-            -f result=approved
+            -f result=approved 2>&1)
+          run_id=$(echo "$run_url" | grep -oP '/runs/\K[0-9]+')
+          echo "run_id=$run_id" >> $GITHUB_OUTPUT
 
       - name: Wait for QA Signoff
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          sleep 5
-
-          run_id=$(gh run list \
-            --repo "${{ github.repository }}" \
-            --workflow "multitier-system-dotnet-qa-signoff.yml" \
-            --event workflow_dispatch \
-            --limit 1 \
-            --json databaseId \
-            --jq '.[0].databaseId')
-
+          run_id="${{ steps.trigger-qa-signoff.outputs.run_id }}"
           echo "Waiting for run $run_id..."
           gh run watch "$run_id" --repo "${{ github.repository }}" --exit-status
 
@@ -146,27 +122,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger Prod Stage
+        id: trigger-prod-stage
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh workflow run multitier-system-dotnet-prod-stage.yml \
+          run_url=$(gh workflow run multitier-system-dotnet-prod-stage.yml \
             --repo "${{ github.repository }}" \
             --ref main \
-            -f version=${{ needs.acceptance-stage.outputs.version }}
+            -f version=${{ needs.acceptance-stage.outputs.version }} 2>&1)
+          run_id=$(echo "$run_url" | grep -oP '/runs/\K[0-9]+')
+          echo "run_id=$run_id" >> $GITHUB_OUTPUT
 
       - name: Wait for Prod Stage
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          sleep 5
-
-          run_id=$(gh run list \
-            --repo "${{ github.repository }}" \
-            --workflow "multitier-system-dotnet-prod-stage.yml" \
-            --event workflow_dispatch \
-            --limit 1 \
-            --json databaseId \
-            --jq '.[0].databaseId')
-
+          run_id="${{ steps.trigger-prod-stage.outputs.run_id }}"
           echo "Waiting for run $run_id..."
           gh run watch "$run_id" --repo "${{ github.repository }}" --exit-status
