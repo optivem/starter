@@ -102,6 +102,7 @@ jobs:
           environment: acceptance
           version: latest
           image-urls: ${{ needs.check.outputs.image-digest-urls }}
+          compose-file: docker-compose.multi.yml
           system-url: ${{ vars.SYSTEM_URL }}
           working-directory: system-test/typescript
 

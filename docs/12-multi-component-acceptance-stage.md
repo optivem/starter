@@ -1,10 +1,10 @@
 # Acceptance Stage - Multi Component
 
-For a working example, see the [Greeter Multi Component](https://github.com/optivem/greeter-multi-comp) template.
+For a working example, see the [Starter](https://github.com/optivem/starter) template.
 
 ## Update Image References
 
-> **Important:** This step only updates image URLs. The rest of `acceptance-stage.yml` (test runner setup, build commands) must match your **system-test language**. If you changed the system-test language in the monolith phase (e.g., from TypeScript to Java), your `acceptance-stage.yml` already has the correct test runner — only update the `image-urls` section below. Do **not** overwrite the entire file from the `greeter-multi-comp` template.
+> **Important:** This step only updates image URLs. The rest of `acceptance-stage.yml` (test runner setup, build commands) must match your **system-test language**. If you changed the system-test language in the monolith phase (e.g., from TypeScript to Java), your `acceptance-stage.yml` already has the correct test runner — only update the `image-urls` section below. Do **not** overwrite the entire file from the starter template.
 
 Open the file `acceptance-stage.yml`.
 

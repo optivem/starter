@@ -67,7 +67,7 @@ This repository (`starter`) is the template. It contains workflows, system code,
    - Find the target language template in [Starter Templates](#starter-templates) above.
    - Delete the `monolith` folder in your repo.
    - Copy from the target template: `monolith` folder, `system-test/docker-compose.yml` (overwrite), `.github/workflows/commit-stage-monolith.yml` (overwrite).
-   - In `system-test/docker-compose.yml`, replace `optivem/greeter-{lang}` with `<your_repo_owner>/<your_repo_name>` for the image field.
+   - In `system-test/docker-compose.yml`, replace `optivem/starter` with `<your_repo_owner>/<your_repo_name>` for the image field.
 3. **If your target language is something else:**
    - Rewrite the `monolith` folder in your target language (or use an LLM to assist).
    - Update the `monolith` README.md with build and run instructions.
@@ -111,20 +111,20 @@ This repository (`starter`) is the template. It contains workflows, system code,
    gh run watch --repo <owner>/<repo>
    ```
 
-> **Why different languages?** It is common for development teams and QA teams to use different languages. For background, see the multi-language template at [greeter-multi-lang](https://github.com/optivem/greeter-multi-lang).
+> **Why different languages?** It is common for development teams and QA teams to use different languages.
 
 ## Namespace Replacement
 
 1. Find template namespace references:
-   - Java: `com.optivem.greeter`
-   - .NET: `Optivem.Greeter`
-   - TypeScript: `@optivem/greeter-system-test`
+   - Java: `com.optivem.starter`
+   - .NET: `Optivem.Starter`
+   - TypeScript: `@optivem/starter-system-test`
    - Also search for any other references like "accelerator" and "Accelerator"
    - For TypeScript, also update `author`, `license`, `description` in `package.json`
    - For .NET, also check `.cshtml` (Razor views) and `Dockerfile` — these contain namespace and project references
    - For TypeScript, also check `Dockerfile` — it may contain project references
 2. Replace all references with your corresponding namespace and info.
-   - Also update the README title (e.g. "Greeter (Java)" → your system name and language).
+   - Also update the README title to your system name and language.
 3. Commit and push (CLI):
    ```bash
    git add -A && git commit -m "Replace template namespaces" && git push

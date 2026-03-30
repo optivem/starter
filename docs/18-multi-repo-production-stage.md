@@ -1,6 +1,6 @@
 # Production Stage - Multi Repo
 
-For a working example, see the [Greeter Multi Repo](https://github.com/optivem/greeter-multi-repo) template.
+For a working example, see the [Starter](https://github.com/optivem/starter) template.
 
 ## Update Image References
 

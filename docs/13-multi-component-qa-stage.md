@@ -1,6 +1,6 @@
 # QA Stage - Multi Component
 
-For a working example, see the [Greeter Multi Component](https://github.com/optivem/greeter-multi-comp) template.
+For a working example, see the [Starter](https://github.com/optivem/starter) template.
 
 ## Update Image References
 

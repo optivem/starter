@@ -75,6 +75,7 @@ jobs:
           environment: qa
           version: ${{ inputs.version }}
           image-urls: ${{ needs.check.outputs.image-urls }}
+          compose-file: docker-compose.multi.yml
           system-url: ${{ vars.SYSTEM_URL }}
           working-directory: system-test/java
 

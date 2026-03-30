@@ -38,7 +38,7 @@ If the organization already exists, you will get an error saying so — that is 
 ## 3. Create the SonarCloud Project (CLI)
 
 ```bash
-REPO_NAME="<your-repo>"  # e.g. greeter-java
+REPO_NAME="<your-repo>"  # e.g. acme-shop
 SONAR_PROJECT="${SONAR_ORG}_${REPO_NAME}"
 
 curl -s -u "${SONAR_TOKEN}:" \
@@ -100,7 +100,7 @@ gh secret list
 
 ## 5. SonarCloud Onboarding (informational)
 
-When you open your new project on [sonarcloud.io](https://sonarcloud.io), SonarCloud will show an onboarding wizard with instructions for setting up the GitHub secret, build file, and CI workflow. **You can skip this** — the greeter templates already include the SonarCloud configuration in the build file (`build.gradle` / `package.json`) and the commit stage workflow. The onboarding will disappear automatically after the first successful analysis.
+When you open your new project on [sonarcloud.io](https://sonarcloud.io), SonarCloud will show an onboarding wizard with instructions for setting up the GitHub secret, build file, and CI workflow. **You can skip this** — the starter template already includes the SonarCloud configuration in the build file (`build.gradle` / `package.json`) and the commit stage workflow. The onboarding will disappear automatically after the first successful analysis.
 
 ## 6. Workflow Condition
 

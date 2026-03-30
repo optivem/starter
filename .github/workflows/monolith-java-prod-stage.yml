@@ -82,6 +82,7 @@ jobs:
           environment: production
           version: ${{ inputs.version }}
           image-urls: ${{ needs.check.outputs.image-urls }}
+          compose-file: docker-compose.single.yml
           system-url: ${{ vars.SYSTEM_URL }}
           working-directory: system-test/java
 

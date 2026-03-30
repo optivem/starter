@@ -1,6 +1,6 @@
 # Monolith - Acceptance Stage
 
-For a working example, see the [Greeter](https://github.com/optivem/greeter) template.
+For a working example, see the [Starter](https://github.com/optivem/starter) template.
 
 ## Verify the Acceptance Stage
 

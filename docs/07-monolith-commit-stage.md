@@ -1,10 +1,6 @@
 # Monolith - Commit Stage
 
-For a working example, see the starter templates:
-
-- [Greeter - Java](https://github.com/optivem/greeter-java)
-- [Greeter - .NET](https://github.com/optivem/greeter-dotnet)
-- [Greeter - TypeScript](https://github.com/optivem/greeter-typescript)
+For a working example, see the [Starter](https://github.com/optivem/starter) template.
 
 ## Verify the Template
 
