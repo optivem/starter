@@ -1,0 +1,178 @@
+name: verify-all
+
+on:
+  workflow_dispatch:
+
+jobs:
+  monolith-java:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger monolith-java-verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run monolith-java-verify.yml \
+            --repo "${{ github.repository }}" \
+            --ref main
+
+      - name: Wait for monolith-java-verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sleep 5
+
+          run_id=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow "monolith-java-verify.yml" \
+            --event workflow_dispatch \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId')
+
+          echo "Waiting for run $run_id..."
+          gh run watch "$run_id" --repo "${{ github.repository }}" --exit-status
+
+  monolith-dotnet:
+    needs: monolith-java
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger monolith-dotnet-verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run monolith-dotnet-verify.yml \
+            --repo "${{ github.repository }}" \
+            --ref main
+
+      - name: Wait for monolith-dotnet-verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sleep 5
+
+          run_id=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow "monolith-dotnet-verify.yml" \
+            --event workflow_dispatch \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId')
+
+          echo "Waiting for run $run_id..."
+          gh run watch "$run_id" --repo "${{ github.repository }}" --exit-status
+
+  monolith-typescript:
+    needs: monolith-dotnet
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger monolith-typescript-verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run monolith-typescript-verify.yml \
+            --repo "${{ github.repository }}" \
+            --ref main
+
+      - name: Wait for monolith-typescript-verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sleep 5
+
+          run_id=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow "monolith-typescript-verify.yml" \
+            --event workflow_dispatch \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId')
+
+          echo "Waiting for run $run_id..."
+          gh run watch "$run_id" --repo "${{ github.repository }}" --exit-status
+
+  multitier-java:
+    needs: monolith-typescript
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger multitier-java-verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run multitier-java-verify.yml \
+            --repo "${{ github.repository }}" \
+            --ref main
+
+      - name: Wait for multitier-java-verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sleep 5
+
+          run_id=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow "multitier-java-verify.yml" \
+            --event workflow_dispatch \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId')
+
+          echo "Waiting for run $run_id..."
+          gh run watch "$run_id" --repo "${{ github.repository }}" --exit-status
+
+  multitier-dotnet:
+    needs: multitier-java
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger multitier-dotnet-verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run multitier-dotnet-verify.yml \
+            --repo "${{ github.repository }}" \
+            --ref main
+
+      - name: Wait for multitier-dotnet-verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sleep 5
+
+          run_id=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow "multitier-dotnet-verify.yml" \
+            --event workflow_dispatch \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId')
+
+          echo "Waiting for run $run_id..."
+          gh run watch "$run_id" --repo "${{ github.repository }}" --exit-status
+
+  multitier-typescript:
+    needs: multitier-dotnet
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger multitier-typescript-verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run multitier-typescript-verify.yml \
+            --repo "${{ github.repository }}" \
+            --ref main
+
+      - name: Wait for multitier-typescript-verify
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sleep 5
+
+          run_id=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --workflow "multitier-typescript-verify.yml" \
+            --event workflow_dispatch \
+            --limit 1 \
+            --json databaseId \
+            --jq '.[0].databaseId')
+
+          echo "Waiting for run $run_id..."
+          gh run watch "$run_id" --repo "${{ github.repository }}" --exit-status
