@@ -6,9 +6,13 @@ import os
 import shutil
 
 from ..config import Config
+from ..files import replace_in_file
 from ..log import log, ok
 from ..shell import GitHub
 from ..templates import copy_version, copy_workflows, select_docker_compose
+
+# Internal port exposed by each language's Docker image
+_INTERNAL_PORTS = {"java": 8080, "dotnet": 8080, "typescript": 3000}
 
 
 def clone_and_apply_template(cfg: Config, github: GitHub, **_: object) -> None:
@@ -61,6 +65,9 @@ def _apply_monolith(cfg: Config, repo_dir: str, starter: str) -> None:
     select_docker_compose(test_dst, "single")
     copy_version(starter, repo_dir)
 
+    if lang != test_lang:
+        _fixup_monolith_cross_lang(repo_dir, lang, test_lang)
+
 
 def _apply_multitier(cfg: Config, repo_dir: str, starter: str) -> None:
     backend_lang = cfg.backend_lang
@@ -93,3 +100,57 @@ def _apply_multitier(cfg: Config, repo_dir: str, starter: str) -> None:
     shutil.copytree(os.path.join(starter, "system-test", test_lang), test_dst)
     select_docker_compose(test_dst, "multi")
     copy_version(starter, repo_dir)
+
+    if backend_lang != test_lang:
+        _fixup_multitier_cross_lang(repo_dir, backend_lang, test_lang)
+
+
+# ─── Cross-language fixups ─────────────────────────────────────────────────
+
+
+def _fixup_monolith_cross_lang(
+    repo_dir: str, lang: str, test_lang: str,
+) -> None:
+    """Fix Docker image name and port when system language != test language."""
+    old_image = f"monolith-{test_lang}-monolith"
+    new_image = f"monolith-{lang}-monolith"
+
+    targets = [
+        os.path.join(repo_dir, ".github", "workflows", f"monolith-{test_lang}-acceptance-stage.yml"),
+        os.path.join(repo_dir, ".github", "workflows", f"monolith-{test_lang}-qa-stage.yml"),
+        os.path.join(repo_dir, ".github", "workflows", f"monolith-{test_lang}-prod-stage.yml"),
+        os.path.join(repo_dir, "system-test", test_lang, "docker-compose.yml"),
+    ]
+    for path in targets:
+        if os.path.isfile(path):
+            replace_in_file(path, old_image, new_image)
+
+    # Fix port mapping: template uses test_lang's port, but we need lang's port
+    system_port = _INTERNAL_PORTS[lang]
+    template_port = _INTERNAL_PORTS[test_lang]
+    if system_port != template_port:
+        compose = os.path.join(repo_dir, "system-test", test_lang, "docker-compose.yml")
+        if os.path.isfile(compose):
+            replace_in_file(compose, f"8080:{template_port}", f"8080:{system_port}")
+
+    ok(f"Cross-language fixup: {old_image} -> {new_image}")
+
+
+def _fixup_multitier_cross_lang(
+    repo_dir: str, backend_lang: str, test_lang: str,
+) -> None:
+    """Fix Docker backend image name when backend language != test language."""
+    old_image = f"multitier-backend-{test_lang}"
+    new_image = f"multitier-backend-{backend_lang}"
+
+    targets = [
+        os.path.join(repo_dir, ".github", "workflows", f"multitier-system-{test_lang}-acceptance-stage.yml"),
+        os.path.join(repo_dir, ".github", "workflows", f"multitier-system-{test_lang}-qa-stage.yml"),
+        os.path.join(repo_dir, ".github", "workflows", f"multitier-system-{test_lang}-prod-stage.yml"),
+        os.path.join(repo_dir, "system-test", test_lang, "docker-compose.yml"),
+    ]
+    for path in targets:
+        if os.path.isfile(path):
+            replace_in_file(path, old_image, new_image)
+
+    ok(f"Cross-language fixup: {old_image} -> {new_image}")
