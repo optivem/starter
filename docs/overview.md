@@ -46,7 +46,7 @@
 ## 03-multitier (pipeline stages)
 
 ### 02-commit-stage
-- Decompose system + commit stages
+- Verify commit stages (frontend + backend) + SonarCloud analysis
 
 ### 03-acceptance-stage
 - Update image refs + verify
