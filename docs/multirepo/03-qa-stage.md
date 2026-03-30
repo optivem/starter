@@ -1,4 +1,4 @@
-# QA Stage - Multi Repo
+# QA Stage - Multirepo
 
 For a working example, see the [Starter](https://github.com/optivem/starter) template.
 
@@ -19,7 +19,7 @@ base-image-urls: |
 Commit and push (CLI):
 
 ```bash
-git add -A && git commit -m "Update QA stage for multi-repo" && git push
+git add -A && git commit -m "Update QA stage for multirepo" && git push
 ```
 
 Trigger the QA Stage (CLI):
@@ -40,7 +40,7 @@ gh run watch --repo <owner>/<repo>
 
 Verify that QA Signoff passes.
 
-> **Note:** After updating the QA Stage, the Production Stage may still fail because it still references the old image URLs. This is expected — you will update it in the Production Stage multi-repo section. For now, only verify that the QA Stage passes.
+> **Note:** After updating the QA Stage, the Production Stage may still fail because it still references the old image URLs. This is expected — you will update it in the Production Stage multirepo section. For now, only verify that the QA Stage passes.
 
 ## Checklist
 

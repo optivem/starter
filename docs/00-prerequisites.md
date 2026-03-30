@@ -22,12 +22,12 @@ Before starting the onboarding, gather the following information and prepare cre
    - If it exists, you must choose a different name or add a random suffix.
 5. **Monolith language** — Java, .NET, TypeScript, or Other.
 6. **System test language** — same as monolith, or different (common when dev and QA teams use different languages).
-7. **Architecture** — Monolith or multi-component. If multi-component, decide on the components (e.g. frontend, backend).
-8. **Repository strategy** — Mono-repo or multi-repo. Multi-repo only makes sense with multi-component.
+7. **Architecture** — Monolith or multitier. If multitier, decide on the components (e.g. frontend, backend).
+8. **Repository strategy** — Monorepo or multirepo. Multirepo only makes sense with multitier.
 
 ## Credentials
 
-> **Note:** The credentials below will be set on your GitHub repository. You don't need the repository to exist yet — just have the credentials ready. You'll set them on the repository during [Setup](06-monolith-setup.md) after creating it.
+> **Note:** The credentials below will be set on your GitHub repository. You don't need the repository to exist yet — just have the credentials ready. You'll set them on the repository during [Setup](monolith/01-setup.md) after creating it.
 
 ### Docker Hub
 
@@ -37,7 +37,7 @@ Before starting the onboarding, gather the following information and prepare cre
 
 ### SonarCloud
 
-1. Create a SonarCloud token — see [SonarCloud Setup](07a-monolith-sonarcloud-setup.md) (browser).
+1. Create a SonarCloud token — see [SonarCloud Setup](monolith/02a-sonarcloud-setup.md) (browser).
 2. Note the token — you'll set it on your repository in the SonarCloud Setup step.
 
 ## Onboarding Mode

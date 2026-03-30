@@ -1,4 +1,4 @@
-# Acceptance Stage - Multi Repo
+# Acceptance Stage - Multirepo
 
 For a working example, see the [Starter](https://github.com/optivem/starter) template.
 
@@ -46,7 +46,7 @@ Update `system-test/docker-compose.yml` to reference the component images from t
 Commit and push (CLI):
 
 ```bash
-git add -A && git commit -m "Update acceptance stage for multi-repo" && git push
+git add -A && git commit -m "Update acceptance stage for multirepo" && git push
 ```
 
 Trigger `acceptance-stage` (CLI):

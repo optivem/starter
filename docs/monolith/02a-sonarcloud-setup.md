@@ -6,7 +6,7 @@ All steps use the command line except where noted as (UI).
 
 ## Prerequisites
 
-- A public GitHub repository with a working Commit Stage workflow (see [Commit Stage](07-monolith-commit-stage.md))
+- A public GitHub repository with a working Commit Stage workflow (see [Commit Stage](02-commit-stage.md))
 - `gh` CLI installed and authenticated
 - `curl` available
 

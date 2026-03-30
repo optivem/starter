@@ -1,4 +1,4 @@
-# QA Stage - Multi Component
+# QA Stage - Multitier
 
 For a working example, see the [Starter](https://github.com/optivem/starter) template.
 
@@ -11,7 +11,7 @@ Find the word `monolith` inside `base-image-urls` — there's one line. Copy-pas
 Commit and push (CLI):
 
 ```bash
-git add -A && git commit -m "Update QA stage for multi-component" && git push
+git add -A && git commit -m "Update QA stage for multitier" && git push
 ```
 
 Trigger the QA Stage (CLI):
@@ -32,7 +32,7 @@ gh run watch --repo <owner>/<repo>
 
 Verify that QA Signoff passes.
 
-> **Note:** After updating the QA Stage, the Production Stage may still fail because it still references the old image URLs. This is expected — you will update it in the Production Stage multi-component section. For now, only verify that the QA Stage passes.
+> **Note:** After updating the QA Stage, the Production Stage may still fail because it still references the old image URLs. This is expected — you will update it in the Production Stage multitier section. For now, only verify that the QA Stage passes.
 
 ## Checklist
 

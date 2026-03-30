@@ -1,4 +1,4 @@
-# Commit Stage - Multi Repo
+# Commit Stage - Multirepo
 
 For a working example, see the [Starter](https://github.com/optivem/starter) template.
 
@@ -38,7 +38,7 @@ gh repo create <owner>/<repo>-frontend --public --license mit --clone
 
 Repeat the same process for the backend.
 
-> After moving components to separate repositories, the Acceptance Stage, QA Stage, and Production Stage will fail because they still reference the old image URLs. This is expected — you will update each stage in the corresponding multi-repo lessons. For now, only verify that the Commit Stages pass.
+> After moving components to separate repositories, the Acceptance Stage, QA Stage, and Production Stage will fail because they still reference the old image URLs. This is expected — you will update each stage in the corresponding multirepo lessons. For now, only verify that the Commit Stages pass.
 
 ## 3. Create SonarCloud Projects for Components
 

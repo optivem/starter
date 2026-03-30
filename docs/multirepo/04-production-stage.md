@@ -1,4 +1,4 @@
-# Production Stage - Multi Repo
+# Production Stage - Multirepo
 
 For a working example, see the [Starter](https://github.com/optivem/starter) template.
 
@@ -13,7 +13,7 @@ In the step `Tag Docker Images for Production`, set the value `GITHUB_TOKEN: ${{
 Commit and push (CLI):
 
 ```bash
-git add -A && git commit -m "Update production stage for multi-repo" && git push
+git add -A && git commit -m "Update production stage for multirepo" && git push
 ```
 
 Trigger the PROD Stage (CLI):

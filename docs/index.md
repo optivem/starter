@@ -14,23 +14,24 @@
 
 ## Monolith
 
-5. [Monolith - Setup](06-monolith-setup.md)
-6. [Monolith - Commit Stage](07-monolith-commit-stage.md)
-   - [Monolith - SonarCloud Setup](07a-monolith-sonarcloud-setup.md)
-7. [Monolith - Acceptance Stage](08-monolith-acceptance-stage.md)
-8. [Monolith - QA Stage](09-monolith-qa-stage.md)
-9. [Monolith - Production Stage](10-monolith-production-stage.md)
+1. [Setup](monolith/01-setup.md)
+2. [Commit Stage](monolith/02-commit-stage.md)
+   - [SonarCloud Setup](monolith/02a-sonarcloud-setup.md)
+3. [Acceptance Stage](monolith/03-acceptance-stage.md)
+4. [QA Stage](monolith/04-qa-stage.md)
+5. [Production Stage](monolith/05-production-stage.md)
 
-## Multi Component
+## Multitier
 
-10. [Multi Component - Commit Stage](11-multi-component-commit-stage.md)
-11. [Multi Component - Acceptance Stage](12-multi-component-acceptance-stage.md)
-12. [Multi Component - QA Stage](13-multi-component-qa-stage.md)
-13. [Multi Component - Production Stage](14-multi-component-production-stage.md)
+1. [Setup](multitier/01-setup.md)
+2. [Commit Stage](multitier/02-commit-stage.md)
+3. [Acceptance Stage](multitier/03-acceptance-stage.md)
+4. [QA Stage](multitier/04-qa-stage.md)
+5. [Production Stage](multitier/05-production-stage.md)
 
-## Multi Repo
+## Multirepo
 
-14. [Multi Repo - Commit Stage](15-multi-repo-commit-stage.md)
-15. [Multi Repo - Acceptance Stage](16-multi-repo-acceptance-stage.md)
-16. [Multi Repo - QA Stage](17-multi-repo-qa-stage.md)
-17. [Multi Repo - Production Stage](18-multi-repo-production-stage.md)
+1. [Commit Stage](multirepo/01-commit-stage.md)
+2. [Acceptance Stage](multirepo/02-acceptance-stage.md)
+3. [QA Stage](multirepo/03-qa-stage.md)
+4. [Production Stage](multirepo/04-production-stage.md)

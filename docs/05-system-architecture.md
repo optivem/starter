@@ -25,8 +25,8 @@ Choose the following:
 
 Choose the Repository Strategy that matches your Real Life Project:
 
-- Mono-Repo — single repository for everything
-- Multi-Repo — separate repositories per component
+- Monorepo — single repository for everything
+- Multirepo — separate repositories per component
 
 ## 4. Document System Structure
 

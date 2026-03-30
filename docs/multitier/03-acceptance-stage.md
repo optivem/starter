@@ -1,4 +1,4 @@
-# Acceptance Stage - Multi Component
+# Acceptance Stage - Multitier
 
 For a working example, see the [Starter](https://github.com/optivem/starter) template.
 
@@ -13,7 +13,7 @@ Find the word `monolith` inside `image-urls` — there's one line. Copy-paste th
 Commit and push (CLI):
 
 ```bash
-git add -A && git commit -m "Update acceptance stage for multi-component" && git push
+git add -A && git commit -m "Update acceptance stage for multitier" && git push
 ```
 
 Trigger `acceptance-stage` (CLI):

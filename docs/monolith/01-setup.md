@@ -6,15 +6,40 @@ This repository (`starter`) is the template. It contains workflows, system code,
 
 ## Usage
 
-1. Copy the following from the starter template into your repository (CLI):
+1. Copy the following from the starter template into your repository (CLI).
+
+   Set your language variables:
    ```bash
    STARTER_PATH="<path-to-starter-repo>"
-   cp -r "$STARTER_PATH/.github" .
-   cp -r "$STARTER_PATH/system" .
-   cp -r "$STARTER_PATH/system-test" .
+   LANG="<your-language>"           # java, dotnet, or typescript
+   TEST_LANG="<your-test-language>" # java, dotnet, or typescript (same as LANG unless QA uses a different language)
+   ```
+
+   Copy workflows, system code, system tests, and VERSION file — **only for your chosen languages**:
+   ```bash
+   mkdir -p .github/workflows system/monolith system-test
+
+   # Commit stage workflow (based on system language)
+   cp "$STARTER_PATH/.github/workflows/monolith-${LANG}-commit-stage.yml" .github/workflows/
+
+   # Acceptance, QA, QA signoff, and production stage workflows (based on test language)
+   cp "$STARTER_PATH/.github/workflows/monolith-${TEST_LANG}-acceptance-stage.yml" .github/workflows/
+   cp "$STARTER_PATH/.github/workflows/monolith-${TEST_LANG}-qa-stage.yml" .github/workflows/
+   cp "$STARTER_PATH/.github/workflows/monolith-${TEST_LANG}-qa-signoff.yml" .github/workflows/
+   cp "$STARTER_PATH/.github/workflows/monolith-${TEST_LANG}-prod-stage.yml" .github/workflows/
+
+   # Verify workflow (only when system and test languages are the same)
+   if [ "$LANG" = "$TEST_LANG" ]; then
+     cp "$STARTER_PATH/.github/workflows/monolith-${LANG}-verify.yml" .github/workflows/
+   fi
+
+   # System code and system tests
+   cp -r "$STARTER_PATH/system/monolith/${LANG}" system/monolith/
+   cp -r "$STARTER_PATH/system-test/${TEST_LANG}" system-test/
    cp -f "$STARTER_PATH/VERSION" . 2>/dev/null || true
    ```
-   - Also copy the top part of `README.md` (the status badges section) from the template.
+
+   - Also copy the top part of `README.md` (the status badges section) from the template — update the badge URLs to use your language (e.g. `monolith-java-commit-stage`).
    - *If your chosen language is not on the list, no worries, just choose any of the templates because the Pipeline Architecture is the same — you can do language replacement afterwards.*
 2. Replace `optivem/starter` with `<your_repo_owner>/<your_repo_name>` in the whole project (CLI).
    > **macOS note:** The `sed -i` commands below use Linux syntax. On macOS, use `sed -i ''` instead of `sed -i` (add an empty string argument after `-i`).
@@ -43,16 +68,16 @@ This repository (`starter`) is the template. It contains workflows, system code,
    ```bash
    git add -A && git commit -m "Apply pipeline template" && git push
    ```
-7. > **Note:** If SonarCloud analysis is enabled in the template workflow, the commit stage will fail unless the SonarCloud project already exists. Either complete [SonarCloud Setup](07a-monolith-sonarcloud-setup.md) before this step, or expect the first commit stage to fail on code analysis and re-run after setup.
+7. > **Note:** If SonarCloud analysis is enabled in the template workflow, the commit stage will fail unless the SonarCloud project already exists. Either complete [SonarCloud Setup](02a-sonarcloud-setup.md) before this step, or expect the first commit stage to fail on code analysis and re-run after setup.
 
-   Trigger `commit-stage-monolith` and wait for it to finish (CLI):
+   Trigger the commit stage for your language and wait for it to finish (CLI):
    ```bash
-   gh workflow run commit-stage-monolith.yml --repo <owner>/<repo>
+   gh workflow run "monolith-${LANG}-commit-stage.yml" --repo <owner>/<repo>
    gh run watch --repo <owner>/<repo>
    ```
-8. Trigger `acceptance-stage` and wait for it to finish (CLI):
+8. Trigger the acceptance stage and wait for it to finish (CLI):
    ```bash
-   gh workflow run acceptance-stage.yml --repo <owner>/<repo>
+   gh workflow run "monolith-${TEST_LANG}-acceptance-stage.yml" --repo <owner>/<repo>
    gh run watch --repo <owner>/<repo>
    ```
 
@@ -129,16 +154,16 @@ This repository (`starter`) is the template. It contains workflows, system code,
    ```bash
    git add -A && git commit -m "Replace template namespaces" && git push
    ```
-4. Verify that `commit-stage-monolith` and `acceptance-stage` workflows still pass (CLI):
+4. Verify that the commit stage and acceptance stage workflows still pass (CLI):
    ```bash
    gh run watch --repo <owner>/<repo>
    ```
 
 ## Checklist
 
-1. Template has been applied to your repository
+1. Template has been applied to your repository (only your chosen language's files)
 2. All references to the template repository name have been replaced with your own
 3. Namespace customization is complete
 4. Root README file contains correct links to GitHub Actions
 5. Docker Compose file (in System Test) has the correct monolith image url
-6. `commit-stage-monolith` and `acceptance-stage` workflows pass
+6. Commit stage and acceptance stage workflows pass

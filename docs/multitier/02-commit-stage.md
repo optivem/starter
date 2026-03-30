@@ -1,4 +1,4 @@
-# Commit Stage - Multi Component
+# Commit Stage - Multitier
 
 For a working example, see the [Starter](https://github.com/optivem/starter) template.
 
@@ -38,10 +38,10 @@ In `.github/workflows`:
 **Commit and push (CLI):**
 
 ```bash
-git add -A && git commit -m "Decompose into multi-component" && git push
+git add -A && git commit -m "Decompose into multitier" && git push
 ```
 
-> After pushing, the Acceptance Stage, QA Stage, and Production Stage will fail because they still reference "monolith". This is expected — you will update each stage in the corresponding multi-component lessons. For now, only verify that the Commit Stages pass.
+> After pushing, the Acceptance Stage, QA Stage, and Production Stage will fail because they still reference "monolith". This is expected — you will update each stage in the corresponding multitier lessons. For now, only verify that the Commit Stages pass.
 
 Verify (CLI):
 

@@ -1,4 +1,4 @@
-# Production Stage - Multi Component
+# Production Stage - Multitier
 
 For a working example, see the [Starter](https://github.com/optivem/starter) template.
 
@@ -11,7 +11,7 @@ Find the word `monolith` inside `base-image-urls` — there's one line. Copy-pas
 Commit and push (CLI):
 
 ```bash
-git add -A && git commit -m "Update production stage for multi-component" && git push
+git add -A && git commit -m "Update production stage for multitier" && git push
 ```
 
 Trigger the PROD Stage (CLI):
