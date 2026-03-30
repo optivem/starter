@@ -1,10 +1,10 @@
-name: single-component-typescript-acceptance-stage
+name: monolith-java-acceptance-stage
 
 on:
   workflow_dispatch:
 
 concurrency:
-  group: single-component-typescript-acceptance-stage
+  group: monolith-java-acceptance-stage
 
 jobs:
   preflight:
@@ -59,7 +59,7 @@ jobs:
         uses: optivem/actions/find-latest-docker-images@v1
         with:
           image-urls: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/single-component-typescript-monolith:latest
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/monolith-java-monolith:latest
 
       - name: Check Run Conditions
         id: should-run
@@ -100,21 +100,17 @@ jobs:
           version: latest
           image-urls: ${{ needs.check.outputs.image-digest-urls }}
           system-url: ${{ vars.SYSTEM_URL }}
-          working-directory: system-test/typescript
+          working-directory: system-test/java
 
       - name: Setup Runtime
-        uses: optivem/actions/setup-node@v1
+        uses: optivem/actions/setup-java-gradle@v1
         with:
-          node-version: 20
-          working-directory: system-test/typescript
-
-      - name: Install Playwright Browsers
-        working-directory: system-test/typescript
-        run: npx playwright install
+          java-version: 21
+          working-directory: system-test/java
 
       - name: Run Smoke Tests
-        working-directory: system-test/typescript
-        run: npm test -- test/smoke-tests
+        run: ./gradlew test --tests com.optivem.starter.systemtest.smoketests.*
+        working-directory: system-test/java
 
       # TODO: Implement
       - name: Run Acceptance Tests
@@ -125,8 +121,8 @@ jobs:
         run: echo "TODO - not yet implemented"
 
       - name: Run E2E Tests
-        working-directory: system-test/typescript
-        run: npm test -- test/e2e-tests
+        run: ./gradlew test --tests com.optivem.starter.systemtest.e2etests.*
+        working-directory: system-test/java
 
       - name: Read Target Version
         id: read-version

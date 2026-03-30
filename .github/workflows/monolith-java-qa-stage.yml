@@ -1,4 +1,4 @@
-name: multi-component-dotnet-qa-stage
+name: monolith-java-qa-stage
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
         type: string
 
 concurrency:
-  group: multi-component-dotnet-qa-stage
+  group: monolith-java-qa-stage
 
 jobs:
   check:
@@ -45,8 +45,7 @@ jobs:
         with:
           tag: ${{ inputs.version }}
           base-image-urls: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multi-component-frontend-react
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multi-component-backend-dotnet
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/monolith-java-monolith
 
   run:
     needs: check
@@ -76,7 +75,7 @@ jobs:
           version: ${{ inputs.version }}
           image-urls: ${{ needs.check.outputs.image-urls }}
           system-url: ${{ vars.SYSTEM_URL }}
-          working-directory: system-test/dotnet
+          working-directory: system-test/java
 
       - name: Promote RC (QA Deployed)
         id: promote

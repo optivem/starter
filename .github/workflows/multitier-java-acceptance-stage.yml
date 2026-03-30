@@ -1,10 +1,10 @@
-name: single-component-java-acceptance-stage
+name: multitier-java-acceptance-stage
 
 on:
   workflow_dispatch:
 
 concurrency:
-  group: single-component-java-acceptance-stage
+  group: multitier-java-acceptance-stage
 
 jobs:
   preflight:
@@ -49,7 +49,7 @@ jobs:
         uses: optivem/actions/check-target-version-exists@v1
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -59,7 +59,8 @@ jobs:
         uses: optivem/actions/find-latest-docker-images@v1
         with:
           image-urls: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/single-component-java-monolith:latest
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-frontend-react:latest
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-backend-java:latest
 
       - name: Check Run Conditions
         id: should-run
@@ -87,7 +88,7 @@ jobs:
           fetch-depth: 0
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -109,8 +110,8 @@ jobs:
           working-directory: system-test/java
 
       - name: Run Smoke Tests
-        run: ./gradlew test --tests com.optivem.starter.systemtest.smoketests.*
         working-directory: system-test/java
+        run: ./gradlew test --tests "*SmokeTest*"
 
       # TODO: Implement
       - name: Run Acceptance Tests
@@ -121,8 +122,8 @@ jobs:
         run: echo "TODO - not yet implemented"
 
       - name: Run E2E Tests
-        run: ./gradlew test --tests com.optivem.starter.systemtest.e2etests.*
         working-directory: system-test/java
+        run: ./gradlew test --tests "*E2eTest*"
 
       - name: Read Target Version
         id: read-version

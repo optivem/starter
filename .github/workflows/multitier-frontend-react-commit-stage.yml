@@ -1,20 +1,20 @@
-name: single-component-typescript-commit-stage
+name: multitier-frontend-react-commit-stage
 
 on:
   push:
     branches: [ "main" ]
     paths:
-        - 'system/single-component/typescript/**'
-        - '.github/workflows/single-component-typescript-commit-stage.yml'
+        - 'system/multitier/frontend-react/**'
+        - '.github/workflows/multitier-frontend-react-commit-stage.yml'
   pull_request:
     branches: [ "main" ]
     paths:
-        - 'system/single-component/typescript/**'
-        - '.github/workflows/single-component-typescript-commit-stage.yml'
+        - 'system/multitier/frontend-react/**'
+        - '.github/workflows/multitier-frontend-react-commit-stage.yml'
   workflow_dispatch:
 
 concurrency:
-  group: single-component-typescript-commit-stage-${{ github.ref }}
+  group: multitier-frontend-react-commit-stage-${{ github.ref }}
 
 jobs:
   check:
@@ -37,9 +37,11 @@ jobs:
 
       - name: Check Target Version Exists
         uses: optivem/actions/check-target-version-exists@v1
+        with:
+          file: system/multitier/frontend-react/VERSION
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -53,21 +55,28 @@ jobs:
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     outputs:
-      image-digest-url: ${{ steps.push.outputs.image-digest-url }}
+      component-version: ${{ steps.read-version.outputs.target-version }}
+      image-version-tag: ${{ steps.build.outputs.image-version-tag }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
+
+      - name: Read Component Version
+        id: read-version
+        uses: optivem/actions/read-target-version@v1
+        with:
+          file: system/multitier/frontend-react/VERSION
 
       - name: Setup Runtime
         uses: optivem/actions/setup-node@v1
         with:
           node-version: 22.x
-          working-directory: system/single-component/typescript
+          working-directory: system/multitier/frontend-react
 
       - name: Compile Code
         run: npm run build
         shell: bash
-        working-directory: system/single-component/typescript
+        working-directory: system/multitier/frontend-react
 
       # TODO: Implement
       - name: Run Unit Tests
@@ -87,35 +96,30 @@ jobs:
 
       - name: Run Linter
         run: npm run lint
-        working-directory: system/single-component/typescript
+        working-directory: system/multitier/frontend-react
 
       - name: Run Code Analysis
         if: github.ref == 'refs/heads/main' && env.SONAR_TOKEN != ''
         uses: SonarSource/sonarcloud-github-action@v5
         with:
-          projectBaseDir: system/single-component/typescript
+          projectBaseDir: system/multitier/frontend-react
           args: >
             -Dsonar.projectKey=YOUR_SONAR_PROJECT_KEY
             -Dsonar.organization=YOUR_SONAR_ORG
             -Dsonar.sources=src
-
-      - name: Read Target Version
-        if: github.ref == 'refs/heads/main'
-        id: read-version
-        uses: optivem/actions/read-target-version@v1
 
       - name: Build Artifact
         if: github.ref == 'refs/heads/main'
         id: build
         uses: optivem/actions/build-docker-image@v1
         with:
-          working-directory: system/single-component/typescript
-          image-name: single-component-typescript-monolith
+          working-directory: system/multitier/frontend-react
+          image-name: multitier-frontend-react
           image-namespace: ${{ github.repository }}
           commit-sha: ${{ github.sha }}
-          dockerfile: Dockerfile
           component-version: ${{ steps.read-version.outputs.target-version }}
           build-number: ${{ github.run_number }}
+          dockerfile: Dockerfile
 
       - name: Push Artifact
         if: github.ref == 'refs/heads/main'
@@ -138,4 +142,4 @@ jobs:
       uses: optivem/actions/summarize-commit-stage@v1
       with:
         stage-result: ${{ needs.run.result }}
-        success-artifact-url: ${{ needs.run.outputs.image-digest-url }}
+        success-artifact-url: ${{ needs.run.outputs.image-version-tag }}

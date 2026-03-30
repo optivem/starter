@@ -8,13 +8,13 @@ Pick based on your architecture and language:
 
 | Architecture | Language | Directory | Framework | Port |
 |---|---|---|---|---|
-| Single-component | Java | `system/single-component/java/` | Spring Boot + Thymeleaf (SSR) | 8080 |
-| Single-component | .NET | `system/single-component/dotnet/` | ASP.NET Core Razor Pages | 8080 |
-| Single-component | TypeScript | `system/single-component/typescript/` | Next.js (SSR) | 3000 |
-| Multi-component | Java (backend) | `system/multi-component/backend-java/` | Spring Boot API | 8081 |
-| Multi-component | .NET (backend) | `system/multi-component/backend-dotnet/` | ASP.NET Core API | 8081 |
-| Multi-component | TypeScript (backend) | `system/multi-component/backend-typescript/` | NestJS API | 8081 |
-| Multi-component | TypeScript (frontend) | `system/multi-component/frontend-react/` | React + Nginx | 8080 |
+| Single-component | Java | `system/monolith/java/` | Spring Boot + Thymeleaf (SSR) | 8080 |
+| Single-component | .NET | `system/monolith/dotnet/` | ASP.NET Core Razor Pages | 8080 |
+| Single-component | TypeScript | `system/monolith/typescript/` | Next.js (SSR) | 3000 |
+| Multi-component | Java (backend) | `system/multitier/backend-java/` | Spring Boot API | 8081 |
+| Multi-component | .NET (backend) | `system/multitier/backend-dotnet/` | ASP.NET Core API | 8081 |
+| Multi-component | TypeScript (backend) | `system/multitier/backend-typescript/` | NestJS API | 8081 |
+| Multi-component | TypeScript (frontend) | `system/multitier/frontend-react/` | React + Nginx | 8080 |
 
 ## System-Test Templates
 
@@ -34,14 +34,14 @@ The `.github/workflows/` directory contains runnable pipelines for all 6 matched
 
 | Combination | Commit Stage | Acceptance | QA | Prod |
 |---|---|---|---|---|
-| Single-component Java | `single-component-java-commit-stage` | `single-component-java-acceptance-stage` | `single-component-java-qa-stage` | `single-component-java-prod-stage` |
-| Single-component .NET | `single-component-dotnet-commit-stage` | `single-component-dotnet-acceptance-stage` | `single-component-dotnet-qa-stage` | `single-component-dotnet-prod-stage` |
-| Single-component TypeScript | `single-component-typescript-commit-stage` | `single-component-typescript-acceptance-stage` | `single-component-typescript-qa-stage` | `single-component-typescript-prod-stage` |
-| Multi-component Java | `multi-component-backend-java-commit-stage` | `multi-component-java-acceptance-stage` | `multi-component-java-qa-stage` | `multi-component-java-prod-stage` |
-| Multi-component .NET | `multi-component-backend-dotnet-commit-stage` | `multi-component-dotnet-acceptance-stage` | `multi-component-dotnet-qa-stage` | `multi-component-dotnet-prod-stage` |
-| Multi-component TypeScript | `multi-component-backend-typescript-commit-stage` | `multi-component-typescript-acceptance-stage` | `multi-component-typescript-qa-stage` | `multi-component-typescript-prod-stage` |
+| Single-component Java | `monolith-java-commit-stage` | `monolith-java-acceptance-stage` | `monolith-java-qa-stage` | `monolith-java-prod-stage` |
+| Single-component .NET | `monolith-dotnet-commit-stage` | `monolith-dotnet-acceptance-stage` | `monolith-dotnet-qa-stage` | `monolith-dotnet-prod-stage` |
+| Single-component TypeScript | `monolith-typescript-commit-stage` | `monolith-typescript-acceptance-stage` | `monolith-typescript-qa-stage` | `monolith-typescript-prod-stage` |
+| Multi-component Java | `multitier-backend-java-commit-stage` | `multitier-java-acceptance-stage` | `multitier-java-qa-stage` | `multitier-java-prod-stage` |
+| Multi-component .NET | `multitier-backend-dotnet-commit-stage` | `multitier-dotnet-acceptance-stage` | `multitier-dotnet-qa-stage` | `multitier-dotnet-prod-stage` |
+| Multi-component TypeScript | `multitier-backend-typescript-commit-stage` | `multitier-typescript-acceptance-stage` | `multitier-typescript-qa-stage` | `multitier-typescript-prod-stage` |
 
-Plus `multi-component-frontend-react-commit-stage` (shared across all multi-component variants).
+Plus `multitier-frontend-react-commit-stage` (shared across all multitier variants).
 
 - **Commit stages** trigger automatically on push via path filters
 - **Acceptance/QA/Prod stages** are workflow_dispatch (manual trigger)

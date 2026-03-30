@@ -1,4 +1,4 @@
-name: single-component-java-qa-stage
+name: monolith-typescript-qa-stage
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
         type: string
 
 concurrency:
-  group: single-component-java-qa-stage
+  group: monolith-typescript-qa-stage
 
 jobs:
   check:
@@ -45,7 +45,7 @@ jobs:
         with:
           tag: ${{ inputs.version }}
           base-image-urls: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/single-component-java-monolith
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/monolith-typescript-monolith
 
   run:
     needs: check
@@ -75,7 +75,7 @@ jobs:
           version: ${{ inputs.version }}
           image-urls: ${{ needs.check.outputs.image-urls }}
           system-url: ${{ vars.SYSTEM_URL }}
-          working-directory: system-test/java
+          working-directory: system-test/typescript
 
       - name: Promote RC (QA Deployed)
         id: promote

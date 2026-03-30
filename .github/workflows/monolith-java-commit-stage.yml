@@ -1,20 +1,20 @@
-name: single-component-dotnet-commit-stage
+name: monolith-java-commit-stage
 
 on:
   push:
     branches: [ "main" ]
     paths:
-        - 'system/single-component/dotnet/**'
-        - '.github/workflows/single-component-dotnet-commit-stage.yml'
+        - 'system/monolith/java/**'
+        - '.github/workflows/monolith-java-commit-stage.yml'
   pull_request:
     branches: [ "main" ]
     paths:
-        - 'system/single-component/dotnet/**'
-        - '.github/workflows/single-component-dotnet-commit-stage.yml'
+        - 'system/monolith/java/**'
+        - '.github/workflows/monolith-java-commit-stage.yml'
   workflow_dispatch:
 
 concurrency:
-  group: single-component-dotnet-commit-stage-${{ github.ref }}
+  group: monolith-java-commit-stage-${{ github.ref }}
 
 jobs:
   check:
@@ -59,13 +59,14 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Setup Runtime
-        uses: optivem/actions/setup-dotnet@v1
+        uses: optivem/actions/setup-java-gradle@v1
         with:
-          dotnet-version: 8.0.x
+          java-version: 21
+          working-directory: system/monolith/java
 
       - name: Compile Code
-        run: dotnet build
-        working-directory: system/single-component/dotnet
+        run: ./gradlew build
+        working-directory: system/monolith/java
 
       # TODO: Implement
       - name: Run Unit Tests
@@ -84,17 +85,13 @@ jobs:
         run: echo "TODO - not yet implemented"
 
       - name: Run Linter
-        run: dotnet format --verify-no-changes
-        working-directory: system/single-component/dotnet
+        run: ./gradlew checkstyleMain
+        working-directory: system/monolith/java
 
       - name: Run Code Analysis
         if: github.ref == 'refs/heads/main' && env.SONAR_TOKEN != ''
-        run: |
-          dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /k:"YOUR_SONAR_PROJECT_KEY" /o:"YOUR_SONAR_ORG" /d:sonar.token="${SONAR_TOKEN}"
-          dotnet build
-          dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
-        working-directory: system/single-component/dotnet
+        run: ./gradlew build sonar --info
+        working-directory: system/monolith/java
 
       - name: Read Target Version
         if: github.ref == 'refs/heads/main'
@@ -106,8 +103,8 @@ jobs:
         id: build
         uses: optivem/actions/build-docker-image@v1
         with:
-          working-directory: system/single-component/dotnet
-          image-name: single-component-dotnet-monolith
+          working-directory: system/monolith/java
+          image-name: monolith-java-monolith
           image-namespace: ${{ github.repository }}
           commit-sha: ${{ github.sha }}
           dockerfile: Dockerfile

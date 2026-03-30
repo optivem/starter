@@ -1,4 +1,4 @@
-name: single-component-dotnet-qa-signoff
+name: multitier-typescript-qa-signoff
 
 on:
   workflow_dispatch:
@@ -16,7 +16,7 @@ on:
           - rejected
 
 concurrency:
-  group: single-component-dotnet-qa-signoff
+  group: multitier-typescript-qa-signoff
 
 jobs:
   check:

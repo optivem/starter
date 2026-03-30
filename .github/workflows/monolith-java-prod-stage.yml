@@ -1,4 +1,4 @@
-name: single-component-dotnet-prod-stage
+name: monolith-java-prod-stage
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
         type: string
 
 concurrency:
-  group: single-component-dotnet-prod-stage
+  group: monolith-java-prod-stage
 
 jobs:
   check:
@@ -52,7 +52,7 @@ jobs:
         with:
           tag: ${{ inputs.version }}
           base-image-urls: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/single-component-dotnet-monolith
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/monolith-java-monolith
 
   run:
     needs: check
@@ -83,7 +83,7 @@ jobs:
           version: ${{ inputs.version }}
           image-urls: ${{ needs.check.outputs.image-urls }}
           system-url: ${{ vars.SYSTEM_URL }}
-          working-directory: system-test/dotnet
+          working-directory: system-test/java
 
       - name: Promote RC (Production Deployed)
         id: promote

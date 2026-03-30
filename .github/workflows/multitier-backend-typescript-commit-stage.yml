@@ -1,20 +1,20 @@
-name: single-component-java-commit-stage
+name: multitier-backend-typescript-commit-stage
 
 on:
   push:
     branches: [ "main" ]
     paths:
-        - 'system/single-component/java/**'
-        - '.github/workflows/single-component-java-commit-stage.yml'
+        - 'system/multitier/backend-typescript/**'
+        - '.github/workflows/multitier-backend-typescript-commit-stage.yml'
   pull_request:
     branches: [ "main" ]
     paths:
-        - 'system/single-component/java/**'
-        - '.github/workflows/single-component-java-commit-stage.yml'
+        - 'system/multitier/backend-typescript/**'
+        - '.github/workflows/multitier-backend-typescript-commit-stage.yml'
   workflow_dispatch:
 
 concurrency:
-  group: single-component-java-commit-stage-${{ github.ref }}
+  group: multitier-backend-typescript-commit-stage-${{ github.ref }}
 
 jobs:
   check:
@@ -37,9 +37,11 @@ jobs:
 
       - name: Check Target Version Exists
         uses: optivem/actions/check-target-version-exists@v1
+        with:
+          file: system/multitier/backend-typescript/VERSION
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v4
+        uses: docker/login-action@v3
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -53,20 +55,28 @@ jobs:
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     outputs:
-      image-digest-url: ${{ steps.push.outputs.image-digest-url }}
+      component-version: ${{ steps.read-version.outputs.target-version }}
+      image-version-tag: ${{ steps.build.outputs.image-version-tag }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
-        uses: optivem/actions/setup-java-gradle@v1
+      - name: Read Component Version
+        id: read-version
+        uses: optivem/actions/read-target-version@v1
         with:
-          java-version: 21
-          working-directory: system/single-component/java
+          file: system/multitier/backend-typescript/VERSION
+
+      - name: Setup Runtime
+        uses: optivem/actions/setup-node@v1
+        with:
+          node-version: 22.x
+          working-directory: system/multitier/backend-typescript
 
       - name: Compile Code
-        run: ./gradlew build
-        working-directory: system/single-component/java
+        run: npm run build
+        shell: bash
+        working-directory: system/multitier/backend-typescript
 
       # TODO: Implement
       - name: Run Unit Tests
@@ -85,31 +95,31 @@ jobs:
         run: echo "TODO - not yet implemented"
 
       - name: Run Linter
-        run: ./gradlew checkstyleMain
-        working-directory: system/single-component/java
+        run: npm run lint
+        working-directory: system/multitier/backend-typescript
 
       - name: Run Code Analysis
         if: github.ref == 'refs/heads/main' && env.SONAR_TOKEN != ''
-        run: ./gradlew build sonar --info
-        working-directory: system/single-component/java
-
-      - name: Read Target Version
-        if: github.ref == 'refs/heads/main'
-        id: read-version
-        uses: optivem/actions/read-target-version@v1
+        uses: SonarSource/sonarcloud-github-action@v5
+        with:
+          projectBaseDir: system/multitier/backend-typescript
+          args: >
+            -Dsonar.projectKey=YOUR_SONAR_PROJECT_KEY
+            -Dsonar.organization=YOUR_SONAR_ORG
+            -Dsonar.sources=src
 
       - name: Build Artifact
         if: github.ref == 'refs/heads/main'
         id: build
         uses: optivem/actions/build-docker-image@v1
         with:
-          working-directory: system/single-component/java
-          image-name: single-component-java-monolith
+          working-directory: system/multitier/backend-typescript
+          image-name: multitier-backend-typescript
           image-namespace: ${{ github.repository }}
           commit-sha: ${{ github.sha }}
-          dockerfile: Dockerfile
           component-version: ${{ steps.read-version.outputs.target-version }}
           build-number: ${{ github.run_number }}
+          dockerfile: Dockerfile
 
       - name: Push Artifact
         if: github.ref == 'refs/heads/main'
@@ -117,8 +127,8 @@ jobs:
         uses: optivem/actions/push-docker-image@v1
         with:
           image-sha-tag: ${{ steps.build.outputs.image-sha-tag }}
-          image-latest-url: ${{ steps.build.outputs.image-latest-url }}
           image-version-tag: ${{ steps.build.outputs.image-version-tag }}
+          image-latest-url: ${{ steps.build.outputs.image-latest-url }}
           registry-username: ${{ github.actor }}
         env:
           REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
@@ -132,4 +142,4 @@ jobs:
       uses: optivem/actions/summarize-commit-stage@v1
       with:
         stage-result: ${{ needs.run.result }}
-        success-artifact-url: ${{ needs.run.outputs.image-digest-url }}
+        success-artifact-url: ${{ needs.run.outputs.image-version-tag }}

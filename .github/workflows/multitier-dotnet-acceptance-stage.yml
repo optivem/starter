@@ -1,10 +1,10 @@
-name: single-component-dotnet-acceptance-stage
+name: multitier-dotnet-acceptance-stage
 
 on:
   workflow_dispatch:
 
 concurrency:
-  group: single-component-dotnet-acceptance-stage
+  group: multitier-dotnet-acceptance-stage
 
 jobs:
   preflight:
@@ -59,7 +59,8 @@ jobs:
         uses: optivem/actions/find-latest-docker-images@v1
         with:
           image-urls: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/single-component-dotnet-monolith:latest
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-frontend-react:latest
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-backend-dotnet:latest
 
       - name: Check Run Conditions
         id: should-run

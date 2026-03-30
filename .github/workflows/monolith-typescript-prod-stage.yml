@@ -1,4 +1,4 @@
-name: multi-component-typescript-prod-stage
+name: monolith-typescript-prod-stage
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
         type: string
 
 concurrency:
-  group: multi-component-typescript-prod-stage
+  group: monolith-typescript-prod-stage
 
 jobs:
   check:
@@ -52,8 +52,7 @@ jobs:
         with:
           tag: ${{ inputs.version }}
           base-image-urls: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multi-component-frontend-react
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multi-component-backend-typescript
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/monolith-typescript-monolith
 
   run:
     needs: check

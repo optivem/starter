@@ -1,20 +1,20 @@
-name: multi-component-backend-typescript-commit-stage
+name: multitier-backend-dotnet-commit-stage
 
 on:
   push:
     branches: [ "main" ]
     paths:
-        - 'system/multi-component/backend-typescript/**'
-        - '.github/workflows/multi-component-backend-typescript-commit-stage.yml'
+        - 'system/multitier/backend-dotnet/**'
+        - '.github/workflows/multitier-backend-dotnet-commit-stage.yml'
   pull_request:
     branches: [ "main" ]
     paths:
-        - 'system/multi-component/backend-typescript/**'
-        - '.github/workflows/multi-component-backend-typescript-commit-stage.yml'
+        - 'system/multitier/backend-dotnet/**'
+        - '.github/workflows/multitier-backend-dotnet-commit-stage.yml'
   workflow_dispatch:
 
 concurrency:
-  group: multi-component-backend-typescript-commit-stage-${{ github.ref }}
+  group: multitier-backend-dotnet-commit-stage-${{ github.ref }}
 
 jobs:
   check:
@@ -38,7 +38,7 @@ jobs:
       - name: Check Target Version Exists
         uses: optivem/actions/check-target-version-exists@v1
         with:
-          file: system/multi-component/backend-typescript/VERSION
+          file: system/multitier/backend-dotnet/VERSION
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -65,18 +65,16 @@ jobs:
         id: read-version
         uses: optivem/actions/read-target-version@v1
         with:
-          file: system/multi-component/backend-typescript/VERSION
+          file: system/multitier/backend-dotnet/VERSION
 
       - name: Setup Runtime
-        uses: optivem/actions/setup-node@v1
+        uses: optivem/actions/setup-dotnet@v1
         with:
-          node-version: 22.x
-          working-directory: system/multi-component/backend-typescript
+          dotnet-version: 8.0.x
 
       - name: Compile Code
-        run: npm run build
-        shell: bash
-        working-directory: system/multi-component/backend-typescript
+        run: dotnet build
+        working-directory: system/multitier/backend-dotnet
 
       # TODO: Implement
       - name: Run Unit Tests
@@ -95,26 +93,25 @@ jobs:
         run: echo "TODO - not yet implemented"
 
       - name: Run Linter
-        run: npm run lint
-        working-directory: system/multi-component/backend-typescript
+        run: dotnet format --verify-no-changes
+        working-directory: system/multitier/backend-dotnet
 
       - name: Run Code Analysis
         if: github.ref == 'refs/heads/main' && env.SONAR_TOKEN != ''
-        uses: SonarSource/sonarcloud-github-action@v5
-        with:
-          projectBaseDir: system/multi-component/backend-typescript
-          args: >
-            -Dsonar.projectKey=YOUR_SONAR_PROJECT_KEY
-            -Dsonar.organization=YOUR_SONAR_ORG
-            -Dsonar.sources=src
+        run: |
+          dotnet tool install --global dotnet-sonarscanner
+          dotnet sonarscanner begin /k:"YOUR_SONAR_PROJECT_KEY" /o:"YOUR_SONAR_ORG" /d:sonar.token="${SONAR_TOKEN}"
+          dotnet build
+          dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
+        working-directory: system/multitier/backend-dotnet
 
       - name: Build Artifact
         if: github.ref == 'refs/heads/main'
         id: build
         uses: optivem/actions/build-docker-image@v1
         with:
-          working-directory: system/multi-component/backend-typescript
-          image-name: multi-component-backend-typescript
+          working-directory: system/multitier/backend-dotnet
+          image-name: multitier-backend-dotnet
           image-namespace: ${{ github.repository }}
           commit-sha: ${{ github.sha }}
           component-version: ${{ steps.read-version.outputs.target-version }}
@@ -127,8 +124,8 @@ jobs:
         uses: optivem/actions/push-docker-image@v1
         with:
           image-sha-tag: ${{ steps.build.outputs.image-sha-tag }}
-          image-version-tag: ${{ steps.build.outputs.image-version-tag }}
           image-latest-url: ${{ steps.build.outputs.image-latest-url }}
+          image-version-tag: ${{ steps.build.outputs.image-version-tag }}
           registry-username: ${{ github.actor }}
         env:
           REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}

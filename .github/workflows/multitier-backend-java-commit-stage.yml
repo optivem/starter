@@ -1,20 +1,20 @@
-name: multi-component-frontend-react-commit-stage
+name: multitier-backend-java-commit-stage
 
 on:
   push:
     branches: [ "main" ]
     paths:
-        - 'system/multi-component/frontend-react/**'
-        - '.github/workflows/multi-component-frontend-react-commit-stage.yml'
+        - 'system/multitier/backend-java/**'
+        - '.github/workflows/multitier-backend-java-commit-stage.yml'
   pull_request:
     branches: [ "main" ]
     paths:
-        - 'system/multi-component/frontend-react/**'
-        - '.github/workflows/multi-component-frontend-react-commit-stage.yml'
+        - 'system/multitier/backend-java/**'
+        - '.github/workflows/multitier-backend-java-commit-stage.yml'
   workflow_dispatch:
 
 concurrency:
-  group: multi-component-frontend-react-commit-stage-${{ github.ref }}
+  group: multitier-backend-java-commit-stage-${{ github.ref }}
 
 jobs:
   check:
@@ -38,7 +38,7 @@ jobs:
       - name: Check Target Version Exists
         uses: optivem/actions/check-target-version-exists@v1
         with:
-          file: system/multi-component/frontend-react/VERSION
+          file: system/multitier/backend-java/VERSION
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -65,18 +65,17 @@ jobs:
         id: read-version
         uses: optivem/actions/read-target-version@v1
         with:
-          file: system/multi-component/frontend-react/VERSION
+          file: system/multitier/backend-java/VERSION
 
       - name: Setup Runtime
-        uses: optivem/actions/setup-node@v1
+        uses: optivem/actions/setup-java-gradle@v1
         with:
-          node-version: 22.x
-          working-directory: system/multi-component/frontend-react
+          java-version: 21
+          working-directory: system/multitier/backend-java
 
       - name: Compile Code
-        run: npm run build
-        shell: bash
-        working-directory: system/multi-component/frontend-react
+        run: ./gradlew build
+        working-directory: system/multitier/backend-java
 
       # TODO: Implement
       - name: Run Unit Tests
@@ -95,26 +94,21 @@ jobs:
         run: echo "TODO - not yet implemented"
 
       - name: Run Linter
-        run: npm run lint
-        working-directory: system/multi-component/frontend-react
+        run: ./gradlew checkstyleMain
+        working-directory: system/multitier/backend-java
 
       - name: Run Code Analysis
         if: github.ref == 'refs/heads/main' && env.SONAR_TOKEN != ''
-        uses: SonarSource/sonarcloud-github-action@v5
-        with:
-          projectBaseDir: system/multi-component/frontend-react
-          args: >
-            -Dsonar.projectKey=YOUR_SONAR_PROJECT_KEY
-            -Dsonar.organization=YOUR_SONAR_ORG
-            -Dsonar.sources=src
+        run: ./gradlew build sonar --info
+        working-directory: system/multitier/backend-java
 
       - name: Build Artifact
         if: github.ref == 'refs/heads/main'
         id: build
         uses: optivem/actions/build-docker-image@v1
         with:
-          working-directory: system/multi-component/frontend-react
-          image-name: multi-component-frontend-react
+          working-directory: system/multitier/backend-java
+          image-name: multitier-backend-java
           image-namespace: ${{ github.repository }}
           commit-sha: ${{ github.sha }}
           component-version: ${{ steps.read-version.outputs.target-version }}

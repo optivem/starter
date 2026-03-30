@@ -1,4 +1,4 @@
-name: multi-component-dotnet-qa-signoff
+name: monolith-java-qa-signoff
 
 on:
   workflow_dispatch:
@@ -16,7 +16,7 @@ on:
           - rejected
 
 concurrency:
-  group: multi-component-dotnet-qa-signoff
+  group: monolith-java-qa-signoff
 
 jobs:
   check:

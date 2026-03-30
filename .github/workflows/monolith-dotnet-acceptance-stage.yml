@@ -1,10 +1,10 @@
-name: multi-component-java-acceptance-stage
+name: monolith-dotnet-acceptance-stage
 
 on:
   workflow_dispatch:
 
 concurrency:
-  group: multi-component-java-acceptance-stage
+  group: monolith-dotnet-acceptance-stage
 
 jobs:
   preflight:
@@ -49,7 +49,7 @@ jobs:
         uses: optivem/actions/check-target-version-exists@v1
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -59,8 +59,7 @@ jobs:
         uses: optivem/actions/find-latest-docker-images@v1
         with:
           image-urls: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multi-component-frontend-react:latest
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multi-component-backend-java:latest
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/monolith-dotnet-monolith:latest
 
       - name: Check Run Conditions
         id: should-run
@@ -88,7 +87,7 @@ jobs:
           fetch-depth: 0
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -101,17 +100,25 @@ jobs:
           version: latest
           image-urls: ${{ needs.check.outputs.image-digest-urls }}
           system-url: ${{ vars.SYSTEM_URL }}
-          working-directory: system-test/java
+          working-directory: system-test/dotnet
 
       - name: Setup Runtime
-        uses: optivem/actions/setup-java-gradle@v1
+        uses: optivem/actions/setup-dotnet@v1
         with:
-          java-version: 21
-          working-directory: system-test/java
+          dotnet-version: 8.0.x
+
+      - name: Build Test Project
+        run: dotnet build
+        working-directory: system-test/dotnet
+
+      - name: Install Playwright Browsers
+        run: |
+          pwsh bin/Debug/net8.0/playwright.ps1 install
+        working-directory: system-test/dotnet
 
       - name: Run Smoke Tests
-        working-directory: system-test/java
-        run: ./gradlew test --tests "*SmokeTest*"
+        run: dotnet test --filter "FullyQualifiedName~SmokeTests" --verbosity normal
+        working-directory: system-test/dotnet
 
       # TODO: Implement
       - name: Run Acceptance Tests
@@ -122,8 +129,8 @@ jobs:
         run: echo "TODO - not yet implemented"
 
       - name: Run E2E Tests
-        working-directory: system-test/java
-        run: ./gradlew test --tests "*E2eTest*"
+        run: dotnet test --filter "FullyQualifiedName~E2eTests" --verbosity normal
+        working-directory: system-test/dotnet
 
       - name: Read Target Version
         id: read-version

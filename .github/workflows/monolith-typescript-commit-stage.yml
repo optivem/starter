@@ -1,20 +1,20 @@
-name: multi-component-backend-dotnet-commit-stage
+name: monolith-typescript-commit-stage
 
 on:
   push:
     branches: [ "main" ]
     paths:
-        - 'system/multi-component/backend-dotnet/**'
-        - '.github/workflows/multi-component-backend-dotnet-commit-stage.yml'
+        - 'system/monolith/typescript/**'
+        - '.github/workflows/monolith-typescript-commit-stage.yml'
   pull_request:
     branches: [ "main" ]
     paths:
-        - 'system/multi-component/backend-dotnet/**'
-        - '.github/workflows/multi-component-backend-dotnet-commit-stage.yml'
+        - 'system/monolith/typescript/**'
+        - '.github/workflows/monolith-typescript-commit-stage.yml'
   workflow_dispatch:
 
 concurrency:
-  group: multi-component-backend-dotnet-commit-stage-${{ github.ref }}
+  group: monolith-typescript-commit-stage-${{ github.ref }}
 
 jobs:
   check:
@@ -37,11 +37,9 @@ jobs:
 
       - name: Check Target Version Exists
         uses: optivem/actions/check-target-version-exists@v1
-        with:
-          file: system/multi-component/backend-dotnet/VERSION
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -55,26 +53,21 @@ jobs:
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     outputs:
-      component-version: ${{ steps.read-version.outputs.target-version }}
-      image-version-tag: ${{ steps.build.outputs.image-version-tag }}
+      image-digest-url: ${{ steps.push.outputs.image-digest-url }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Read Component Version
-        id: read-version
-        uses: optivem/actions/read-target-version@v1
-        with:
-          file: system/multi-component/backend-dotnet/VERSION
-
       - name: Setup Runtime
-        uses: optivem/actions/setup-dotnet@v1
+        uses: optivem/actions/setup-node@v1
         with:
-          dotnet-version: 8.0.x
+          node-version: 22.x
+          working-directory: system/monolith/typescript
 
       - name: Compile Code
-        run: dotnet build
-        working-directory: system/multi-component/backend-dotnet
+        run: npm run build
+        shell: bash
+        working-directory: system/monolith/typescript
 
       # TODO: Implement
       - name: Run Unit Tests
@@ -93,30 +86,36 @@ jobs:
         run: echo "TODO - not yet implemented"
 
       - name: Run Linter
-        run: dotnet format --verify-no-changes
-        working-directory: system/multi-component/backend-dotnet
+        run: npm run lint
+        working-directory: system/monolith/typescript
 
       - name: Run Code Analysis
         if: github.ref == 'refs/heads/main' && env.SONAR_TOKEN != ''
-        run: |
-          dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /k:"YOUR_SONAR_PROJECT_KEY" /o:"YOUR_SONAR_ORG" /d:sonar.token="${SONAR_TOKEN}"
-          dotnet build
-          dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
-        working-directory: system/multi-component/backend-dotnet
+        uses: SonarSource/sonarcloud-github-action@v5
+        with:
+          projectBaseDir: system/monolith/typescript
+          args: >
+            -Dsonar.projectKey=YOUR_SONAR_PROJECT_KEY
+            -Dsonar.organization=YOUR_SONAR_ORG
+            -Dsonar.sources=src
+
+      - name: Read Target Version
+        if: github.ref == 'refs/heads/main'
+        id: read-version
+        uses: optivem/actions/read-target-version@v1
 
       - name: Build Artifact
         if: github.ref == 'refs/heads/main'
         id: build
         uses: optivem/actions/build-docker-image@v1
         with:
-          working-directory: system/multi-component/backend-dotnet
-          image-name: multi-component-backend-dotnet
+          working-directory: system/monolith/typescript
+          image-name: monolith-typescript-monolith
           image-namespace: ${{ github.repository }}
           commit-sha: ${{ github.sha }}
+          dockerfile: Dockerfile
           component-version: ${{ steps.read-version.outputs.target-version }}
           build-number: ${{ github.run_number }}
-          dockerfile: Dockerfile
 
       - name: Push Artifact
         if: github.ref == 'refs/heads/main'
@@ -139,4 +138,4 @@ jobs:
       uses: optivem/actions/summarize-commit-stage@v1
       with:
         stage-result: ${{ needs.run.result }}
-        success-artifact-url: ${{ needs.run.outputs.image-version-tag }}
+        success-artifact-url: ${{ needs.run.outputs.image-digest-url }}

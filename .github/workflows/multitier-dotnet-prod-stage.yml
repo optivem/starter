@@ -1,4 +1,4 @@
-name: single-component-typescript-prod-stage
+name: multitier-dotnet-prod-stage
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ on:
         type: string
 
 concurrency:
-  group: single-component-typescript-prod-stage
+  group: multitier-dotnet-prod-stage
 
 jobs:
   check:
@@ -52,7 +52,8 @@ jobs:
         with:
           tag: ${{ inputs.version }}
           base-image-urls: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/single-component-typescript-monolith
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-frontend-react
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-backend-dotnet
 
   run:
     needs: check
@@ -83,7 +84,7 @@ jobs:
           version: ${{ inputs.version }}
           image-urls: ${{ needs.check.outputs.image-urls }}
           system-url: ${{ vars.SYSTEM_URL }}
-          working-directory: system-test/typescript
+          working-directory: system-test/dotnet
 
       - name: Promote RC (Production Deployed)
         id: promote
