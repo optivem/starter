@@ -112,8 +112,8 @@ jobs:
           working-directory: system-test/java
 
       - name: Run Smoke Tests
+        run: ./gradlew test --tests com.optivem.starter.systemtest.smoketests.*
         working-directory: system-test/java
-        run: ./gradlew test --tests "*SmokeTest*"
 
       # TODO: Implement
       - name: Run Acceptance Tests
@@ -124,8 +124,8 @@ jobs:
         run: echo "TODO - not yet implemented"
 
       - name: Run E2E Tests
+        run: ./gradlew test --tests com.optivem.starter.systemtest.e2etests.*
         working-directory: system-test/java
-        run: ./gradlew test --tests "*E2eTest*"
 
       - name: Read Target Version
         id: read-version
