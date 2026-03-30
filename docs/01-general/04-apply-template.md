@@ -152,6 +152,7 @@ curl -s -u "${SONAR_TOKEN}:" \
    - For TypeScript, also update `author`, `license`, `description` in `package.json`
    - For .NET, also check `.cshtml` (Razor views) and `Dockerfile` — these contain namespace and project references
    - For TypeScript, also check `Dockerfile` — it may contain project references
+   - **For all languages**, also check `.github/workflows/*.yml` — acceptance stage workflows contain test filter patterns with the template namespace (e.g. `com.optivem.starter.systemtest.smoketests.*`)
 2. Replace all references with your corresponding namespace and info.
    - Also update the README title to your system name and language.
 
