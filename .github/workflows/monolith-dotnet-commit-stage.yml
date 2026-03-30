@@ -37,6 +37,8 @@ jobs:
 
       - name: Check Target Version Exists
         uses: optivem/actions/check-target-version-exists@v1
+        with:
+          file: system/monolith/dotnet/VERSION
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v4
@@ -84,14 +86,14 @@ jobs:
         run: echo "TODO - not yet implemented"
 
       - name: Run Linter
-        run: dotnet format --verify-no-changes
+        run: dotnet format Optivem.Starter.Monolith.sln --verify-no-changes
         working-directory: system/monolith/dotnet
 
       - name: Run Code Analysis
-        if: github.ref == 'refs/heads/main' && env.SONAR_TOKEN != ''
+        if: github.ref == 'refs/heads/main' && env.SONAR_TOKEN != '' && vars.SONAR_PROJECT_KEY != ''
         run: |
           dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /k:"YOUR_SONAR_PROJECT_KEY" /o:"YOUR_SONAR_ORG" /d:sonar.token="${SONAR_TOKEN}"
+          dotnet sonarscanner begin /k:"${{ vars.SONAR_PROJECT_KEY }}" /o:"${{ vars.SONAR_ORG }}" /d:sonar.token="${SONAR_TOKEN}"
           dotnet build
           dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
         working-directory: system/monolith/dotnet
@@ -100,6 +102,8 @@ jobs:
         if: github.ref == 'refs/heads/main'
         id: read-version
         uses: optivem/actions/read-target-version@v1
+        with:
+          file: system/monolith/dotnet/VERSION
 
       - name: Build Artifact
         if: github.ref == 'refs/heads/main'

@@ -99,13 +99,13 @@ jobs:
         working-directory: system/multitier/backend-typescript
 
       - name: Run Code Analysis
-        if: github.ref == 'refs/heads/main' && env.SONAR_TOKEN != ''
+        if: github.ref == 'refs/heads/main' && env.SONAR_TOKEN != '' && vars.SONAR_PROJECT_KEY != ''
         uses: SonarSource/sonarcloud-github-action@v5
         with:
           projectBaseDir: system/multitier/backend-typescript
           args: >
-            -Dsonar.projectKey=YOUR_SONAR_PROJECT_KEY
-            -Dsonar.organization=YOUR_SONAR_ORG
+            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ vars.SONAR_ORG }}
             -Dsonar.sources=src
 
       - name: Build Artifact
