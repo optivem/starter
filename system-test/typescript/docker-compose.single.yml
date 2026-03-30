@@ -3,4 +3,4 @@ services:
   monolith:
     image: ghcr.io/optivem/starter/monolith-typescript-monolith:latest
     ports:
-      - "8080:8080"
+      - "8080:3000"
