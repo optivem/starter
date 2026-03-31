@@ -116,6 +116,10 @@ jobs:
           java-version: 21
           working-directory: system-test/java
 
+      - name: Install Playwright Dependencies
+        run: npx playwright install --with-deps chromium
+        working-directory: system-test/java
+
       - name: Smoke (Stub)
         run: ./gradlew test -Dtype=smoke -DexternalSystemMode=stub -Denvironment=acceptance
         working-directory: system-test/java
