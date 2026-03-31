@@ -124,21 +124,79 @@ jobs:
           pwsh bin/Debug/net8.0/playwright.ps1 install
         working-directory: system-test/dotnet
 
-      - name: Run Smoke Tests
+      - name: Smoke (Stub)
         run: dotnet test --filter "FullyQualifiedName~SmokeTests" --verbosity normal
         working-directory: system-test/dotnet
+        env:
+          ENVIRONMENT: acceptance
+          EXTERNAL_SYSTEM_MODE: stub
 
-      # TODO: Implement
-      - name: Run Acceptance Tests
-        run: echo "TODO - not yet implemented"
+      - name: Smoke (Real)
+        run: dotnet test --filter "FullyQualifiedName~SmokeTests" --verbosity normal
+        working-directory: system-test/dotnet
+        env:
+          ENVIRONMENT: acceptance
+          EXTERNAL_SYSTEM_MODE: real
 
-      # TODO: Implement
-      - name: Run External System Contract Tests
-        run: echo "TODO - not yet implemented"
+      - name: Acceptance - API Channel
+        run: dotnet test --filter "FullyQualifiedName~AcceptanceTests&Category!=isolated" --verbosity normal
+        working-directory: system-test/dotnet
+        env:
+          ENVIRONMENT: acceptance
+          EXTERNAL_SYSTEM_MODE: stub
+          CHANNEL: API
 
-      - name: Run E2E Tests
+      - name: Acceptance - UI Channel
+        run: dotnet test --filter "FullyQualifiedName~AcceptanceTests&Category!=isolated" --verbosity normal
+        working-directory: system-test/dotnet
+        env:
+          ENVIRONMENT: acceptance
+          EXTERNAL_SYSTEM_MODE: stub
+          CHANNEL: UI
+
+      - name: Acceptance (Isolated) - API Channel
+        run: dotnet test --filter "FullyQualifiedName~AcceptanceTests&Category=isolated" --verbosity normal
+        working-directory: system-test/dotnet
+        env:
+          ENVIRONMENT: acceptance
+          EXTERNAL_SYSTEM_MODE: stub
+          CHANNEL: API
+
+      - name: Acceptance (Isolated) - UI Channel
+        run: dotnet test --filter "FullyQualifiedName~AcceptanceTests&Category=isolated" --verbosity normal
+        working-directory: system-test/dotnet
+        env:
+          ENVIRONMENT: acceptance
+          EXTERNAL_SYSTEM_MODE: stub
+          CHANNEL: UI
+
+      - name: Contract (Stub)
+        run: dotnet test --filter "FullyQualifiedName~ContractTests" --verbosity normal
+        working-directory: system-test/dotnet
+        env:
+          ENVIRONMENT: acceptance
+          EXTERNAL_SYSTEM_MODE: stub
+
+      - name: Contract (Real)
+        run: dotnet test --filter "FullyQualifiedName~ContractTests" --verbosity normal
+        working-directory: system-test/dotnet
+        env:
+          ENVIRONMENT: acceptance
+          EXTERNAL_SYSTEM_MODE: real
+
+      - name: E2E - API Channel
         run: dotnet test --filter "FullyQualifiedName~E2eTests" --verbosity normal
         working-directory: system-test/dotnet
+        env:
+          ENVIRONMENT: acceptance
+          CHANNEL: API
+
+      - name: E2E - UI Channel
+        run: dotnet test --filter "FullyQualifiedName~E2eTests" --verbosity normal
+        working-directory: system-test/dotnet
+        env:
+          ENVIRONMENT: acceptance
+          CHANNEL: UI
 
       - name: Read Target Version
         id: read-version

@@ -120,21 +120,79 @@ jobs:
         working-directory: system-test/typescript
         run: npx playwright install
 
-      - name: Run Smoke Tests
+      - name: Smoke (Stub)
         working-directory: system-test/typescript
         run: npm test -- test/smoke-tests
+        env:
+          ENVIRONMENT: acceptance
+          EXTERNAL_SYSTEM_MODE: stub
 
-      # TODO: Implement
-      - name: Run Acceptance Tests
-        run: echo "TODO - not yet implemented"
+      - name: Smoke (Real)
+        working-directory: system-test/typescript
+        run: npm test -- test/smoke-tests
+        env:
+          ENVIRONMENT: acceptance
+          EXTERNAL_SYSTEM_MODE: real
 
-      # TODO: Implement
-      - name: Run External System Contract Tests
-        run: echo "TODO - not yet implemented"
+      - name: Acceptance - API Channel
+        working-directory: system-test/typescript
+        run: npm test -- --passWithNoTests test/acceptance-tests
+        env:
+          ENVIRONMENT: acceptance
+          EXTERNAL_SYSTEM_MODE: stub
+          CHANNEL: API
 
-      - name: Run E2E Tests
+      - name: Acceptance - UI Channel
+        working-directory: system-test/typescript
+        run: npm test -- --passWithNoTests test/acceptance-tests
+        env:
+          ENVIRONMENT: acceptance
+          EXTERNAL_SYSTEM_MODE: stub
+          CHANNEL: UI
+
+      - name: Acceptance (Isolated) - API Channel
+        working-directory: system-test/typescript
+        run: npm test -- --passWithNoTests test/acceptance-tests
+        env:
+          ENVIRONMENT: acceptance
+          EXTERNAL_SYSTEM_MODE: stub
+          CHANNEL: API
+
+      - name: Acceptance (Isolated) - UI Channel
+        working-directory: system-test/typescript
+        run: npm test -- --passWithNoTests test/acceptance-tests
+        env:
+          ENVIRONMENT: acceptance
+          EXTERNAL_SYSTEM_MODE: stub
+          CHANNEL: UI
+
+      - name: Contract (Stub)
+        working-directory: system-test/typescript
+        run: npm test -- --passWithNoTests test/contract-tests
+        env:
+          ENVIRONMENT: acceptance
+          EXTERNAL_SYSTEM_MODE: stub
+
+      - name: Contract (Real)
+        working-directory: system-test/typescript
+        run: npm test -- --passWithNoTests test/contract-tests
+        env:
+          ENVIRONMENT: acceptance
+          EXTERNAL_SYSTEM_MODE: real
+
+      - name: E2E - API Channel
         working-directory: system-test/typescript
         run: npm test -- test/e2e-tests
+        env:
+          ENVIRONMENT: acceptance
+          CHANNEL: API
+
+      - name: E2E - UI Channel
+        working-directory: system-test/typescript
+        run: npm test -- test/e2e-tests
+        env:
+          ENVIRONMENT: acceptance
+          CHANNEL: UI
 
       - name: Read Target Version
         id: read-version

@@ -1,0 +1,175 @@
+// Common notification functions shared across all pages
+
+import type { ApiError, ProblemDetail } from './types/error.types';
+import type { Result } from './types/result.types';
+
+export function showNotification(
+  message: string,
+  isError: boolean = false,
+  containerElementId: string = 'notifications'
+): void {
+  const notificationsDiv = document.getElementById(containerElementId);
+  if (!notificationsDiv) {
+    console.error(`Notification container not found: ${containerElementId}`);
+    return;
+  }
+
+  notificationsDiv.innerHTML = '';
+
+  const notif = document.createElement('div');
+  notif.setAttribute('role', 'alert');
+  notif.className = `notification ${isError ? 'error' : 'success'}`;
+
+  if (isError) {
+    // For error messages, use structured format matching API errors
+    const errorMessageDiv = document.createElement('div');
+    errorMessageDiv.className = 'error-message';
+    errorMessageDiv.textContent = message;
+    notif.appendChild(errorMessageDiv);
+  } else {
+    // For success messages, use simple text
+    notif.textContent = message;
+  }
+
+  notificationsDiv.appendChild(notif);
+}
+
+/**
+ * Displays an error from a failed API Result.
+ * Shows general error message first, then field-level errors below if present.
+ * Each field error is displayed as "fieldName: error message"
+ *
+ * @param error The ApiError from a failed Result
+ */
+export function showApiError(error: ApiError): void {
+  const notificationsDiv = document.getElementById('notifications');
+  if (!notificationsDiv) {
+    console.error('Notification container not found: notifications');
+    return;
+  }
+
+  notificationsDiv.innerHTML = '';
+
+  const notif = document.createElement('div');
+  notif.setAttribute('role', 'alert');
+  notif.className = 'notification error';
+
+  // Add general error message
+  const generalMessage = document.createElement('div');
+  generalMessage.className = 'error-message';
+  generalMessage.textContent = error.message;
+  notif.appendChild(generalMessage);
+
+  // Add field-level errors if present
+  if (error.fieldErrors && error.fieldErrors.length > 0) {
+    error.fieldErrors.forEach(fieldError => {
+      const fieldErrorDiv = document.createElement('div');
+      fieldErrorDiv.className = 'field-error';
+      fieldErrorDiv.textContent = fieldError;
+      notif.appendChild(fieldErrorDiv);
+    });
+  }
+
+  notificationsDiv.appendChild(notif);
+}
+
+/**
+ * Displays a success notification message.
+ * Convenience wrapper for showNotification with isError=false.
+ *
+ * @param message The success message to display
+ */
+export function showSuccessNotification(message: string): void {
+  showNotification(message, false);
+}
+
+/**
+ * Handles a Result by executing a success callback or showing an error.
+ * Encapsulates the common if-else pattern for Result handling.
+ *
+ * @param result The Result from a service call
+ * @param onSuccess Callback to execute on success, receives the data
+ */
+export function handleResult<T>(
+  result: Result<T>,
+  onSuccess: (data: T) => void
+): void {
+  if (result.success) {
+    onSuccess(result.data);
+  } else {
+    showApiError(result.error);
+  }
+}
+
+/**
+ * Performs a fetch request and returns a Result.
+ * Handles HTTP errors, network errors, and JSON parsing.
+ *
+ * @param url The URL to fetch
+ * @param options Fetch options (method, headers, body, etc.)
+ * @returns Result containing parsed JSON data or error
+ */
+export async function fetchJson<T>(url: string, options?: RequestInit): Promise<Result<T>> {
+  try {
+    const response = await fetch(url, options);
+
+    if (response.ok) {
+      // Handle 204 No Content
+      if (response.status === 204) {
+        return { success: true, data: undefined as T };
+      }
+      const data = await response.json();
+      return { success: true, data };
+    }
+
+    const error = await extractApiError(response);
+    return { success: false, error };
+  } catch (e: any) {
+    return {
+      success: false,
+      error: {
+        message: `Network error: ${e.message}`,
+        status: 0
+      }
+    };
+  }
+}
+
+async function safeParseJson(response: Response): Promise<any> {
+  try {
+    return await response.json();
+  } catch (e) {
+    console.error('Error parsing JSON response:', e);
+    return null;
+  }
+}
+
+/**
+ * Extracts error information from API response without showing notifications.
+ * This is a pure function with no UI side effects.
+ *
+ * @param response The fetch Response object
+ * @returns ApiError object with message and optional field errors
+ */
+export async function extractApiError(response: Response): Promise<ApiError> {
+  const errorData: ProblemDetail | null = await safeParseJson(response);
+
+  let message = '';
+  let fieldErrors: string[] | undefined = undefined;
+
+  if (errorData?.detail) {
+    message = errorData.detail;
+
+    if (errorData.errors && Array.isArray(errorData.errors) && errorData.errors.length > 0) {
+      fieldErrors = errorData.errors.map(e => `${e.field}: ${e.message}`);
+    }
+  } else {
+    message = `An unexpected error occurred. (Status: ${response.status})`;
+  }
+
+  return {
+    message,
+    fieldErrors,
+    status: response.status
+  };
+}
