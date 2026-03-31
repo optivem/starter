@@ -1,6 +1,8 @@
 name: verify-all
 
 on:
+  schedule:
+    - cron: '0 4 * * *'  # Run daily at 04:00 UTC
   workflow_dispatch:
 
 jobs:
