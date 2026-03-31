@@ -8,7 +8,7 @@
     "monolith-quick": {
       "description": "Default",
       "scenarios": {
-        "monolith-java": {
+        "monolith-monorepo-java-dotnet": {
           "ARCHITECTURE": "monolith",
           "REPOSITORY_STRATEGY": "monorepo",
           "SYSTEM_LANGUAGE": "java",
@@ -19,7 +19,7 @@
     "multitier-quick": {
       "description": "Multitier quick",
       "scenarios": {
-        "multitier-java": {
+        "multitier-monorepo-java-dotnet": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "monorepo",
           "BACKEND_LANGUAGE": "java",
@@ -28,11 +28,10 @@
         }
       }
     },
-
     "multirepo-quick": {
-      "description": "Multitier quick",
+      "description": "Multirepo quick",
       "scenarios": {
-        "multirepo-java": {
+        "multitier-multirepo-java-dotnet": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "multirepo",
           "BACKEND_LANGUAGE": "java",
@@ -41,23 +40,22 @@
         }
       }
     },
-
     "monolith-monolang": {
       "description": "Monolith — same language for backend and tests",
       "scenarios": {
-        "monolith-java": {
+        "monolith-monorepo-java-java": {
           "ARCHITECTURE": "monolith",
           "REPOSITORY_STRATEGY": "monorepo",
           "SYSTEM_LANGUAGE": "java",
           "SYSTEM_TEST_LANGUAGE": "java"
         },
-        "monolith-dotnet": {
+        "monolith-monorepo-dotnet-dotnet": {
           "ARCHITECTURE": "monolith",
           "REPOSITORY_STRATEGY": "monorepo",
           "SYSTEM_LANGUAGE": "dotnet",
           "SYSTEM_TEST_LANGUAGE": "dotnet"
         },
-        "monolith-typescript": {
+        "monolith-monorepo-typescript-typescript": {
           "ARCHITECTURE": "monolith",
           "REPOSITORY_STRATEGY": "monorepo",
           "SYSTEM_LANGUAGE": "typescript",
@@ -68,37 +66,37 @@
     "monolith-multilang": {
       "description": "Monolith — mixed languages (backend vs tests)",
       "scenarios": {
-        "monolith-java-test-dotnet": {
+        "monolith-monorepo-java-dotnet": {
           "ARCHITECTURE": "monolith",
           "REPOSITORY_STRATEGY": "monorepo",
           "SYSTEM_LANGUAGE": "java",
           "SYSTEM_TEST_LANGUAGE": "dotnet"
         },
-        "monolith-java-test-typescript": {
+        "monolith-monorepo-java-typescript": {
           "ARCHITECTURE": "monolith",
           "REPOSITORY_STRATEGY": "monorepo",
           "SYSTEM_LANGUAGE": "java",
           "SYSTEM_TEST_LANGUAGE": "typescript"
         },
-        "monolith-dotnet-test-java": {
+        "monolith-monorepo-dotnet-java": {
           "ARCHITECTURE": "monolith",
           "REPOSITORY_STRATEGY": "monorepo",
           "SYSTEM_LANGUAGE": "dotnet",
           "SYSTEM_TEST_LANGUAGE": "java"
         },
-        "monolith-dotnet-test-typescript": {
+        "monolith-monorepo-dotnet-typescript": {
           "ARCHITECTURE": "monolith",
           "REPOSITORY_STRATEGY": "monorepo",
           "SYSTEM_LANGUAGE": "dotnet",
           "SYSTEM_TEST_LANGUAGE": "typescript"
         },
-        "monolith-typescript-test-java": {
+        "monolith-monorepo-typescript-java": {
           "ARCHITECTURE": "monolith",
           "REPOSITORY_STRATEGY": "monorepo",
           "SYSTEM_LANGUAGE": "typescript",
           "SYSTEM_TEST_LANGUAGE": "java"
         },
-        "monolith-typescript-test-dotnet": {
+        "monolith-monorepo-typescript-dotnet": {
           "ARCHITECTURE": "monolith",
           "REPOSITORY_STRATEGY": "monorepo",
           "SYSTEM_LANGUAGE": "typescript",
@@ -109,21 +107,21 @@
     "multitier-monolang": {
       "description": "Multitier architecture — same language for backend and tests",
       "scenarios": {
-        "multitier-java": {
+        "multitier-monorepo-java-java": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "monorepo",
           "BACKEND_LANGUAGE": "java",
           "FRONTEND_LANGUAGE": "react",
           "SYSTEM_TEST_LANGUAGE": "java"
         },
-        "multitier-dotnet": {
+        "multitier-monorepo-dotnet-dotnet": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "monorepo",
           "BACKEND_LANGUAGE": "dotnet",
           "FRONTEND_LANGUAGE": "react",
           "SYSTEM_TEST_LANGUAGE": "dotnet"
         },
-        "multitier-typescript": {
+        "multitier-monorepo-typescript-typescript": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "monorepo",
           "BACKEND_LANGUAGE": "typescript",
@@ -135,42 +133,42 @@
     "multitier-multilang": {
       "description": "Multitier architecture — mixed languages (backend vs tests)",
       "scenarios": {
-        "multitier-java-test-dotnet": {
+        "multitier-monorepo-java-dotnet": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "monorepo",
           "BACKEND_LANGUAGE": "java",
           "FRONTEND_LANGUAGE": "react",
           "SYSTEM_TEST_LANGUAGE": "dotnet"
         },
-        "multitier-java-test-typescript": {
+        "multitier-monorepo-java-typescript": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "monorepo",
           "BACKEND_LANGUAGE": "java",
           "FRONTEND_LANGUAGE": "react",
           "SYSTEM_TEST_LANGUAGE": "typescript"
         },
-        "multitier-dotnet-test-java": {
+        "multitier-monorepo-dotnet-java": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "monorepo",
           "BACKEND_LANGUAGE": "dotnet",
           "FRONTEND_LANGUAGE": "react",
           "SYSTEM_TEST_LANGUAGE": "java"
         },
-        "multitier-dotnet-test-typescript": {
+        "multitier-monorepo-dotnet-typescript": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "monorepo",
           "BACKEND_LANGUAGE": "dotnet",
           "FRONTEND_LANGUAGE": "react",
           "SYSTEM_TEST_LANGUAGE": "typescript"
         },
-        "multitier-typescript-test-java": {
+        "multitier-monorepo-typescript-java": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "monorepo",
           "BACKEND_LANGUAGE": "typescript",
           "FRONTEND_LANGUAGE": "react",
           "SYSTEM_TEST_LANGUAGE": "java"
         },
-        "multitier-typescript-test-dotnet": {
+        "multitier-monorepo-typescript-dotnet": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "monorepo",
           "BACKEND_LANGUAGE": "typescript",
@@ -182,21 +180,21 @@
     "multirepo-monolang": {
       "description": "Multi-repo architecture — same language for backend and tests",
       "scenarios": {
-        "multirepo-java": {
+        "multitier-multirepo-java-java": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "multirepo",
           "BACKEND_LANGUAGE": "java",
           "FRONTEND_LANGUAGE": "react",
           "SYSTEM_TEST_LANGUAGE": "java"
         },
-        "multirepo-dotnet": {
+        "multitier-multirepo-dotnet-dotnet": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "multirepo",
           "BACKEND_LANGUAGE": "dotnet",
           "FRONTEND_LANGUAGE": "react",
           "SYSTEM_TEST_LANGUAGE": "dotnet"
         },
-        "multirepo-typescript": {
+        "multitier-multirepo-typescript-typescript": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "multirepo",
           "BACKEND_LANGUAGE": "typescript",
@@ -208,42 +206,42 @@
     "multirepo-multilang": {
       "description": "Multi-repo architecture — mixed languages (backend vs tests)",
       "scenarios": {
-        "multirepo-java-test-dotnet": {
+        "multitier-multirepo-java-dotnet": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "multirepo",
           "BACKEND_LANGUAGE": "java",
           "FRONTEND_LANGUAGE": "react",
           "SYSTEM_TEST_LANGUAGE": "dotnet"
         },
-        "multirepo-java-test-typescript": {
+        "multitier-multirepo-java-typescript": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "multirepo",
           "BACKEND_LANGUAGE": "java",
           "FRONTEND_LANGUAGE": "react",
           "SYSTEM_TEST_LANGUAGE": "typescript"
         },
-        "multirepo-dotnet-test-java": {
+        "multitier-multirepo-dotnet-java": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "multirepo",
           "BACKEND_LANGUAGE": "dotnet",
           "FRONTEND_LANGUAGE": "react",
           "SYSTEM_TEST_LANGUAGE": "java"
         },
-        "multirepo-dotnet-test-typescript": {
+        "multitier-multirepo-dotnet-typescript": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "multirepo",
           "BACKEND_LANGUAGE": "dotnet",
           "FRONTEND_LANGUAGE": "react",
           "SYSTEM_TEST_LANGUAGE": "typescript"
         },
-        "multirepo-typescript-test-java": {
+        "multitier-multirepo-typescript-java": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "multirepo",
           "BACKEND_LANGUAGE": "typescript",
           "FRONTEND_LANGUAGE": "react",
           "SYSTEM_TEST_LANGUAGE": "java"
         },
-        "multirepo-typescript-test-dotnet": {
+        "multitier-multirepo-typescript-dotnet": {
           "ARCHITECTURE": "multitier",
           "REPOSITORY_STRATEGY": "multirepo",
           "BACKEND_LANGUAGE": "typescript",

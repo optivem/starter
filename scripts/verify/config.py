@@ -52,15 +52,14 @@ def parse_args() -> argparse.Namespace:
 
 
 def find_config_path(override: str | None = None) -> str:
-    """Locate verifier-config.json relative to the starter repo root."""
+    """Locate verify-config.json next to verify.py."""
     if override:
         return override
-    # Walk up from this file to find the repo root (has VERSION file)
-    d = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    config_path = os.path.join(d, ".claude", "agents", "verifier-config.json")
+    scripts_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    config_path = os.path.join(scripts_dir, "verify-config.json")
     if os.path.isfile(config_path):
         return config_path
-    raise FileNotFoundError(f"Cannot find verifier-config.json (tried {config_path})")
+    raise FileNotFoundError(f"Cannot find verify-config.json (tried {config_path})")
 
 
 def load_config(path: str) -> dict:
