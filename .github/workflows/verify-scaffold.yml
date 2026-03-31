@@ -22,8 +22,10 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Authenticate GitHub CLI
-        run: echo "${{ secrets.VERIFY_TOKEN }}" | gh auth login --with-token
+      - name: Authenticate GitHub CLI and Git
+        run: |
+          echo "${{ secrets.VERIFY_TOKEN }}" | gh auth login --with-token
+          gh auth setup-git
 
       - name: Run Verification
         run: |
