@@ -1,15 +1,10 @@
-package com.optivem.eshop.systemtest.e2e.base;
+package com.optivem.eshop.systemtest.latest.contract.clock;
 
-import com.optivem.eshop.systemtest.base.BaseScenarioDslTest;
 import com.optivem.eshop.systemtest.configuration.ExternalSystemMode;
 
-public class BaseE2eTest extends BaseScenarioDslTest {
+class ClockRealContractTest extends BaseClockContractTest {
     @Override
     protected ExternalSystemMode getFixedExternalSystemMode() {
         return ExternalSystemMode.REAL;
     }
 }
-
-
-
-

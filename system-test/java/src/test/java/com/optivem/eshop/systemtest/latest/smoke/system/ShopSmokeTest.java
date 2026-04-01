@@ -1,6 +1,6 @@
-package com.optivem.eshop.systemtest.smoke.system;
+package com.optivem.eshop.systemtest.latest.smoke.system;
 
-import com.optivem.eshop.systemtest.base.BaseScenarioDslTest;
+import com.optivem.eshop.systemtest.latest.base.BaseScenarioDslTest;
 import com.optivem.eshop.dsl.channel.ChannelType;
 import com.optivem.testing.Channel;
 import org.junit.jupiter.api.TestTemplate;

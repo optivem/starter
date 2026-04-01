@@ -1,7 +1,7 @@
-package com.optivem.eshop.systemtest.e2e;
+package com.optivem.eshop.systemtest.latest.e2e;
 
 import com.optivem.eshop.dsl.channel.ChannelType;
-import com.optivem.eshop.systemtest.e2e.base.BaseE2eTest;
+import com.optivem.eshop.systemtest.latest.e2e.base.BaseE2eTest;
 import com.optivem.testing.Channel;
 import org.junit.jupiter.api.TestTemplate;
 

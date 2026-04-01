@@ -1,6 +1,6 @@
-package com.optivem.eshop.systemtest.smoke.external;
+package com.optivem.eshop.systemtest.latest.smoke.external;
 
-import com.optivem.eshop.systemtest.base.BaseScenarioDslTest;
+import com.optivem.eshop.systemtest.latest.base.BaseScenarioDslTest;
 import org.junit.jupiter.api.Test;
 
 class ClockSmokeTest extends BaseScenarioDslTest {

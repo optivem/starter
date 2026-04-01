@@ -1,4 +1,4 @@
-package com.optivem.eshop.systemtest.base;
+package com.optivem.eshop.systemtest.latest.base;
 
 import com.optivem.eshop.systemtest.configuration.BaseConfigurableTest;
 import com.optivem.eshop.dsl.core.usecase.UseCaseDsl;

@@ -1,4 +1,4 @@
-package com.optivem.eshop.systemtest.contract.erp;
+package com.optivem.eshop.systemtest.latest.contract.erp;
 
 import com.optivem.eshop.systemtest.configuration.ExternalSystemMode;
 

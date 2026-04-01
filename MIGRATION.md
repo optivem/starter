@@ -59,7 +59,7 @@ Port the eshop ecosystem into the starter repo, covering application code, test 
 - Remove CancelOrder, DeliverOrder
 - PlaceOrder: `sku`, `quantity` only (no `country`, `couponCode`)
 - `totalPrice = unitPrice * quantity` (no tax, no discount)
-- Clock restriction: 09:00–17:00
+- Clock restriction: reject orders placed between 23:59 and 00:00 on December 31st
 - ViewOrder: keep `orderNumber`, `sku`, `quantity`, `unitPrice`, `totalPrice`, `status`, `timestamp`
 
 ---
@@ -280,17 +280,37 @@ Port to `starter/system-test/{lang}/Run-SystemTests.ps1` with these changes:
 | System components | FE: 3001/3002, BE: 8081/8082 | FE: 3101/3102, BE: 8101/8102 (no eshop conflicts) |
 | External systems | ERP+Tax: 9001/9002, Clock: 9002 | ERP+Clock: 9101/9102 (no Tax, no eshop conflicts) |
 | `-Mode` param | `local` / `pipeline` | `local` / `pipeline` (same) |
-| Config loading | `Run-SystemTests.Config.ps1` | Same pattern |
+| Config loading | `Run-SystemTests.Config.ps1` | Split into 3 files (see below) |
+| `-Legacy` switch | N/A | New param: runs legacy suites instead of latest |
 
-**Run-SystemTests.Config.ps1:**
+**Config file split (3 files):**
+
+| File | Contents |
+|---|---|
+| `Run-SystemTests.Config.ps1` | Shared settings only: `TestFilter`, `BuildCommands` |
+| `Run-SystemTests.Latest.Config.ps1` | `Suites` for latest tests only |
+| `Run-SystemTests.Legacy.Config.ps1` | `Suites` for legacy modules (mod02–mod11) |
+
+The main script loads shared config from `Run-SystemTests.Config.ps1`, then loads suites from either `Latest` or `Legacy` config based on the `-Legacy` switch:
+- `.\Run-SystemTests.ps1` → runs Latest suites (default)
+- `.\Run-SystemTests.ps1 -Legacy` → runs Legacy suites
+
+**Run-SystemTests.Latest.Config.ps1:**
 
 | Aspect | eshop-tests | starter |
 |---|---|---|
-| Build command | `.\gradlew.bat clean compileJava compileTestJava` | Same (for Java) |
-| Test suites | mod02-mod11 + latest | Latest only (no legacy modules) — must include all test types that the pipeline runs |
-| Suite IDs | `mod02-smoke`, `mod03-e2e`, etc. | `smoke-stub`, `smoke-real`, `acceptance-api`, `acceptance-ui`, `acceptance-isolated-api`, `acceptance-isolated-ui`, `contract-stub`, `contract-real`, `e2e-api`, `e2e-ui` (matches eshop latest ordering) |
+| Test suites | latest only | Same — must include all test types that the pipeline runs |
+| Suite IDs | `smoke-stub`, `smoke-real`, etc. | `smoke-stub`, `smoke-real`, `acceptance-api`, `acceptance-ui`, `acceptance-isolated-api`, `acceptance-isolated-ui`, `contract-stub`, `contract-real`, `e2e-api`, `e2e-ui` (matches eshop latest ordering) |
 | System properties | `-DexternalSystemMode=real/stub -Denvironment=local` | Same |
-| Test filter pattern | `--tests '*latest*<type>*'` | Same — filters by `latest` package to exclude `legacy/` tests |
+| Test filter pattern | `-Dversion=latest -Dtype=smoke`, etc. | Same — uses `-Dversion` + `-Dtype` system properties (NOT `--tests` globs, which match across all modules) |
+
+**Run-SystemTests.Legacy.Config.ps1:**
+
+| Aspect | eshop-tests | starter |
+|---|---|---|
+| Test suites | mod02-mod11 | Same modules, using `-Dversion=modXX -Dtype=smoke/e2e/acceptance/contract` system properties (NOT `--tests` globs) |
+| Suite IDs | `mod02-smoke`, `mod03-e2e`, etc. | Same IDs as eshop-tests |
+| System properties | `-DexternalSystemMode=real/stub -Denvironment=local` | Same |
 
 ---
 
@@ -300,7 +320,8 @@ YAML config files, ConfigurationLoader, PropertyLoader, Environment, ExternalSys
 
 - `test-config-local-real.yml` — URLs for real mode ports
 - `test-config-local-stub.yml` — URLs for stub mode ports
-- Forward system properties (`environment`, `externalSystemMode`, etc.) in `build.gradle`
+- Forward system properties (`environment`, `externalSystemMode`, `channel`, `mode`, etc.) in `build.gradle`
+- `build.gradle` test filter must support `-Dversion` + `-Dtype` combined filtering (matching eshop-tests pattern: `includeTestsMatching "*${version}*${type}*"`), NOT `--tests` glob patterns which match across all modules
 
 ---
 
@@ -338,7 +359,7 @@ Package names kept identical (`com.optivem.eshop.dsl`). Only changes: remove Tax
 **PlaceOrder simplifications:**
 - Request: `sku`, `quantity` only (remove `country`, `couponCode`)
 - `totalPrice = unitPrice * quantity` (no tax)
-- Clock restriction: 09:00–17:00
+- Clock restriction: reject orders placed between 23:59 and 00:00 on December 31st
 
 **ViewOrderResponse:** keep `orderNumber`, `sku`, `quantity`, `unitPrice`, `totalPrice`, `status`, `timestamp` — remove tax/coupon/discount fields
 
@@ -520,7 +541,7 @@ Target test: `starter/system-test/java/src/test/java/`
 | `latest/contract/clock/ClockStubContractTest.java` | copy |
 | `latest/contract/clock/ClockRealContractTest.java` | copy |
 
-**Important:** When migrating test types, ensure **all test types that the acceptance-stage workflow runs** (smoke, acceptance, contract, e2e) are also present as suites in `Run-SystemTests.Config.ps1`. A mismatch means CI failures won't be caught locally.
+**Important:** When migrating test types, ensure **all test types that the acceptance-stage workflow runs** (smoke, acceptance, contract, e2e) are also present as suites in `Run-SystemTests.Latest.Config.ps1`. A mismatch means CI failures won't be caught locally.
 
 ### Legacy modules (test journey)
 
@@ -539,7 +560,7 @@ Copy the `legacy/` directory from eshop-tests into starter's test source tree, t
 | `legacy/mod10` | acceptance tests |
 | `legacy/mod11` | contract tests |
 
-These are not executed in CI — they exist purely to show the journey for learning purposes.
+These are not executed in CI — they exist purely to show the journey for learning purposes. They can be run locally via `.\Run-SystemTests.ps1 -Legacy` (or with `-Suite mod05-e2e` to run a specific one).
 
 #### Files to delete entirely
 
@@ -564,10 +585,11 @@ These are not executed in CI — they exist purely to show the journey for learn
 | `TaxRealClient` import, field, instantiation, teardown | `mod04/base/BaseClientTest.java` |
 | `TaxRealDriver` import, field, instantiation, teardown | `mod05/base/BaseDriverTest.java`, `mod06/base/BaseChannelDriverTest.java` |
 | `getTaxBaseUrl()` method, `taxHttpClient` field + setup | `mod02/base/BaseRawTest.java`, `mod03/base/BaseRawTest.java` |
-| `.country()` / `COUNTRY` from PlaceOrder requests | e2e tests in mod03–mod08, mod10 |
+| `.country()` / `COUNTRY` from PlaceOrder requests **and** delete country-specific test methods (`shouldRejectOrderWithEmptyCountry`, `shouldRejectOrderWithInvalidCountry`, `shouldRejectOrderWithNullCountry`) | e2e tests in mod03–mod08, mod10 |
 | `.coupon()` / `.withCouponCode()` / `.withDiscountRate()` from DSL calls | mod10–mod11 acceptance/e2e tests |
 | `subtotalPrice`, `discountRate`, `discountAmount`, `taxRate`, `taxAmount` from assertions | e2e tests in mod03–mod11 |
-| `ExternalSystemMode` type: use `com.optivem.eshop.systemtest.configuration.ExternalSystemMode` | mod03/mod04/mod06 e2e base classes |
+| `Configuration` type: use `com.optivem.eshop.systemtest.configuration.Configuration` (not `dsl.core.usecase.Configuration`) | `mod02/base/BaseRawTest.java`, `mod03/base/BaseRawTest.java`, `mod04/base/BaseClientTest.java`, `mod05/base/BaseDriverTest.java`, `mod06/base/BaseChannelDriverTest.java` |
+| `ExternalSystemMode` type: use `com.optivem.eshop.systemtest.configuration.ExternalSystemMode` (not `dsl.port.ExternalSystemMode`) | e2e base classes in mod03–mod08, mod10 acceptance base, mod11 contract base + all concrete contract tests (clock/erp Real+Stub) |
 
 **Verify:** `./gradlew compileJava compileTestJava` — zero errors (both source and test compilation).
 

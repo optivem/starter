@@ -8,6 +8,8 @@ param(
     [string]$Suite,
     [string]$Test,
 
+    [switch]$Legacy,
+
     [switch]$Rebuild,
     [switch]$Restart,
     [switch]$SkipTests,
@@ -82,7 +84,25 @@ if (-not $SkipTests) {
 
     $TestConfig = . $TestConfigPath
     $BuildCommands = $TestConfig.BuildCommands
-    $Suites = $TestConfig.Suites
+
+    # Load suite configuration based on -Legacy switch
+    if ($Legacy) {
+        $SuiteConfigFile = "Run-SystemTests.Legacy.Config.ps1"
+    } else {
+        $SuiteConfigFile = "Run-SystemTests.Latest.Config.ps1"
+    }
+
+    $suiteConfigPath = "$WorkingDirectory\$SuiteConfigFile"
+    Write-Host "Loading suite configuration: $SuiteConfigFile" -ForegroundColor Cyan
+
+    if (-not (Test-Path $suiteConfigPath)) {
+        Write-Host "ERROR: Suite configuration file not found at path: $suiteConfigPath" -ForegroundColor Red
+        Set-Location $WorkingDirectory
+        exit 1
+    }
+
+    $suiteConfig = . $suiteConfigPath
+    $Suites = $suiteConfig.Suites
 }
 
 # Script Configuration

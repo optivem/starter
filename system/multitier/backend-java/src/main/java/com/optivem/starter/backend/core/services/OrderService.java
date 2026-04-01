@@ -14,10 +14,17 @@ import com.optivem.starter.backend.core.services.external.ErpGateway;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.MonthDay;
+import java.time.ZoneId;
 import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
+
+    private static final MonthDay YEAR_END_RESTRICTED_MONTH_DAY = MonthDay.of(12, 31);
+    private static final LocalTime YEAR_END_RESTRICTED_TIME_START = LocalTime.of(23, 59);
 
     private final OrderRepository orderRepository;
     private final ErpGateway erpGateway;
@@ -34,6 +41,17 @@ public class OrderService {
         var quantity = request.getQuantity();
 
         var orderTimestamp = clockGateway.getCurrentTime();
+
+        var now = LocalDateTime.ofInstant(orderTimestamp, ZoneId.of("UTC"));
+        var currentMonthDay = MonthDay.from(now);
+
+        if (currentMonthDay.equals(YEAR_END_RESTRICTED_MONTH_DAY)) {
+            var currentTime = now.toLocalTime();
+
+            if (!currentTime.isBefore(YEAR_END_RESTRICTED_TIME_START)) {
+                throw new ValidationException("Orders cannot be placed between 23:59 and 00:00 on December 31st");
+            }
+        }
         var unitPrice = getUnitPrice(sku);
         var totalPrice = unitPrice.multiply(BigDecimal.valueOf(quantity));
 

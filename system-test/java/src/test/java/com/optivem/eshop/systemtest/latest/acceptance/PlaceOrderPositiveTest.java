@@ -1,6 +1,6 @@
-package com.optivem.eshop.systemtest.acceptance;
+package com.optivem.eshop.systemtest.latest.acceptance;
 
-import com.optivem.eshop.systemtest.acceptance.base.BaseAcceptanceTest;
+import com.optivem.eshop.systemtest.latest.acceptance.base.BaseAcceptanceTest;
 import com.optivem.eshop.dsl.channel.ChannelType;
 import com.optivem.eshop.dsl.driver.port.shop.dtos.OrderStatus;
 import com.optivem.testing.Channel;
@@ -10,7 +10,7 @@ import org.junit.jupiter.api.TestTemplate;
 class PlaceOrderPositiveTest extends BaseAcceptanceTest {
     @TestTemplate
     @Channel({ChannelType.UI, ChannelType.API})
-    void shouldBeAbleToPlaceOrderForValidInput() {
+    void shouldPlaceOrderForValidInput() {
         scenario
                 .given().product()
                     .withSku("ABC")
@@ -23,7 +23,7 @@ class PlaceOrderPositiveTest extends BaseAcceptanceTest {
 
     @TestTemplate
     @Channel({ChannelType.UI, ChannelType.API})
-    void orderStatusShouldBePlacedAfterPlacingOrder() {
+    void shouldHavePlacedStatusAfterPlacingOrder() {
         scenario
                 .when().placeOrder()
                 .then().shouldSucceed()
@@ -33,13 +33,11 @@ class PlaceOrderPositiveTest extends BaseAcceptanceTest {
 
     @TestTemplate
     @Channel({ChannelType.UI, ChannelType.API})
-    void orderPrefixShouldBeORD() {
+    void shouldHaveORDPrefix() {
         scenario
                 .when().placeOrder()
                 .then().shouldSucceed()
                 .and().order()
                     .hasOrderNumberPrefix("ORD-");
     }
-
-    // TODO: Place order for exact available quantity
 }

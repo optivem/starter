@@ -1,6 +1,6 @@
-package com.optivem.eshop.systemtest.contract.base;
+package com.optivem.eshop.systemtest.latest.contract.base;
 
-import com.optivem.eshop.systemtest.base.BaseScenarioDslTest;
+import com.optivem.eshop.systemtest.latest.base.BaseScenarioDslTest;
 import com.optivem.eshop.systemtest.configuration.ExternalSystemMode;
 import com.optivem.eshop.dsl.core.ScenarioDslImpl;
 import org.junit.jupiter.api.BeforeEach;

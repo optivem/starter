@@ -1,13 +1,10 @@
-package com.optivem.eshop.systemtest.acceptance.base;
+package com.optivem.eshop.systemtest.latest.contract.erp;
 
-import com.optivem.eshop.systemtest.base.BaseScenarioDslTest;
 import com.optivem.eshop.systemtest.configuration.ExternalSystemMode;
 
-public class BaseAcceptanceTest extends BaseScenarioDslTest {
+class ErpStubContractTest extends BaseErpContractTest {
     @Override
     protected ExternalSystemMode getFixedExternalSystemMode() {
         return ExternalSystemMode.STUB;
     }
 }
-
-

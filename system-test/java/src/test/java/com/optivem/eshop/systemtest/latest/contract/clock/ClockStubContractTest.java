@@ -1,4 +1,4 @@
-package com.optivem.eshop.systemtest.contract.clock;
+package com.optivem.eshop.systemtest.latest.contract.clock;
 
 import com.optivem.eshop.systemtest.configuration.ExternalSystemMode;
 import org.junit.jupiter.api.Test;

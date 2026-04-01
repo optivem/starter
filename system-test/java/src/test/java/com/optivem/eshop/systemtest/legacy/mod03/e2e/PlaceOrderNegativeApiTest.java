@@ -21,10 +21,9 @@ class PlaceOrderNegativeApiTest extends BaseE2eTest {
         var placeOrderJson = """
                 {
                     "sku": "%s",
-                    "quantity": "invalid-quantity",
-                    "country": "%s"
+                    "quantity": "invalid-quantity"
                 }
-                """.formatted(createUniqueSku(SKU), COUNTRY);
+                """.formatted(createUniqueSku(SKU));
 
         var response = shopApiHttpClient.send(
                 HttpRequest.newBuilder()
@@ -42,10 +41,9 @@ class PlaceOrderNegativeApiTest extends BaseE2eTest {
         var placeOrderJson = """
                 {
                     "sku": "NON-EXISTENT-SKU-12345",
-                    "quantity": "%s",
-                    "country": "%s"
+                    "quantity": "%s"
                 }
-                """.formatted(QUANTITY, COUNTRY);
+                """.formatted(QUANTITY);
 
         var response = shopApiHttpClient.send(
                 HttpRequest.newBuilder()
@@ -63,10 +61,9 @@ class PlaceOrderNegativeApiTest extends BaseE2eTest {
         var placeOrderJson = """
                 {
                     "sku": "%s",
-                    "quantity": "-10",
-                    "country": "%s"
+                    "quantity": "-10"
                 }
-                """.formatted(createUniqueSku(SKU), COUNTRY);
+                """.formatted(createUniqueSku(SKU));
 
         var response = shopApiHttpClient.send(
                 HttpRequest.newBuilder()
@@ -84,10 +81,9 @@ class PlaceOrderNegativeApiTest extends BaseE2eTest {
         var placeOrderJson = """
                 {
                     "sku": "%s",
-                    "quantity": "0",
-                    "country": "%s"
+                    "quantity": "0"
                 }
-                """.formatted(createUniqueSku(SKU), COUNTRY);
+                """.formatted(createUniqueSku(SKU));
 
         var response = shopApiHttpClient.send(
                 HttpRequest.newBuilder()
@@ -105,10 +101,9 @@ class PlaceOrderNegativeApiTest extends BaseE2eTest {
         var placeOrderJson = """
                 {
                     "sku": "",
-                    "quantity": "%s",
-                    "country": "%s"
+                    "quantity": "%s"
                 }
-                """.formatted(QUANTITY, COUNTRY);
+                """.formatted(QUANTITY);
 
         var response = shopApiHttpClient.send(
                 HttpRequest.newBuilder()
@@ -126,10 +121,9 @@ class PlaceOrderNegativeApiTest extends BaseE2eTest {
         var placeOrderJson = """
                 {
                     "sku": "%s",
-                    "quantity": "",
-                    "country": "%s"
+                    "quantity": ""
                 }
-                """.formatted(createUniqueSku(SKU), COUNTRY);
+                """.formatted(createUniqueSku(SKU));
 
         var response = shopApiHttpClient.send(
                 HttpRequest.newBuilder()
@@ -147,10 +141,9 @@ class PlaceOrderNegativeApiTest extends BaseE2eTest {
         var placeOrderJson = """
                 {
                     "sku": "%s",
-                    "quantity": "3.5",
-                    "country": "%s"
+                    "quantity": "3.5"
                 }
-                """.formatted(createUniqueSku(SKU), COUNTRY);
+                """.formatted(createUniqueSku(SKU));
 
         var response = shopApiHttpClient.send(
                 HttpRequest.newBuilder()
@@ -164,77 +157,13 @@ class PlaceOrderNegativeApiTest extends BaseE2eTest {
     }
 
     @Test
-    void shouldRejectOrderWithEmptyCountry() throws Exception {
-        var placeOrderJson = """
-                {
-                    "sku": "%s",
-                    "quantity": "%s",
-                    "country": ""
-                }
-                """.formatted(createUniqueSku(SKU), QUANTITY);
-
-        var response = shopApiHttpClient.send(
-                HttpRequest.newBuilder()
-                        .uri(URI.create(getShopApiBaseUrl() + "/api/orders"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(placeOrderJson))
-                        .build(),
-                HttpResponse.BodyHandlers.ofString());
-
-        assertValidationError(response.statusCode(), response.body(), "country", "Country must not be empty");
-    }
-
-    @Test
-    void shouldRejectOrderWithInvalidCountry() throws Exception {
-        var sku = createUniqueSku(SKU);
-        var createProductJson = """
-                {
-                    "id": "%s",
-                    "title": "Test Product",
-                    "description": "Test Description",
-                    "category": "Test Category",
-                    "brand": "Test Brand",
-                    "price": "20.00"
-                }
-                """.formatted(sku);
-
-        var createProductResponse = erpHttpClient.send(
-                HttpRequest.newBuilder()
-                        .uri(URI.create(getErpBaseUrl() + "/api/products"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(createProductJson))
-                        .build(),
-                HttpResponse.BodyHandlers.ofString());
-        assertThat(createProductResponse.statusCode()).isEqualTo(201);
-
-        var placeOrderJson = """
-                {
-                    "sku": "%s",
-                    "quantity": "%s",
-                    "country": "XX"
-                }
-                """.formatted(sku, QUANTITY);
-
-        var response = shopApiHttpClient.send(
-                HttpRequest.newBuilder()
-                        .uri(URI.create(getShopApiBaseUrl() + "/api/orders"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(placeOrderJson))
-                        .build(),
-                HttpResponse.BodyHandlers.ofString());
-
-        assertValidationError(response.statusCode(), response.body(), "country", "Country does not exist: XX");
-    }
-
-    @Test
     void shouldRejectOrderWithNullQuantity() throws Exception {
         var placeOrderJson = """
                 {
                     "sku": "%s",
-                    "country": "%s",
                     "quantity": null
                 }
-                """.formatted(createUniqueSku(SKU), COUNTRY);
+                """.formatted(createUniqueSku(SKU));
 
         var response = shopApiHttpClient.send(
                 HttpRequest.newBuilder()
@@ -252,10 +181,9 @@ class PlaceOrderNegativeApiTest extends BaseE2eTest {
         var placeOrderJson = """
                 {
                     "sku": null,
-                    "quantity": "%s",
-                    "country": "%s"
+                    "quantity": "%s"
                 }
-                """.formatted(QUANTITY, COUNTRY);
+                """.formatted(QUANTITY);
 
         var response = shopApiHttpClient.send(
                 HttpRequest.newBuilder()
@@ -266,27 +194,6 @@ class PlaceOrderNegativeApiTest extends BaseE2eTest {
                 HttpResponse.BodyHandlers.ofString());
 
         assertValidationError(response.statusCode(), response.body(), "sku", "SKU must not be empty");
-    }
-
-    @Test
-    void shouldRejectOrderWithNullCountry() throws Exception {
-        var placeOrderJson = """
-                {
-                    "sku": "%s",
-                    "quantity": "%s",
-                    "country": null
-                }
-                """.formatted(createUniqueSku(SKU), QUANTITY);
-
-        var response = shopApiHttpClient.send(
-                HttpRequest.newBuilder()
-                        .uri(URI.create(getShopApiBaseUrl() + "/api/orders"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(placeOrderJson))
-                        .build(),
-                HttpResponse.BodyHandlers.ofString());
-
-        assertValidationError(response.statusCode(), response.body(), "country", "Country must not be empty");
     }
 
     private void assertValidationError(int statusCode, String responseBody, String field, String message) throws Exception {
@@ -306,4 +213,3 @@ class PlaceOrderNegativeApiTest extends BaseE2eTest {
         assertThat(found).isTrue();
     }
 }
-
