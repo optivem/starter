@@ -33,6 +33,21 @@ class PlaceOrderPositiveTest extends BaseAcceptanceTest {
 
     @TestTemplate
     @Channel({ChannelType.UI, ChannelType.API})
+    void shouldCalculateCorrectTotalPrice() {
+        scenario
+                .given().product()
+                    .withSku("ABC")
+                    .withUnitPrice(20.00)
+                .when().placeOrder()
+                    .withSku("ABC")
+                    .withQuantity(5)
+                .then().shouldSucceed()
+                .and().order()
+                    .hasTotalPrice(100.00);
+    }
+
+    @TestTemplate
+    @Channel({ChannelType.UI, ChannelType.API})
     void shouldHaveORDPrefix() {
         scenario
                 .when().placeOrder()

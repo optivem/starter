@@ -13,6 +13,10 @@ public class GivenClockImpl extends BaseGivenStep implements GivenClock {
         withTime(ScenarioDefaults.DEFAULT_TIME);
     }
 
+    public GivenClockImpl withTime() {
+        return withTime(ScenarioDefaults.DEFAULT_TIME);
+    }
+
     public GivenClockImpl withTime(String time) {
         this.time = time;
         return this;

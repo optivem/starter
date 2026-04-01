@@ -75,7 +75,7 @@ public class ViewOrderVerification extends ResponseVerification<ViewOrderRespons
         var totalPrice = getResponse().getTotalPrice();
         assertThat(totalPrice)
                 .withFailMessage("Expected total price to be %s, but was %s", expectedTotalPrice, totalPrice)
-                .isEqualTo(expectedTotalPrice);
+                .isEqualByComparingTo(expectedTotalPrice);
         return this;
     }
 
