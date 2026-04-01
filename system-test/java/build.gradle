@@ -91,7 +91,7 @@ tasks.named('test') {
 		}
 	}
 
-	jvmArgs '-Duser.timezone=UTC'
+	jvmArgs '-Duser.timezone=UTC', '-Xmx512m'
 
 	systemProperty 'environment',        System.getProperty('environment')
 	systemProperty 'externalSystemMode', System.getProperty('externalSystemMode')
@@ -104,7 +104,7 @@ tasks.named('test') {
 		systemProperty 'junit.jupiter.execution.parallel.enabled', 'false'
 		maxParallelForks = 1
 	} else {
-		maxParallelForks = Runtime.runtime.availableProcessors()
+		maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors().intdiv(2))
 	}
 
 	testLogging {
