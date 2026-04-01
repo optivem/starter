@@ -1,7 +1,6 @@
-# Build results
-bin/
-obj/
-out/
+# Visual Studio
+.vs/
+.vscode/
 
 # User-specific files
 *.user
@@ -9,40 +8,22 @@ out/
 *.userosscache
 *.sln.docstates
 
-# Visual Studio Code
-.vscode/
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
 
-# Visual Studio
-.vs/
-
-# NuGet packages
-*.nupkg
-*.snupkg
-packages/
-# Uncomment if you have a packages directory
-# !packages/build/
-
-# Resharper
-_ReSharper*/
-*.[Rr]e[Ss]harper
-
-# DotCover
-*.dotCover
-
-# Rider
-.idea/
-
-# ASP.NET Scaffolding
-ScaffoldingReadMe.txt
-
-# Others
-*.log
-*.tlog
-*.cache
-*.pdb
-
-# Azure Pipelines
-.vsts/
-
-# Local test results
+# Test results
 TestResults/
+*.trx
+*.html
+*.xml
+build-result.txt
+
+# Visual Studio cache/options
+.vsts/
+slnx.sqlite
+*.slnx.db

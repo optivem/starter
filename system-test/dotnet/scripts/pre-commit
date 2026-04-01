@@ -1,0 +1,13 @@
+#!/bin/sh
+# Pre-commit hook: runs format verification and compilation
+# Install: .\Install-PreCommitHook.ps1 (or copy to .git/hooks/pre-commit)
+# Bypass: git commit --no-verify
+
+cd "$(git rev-parse --show-toplevel)" || exit 1
+
+if [ -f ./Run-PreCommitCheck.ps1 ]; then
+  pwsh ./Run-PreCommitCheck.ps1
+else
+  powershell ./Run-PreCommitCheck.ps1
+fi
+exit $?

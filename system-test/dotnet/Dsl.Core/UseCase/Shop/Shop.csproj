@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Optivem.EShop.SystemTest.Core.Shop</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Shared\Dsl.Core.Shared.csproj" />
+    <ProjectReference Include="..\..\..\Channel\Channel.csproj" />
+    <ProjectReference Include="..\..\..\Driver.Adapter\Driver.Adapter.csproj" />
+    <ProjectReference Include="..\..\..\Common\Common.csproj" />
+    <ProjectReference Include="..\..\..\Driver.Port\Driver.Port.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Optivem.Testing" Version="1.0.5" />
+    <PackageReference Include="Shouldly" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>

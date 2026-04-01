@@ -26,7 +26,7 @@ $ExternalModes = @("real", "stub")
 # Load configuration - keyed by ExternalMode
 $SystemConfig = @{
     "real" = @{
-        ContainerName = "starter-$Architecture-real"
+        ContainerName = "starter-java-$Architecture-real"
 
         SystemComponents = @(
             @{ Name = "Frontend";
@@ -48,7 +48,7 @@ $SystemConfig = @{
     }
 
     "stub" = @{
-        ContainerName = "starter-$Architecture-stub"
+        ContainerName = "starter-java-$Architecture-stub"
 
         SystemComponents = @(
             @{ Name = "Frontend";
