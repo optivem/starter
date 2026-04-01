@@ -1,19 +1,27 @@
-import { loadConfiguration } from '../../../../config/configuration-loader';
+import { chromium, Browser } from 'playwright';
+import { createScenario } from '../../../../src/test-setup';
 
 describe('Shop Smoke Test', () => {
-  const config = loadConfiguration();
+  let browser: Browser;
 
-  it('shouldBeAbleToGoToShop_API', async () => {
-    const response = await fetch(`${config.shop.backendApiUrl}/health`);
-    expect(response.status).toBe(200);
-    const body = await response.json() as { status: string };
-    expect(body.status).toBe('UP');
+  beforeAll(async () => {
+    browser = await chromium.launch();
   });
 
-  it('shouldBeAbleToGoToShop_UI', async () => {
-    const response = await fetch(config.shop.frontendUrl);
-    expect(response.status).toBe(200);
-    const body = await response.text();
-    expect(body).toContain('<html');
+  afterAll(async () => {
+    await browser?.close();
+  });
+
+  const channels = ['api', 'ui'] as const;
+
+  channels.forEach((channel) => {
+    it(`shouldBeAbleToGoToShop_${channel.toUpperCase()}`, async () => {
+      const scenario = createScenario({ channel, browser });
+      try {
+        await scenario.assume().shop().shouldBeRunning();
+      } finally {
+        await scenario.close();
+      }
+    });
   });
 });

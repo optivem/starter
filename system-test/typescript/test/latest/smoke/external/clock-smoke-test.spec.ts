@@ -1,17 +1,12 @@
-import { loadConfiguration } from '../../../../config/configuration-loader';
+import { createScenario } from '../../../../src/test-setup';
 
 describe('Clock Smoke Test', () => {
-  const config = loadConfiguration();
-
   it('shouldBeAbleToGoToClock', async () => {
-    const clockUrl = config.externalSystems.clock.url;
-
-    if (clockUrl === 'none') {
-      // Clock is not available in real mode (uses system clock)
-      return;
+    const scenario = createScenario();
+    try {
+      await scenario.assume().clock().shouldBeRunning();
+    } finally {
+      await scenario.close();
     }
-
-    const response = await fetch(`${clockUrl}/health`);
-    expect(response.status).toBe(200);
   });
 });

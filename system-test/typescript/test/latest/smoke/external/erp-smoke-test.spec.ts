@@ -1,10 +1,12 @@
-import { loadConfiguration } from '../../../../config/configuration-loader';
+import { createScenario } from '../../../../src/test-setup';
 
 describe('ERP Smoke Test', () => {
-  const config = loadConfiguration();
-
   it('shouldBeAbleToGoToErp', async () => {
-    const response = await fetch(`${config.externalSystems.erp.url}/health`);
-    expect(response.status).toBe(200);
+    const scenario = createScenario();
+    try {
+      await scenario.assume().erp().shouldBeRunning();
+    } finally {
+      await scenario.close();
+    }
   });
 });
