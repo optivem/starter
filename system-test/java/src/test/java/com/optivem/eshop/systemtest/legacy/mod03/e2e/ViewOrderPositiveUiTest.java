@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ViewOrderPositiveUiTest extends BaseE2eTest {
     @Override
-    protected void setShopDriver() {
+    protected void setShopClient() {
         setUpShopBrowser();
     }
 

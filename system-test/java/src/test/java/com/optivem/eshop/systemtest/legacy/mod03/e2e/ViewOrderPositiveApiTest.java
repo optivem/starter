@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ViewOrderPositiveApiTest extends BaseE2eTest {
     @Override
-    protected void setShopDriver() {
+    protected void setShopClient() {
         setUpShopHttpClient();
     }
 
