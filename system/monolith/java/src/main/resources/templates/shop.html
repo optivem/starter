@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Shop</title>
+</head>
+<body>
+<section>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active">Shop</li>
+        </ol>
+    </nav>
+
+    <h2>Shop</h2>
+
+    <div class="row">
+        <div class="col-lg-6 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Place Your Order</h4>
+                </div>
+                <div class="card-body">
+                    <div th:if="${success}" class="alert alert-success" role="alert" th:text="${success}"></div>
+                    <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+
+                    <form method="post" action="/shop">
+                        <div class="mb-3">
+                            <label for="sku" class="form-label">SKU</label>
+                            <input type="text" class="form-control" id="sku" name="sku"
+                                   th:value="${sku}" placeholder="Enter product SKU" aria-label="SKU">
+                        </div>
+                        <div class="mb-3">
+                            <label for="quantity" class="form-label">Quantity</label>
+                            <input type="text" class="form-control" id="quantity" name="quantity"
+                                   inputmode="numeric" th:value="${quantity}" placeholder="Enter quantity"
+                                   aria-label="Quantity">
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg" aria-label="Place Order">
+                                Place Order
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

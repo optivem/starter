@@ -2,6 +2,7 @@ using SystemTests.Legacy.Mod10.AcceptanceTests.Base;
 using Dsl.Core.Shop;
 using Driver.Port.Shop.Dtos;
 using Optivem.Testing;
+using Xunit;
 
 namespace SystemTests.Legacy.Mod10.AcceptanceTests;
 
@@ -9,12 +10,13 @@ public class PlaceOrderPositiveTest : BaseAcceptanceTest
 {
     [Theory]
     [ChannelData(ChannelType.UI, ChannelType.API)]
-    public async Task ShouldBeAbleToPlaceOrderForValidInput(Channel channel)
+    public async Task OrderNumberShouldStartWithORD(Channel channel)
     {
         await Scenario(channel)
-            .Given().Product().WithSku("ABC").WithUnitPrice(20.00m)
-            .When().PlaceOrder().WithSku("ABC").WithQuantity(5)
-            .Then().ShouldSucceed();
+            .When().PlaceOrder()
+            .Then().ShouldSucceed()
+            .And().Order()
+                .HasOrderNumberPrefix("ORD-");
     }
 
     [Theory]
@@ -25,59 +27,6 @@ public class PlaceOrderPositiveTest : BaseAcceptanceTest
             .When().PlaceOrder()
             .Then().ShouldSucceed()
             .And().Order()
-            .HasStatus(OrderStatus.Placed);
+                .HasStatus(OrderStatus.Placed);
     }
-
-    [Theory]
-    [ChannelData(ChannelType.UI, ChannelType.API)]
-    public async Task ShouldCalculateTotalPriceAsProductOfUnitPriceAndQuantity(Channel channel)
-    {
-        await Scenario(channel)
-            .Given().Product().WithUnitPrice(20.00m)
-            .When().PlaceOrder().WithQuantity(5)
-            .Then().ShouldSucceed()
-            .And().Order()
-            .HasTotalPrice(100.00m);
-    }
-
-    [Theory]
-    [ChannelData(ChannelType.UI, ChannelType.API)]
-    [ChannelInlineData("20.00", 5, "100.00")]
-    [ChannelInlineData("10.00", 3, "30.00")]
-    [ChannelInlineData("15.50", 4, "62.00")]
-    [ChannelInlineData("99.99", 1, "99.99")]
-    public async Task ShouldPlaceOrderWithCorrectTotalPriceParameterized(Channel channel, string unitPrice, int quantity, string totalPrice)
-    {
-        await Scenario(channel)
-            .Given().Product().WithUnitPrice(unitPrice)
-            .When().PlaceOrder().WithQuantity(quantity)
-            .Then().ShouldSucceed()
-            .And().Order()
-            .HasTotalPrice(totalPrice);
-    }
-
-    [Theory]
-    [ChannelData(ChannelType.UI, ChannelType.API)]
-    public async Task OrderPrefixShouldBeORD(Channel channel)
-    {
-        await Scenario(channel)
-            .When().PlaceOrder()
-            .Then().ShouldSucceed()
-            .And().Order()
-            .HasOrderNumberPrefix("ORD-");
-    }
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

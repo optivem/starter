@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Home</title>
+</head>
+<body>
+<section>
+    <div class="jumbotron bg-light p-5 rounded">
+        <h1 class="display-4">Welcome to eShop Starter!</h1>
+        <p class="lead">Your modern e-commerce solution</p>
+        <hr class="my-4">
+        <div class="row mt-4">
+            <div class="col-md-6 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">New Order</h5>
+                        <p class="card-text">Place a new order with our easy-to-use interface</p>
+                        <a href="/shop" class="btn btn-primary">Shop Now</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Order History</h5>
+                        <p class="card-text">View and manage your past orders</p>
+                        <a href="/order-history" class="btn btn-primary">View Orders</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

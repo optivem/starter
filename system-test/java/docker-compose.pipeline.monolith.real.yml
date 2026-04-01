@@ -6,8 +6,50 @@ services:
     image: ghcr.io/optivem/starter/monolith-java-monolith:latest
     ports:
       - "2101:8080"
+    environment:
+      - POSTGRES_URL=jdbc:postgresql://postgres:5432/starter
+      - POSTGRES_USERNAME=starter_user
+      - POSTGRES_PASSWORD=starter_password
+      - ERP_API_URL=http://external-real:9000/erp
+      - CLOCK_API_URL=http://external-real:9000/clock
+      - EXTERNAL_SYSTEM_MODE=real
+    depends_on:
+      postgres:
+        condition: service_healthy
+      external-real:
+        condition: service_started
     networks:
       - app-network
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=starter
+      - POSTGRES_USER=starter_user
+      - POSTGRES_PASSWORD=starter_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U starter_user -d starter"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  external-real:
+    image: node:18-alpine
+    ports:
+      - "9103:9000"
+    volumes:
+      - ../../system/external-real-sim:/app
+    working_dir: /app
+    command: sh -c "npm install && npm start"
+    networks:
+      - app-network
+
+volumes:
+  postgres-data:
 
 networks:
   app-network:

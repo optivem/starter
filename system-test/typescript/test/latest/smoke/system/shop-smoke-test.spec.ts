@@ -6,7 +6,7 @@ describe('Shop Smoke Test', () => {
   it('shouldBeAbleToGoToShop_API', async () => {
     const response = await fetch(`${config.shop.backendApiUrl}/health`);
     expect(response.status).toBe(200);
-    const body = await response.json();
+    const body = await response.json() as { status: string };
     expect(body.status).toBe('UP');
   });
 

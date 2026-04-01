@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Order History</title>
+</head>
+<body>
+<section>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active">Order History</li>
+        </ol>
+    </nav>
+
+    <h2>Order History</h2>
+
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Order History</h4>
+        </div>
+        <div class="card-body">
+            <form method="get" action="/order-history" class="row mb-3">
+                <div class="col-md-8">
+                    <label for="orderNumberFilter" class="form-label">Filter by Order Number:</label>
+                    <input type="text" class="form-control" id="orderNumberFilter" name="orderNumber"
+                           th:value="${filter}" placeholder="Enter order number..." aria-label="Order Number">
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-secondary w-100">Search</button>
+                </div>
+            </form>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Order Number</th>
+                            <th>Order Date</th>
+                            <th>SKU</th>
+                            <th>Quantity</th>
+                            <th>Total Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${#lists.isEmpty(orders)}">
+                            <td colspan="7" class="text-center">No orders found</td>
+                        </tr>
+                        <tr th:each="order : ${orders}">
+                            <td th:text="${order.orderNumber}"></td>
+                            <td th:text="${#temporals.format(order.orderTimestamp, 'MM/dd/yyyy, hh:mm:ss a', new java.util.Locale('en', 'US'))}"></td>
+                            <td th:text="${order.sku}"></td>
+                            <td th:text="${order.quantity}"></td>
+                            <td th:text="'$' + ${#numbers.formatDecimal(order.totalPrice, 1, 2)}"></td>
+                            <td><span th:class="'status-' + ${order.status}" th:text="${order.status}"></span></td>
+                            <td><a th:href="@{/order-details/{orderNumber}(orderNumber=${order.orderNumber})}">View Details</a></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

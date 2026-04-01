@@ -85,6 +85,14 @@ public abstract class BaseThenResultOrder<TSuccessResponse, TSuccessVerification
 
     IThenOrder IThenOrder.HasUnitPrice(decimal expectedUnitPrice) => HasUnitPrice(expectedUnitPrice);
 
+    public TDerived HasTotalPriceGreaterThanZero()
+    {
+        _verifications.Add(v => v.TotalPriceGreaterThanZero());
+        return Self;
+    }
+
+    IThenOrder IThenOrder.HasTotalPriceGreaterThanZero() => HasTotalPriceGreaterThanZero();
+
     public TaskAwaiter GetAwaiter() => Execute().GetAwaiter();
 
     private async Task Execute()

@@ -19,5 +19,7 @@ public interface IThenOrder
 
     IThenOrder HasOrderNumberPrefix(string expectedPrefix);
 
+    IThenOrder HasTotalPriceGreaterThanZero();
+
     TaskAwaiter GetAwaiter();
 }

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Order Details</title>
+</head>
+<body>
+<section>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/order-history">Order History</a></li>
+            <li class="breadcrumb-item active">Order Details</li>
+        </ol>
+    </nav>
+
+    <h2>Order Details</h2>
+
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Order Details</h4>
+        </div>
+        <div class="card-body">
+            <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+
+            <div th:if="${order}" class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Order Number</label>
+                    <p th:text="${order.orderNumber}" aria-label="Display Order Number"></p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Order Timestamp</label>
+                    <p th:text="${#temporals.format(order.orderTimestamp, 'MM/dd/yyyy, hh:mm:ss a', new java.util.Locale('en', 'US'))}" aria-label="Display Order Timestamp"></p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Status</label>
+                    <p aria-label="Display Status"><span th:class="'status-' + ${order.status}" th:text="${order.status}"></span></p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">SKU</label>
+                    <p th:text="${order.sku}" aria-label="Display SKU"></p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Quantity</label>
+                    <p th:text="${order.quantity}" aria-label="Display Quantity"></p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Unit Price</label>
+                    <p th:text="'$' + ${#numbers.formatDecimal(order.unitPrice, 1, 2)}" aria-label="Display Unit Price"></p>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Total Price</label>
+                    <p class="fs-5 fw-bold" th:text="'$' + ${#numbers.formatDecimal(order.totalPrice, 1, 2)}" aria-label="Display Total Price"></p>
+                </div>
+            </div>
+
+            <div class="mt-4" th:if="${order}">
+                <a href="/order-history" class="btn btn-secondary">Back to Order History</a>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
