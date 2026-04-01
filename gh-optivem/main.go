@@ -1,27 +1,27 @@
-// gh-scaffold: A gh CLI extension for scaffolding pipeline projects from starter templates.
+// gh-optivem: A gh CLI extension for pipeline project management.
 //
 // Usage:
 //
 //	Monolith:
-//	  gh scaffold --owner acme --system-name "Page Turner" --repo page-turner \
+//	  gh optivem init --owner acme --system-name "Page Turner" --repo page-turner \
 //	      --arch monolith --lang java
 //
 //	Multitier:
-//	  gh scaffold --owner acme --system-name "Page Turner" --repo page-turner \
+//	  gh optivem init --owner acme --system-name "Page Turner" --repo page-turner \
 //	      --arch multitier --backend-lang java --frontend-lang react
 //
 //	Dry run:
-//	  gh scaffold ... --dry-run
+//	  gh optivem init ... --dry-run
 package main
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/optivem/gh-scaffold/internal/config"
-	"github.com/optivem/gh-scaffold/internal/log"
-	"github.com/optivem/gh-scaffold/internal/shell"
-	"github.com/optivem/gh-scaffold/internal/steps"
+	"github.com/optivem/gh-optivem/internal/config"
+	"github.com/optivem/gh-optivem/internal/log"
+	"github.com/optivem/gh-optivem/internal/shell"
+	"github.com/optivem/gh-optivem/internal/steps"
 )
 
 type stepDef struct {

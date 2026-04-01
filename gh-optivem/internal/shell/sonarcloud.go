@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/optivem/gh-scaffold/internal/log"
+	"github.com/optivem/gh-optivem/internal/log"
 )
 
 // SonarCloud wraps SonarCloud API calls.

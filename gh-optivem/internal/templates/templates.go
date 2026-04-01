@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/optivem/gh-scaffold/internal/files"
-	"github.com/optivem/gh-scaffold/internal/log"
+	"github.com/optivem/gh-optivem/internal/files"
+	"github.com/optivem/gh-optivem/internal/log"
 )
 
 // CopyWorkflows copies workflow files from starter to repo.

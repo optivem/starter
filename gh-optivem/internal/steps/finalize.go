@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/optivem/gh-scaffold/internal/config"
-	"github.com/optivem/gh-scaffold/internal/log"
-	"github.com/optivem/gh-scaffold/internal/shell"
+	"github.com/optivem/gh-optivem/internal/config"
+	"github.com/optivem/gh-optivem/internal/log"
+	"github.com/optivem/gh-optivem/internal/shell"
 )
 
 // GetSonarProjectKeys returns the SonarCloud project keys for the given config.

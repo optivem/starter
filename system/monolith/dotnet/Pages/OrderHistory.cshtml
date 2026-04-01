@@ -1,4 +1,4 @@
-@page
+@page "/order-history"
 @model Optivem.Starter.Monolith.Pages.OrderHistoryModel
 @{
     ViewData["Title"] = "Order History";
@@ -6,7 +6,7 @@
 
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a asp-page="/Index">Home</a></li>
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
         <li class="breadcrumb-item active" aria-current="page">Order History</li>
     </ol>
 </nav>
@@ -105,7 +105,7 @@
                     '<td>' + order.quantity + '</td>' +
                     '<td>$' + order.totalPrice.toFixed(2) + '</td>' +
                     '<td><span class="badge bg-success">' + order.status + '</span></td>' +
-                    '<td><a href="/OrderDetails?orderNumber=' + encodeURIComponent(order.orderNumber) + '" class="btn btn-sm btn-outline-primary">View</a></td>';
+                    '<td><a href="/order-details?orderNumber=' + encodeURIComponent(order.orderNumber) + '" class="btn btn-sm btn-outline-primary">View</a></td>';
                 tbody.appendChild(row);
             });
 

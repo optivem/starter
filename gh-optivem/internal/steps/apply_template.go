@@ -5,10 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/optivem/gh-scaffold/internal/config"
-	"github.com/optivem/gh-scaffold/internal/files"
-	"github.com/optivem/gh-scaffold/internal/log"
-	"github.com/optivem/gh-scaffold/internal/templates"
+	"github.com/optivem/gh-optivem/internal/config"
+	"github.com/optivem/gh-optivem/internal/files"
+	"github.com/optivem/gh-optivem/internal/log"
+	"github.com/optivem/gh-optivem/internal/templates"
 )
 
 // Internal port exposed by each language's Docker image.

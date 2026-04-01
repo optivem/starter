@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/optivem/gh-scaffold/internal/log"
+	"github.com/optivem/gh-optivem/internal/log"
 )
 
 type Config struct {
@@ -176,7 +176,7 @@ func ParseAndValidate() *Config {
 		}
 	}
 
-	// Find starter path: the gh-scaffold binary lives inside starter/gh-scaffold/
+	// Find starter path: the gh-optivem binary lives inside starter/gh-optivem/
 	// so starter is the parent of the directory containing the executable.
 	exe, err := os.Executable()
 	if err != nil {
@@ -190,10 +190,10 @@ func ParseAndValidate() *Config {
 		starterPath = filepath.Dir(cwd)
 		if _, err := os.Stat(filepath.Join(starterPath, "VERSION")); err != nil {
 			// Try environment variable
-			if envPath := os.Getenv("SCAFFOLD_STARTER_PATH"); envPath != "" {
+			if envPath := os.Getenv("OPTIVEM_STARTER_PATH"); envPath != "" {
 				starterPath = envPath
 			} else {
-				log.FatalExit("Cannot find VERSION file. Set SCAFFOLD_STARTER_PATH to the starter repo root.")
+				log.FatalExit("Cannot find VERSION file. Set OPTIVEM_STARTER_PATH to the starter repo root.")
 			}
 		}
 	}

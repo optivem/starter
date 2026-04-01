@@ -23,49 +23,8 @@ param(
 $TestConfigFileName = "Run-SystemTests.Config.ps1"
 $ExternalModes = @("real", "stub")
 
-# Load configuration - keyed by ExternalMode, varies by Architecture
-if ($Architecture -eq "monolith") {
-    $SystemConfig = @{
-        "real" = @{
-            ContainerName = "starter-dotnet-monolith-real"
-
-            SystemComponents = @(
-                @{ Name = "Monolith";
-                    Url = "http://localhost:2201/health";
-                    ContainerName = "monolith" }
-            )
-
-            ExternalSystems = @(
-                @{ Name = "ERP API (Real)";
-                    Url = "http://localhost:9203/erp/health";
-                    ContainerName = "external-real" }
-                @{ Name = "Clock API (Real)";
-                    Url = "http://localhost:9203/clock/health";
-                    ContainerName = "external-real" }
-            )
-        }
-
-        "stub" = @{
-            ContainerName = "starter-dotnet-monolith-stub"
-
-            SystemComponents = @(
-                @{ Name = "Monolith";
-                    Url = "http://localhost:2202/health";
-                    ContainerName = "monolith" }
-            )
-
-            ExternalSystems = @(
-                @{ Name = "ERP API (Stub)";
-                    Url = "http://localhost:9204/erp/health";
-                    ContainerName = "external-stub" }
-                @{ Name = "Clock API (Stub)";
-                    Url = "http://localhost:9204/clock/health";
-                    ContainerName = "external-stub" }
-            )
-        }
-    }
-} else {
-    $SystemConfig = @{
+# Load configuration - keyed by ExternalMode
+$SystemConfig = @{
         "real" = @{
             ContainerName = "starter-dotnet-multitier-real"
 
@@ -110,7 +69,6 @@ if ($Architecture -eq "monolith") {
             )
         }
     }
-}
 
 # Load test configuration only if tests will be run
 if (-not $SkipTests) {

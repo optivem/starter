@@ -24,11 +24,8 @@ public static class SystemConfigurationLoader
     {
         var env = environment.ToString().ToLower();
         var mode = externalSystemMode.ToString().ToLower();
-        var architecture = (System.Environment.GetEnvironmentVariable("ARCHITECTURE") ?? "multitier").ToLower();
 
-        return architecture == "monolith"
-            ? $"appsettings.{env}.monolith.{mode}.json"
-            : $"appsettings.{env}.{mode}.json";
+        return $"appsettings.{env}.{mode}.json";
     }
 
     private static IConfiguration LoadJsonFile(string fileName)

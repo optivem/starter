@@ -9,7 +9,7 @@ export function validatePlaceOrderRequest(body: Record<string, unknown>): FieldE
   }
 
   const rawQuantity = body.quantity;
-  if (rawQuantity === undefined || rawQuantity === null) {
+  if (rawQuantity === undefined || rawQuantity === null || (typeof rawQuantity === 'string' && rawQuantity.trim() === '')) {
     errors.push({ field: 'quantity', message: 'Quantity must not be empty' });
   } else {
     const quantity = typeof rawQuantity === 'string' ? Number(rawQuantity) : rawQuantity;

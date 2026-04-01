@@ -6,9 +6,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/optivem/gh-scaffold/internal/config"
-	"github.com/optivem/gh-scaffold/internal/log"
-	"github.com/optivem/gh-scaffold/internal/shell"
+	"github.com/optivem/gh-optivem/internal/config"
+	"github.com/optivem/gh-optivem/internal/log"
+	"github.com/optivem/gh-optivem/internal/shell"
 )
 
 // CreateRepos creates the GitHub repository (and component repos for multitier).

@@ -1,4 +1,4 @@
-@page
+@page "/order-details"
 @model Optivem.Starter.Monolith.Pages.OrderDetailsModel
 @{
     ViewData["Title"] = "Order Details";
@@ -6,8 +6,8 @@
 
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a asp-page="/Index">Home</a></li>
-        <li class="breadcrumb-item"><a asp-page="/OrderHistory">Order History</a></li>
+        <li class="breadcrumb-item"><a href="/">Home</a></li>
+        <li class="breadcrumb-item"><a href="/order-history">Order History</a></li>
         <li class="breadcrumb-item active" aria-current="page">Order Details</li>
     </ol>
 </nav>
@@ -59,7 +59,7 @@
             </div>
 
             <div class="mt-4">
-                <a asp-page="/OrderHistory" class="btn btn-secondary">Back to Order History</a>
+                <a href="/order-history" class="btn btn-secondary">Back to Order History</a>
             </div>
         </div>
 
