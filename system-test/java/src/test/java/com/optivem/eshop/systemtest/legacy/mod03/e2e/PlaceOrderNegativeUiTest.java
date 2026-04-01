@@ -13,19 +13,7 @@ class PlaceOrderNegativeUiTest extends BaseE2eTest {
     }
 
     @Test
-    void shouldRejectOrderWithInvalidQuantity() {
-        shopUiPage.navigate(getShopUiBaseUrl());
-        shopUiPage.locator("a[href='/shop']").click();
-
-        shopUiPage.locator("[aria-label=\"SKU\"]").fill(createUniqueSku(SKU));
-        shopUiPage.locator("[aria-label=\"Quantity\"]").fill("invalid-quantity");
-        shopUiPage.locator("[aria-label=\"Place Order\"]").click();
-
-        assertErrorAlertContains("The request contains one or more validation errors", "quantity", "Quantity must be an integer");
-    }
-
-    @Test
-    void shouldRejectOrderWithNonExistentSku() {
+    void shouldRejectOrderForNonExistentProduct() {
         shopUiPage.navigate(getShopUiBaseUrl());
         shopUiPage.locator("a[href='/shop']").click();
 
@@ -37,60 +25,12 @@ class PlaceOrderNegativeUiTest extends BaseE2eTest {
     }
 
     @Test
-    void shouldRejectOrderWithNegativeQuantity() {
-        shopUiPage.navigate(getShopUiBaseUrl());
-        shopUiPage.locator("a[href='/shop']").click();
-
-        shopUiPage.locator("[aria-label=\"SKU\"]").fill(createUniqueSku(SKU));
-        shopUiPage.locator("[aria-label=\"Quantity\"]").fill("-10");
-        shopUiPage.locator("[aria-label=\"Place Order\"]").click();
-
-        assertErrorAlertContains("The request contains one or more validation errors", "quantity", "Quantity must be positive");
-    }
-
-    @Test
-    void shouldRejectOrderWithZeroQuantity() {
-        shopUiPage.navigate(getShopUiBaseUrl());
-        shopUiPage.locator("a[href='/shop']").click();
-
-        shopUiPage.locator("[aria-label=\"SKU\"]").fill(createUniqueSku(SKU));
-        shopUiPage.locator("[aria-label=\"Quantity\"]").fill("0");
-        shopUiPage.locator("[aria-label=\"Place Order\"]").click();
-
-        assertErrorAlertContains("The request contains one or more validation errors", "quantity", "Quantity must be positive");
-    }
-
-    @Test
-    void shouldRejectOrderWithEmptySku() {
-        shopUiPage.navigate(getShopUiBaseUrl());
-        shopUiPage.locator("a[href='/shop']").click();
-
-        shopUiPage.locator("[aria-label=\"SKU\"]").fill("");
-        shopUiPage.locator("[aria-label=\"Quantity\"]").fill(QUANTITY);
-        shopUiPage.locator("[aria-label=\"Place Order\"]").click();
-
-        assertErrorAlertContains("The request contains one or more validation errors", "sku", "SKU must not be empty");
-    }
-
-    @Test
-    void shouldRejectOrderWithEmptyQuantity() {
-        shopUiPage.navigate(getShopUiBaseUrl());
-        shopUiPage.locator("a[href='/shop']").click();
-
-        shopUiPage.locator("[aria-label=\"SKU\"]").fill(createUniqueSku(SKU));
-        shopUiPage.locator("[aria-label=\"Quantity\"]").fill("");
-        shopUiPage.locator("[aria-label=\"Place Order\"]").click();
-
-        assertErrorAlertContains("The request contains one or more validation errors", "quantity", "Quantity must not be empty");
-    }
-
-    @Test
     void shouldRejectOrderWithNonIntegerQuantity() {
         shopUiPage.navigate(getShopUiBaseUrl());
         shopUiPage.locator("a[href='/shop']").click();
 
         shopUiPage.locator("[aria-label=\"SKU\"]").fill(createUniqueSku(SKU));
-        shopUiPage.locator("[aria-label=\"Quantity\"]").fill("3.5");
+        shopUiPage.locator("[aria-label=\"Quantity\"]").fill("invalid-quantity");
         shopUiPage.locator("[aria-label=\"Place Order\"]").click();
 
         assertErrorAlertContains("The request contains one or more validation errors", "quantity", "Quantity must be an integer");

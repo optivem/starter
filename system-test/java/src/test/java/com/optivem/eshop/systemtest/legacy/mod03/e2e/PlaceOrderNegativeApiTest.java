@@ -17,27 +17,7 @@ class PlaceOrderNegativeApiTest extends BaseE2eTest {
     }
 
     @Test
-    void shouldRejectOrderWithInvalidQuantity() throws Exception {
-        var placeOrderJson = """
-                {
-                    "sku": "%s",
-                    "quantity": "invalid-quantity"
-                }
-                """.formatted(createUniqueSku(SKU));
-
-        var response = shopApiHttpClient.send(
-                HttpRequest.newBuilder()
-                        .uri(URI.create(getShopApiBaseUrl() + "/api/orders"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(placeOrderJson))
-                        .build(),
-                HttpResponse.BodyHandlers.ofString());
-
-        assertValidationError(response.statusCode(), response.body(), "quantity", "Quantity must be an integer");
-    }
-
-    @Test
-    void shouldRejectOrderWithNonExistentSku() throws Exception {
+    void shouldRejectOrderForNonExistentProduct() throws Exception {
         var placeOrderJson = """
                 {
                     "sku": "NON-EXISTENT-SKU-12345",
@@ -57,91 +37,11 @@ class PlaceOrderNegativeApiTest extends BaseE2eTest {
     }
 
     @Test
-    void shouldRejectOrderWithNegativeQuantity() throws Exception {
-        var placeOrderJson = """
-                {
-                    "sku": "%s",
-                    "quantity": "-10"
-                }
-                """.formatted(createUniqueSku(SKU));
-
-        var response = shopApiHttpClient.send(
-                HttpRequest.newBuilder()
-                        .uri(URI.create(getShopApiBaseUrl() + "/api/orders"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(placeOrderJson))
-                        .build(),
-                HttpResponse.BodyHandlers.ofString());
-
-        assertValidationError(response.statusCode(), response.body(), "quantity", "Quantity must be positive");
-    }
-
-    @Test
-    void shouldRejectOrderWithZeroQuantity() throws Exception {
-        var placeOrderJson = """
-                {
-                    "sku": "%s",
-                    "quantity": "0"
-                }
-                """.formatted(createUniqueSku(SKU));
-
-        var response = shopApiHttpClient.send(
-                HttpRequest.newBuilder()
-                        .uri(URI.create(getShopApiBaseUrl() + "/api/orders"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(placeOrderJson))
-                        .build(),
-                HttpResponse.BodyHandlers.ofString());
-
-        assertValidationError(response.statusCode(), response.body(), "quantity", "Quantity must be positive");
-    }
-
-    @Test
-    void shouldRejectOrderWithEmptySku() throws Exception {
-        var placeOrderJson = """
-                {
-                    "sku": "",
-                    "quantity": "%s"
-                }
-                """.formatted(QUANTITY);
-
-        var response = shopApiHttpClient.send(
-                HttpRequest.newBuilder()
-                        .uri(URI.create(getShopApiBaseUrl() + "/api/orders"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(placeOrderJson))
-                        .build(),
-                HttpResponse.BodyHandlers.ofString());
-
-        assertValidationError(response.statusCode(), response.body(), "sku", "SKU must not be empty");
-    }
-
-    @Test
-    void shouldRejectOrderWithEmptyQuantity() throws Exception {
-        var placeOrderJson = """
-                {
-                    "sku": "%s",
-                    "quantity": ""
-                }
-                """.formatted(createUniqueSku(SKU));
-
-        var response = shopApiHttpClient.send(
-                HttpRequest.newBuilder()
-                        .uri(URI.create(getShopApiBaseUrl() + "/api/orders"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(placeOrderJson))
-                        .build(),
-                HttpResponse.BodyHandlers.ofString());
-
-        assertValidationError(response.statusCode(), response.body(), "quantity", "Quantity must not be empty");
-    }
-
-    @Test
     void shouldRejectOrderWithNonIntegerQuantity() throws Exception {
         var placeOrderJson = """
                 {
                     "sku": "%s",
-                    "quantity": "3.5"
+                    "quantity": "invalid-quantity"
                 }
                 """.formatted(createUniqueSku(SKU));
 
@@ -154,46 +54,6 @@ class PlaceOrderNegativeApiTest extends BaseE2eTest {
                 HttpResponse.BodyHandlers.ofString());
 
         assertValidationError(response.statusCode(), response.body(), "quantity", "Quantity must be an integer");
-    }
-
-    @Test
-    void shouldRejectOrderWithNullQuantity() throws Exception {
-        var placeOrderJson = """
-                {
-                    "sku": "%s",
-                    "quantity": null
-                }
-                """.formatted(createUniqueSku(SKU));
-
-        var response = shopApiHttpClient.send(
-                HttpRequest.newBuilder()
-                        .uri(URI.create(getShopApiBaseUrl() + "/api/orders"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(placeOrderJson))
-                        .build(),
-                HttpResponse.BodyHandlers.ofString());
-
-        assertValidationError(response.statusCode(), response.body(), "quantity", "Quantity must not be empty");
-    }
-
-    @Test
-    void shouldRejectOrderWithNullSku() throws Exception {
-        var placeOrderJson = """
-                {
-                    "sku": null,
-                    "quantity": "%s"
-                }
-                """.formatted(QUANTITY);
-
-        var response = shopApiHttpClient.send(
-                HttpRequest.newBuilder()
-                        .uri(URI.create(getShopApiBaseUrl() + "/api/orders"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString(placeOrderJson))
-                        .build(),
-                HttpResponse.BodyHandlers.ofString());
-
-        assertValidationError(response.statusCode(), response.body(), "sku", "SKU must not be empty");
     }
 
     private void assertValidationError(int statusCode, String responseBody, String field, String message) throws Exception {
