@@ -80,12 +80,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     response.status(404).json(body);
   }
 
-  private handleBadRequestException(ex: BadRequestException, response: Response, request: Request) {
+  private handleBadRequestException(ex: BadRequestException, response: Response, _request: Request) {
     const exResponse = ex.getResponse() as Record<string, unknown>;
 
     // Check if this is a validation pipe error (class-validator)
     if (Array.isArray(exResponse?.validationErrors)) {
-      const rawBody = (request as Record<string, unknown>).rawBody as Record<string, unknown> | undefined;
+      const rawBody = exResponse.rawBody as Record<string, unknown> | undefined;
       const errors = this.buildValidationErrors(exResponse.validationErrors as ValidationErrorDetail[], rawBody);
 
       const body = {

@@ -14,11 +14,15 @@ RUN npm run build
 FROM node:22-alpine
 WORKDIR /app
 
-# Copy built files and dependencies from build stage
-COPY --from=build /app ./
+# Copy package files and install production dependencies
+COPY --from=build /app/package*.json ./
+RUN npm ci --omit=dev
 
-# Expose port (adjust if your app uses a different port)
+# Copy built files
+COPY --from=build /app/dist ./dist
+
+# Expose port
 EXPOSE 8081
 
-# Start the app (adjust if your entry point is different)
-CMD ["npm", "start"]
+# Start the app
+CMD ["node", "dist/main"]
