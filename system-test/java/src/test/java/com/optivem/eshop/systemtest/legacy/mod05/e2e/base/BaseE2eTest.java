@@ -4,8 +4,6 @@ import com.optivem.eshop.systemtest.legacy.mod05.base.BaseDriverTest;
 import com.optivem.eshop.systemtest.configuration.ExternalSystemMode;
 import org.junit.jupiter.api.BeforeEach;
 
-import java.util.UUID;
-
 public abstract class BaseE2eTest extends BaseDriverTest {
     @BeforeEach
     void setUpDrivers() {
@@ -18,11 +16,6 @@ public abstract class BaseE2eTest extends BaseDriverTest {
     @Override
     protected ExternalSystemMode getFixedExternalSystemMode() {
         return ExternalSystemMode.REAL;
-    }
-
-    protected String createUniqueSku(String baseSku) {
-        var suffix = UUID.randomUUID().toString().substring(0, 8);
-        return baseSku + "-" + suffix;
     }
 }
 
