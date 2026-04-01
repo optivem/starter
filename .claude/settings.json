@@ -23,19 +23,13 @@
     "defaultMode": "bypassPermissions"
   },
   "hooks": {
-    "Notification": [
+    "Stop": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -Command \"[Console]::Beep(800, 300)\""
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
+            "command": "powershell -Command \"[Console]::Beep(1000, 500)\""
+          },
           {
             "type": "command",
             "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"Stop\",\"additionalContext\":\"IMPORTANT: Before ending, ask the user if they would like you to: (1) git commit & push all repos (run /github-commit-push-all), and/or (2) git sync all repos (run /github-sync-all). Wait for their response before proceeding.\"},\"continue\":true}'"

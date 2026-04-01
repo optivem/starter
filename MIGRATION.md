@@ -11,10 +11,14 @@ Port the eshop ecosystem into the starter repo, covering application code, test 
 - **Ask user approval to `/commit`** after each verified step.
 - **Run backend unit tests** (`./gradlew test`) after modifying backend code, not just system tests.
 - **Show failures to user** before fixing — if something fails, it may indicate a gap in the plan.
+- **Ask user approval for post-verbatim fixes:** After verbatim copy + tax/coupon removal, any additional code changes (behavior fixes, framework-specific adaptations, error format adjustments) must be shown to the user and approved before applying. The Java backend behavior is the reference, but it may also be evolving.
+- **Identical backend behavior across languages:** All backend implementations (Java, .NET, TypeScript) must return identical API responses for the same inputs — same JSON structure, status codes, field names, and validation messages. The **Java backend is the reference implementation** — .NET and TypeScript must match its behavior exactly. Note: the Java backend behavior may differ from eshop (the user is actively changing things). The acceptance tests are language-agnostic and must be able to run against any backend. Test edge cases (empty strings, whitespace, null, type mismatches) where framework defaults diverge.
+- **Language-scoped docker-compose names:** Every docker-compose file must include the language in its project name (e.g. `starter-java-multitier-real`, `starter-dotnet-multitier-stub`). This prevents conflicts when Java and .NET (and later TypeScript) systems run concurrently. The Run-SystemTests.ps1 container names must match.
 - **Copy first, then delete:** When porting files, always copy the source file verbatim first, then surgically remove the specific lines for tax/coupon/cancel/deliver. Never rewrite or regenerate code from description — that introduces subtle bugs (e.g. wrong assertion methods, missing attributes). This applies to:
-  - **Multitier backend** — verbatim copy from eshop backend, then remove tax/coupon/cancel/deliver code
+  - **Multitier backend (Java only)** — verbatim copy from eshop backend, then remove tax/coupon/cancel/deliver code
   - **Multitier frontend** — verbatim copy from eshop frontend (including components like Notification), then remove tax/coupon/cancel/deliver code
   - **Test code (ATDD)** — verbatim copy from eshop-tests, then remove tax/coupon/cancel/deliver code
+  - **Multitier backend (.NET, TypeScript)** — eshop has no .NET or TypeScript backends, so these are **translations** from the Java backend reference. Expect framework-specific issues (DateTime/Instant handling, JSON serialization defaults, validation pipeline differences). Test thoroughly against the Java backend's behavior as the reference.
   - **Monolith is the exception** — monolith is a rewrite based on the multitier frontend/backend, NOT a verbatim copy from eshop (since eshop has no monolith)
 
 **Execution order:**
@@ -32,8 +36,8 @@ Port the eshop ecosystem into the starter repo, covering application code, test 
 8. ✅ Remove all hardcoded URLs: frontend pages must use relative URLs (not `localhost:8080`), all test classes (API and UI) must use config-driven URLs from `ConfigurationLoader`. Restructure test folders to match eshop-tests convention (`smoketests/` → `latest/smoke/system/`, `e2etests/` → `latest/e2e/`) → **verify:** `Run-SystemTests.ps1` passes (all suites, no `-Suite` filter)
 9. ✅ Test code (ATDD architecture) → **verify:** `./gradlew compileJava compileTestJava` — zero errors (both source and test compilation)
 10. ✅ Run full system tests locally (`Run-SystemTests.ps1`) — smoke, e2e, acceptance pass
-11. Acceptance stage workflow (GitHub Actions) → **verify:** CI passes *(triggered manually, running...)*
-12. Trigger `verify-all` with `language=java, architecture=multitier` → **verify:** all Java multitier workflows green
+11. ✅ Acceptance stage workflow (GitHub Actions) → **verify:** CI passes
+12. ✅ Trigger `verify-all` with `language=java, architecture=multitier` → **verify:** acceptance stage green (QA/prod stages require manual signoff by design)
 
 ### Phase B: .NET Multitier
 

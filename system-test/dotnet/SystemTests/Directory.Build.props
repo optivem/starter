@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <!-- S2699: Tests use fluent DSL assertions (HasBasePrice, ShouldSucceed, etc.) that Sonar doesn't recognize -->
+    <NoWarn>$(NoWarn);S2699</NoWarn>
+  </PropertyGroup>
+</Project>

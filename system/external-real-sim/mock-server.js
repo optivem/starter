@@ -59,6 +59,14 @@ const erpRouter = jsonServer.router({
   ]
 });
 
+// Coerce string prices to numbers on product creation
+server.post('/erp/api/products', (req, res, next) => {
+  if (req.body && typeof req.body.price === 'string') {
+    req.body.price = parseFloat(req.body.price);
+  }
+  next();
+});
+
 server.get('/erp/api', (req, res) => {
   res.status(200).json({
     message: 'ERP API',

@@ -1,0 +1,70 @@
+name: starter-dotnet-multitier-stub
+
+services:
+
+  frontend:
+    build:
+      context: ../../system/multitier/frontend-react
+      dockerfile: Dockerfile
+    ports:
+      - "3202:3000"
+    environment:
+      - BACKEND_API_URL=http://backend:8081
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ../../system/multitier/backend-dotnet
+      dockerfile: Dockerfile
+    ports:
+      - "8202:8081"
+    environment:
+      - ConnectionStrings__Postgres=Host=postgres;Port=5432;Database=starter;Username=starter_user;Password=starter_password
+      - Cors__AllowedOrigins__0=http://localhost:3202
+      - Cors__AllowedOrigins__1=http://frontend:3000
+      - Erp__Url=http://external-stub:8080/erp
+      - Clock__Url=http://external-stub:8080/clock
+      - External__SystemMode=stub
+    depends_on:
+      postgres:
+        condition: service_healthy
+      external-stub:
+        condition: service_started
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=starter
+      - POSTGRES_USER=starter_user
+      - POSTGRES_PASSWORD=starter_password
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U starter_user -d starter"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  external-stub:
+    image: wiremock/wiremock:3.10.0
+    ports:
+      - "9202:8080"
+    volumes:
+      - ../../system/external-stub:/home/wiremock
+    command: --verbose --global-response-templating
+    networks:
+      - app-network
+
+volumes:
+  postgres-data:
+
+networks:
+  app-network:
+    driver: bridge
