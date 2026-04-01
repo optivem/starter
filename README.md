@@ -40,7 +40,7 @@ Pick based on your preferred test language (independent of system language):
 | .NET | `system-test/dotnet/` | xUnit + Playwright |
 | TypeScript | `system-test/typescript/` | Jest + Playwright |
 
-Each system-test includes `docker-compose.multitier.yml` and `docker-compose.monolith.yml` — rename the appropriate one to `docker-compose.yml`.
+Each system-test includes docker-compose files for both architectures in `local` and `pipeline` variants (e.g. `docker-compose.local.monolith.real.yml`, `docker-compose.pipeline.multitier.stub.yml`). Remove the files for the architecture you don't need.
 
 ## CI/CD Pipelines
 

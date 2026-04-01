@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     const sku = body.sku as string;
-    const quantity = body.quantity as number;
+    const quantity = typeof body.quantity === 'string' ? Number(body.quantity) : body.quantity as number;
 
     const now = await getCurrentTime();
 

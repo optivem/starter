@@ -141,6 +141,7 @@ jobs:
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
+          ARCHITECTURE: monolith
           EXTERNAL_SYSTEM_MODE: stub
 
       - name: Smoke (Real)
@@ -148,6 +149,7 @@ jobs:
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
+          ARCHITECTURE: monolith
           EXTERNAL_SYSTEM_MODE: real
 
       - name: Acceptance - API Channel
@@ -155,6 +157,7 @@ jobs:
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
+          ARCHITECTURE: monolith
           EXTERNAL_SYSTEM_MODE: stub
           CHANNEL: API
 
@@ -163,6 +166,7 @@ jobs:
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
+          ARCHITECTURE: monolith
           EXTERNAL_SYSTEM_MODE: stub
           CHANNEL: UI
 
@@ -171,6 +175,7 @@ jobs:
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
+          ARCHITECTURE: monolith
           EXTERNAL_SYSTEM_MODE: stub
           CHANNEL: API
 
@@ -179,6 +184,7 @@ jobs:
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
+          ARCHITECTURE: monolith
           EXTERNAL_SYSTEM_MODE: stub
           CHANNEL: UI
 
@@ -187,6 +193,7 @@ jobs:
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
+          ARCHITECTURE: monolith
           EXTERNAL_SYSTEM_MODE: stub
 
       - name: Contract (Real)
@@ -194,6 +201,7 @@ jobs:
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
+          ARCHITECTURE: monolith
           EXTERNAL_SYSTEM_MODE: real
 
       - name: E2E - API Channel
@@ -201,6 +209,7 @@ jobs:
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
+          ARCHITECTURE: monolith
           CHANNEL: API
 
       - name: E2E - UI Channel
@@ -208,6 +217,7 @@ jobs:
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
+          ARCHITECTURE: monolith
           CHANNEL: UI
 
       - name: Read Target Version

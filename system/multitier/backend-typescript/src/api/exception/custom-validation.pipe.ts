@@ -34,7 +34,9 @@ export class CustomValidationPipe implements PipeTransform {
     const className = metadata.metatype.name;
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const object = plainToInstance(metadata.metatype, value);
+    const object = plainToInstance(metadata.metatype, value, {
+      enableImplicitConversion: true,
+    });
     const errors = await validate(object as object);
 
     if (errors.length > 0) {
