@@ -23,6 +23,17 @@
     "defaultMode": "bypassPermissions"
   },
   "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{const j=JSON.parse(d);const f=j.tool_input?.file_path||j.tool_response?.filePath||'';if(!f.endsWith('.java'))return;const fs=require('fs');const content=fs.readFileSync(f,'utf8');const eol=content.includes('\\r\\n')?'\\r\\n':'\\n';const fixed=content.replace(/(\\r\\n|\\n){3,}/g,eol+eol).replace(/(\\r\\n|\\n)+$/,eol);if(fixed!==content)fs.writeFileSync(f,fixed)})\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [
