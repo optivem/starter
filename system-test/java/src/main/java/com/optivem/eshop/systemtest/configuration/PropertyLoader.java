@@ -24,7 +24,7 @@ public class PropertyLoader {
 
     private static String getRequiredSystemProperty(String propertyName, String allowedValues) {
         var value = System.getProperty(propertyName);
-        if (value == null) {
+        if (value == null || value.isBlank()) {
             throw new IllegalStateException(
                     String.format("System property '%s' is not defined. Please specify -D%s=<%s>",
                             propertyName, propertyName, allowedValues)

@@ -53,7 +53,10 @@ public class OrderService {
             }
         }
         var unitPrice = getUnitPrice(sku);
-        var totalPrice = unitPrice.multiply(BigDecimal.valueOf(quantity));
+        var dayOfWeek = now.getDayOfWeek();
+        var isWeekend = dayOfWeek == java.time.DayOfWeek.SATURDAY || dayOfWeek == java.time.DayOfWeek.SUNDAY;
+        var discountFactor = isWeekend ? BigDecimal.valueOf(0.5) : BigDecimal.ONE;
+        var totalPrice = unitPrice.multiply(BigDecimal.valueOf(quantity)).multiply(discountFactor);
 
         var orderNumber = generateOrderNumber();
 
