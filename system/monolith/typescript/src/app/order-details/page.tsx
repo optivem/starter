@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import Link from "next/link";
 
 interface OrderDetail {
   orderNumber: string;
@@ -66,10 +67,10 @@ function OrderDetailsContent() {
       <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
           <li className="breadcrumb-item">
-            <a href="/">Home</a>
+            <Link href="/">Home</Link>
           </li>
           <li className="breadcrumb-item">
-            <a href="/order-history">Order History</a>
+            <Link href="/order-history">Order History</Link>
           </li>
           <li className="breadcrumb-item active" aria-current="page">
             Order Details
@@ -151,9 +152,9 @@ function OrderDetailsContent() {
                 </div>
               </div>
               <div className="mt-4">
-                <a href="/order-history" className="btn btn-secondary">
+                <Link href="/order-history" className="btn btn-secondary">
                   Back to Order History
-                </a>
+                </Link>
               </div>
             </>
           )}

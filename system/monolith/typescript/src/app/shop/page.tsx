@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 interface FieldError {
   field: string;
@@ -88,7 +89,7 @@ export default function ShopPage() {
       <nav aria-label="breadcrumb">
         <ol className="breadcrumb">
           <li className="breadcrumb-item">
-            <a href="/">Home</a>
+            <Link href="/">Home</Link>
           </li>
           <li className="breadcrumb-item active" aria-current="page">
             Shop
