@@ -13,9 +13,6 @@ on:
         - '.github/workflows/monolith-dotnet-commit-stage.yml'
   workflow_dispatch:
 
-concurrency:
-  group: monolith-dotnet-commit-stage-${{ github.ref }}
-
 jobs:
   check:
     runs-on: ubuntu-latest

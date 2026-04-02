@@ -13,9 +13,6 @@ on:
         - '.github/workflows/monolith-java-commit-stage.yml'
   workflow_dispatch:
 
-concurrency:
-  group: monolith-java-commit-stage-${{ github.ref }}
-
 jobs:
   check:
     runs-on: ubuntu-latest

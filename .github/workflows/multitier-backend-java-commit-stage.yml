@@ -13,9 +13,6 @@ on:
         - '.github/workflows/multitier-backend-java-commit-stage.yml'
   workflow_dispatch:
 
-concurrency:
-  group: multitier-backend-java-commit-stage-${{ github.ref }}
-
 jobs:
   check:
     runs-on: ubuntu-latest

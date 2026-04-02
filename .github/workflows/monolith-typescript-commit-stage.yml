@@ -13,9 +13,6 @@ on:
         - '.github/workflows/monolith-typescript-commit-stage.yml'
   workflow_dispatch:
 
-concurrency:
-  group: monolith-typescript-commit-stage-${{ github.ref }}
-
 jobs:
   check:
     runs-on: ubuntu-latest
