@@ -83,7 +83,7 @@ jobs:
         run: echo "TODO - not yet implemented"
 
       - name: Run Linter
-        run: dotnet format Optivem.Starter.Monolith.sln --verify-no-changes
+        run: dotnet format Optivem.EShop.Monolith.sln --verify-no-changes
         working-directory: system/monolith/dotnet
 
       - name: Run Code Analysis

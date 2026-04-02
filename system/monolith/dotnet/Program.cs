@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using Optivem.Starter.Monolith.Api.Exception;
-using Optivem.Starter.Monolith.Core.Services;
-using Optivem.Starter.Monolith.Core.Services.External;
-using Optivem.Starter.Monolith.Data;
+using Optivem.EShop.Monolith.Api.Exception;
+using Optivem.EShop.Monolith.Core.Services;
+using Optivem.EShop.Monolith.Core.Services.External;
+using Optivem.EShop.Monolith.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -33,9 +33,9 @@ builder.Services.Configure<Microsoft.AspNetCore.Mvc.ApiBehaviorOptions>(options 
 // Configure PostgreSQL
 var pgHost = Environment.GetEnvironmentVariable("POSTGRES_DB_HOST") ?? "localhost";
 var pgPort = Environment.GetEnvironmentVariable("POSTGRES_DB_PORT") ?? "5432";
-var pgName = Environment.GetEnvironmentVariable("POSTGRES_DB_NAME") ?? "starter";
-var pgUser = Environment.GetEnvironmentVariable("POSTGRES_DB_USER") ?? "starter";
-var pgPass = Environment.GetEnvironmentVariable("POSTGRES_DB_PASSWORD") ?? "starter";
+var pgName = Environment.GetEnvironmentVariable("POSTGRES_DB_NAME") ?? "eshop";
+var pgUser = Environment.GetEnvironmentVariable("POSTGRES_DB_USER") ?? "eshop";
+var pgPass = Environment.GetEnvironmentVariable("POSTGRES_DB_PASSWORD") ?? "eshop";
 var connectionString = $"Host={pgHost};Port={pgPort};Database={pgName};Username={pgUser};Password={pgPass}";
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));

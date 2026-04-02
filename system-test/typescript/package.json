@@ -1,7 +1,7 @@
 {
-  "name": "@optivem/starter-system-test",
+  "name": "@optivem/eshop-system-test",
   "version": "1.0.0",
-  "description": "Starter - System Tests",
+  "description": "EShop - System Tests",
   "main": "index.js",
   "scripts": {
     "test": "jest"

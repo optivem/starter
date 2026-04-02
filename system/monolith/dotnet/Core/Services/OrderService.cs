@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using Optivem.Starter.Monolith.Core.Dtos;
-using Optivem.Starter.Monolith.Core.Entities;
-using Optivem.Starter.Monolith.Core.Exceptions;
-using Optivem.Starter.Monolith.Core.Services.External;
-using Optivem.Starter.Monolith.Data;
+using Optivem.EShop.Monolith.Core.Dtos;
+using Optivem.EShop.Monolith.Core.Entities;
+using Optivem.EShop.Monolith.Core.Exceptions;
+using Optivem.EShop.Monolith.Core.Services.External;
+using Optivem.EShop.Monolith.Data;
 
-namespace Optivem.Starter.Monolith.Core.Services;
+namespace Optivem.EShop.Monolith.Core.Services;
 
 public class OrderService
 {

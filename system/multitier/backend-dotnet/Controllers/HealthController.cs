@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Optivem.Starter.Backend.Controllers;
+namespace Optivem.EShop.Backend.Controllers;
 
 [ApiController]
 public class HealthController : ControllerBase

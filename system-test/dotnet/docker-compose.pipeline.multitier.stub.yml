@@ -1,4 +1,4 @@
-name: starter-dotnet-multitier-stub
+name: eshop-dotnet-multitier-stub
 
 services:
 
@@ -20,9 +20,9 @@ services:
     environment:
       - POSTGRES_DB_HOST=postgres
       - POSTGRES_DB_PORT=5432
-      - POSTGRES_DB_NAME=starter
-      - POSTGRES_DB_USER=starter_user
-      - POSTGRES_DB_PASSWORD=starter_password
+      - POSTGRES_DB_NAME=eshop
+      - POSTGRES_DB_USER=eshop_user
+      - POSTGRES_DB_PASSWORD=eshop_password
       - Cors__AllowedOrigins__0=http://localhost:3212
       - Cors__AllowedOrigins__1=http://frontend:3000
       - ERP_API_URL=http://external-stub:8080/erp
@@ -39,13 +39,13 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      - POSTGRES_DB=starter
-      - POSTGRES_USER=starter_user
-      - POSTGRES_PASSWORD=starter_password
+      - POSTGRES_DB=eshop
+      - POSTGRES_USER=eshop_user
+      - POSTGRES_PASSWORD=eshop_password
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U starter_user -d starter"]
+      test: ["CMD-SHELL", "pg_isready -U eshop_user -d eshop"]
       interval: 10s
       timeout: 5s
       retries: 5

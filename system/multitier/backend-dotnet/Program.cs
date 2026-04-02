@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using Optivem.Starter.Backend.Api.Exception;
-using Optivem.Starter.Backend.Core.Services;
-using Optivem.Starter.Backend.Core.Services.External;
-using Optivem.Starter.Backend.Data;
+using Optivem.EShop.Backend.Api.Exception;
+using Optivem.EShop.Backend.Core.Services;
+using Optivem.EShop.Backend.Core.Services.External;
+using Optivem.EShop.Backend.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,9 +45,9 @@ builder.Services.AddCors(options =>
 // Configure PostgreSQL
 var pgHost = Environment.GetEnvironmentVariable("POSTGRES_DB_HOST") ?? "localhost";
 var pgPort = Environment.GetEnvironmentVariable("POSTGRES_DB_PORT") ?? "5432";
-var pgName = Environment.GetEnvironmentVariable("POSTGRES_DB_NAME") ?? "starter";
-var pgUser = Environment.GetEnvironmentVariable("POSTGRES_DB_USER") ?? "starter";
-var pgPass = Environment.GetEnvironmentVariable("POSTGRES_DB_PASSWORD") ?? "starter";
+var pgName = Environment.GetEnvironmentVariable("POSTGRES_DB_NAME") ?? "eshop";
+var pgUser = Environment.GetEnvironmentVariable("POSTGRES_DB_USER") ?? "eshop";
+var pgPass = Environment.GetEnvironmentVariable("POSTGRES_DB_PASSWORD") ?? "eshop";
 var connectionString = $"Host={pgHost};Port={pgPort};Database={pgName};Username={pgUser};Password={pgPass}";
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));

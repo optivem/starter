@@ -12,7 +12,7 @@ checkstyle {
 	configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
 }
 
-group = 'com.optivem.starter.backend'
+group = 'com.optivem.eshop.backend'
 version = '0.0.1-SNAPSHOT'
 description = 'Starter - Backend'
 

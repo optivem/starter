@@ -1,4 +1,4 @@
-namespace Optivem.Starter.Backend.Core.Entities;
+namespace Optivem.EShop.Backend.Core.Entities;
 
 public enum OrderStatus
 {

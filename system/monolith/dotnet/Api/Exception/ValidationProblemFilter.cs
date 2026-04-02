@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace Optivem.Starter.Monolith.Api.Exception;
+namespace Optivem.EShop.Monolith.Api.Exception;
 
 public class ValidationProblemFilter : IActionFilter
 {

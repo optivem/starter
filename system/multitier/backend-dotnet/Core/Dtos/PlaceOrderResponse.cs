@@ -1,4 +1,4 @@
-namespace Optivem.Starter.Backend.Core.Dtos;
+namespace Optivem.EShop.Backend.Core.Dtos;
 
 public class PlaceOrderResponse
 {

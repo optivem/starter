@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics;
-using Optivem.Starter.Monolith.Core.Exceptions;
+using Optivem.EShop.Monolith.Core.Exceptions;
 
-namespace Optivem.Starter.Monolith.Api.Exception;
+namespace Optivem.EShop.Monolith.Api.Exception;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {

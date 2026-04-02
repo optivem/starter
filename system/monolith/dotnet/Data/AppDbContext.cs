@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Optivem.Starter.Monolith.Core.Entities;
+using Optivem.EShop.Monolith.Core.Entities;
 
-namespace Optivem.Starter.Monolith.Data;
+namespace Optivem.EShop.Monolith.Data;
 
 public class AppDbContext : DbContext
 {

@@ -1,7 +1,7 @@
 using System.Text.Json;
-using Optivem.Starter.Backend.Core.Dtos.External;
+using Optivem.EShop.Backend.Core.Dtos.External;
 
-namespace Optivem.Starter.Backend.Core.Services.External;
+namespace Optivem.EShop.Backend.Core.Services.External;
 
 public class ClockGateway
 {

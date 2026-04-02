@@ -1,4 +1,4 @@
-namespace Optivem.Starter.Monolith.Core.Dtos.External;
+namespace Optivem.EShop.Monolith.Core.Dtos.External;
 
 public class GetTimeResponse
 {

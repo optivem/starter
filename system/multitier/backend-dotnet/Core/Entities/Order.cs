@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Optivem.Starter.Backend.Core.Entities;
+namespace Optivem.EShop.Backend.Core.Entities;
 
 [Table("orders")]
 public class Order

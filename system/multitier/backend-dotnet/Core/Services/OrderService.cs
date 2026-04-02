@@ -1,11 +1,11 @@
 using Microsoft.EntityFrameworkCore;
-using Optivem.Starter.Backend.Core.Dtos;
-using Optivem.Starter.Backend.Core.Entities;
-using Optivem.Starter.Backend.Core.Exceptions;
-using Optivem.Starter.Backend.Core.Services.External;
-using Optivem.Starter.Backend.Data;
+using Optivem.EShop.Backend.Core.Dtos;
+using Optivem.EShop.Backend.Core.Entities;
+using Optivem.EShop.Backend.Core.Exceptions;
+using Optivem.EShop.Backend.Core.Services.External;
+using Optivem.EShop.Backend.Data;
 
-namespace Optivem.Starter.Backend.Core.Services;
+namespace Optivem.EShop.Backend.Core.Services;
 
 public class OrderService
 {

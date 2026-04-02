@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Optivem.Starter.Monolith.Core.Dtos;
+namespace Optivem.EShop.Monolith.Core.Dtos;
 
 public class PlaceOrderRequest
 {

@@ -28,7 +28,7 @@ $ExternalModes = @("real", "stub")
 $AllSystemConfig = @{
     "multitier" = @{
         "real" = @{
-            ContainerName = "starter-typescript-multitier-real"
+            ContainerName = "eshop-typescript-multitier-real"
 
             SystemComponents = @(
                 @{ Name = "Frontend";
@@ -50,7 +50,7 @@ $AllSystemConfig = @{
         }
 
         "stub" = @{
-            ContainerName = "starter-typescript-multitier-stub"
+            ContainerName = "eshop-typescript-multitier-stub"
 
             SystemComponents = @(
                 @{ Name = "Frontend";
@@ -74,7 +74,7 @@ $AllSystemConfig = @{
 
     "monolith" = @{
         "real" = @{
-            ContainerName = "starter-typescript-monolith-real"
+            ContainerName = "eshop-typescript-monolith-real"
 
             SystemComponents = @(
                 @{ Name = "Monolith";
@@ -96,7 +96,7 @@ $AllSystemConfig = @{
         }
 
         "stub" = @{
-            ContainerName = "starter-typescript-monolith-stub"
+            ContainerName = "eshop-typescript-monolith-stub"
 
             SystemComponents = @(
                 @{ Name = "Monolith";

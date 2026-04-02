@@ -1,6 +1,6 @@
-using Optivem.Starter.Backend.Core.Entities;
+using Optivem.EShop.Backend.Core.Entities;
 
-namespace Optivem.Starter.Backend.Core.Dtos;
+namespace Optivem.EShop.Backend.Core.Dtos;
 
 public class ViewOrderDetailsResponse
 {

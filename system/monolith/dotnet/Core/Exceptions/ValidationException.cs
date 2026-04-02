@@ -1,4 +1,4 @@
-namespace Optivem.Starter.Monolith.Core.Exceptions;
+namespace Optivem.EShop.Monolith.Core.Exceptions;
 
 public class ValidationException : Exception
 {
