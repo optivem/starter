@@ -122,8 +122,8 @@ async function getNotification(
   previousNotificationId?: string,
 ): Promise<Result<string, ErrorResponse>> {
   const baseSelector = previousNotificationId
-    ? `[role='alert']:not([data-notification-id='${previousNotificationId}'])`
-    : "[role='alert']";
+    ? `[role='alert'].notification:not([data-notification-id='${previousNotificationId}'])`
+    : "[role='alert'].notification";
 
   await page.locator(baseSelector).waitFor({ state: 'visible', timeout: TIMEOUT });
 
