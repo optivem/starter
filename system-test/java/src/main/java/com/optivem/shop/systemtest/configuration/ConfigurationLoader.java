@@ -15,8 +15,8 @@ public class ConfigurationLoader {
         var configFile = getConfigFileName(environmentMode, externalSystemMode);
         var config = loadYamlFile(configFile);
 
-        var shopUiBaseUrl = getNestedStringValue(config, "test", "eshop", "ui", BASE_URL);
-        var shopApiBaseUrl = getNestedStringValue(config, "test", "eshop", "api", BASE_URL);
+        var shopUiBaseUrl = getNestedStringValue(config, "test", "shop", "ui", BASE_URL);
+        var shopApiBaseUrl = getNestedStringValue(config, "test", "shop", "api", BASE_URL);
         var erpBaseUrl = getNestedStringValue(config, "test", "erp", "api", BASE_URL);
         var clockBaseUrl = getNestedStringValue(config, "test", "clock", "api", BASE_URL);
 
