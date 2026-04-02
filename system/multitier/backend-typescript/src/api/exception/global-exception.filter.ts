@@ -172,9 +172,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       );
 
       if (isTypeMismatch === 'empty') {
+        const emptyMessage =
+          constraints['isNotEmpty'] ||
+          constraints[constraintKeys[constraintKeys.length - 1]];
         errors.push({
           field,
-          message: constraints[constraintKeys[constraintKeys.length - 1]],
+          message: emptyMessage,
           code: null,
           rejectedValue: null,
         });

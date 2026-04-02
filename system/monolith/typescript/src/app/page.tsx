@@ -2,25 +2,36 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main>
-      <h1>Welcome to eShop Starter!</h1>
-      <p>Your modern e-commerce solution</p>
-      <div style={{ display: "flex", gap: "1rem", marginTop: "2rem" }}>
-        <div style={{ flex: 1, border: "1px solid #ddd", borderRadius: "8px", padding: "1.5rem", textAlign: "center" }}>
-          <h2>New Order</h2>
-          <p>Place a new order with our easy-to-use interface</p>
-          <Link href="/shop" style={{ display: "inline-block", padding: "0.5rem 1rem", backgroundColor: "#0070f3", color: "#fff", borderRadius: "4px", textDecoration: "none" }}>
-            Shop Now
-          </Link>
+    <div className="jumbotron bg-light p-5 rounded">
+      <h1 className="display-4">Welcome to eShop Starter!</h1>
+      <p className="lead">Your modern e-commerce solution</p>
+      <hr className="my-4" />
+      <div className="row mt-4">
+        <div className="col-md-4 mb-3">
+          <div className="card h-100">
+            <div className="card-body">
+              <h5 className="card-title">New Order</h5>
+              <p className="card-text">
+                Place a new order with our easy-to-use interface
+              </p>
+              <Link className="btn btn-primary" href="/shop">
+                Shop Now
+              </Link>
+            </div>
+          </div>
         </div>
-        <div style={{ flex: 1, border: "1px solid #ddd", borderRadius: "8px", padding: "1.5rem", textAlign: "center" }}>
-          <h2>Order History</h2>
-          <p>View and manage your past orders</p>
-          <Link href="/order-history" style={{ display: "inline-block", padding: "0.5rem 1rem", backgroundColor: "#0070f3", color: "#fff", borderRadius: "4px", textDecoration: "none" }}>
-            View Orders
-          </Link>
+        <div className="col-md-4 mb-3">
+          <div className="card h-100">
+            <div className="card-body">
+              <h5 className="card-title">Order History</h5>
+              <p className="card-text">View and manage your past orders</p>
+              <Link className="btn btn-primary" href="/order-history">
+                View Orders
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
