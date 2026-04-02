@@ -147,10 +147,7 @@ The `.github/workflows/` directory contains runnable pipelines for all 6 matched
 
 ## Verification
 
-[![verify-scaffold](https://github.com/optivem/starter/actions/workflows/verify-scaffold.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/verify-scaffold.yml)
 [![verify-all](https://github.com/optivem/starter/actions/workflows/verify-all.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/verify-all.yml)
-
-**verify-scaffold** — scaffolds test projects and verifies the full pipeline end-to-end (daily + manual dispatch).
 
 **verify-all** — runs the full pipeline on the starter repo's own templates:
 
