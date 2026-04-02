@@ -9,11 +9,18 @@ on:
         type: string
       commit-workflows:
         description: 'JSON array of commit-stage workflow filenames'
-        required: true
+        required: false
         type: string
+        default: '[]'
+      skip-commit-stage:
+        description: 'Skip commit stage (when commit stages are run externally)'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   commit-stage:
+    if: ${{ !inputs.skip-commit-stage }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -26,6 +33,7 @@ jobs:
 
   acceptance-stage:
     needs: commit-stage
+    if: ${{ always() && (inputs.skip-commit-stage || needs.commit-stage.result == 'success') }}
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get-version.outputs.version }}

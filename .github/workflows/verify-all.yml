@@ -26,50 +26,120 @@ on:
           - multitier
 
 jobs:
+  # Phase 1: Run all commit stages in parallel (deduplicated)
+  commit-monolith-java:
+    if: (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'monolith')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: optivem/actions/trigger-and-wait@main
+        with:
+          workflow: monolith-java-commit-stage.yml
+
+  commit-monolith-dotnet:
+    if: (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'monolith')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: optivem/actions/trigger-and-wait@main
+        with:
+          workflow: monolith-dotnet-commit-stage.yml
+
+  commit-monolith-typescript:
+    if: (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'monolith')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: optivem/actions/trigger-and-wait@main
+        with:
+          workflow: monolith-typescript-commit-stage.yml
+
+  commit-multitier-backend-java:
+    if: (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'multitier')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: optivem/actions/trigger-and-wait@main
+        with:
+          workflow: multitier-backend-java-commit-stage.yml
+
+  commit-multitier-backend-dotnet:
+    if: (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'multitier')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: optivem/actions/trigger-and-wait@main
+        with:
+          workflow: multitier-backend-dotnet-commit-stage.yml
+
+  commit-multitier-backend-typescript:
+    if: (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'multitier')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: optivem/actions/trigger-and-wait@main
+        with:
+          workflow: multitier-backend-typescript-commit-stage.yml
+
+  commit-multitier-frontend-react:
+    if: inputs.architecture == '' || inputs.architecture == 'multitier'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: optivem/actions/trigger-and-wait@main
+        with:
+          workflow: multitier-frontend-react-commit-stage.yml
+
+  # Phase 2: Run verify pipelines (acceptance → qa → signoff → prod) with commit stage skipped
   monolith-java:
+    needs: commit-monolith-java
     if: (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'monolith')
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: monolith-java-verify.yml
+          inputs: '{"skip-commit-stage": "true"}'
 
   monolith-dotnet:
+    needs: commit-monolith-dotnet
     if: (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'monolith')
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: monolith-dotnet-verify.yml
+          inputs: '{"skip-commit-stage": "true"}'
 
   monolith-typescript:
+    needs: commit-monolith-typescript
     if: (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'monolith')
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: monolith-typescript-verify.yml
+          inputs: '{"skip-commit-stage": "true"}'
 
   multitier-java:
+    needs: [commit-multitier-backend-java, commit-multitier-frontend-react]
     if: (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'multitier')
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: multitier-java-verify.yml
+          inputs: '{"skip-commit-stage": "true"}'
 
   multitier-dotnet:
+    needs: [commit-multitier-backend-dotnet, commit-multitier-frontend-react]
     if: (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'multitier')
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: multitier-dotnet-verify.yml
+          inputs: '{"skip-commit-stage": "true"}'
 
   multitier-typescript:
+    needs: [commit-multitier-backend-typescript, commit-multitier-frontend-react]
     if: (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'multitier')
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: multitier-typescript-verify.yml
+          inputs: '{"skip-commit-stage": "true"}'

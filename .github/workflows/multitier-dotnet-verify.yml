@@ -2,6 +2,12 @@ name: multitier-dotnet-verify
 
 on:
   workflow_dispatch:
+    inputs:
+      skip-commit-stage:
+        description: 'Skip commit stage'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   verify:
@@ -10,3 +16,4 @@ jobs:
     with:
       prefix: multitier-dotnet
       commit-workflows: '["multitier-backend-dotnet-commit-stage.yml", "multitier-frontend-react-commit-stage.yml"]'
+      skip-commit-stage: ${{ inputs.skip-commit-stage == true }}
