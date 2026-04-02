@@ -1,8 +1,8 @@
 using System.Net;
 using System.Text.Json;
-using Optivem.EShop.Backend.Core.Dtos.External;
+using Optivem.Shop.Backend.Core.Dtos.External;
 
-namespace Optivem.EShop.Backend.Core.Services.External;
+namespace Optivem.Shop.Backend.Core.Services.External;
 
 public class ErpGateway
 {

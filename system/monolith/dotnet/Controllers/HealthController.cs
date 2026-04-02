@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Optivem.EShop.Monolith.Controllers;
+namespace Optivem.Shop.Monolith.Controllers;
 
 [ApiController]
 public class HealthController : ControllerBase

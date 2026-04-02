@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Optivem.EShop.Monolith.Core.Entities;
+namespace Optivem.Shop.Monolith.Core.Entities;
 
 [Table("orders")]
 public class Order

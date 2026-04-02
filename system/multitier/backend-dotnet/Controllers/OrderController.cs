@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Optivem.EShop.Backend.Core.Dtos;
-using Optivem.EShop.Backend.Core.Services;
+using Optivem.Shop.Backend.Core.Dtos;
+using Optivem.Shop.Backend.Core.Services;
 
-namespace Optivem.EShop.Backend.Controllers;
+namespace Optivem.Shop.Backend.Controllers;
 
 [ApiController]
 public class OrderController : ControllerBase

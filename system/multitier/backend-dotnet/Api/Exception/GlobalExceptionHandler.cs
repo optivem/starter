@@ -1,8 +1,8 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics;
-using Optivem.EShop.Backend.Core.Exceptions;
+using Optivem.Shop.Backend.Core.Exceptions;
 
-namespace Optivem.EShop.Backend.Api.Exception;
+namespace Optivem.Shop.Backend.Api.Exception;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {

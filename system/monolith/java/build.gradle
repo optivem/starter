@@ -12,7 +12,7 @@ checkstyle {
 	configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
 }
 
-group = 'com.optivem.eshop.monolith'
+group = 'com.optivem.shop.monolith'
 version = '0.0.1-SNAPSHOT'
 description = 'Starter - Monolith'
 

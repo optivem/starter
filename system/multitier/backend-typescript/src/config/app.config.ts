@@ -11,9 +11,9 @@ const buildPostgresUrl = (): string => {
   if (process.env.POSTGRES_URL) return process.env.POSTGRES_URL;
   const host = process.env.POSTGRES_DB_HOST || 'localhost';
   const port = process.env.POSTGRES_DB_PORT || '5432';
-  const name = process.env.POSTGRES_DB_NAME || 'eshop';
-  const user = process.env.POSTGRES_DB_USER || 'eshop';
-  const pass = process.env.POSTGRES_DB_PASSWORD || 'eshop';
+  const name = process.env.POSTGRES_DB_NAME || 'shop';
+  const user = process.env.POSTGRES_DB_USER || 'shop';
+  const pass = process.env.POSTGRES_DB_PASSWORD || 'shop';
   return `postgresql://${user}:${pass}@${host}:${port}/${name}`;
 };
 

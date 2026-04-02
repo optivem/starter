@@ -1,5 +1,5 @@
 test:
-  eshop:
+  shop:
     ui:
       baseUrl: http://localhost:3112
     api:

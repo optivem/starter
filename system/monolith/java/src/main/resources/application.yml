@@ -8,9 +8,9 @@ spring:
     default-timezone: UTC
     time-zone: UTC
   datasource:
-    url: jdbc:postgresql://${POSTGRES_DB_HOST:localhost}:${POSTGRES_DB_PORT:5432}/${POSTGRES_DB_NAME:eshop}
-    username: ${POSTGRES_DB_USER:eshop_user}
-    password: ${POSTGRES_DB_PASSWORD:eshop_password}
+    url: jdbc:postgresql://${POSTGRES_DB_HOST:localhost}:${POSTGRES_DB_PORT:5432}/${POSTGRES_DB_NAME:shop}
+    username: ${POSTGRES_DB_USER:shop_user}
+    password: ${POSTGRES_DB_PASSWORD:shop_password}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

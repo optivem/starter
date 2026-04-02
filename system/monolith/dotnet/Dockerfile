@@ -8,7 +8,7 @@ RUN dotnet restore
 
 # Copy everything else and build
 COPY . ./
-RUN dotnet publish Optivem.EShop.Monolith.csproj -c Release -o out
+RUN dotnet publish Optivem.Shop.Monolith.csproj -c Release -o out
 
 # Use the official ASP.NET runtime image for the app
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
@@ -16,4 +16,4 @@ WORKDIR /app
 COPY --from=build /app/out ./
 
 # Set the entry point
-ENTRYPOINT ["dotnet", "Optivem.EShop.Monolith.dll"]
+ENTRYPOINT ["dotnet", "Optivem.Shop.Monolith.dll"]

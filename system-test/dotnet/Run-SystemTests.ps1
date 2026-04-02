@@ -28,7 +28,7 @@ $ExternalModes = @("real", "stub")
 $AllSystemConfig = @{
     "multitier" = @{
         "real" = @{
-            ContainerName = "eshop-dotnet-multitier-real"
+            ContainerName = "shop-dotnet-multitier-real"
 
             SystemComponents = @(
                 @{ Name = "Frontend";
@@ -50,7 +50,7 @@ $AllSystemConfig = @{
         }
 
         "stub" = @{
-            ContainerName = "eshop-dotnet-multitier-stub"
+            ContainerName = "shop-dotnet-multitier-stub"
 
             SystemComponents = @(
                 @{ Name = "Frontend";
@@ -74,7 +74,7 @@ $AllSystemConfig = @{
 
     "monolith" = @{
         "real" = @{
-            ContainerName = "eshop-dotnet-monolith-real"
+            ContainerName = "shop-dotnet-monolith-real"
 
             SystemComponents = @(
                 @{ Name = "Monolith";
@@ -96,7 +96,7 @@ $AllSystemConfig = @{
         }
 
         "stub" = @{
-            ContainerName = "eshop-dotnet-monolith-stub"
+            ContainerName = "shop-dotnet-monolith-stub"
 
             SystemComponents = @(
                 @{ Name = "Monolith";

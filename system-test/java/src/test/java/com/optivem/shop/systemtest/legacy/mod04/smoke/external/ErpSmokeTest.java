@@ -1,0 +1,22 @@
+package com.optivem.shop.systemtest.legacy.mod04.smoke.external;
+
+import com.optivem.shop.systemtest.legacy.mod04.base.BaseClientTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static com.optivem.shop.dsl.common.ResultAssert.assertThatResult;
+
+class ErpSmokeTest extends BaseClientTest {
+    @BeforeEach
+    void setUp() {
+        setUpExternalClients();
+    }
+
+    @Test
+    void shouldBeAbleToGoToErp() {
+        var result = erpClient.checkHealth();
+        assertThatResult(result).isSuccess();
+    }
+}
+
+

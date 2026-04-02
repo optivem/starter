@@ -1,4 +1,4 @@
-namespace Optivem.EShop.Monolith.Core.Dtos;
+namespace Optivem.Shop.Monolith.Core.Dtos;
 
 public class PlaceOrderResponse
 {

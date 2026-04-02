@@ -1,7 +1,7 @@
 {
-  "name": "optivem-eshop-frontend",
+  "name": "optivem-shop-frontend",
   "version": "1.0.0",
-  "description": "Frontend for eShop Starter",
+  "description": "Frontend for Shop",
   "type": "module",
   "scripts": {
     "dev": "vite",

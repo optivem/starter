@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Optivem.EShop.Backend.Core.Entities;
+using Optivem.Shop.Backend.Core.Entities;
 
-namespace Optivem.EShop.Backend.Data;
+namespace Optivem.Shop.Backend.Data;
 
 public class AppDbContext : DbContext
 {

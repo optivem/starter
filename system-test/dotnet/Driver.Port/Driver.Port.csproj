@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Optivem.EShop.SystemTest.Driver.Port</RootNamespace>
+    <RootNamespace>Optivem.Shop.SystemTest.Driver.Port</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

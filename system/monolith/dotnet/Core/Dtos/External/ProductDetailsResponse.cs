@@ -1,4 +1,4 @@
-namespace Optivem.EShop.Monolith.Core.Dtos.External;
+namespace Optivem.Shop.Monolith.Core.Dtos.External;
 
 public class ProductDetailsResponse
 {

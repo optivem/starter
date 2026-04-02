@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace Optivem.EShop.Backend.Api.Exception;
+namespace Optivem.Shop.Backend.Api.Exception;
 
 public class ValidationProblemFilter : IActionFilter
 {

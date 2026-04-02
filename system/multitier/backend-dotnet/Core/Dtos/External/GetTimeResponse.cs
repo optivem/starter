@@ -1,4 +1,4 @@
-namespace Optivem.EShop.Backend.Core.Dtos.External;
+namespace Optivem.Shop.Backend.Core.Dtos.External;
 
 public class GetTimeResponse
 {

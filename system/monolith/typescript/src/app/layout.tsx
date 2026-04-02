@@ -3,8 +3,8 @@ import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "eShop",
-  description: "eShop application",
+  title: "Shop",
+  description: "Shop application",
 };
 
 export default function RootLayout({
@@ -24,7 +24,7 @@ export default function RootLayout({
         <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
           <div className="container">
             <Link className="navbar-brand" href="/">
-              eShop
+              Shop
             </Link>
           </div>
         </nav>

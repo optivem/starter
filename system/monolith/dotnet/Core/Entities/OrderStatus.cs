@@ -1,4 +1,4 @@
-namespace Optivem.EShop.Monolith.Core.Entities;
+namespace Optivem.Shop.Monolith.Core.Entities;
 
 public enum OrderStatus
 {

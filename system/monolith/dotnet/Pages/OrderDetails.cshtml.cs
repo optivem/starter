@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Optivem.EShop.Monolith.Pages
+namespace Optivem.Shop.Monolith.Pages
 {
     public class OrderDetailsModel : PageModel
     {

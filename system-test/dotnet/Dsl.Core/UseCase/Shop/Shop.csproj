@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Optivem.EShop.SystemTest.Core.Shop</RootNamespace>
+    <RootNamespace>Optivem.Shop.SystemTest.Core.Shop</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

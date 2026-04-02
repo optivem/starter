@@ -28,7 +28,7 @@ $ExternalModes = @("real", "stub")
 $AllSystemConfig = @{
     "multitier" = @{
         "real" = @{
-            ContainerName = "eshop-java-multitier-real"
+            ContainerName = "shop-java-multitier-real"
 
             SystemComponents = @(
                 @{ Name = "Frontend";
@@ -50,7 +50,7 @@ $AllSystemConfig = @{
         }
 
         "stub" = @{
-            ContainerName = "eshop-java-multitier-stub"
+            ContainerName = "shop-java-multitier-stub"
 
             SystemComponents = @(
                 @{ Name = "Frontend";
@@ -74,7 +74,7 @@ $AllSystemConfig = @{
 
     "monolith" = @{
         "real" = @{
-            ContainerName = "eshop-java-monolith-real"
+            ContainerName = "shop-java-monolith-real"
 
             SystemComponents = @(
                 @{ Name = "Monolith";
@@ -96,7 +96,7 @@ $AllSystemConfig = @{
         }
 
         "stub" = @{
-            ContainerName = "eshop-java-monolith-stub"
+            ContainerName = "shop-java-monolith-stub"
 
             SystemComponents = @(
                 @{ Name = "Monolith";

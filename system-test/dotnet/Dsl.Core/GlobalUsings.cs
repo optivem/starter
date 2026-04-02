@@ -1,1 +1,1 @@
-global using Optivem.EShop.SystemTest.Channel;
+global using Optivem.Shop.SystemTest.Channel;
