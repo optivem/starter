@@ -2,6 +2,45 @@
 
 A catalog of project templates organized by two independent dimensions: **system** (the application) and **system-test** (the test harness). Each template is self-contained and copy-paste-ready.
 
+## Architecture
+
+### Monolith
+
+```mermaid
+graph LR
+    User -->|UI / API| Monolith
+    Monolith -->|REST| ERP
+    Monolith -->|REST| Clock
+```
+
+### Multitier
+
+```mermaid
+graph LR
+    User -->|UI| Frontend
+    User -->|API| Backend
+    Frontend -->|REST| Backend
+    Backend -->|REST| ERP
+    Backend -->|REST| Clock
+```
+
+## Use Cases
+
+```mermaid
+graph LR
+    Customer([Customer])
+    ERP([ERP])
+    Clock([Clock])
+
+    Customer --> PlaceOrder(Place Order)
+    Customer --> ViewOrder(View Order)
+    Customer --> BrowseOrders(Browse Orders)
+    Customer --> CancelOrder(Cancel Order)
+
+    PlaceOrder --> ERP
+    PlaceOrder --> Clock
+```
+
 ## System Templates
 
 Pick based on your architecture and language:
