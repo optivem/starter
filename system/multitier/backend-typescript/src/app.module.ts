@@ -18,16 +18,24 @@ import { Order } from './core/entities/order.entity';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres' as const,
-        url: configService.get<string>(
-          'POSTGRES_URL',
-          'postgresql://starter:starter@localhost:5432/starter',
-        ),
-        entities: [Order],
-        synchronize: true,
-        logging: configService.get<string>('NODE_ENV') !== 'production',
-      }),
+      useFactory: (configService: ConfigService) => {
+        const host = configService.get<string>('POSTGRES_DB_HOST', 'localhost');
+        const port = configService.get<number>('POSTGRES_DB_PORT', 5432);
+        const database = configService.get<string>('POSTGRES_DB_NAME', 'starter');
+        const username = configService.get<string>('POSTGRES_DB_USER', 'starter');
+        const password = configService.get<string>('POSTGRES_DB_PASSWORD', 'starter');
+        return {
+          type: 'postgres' as const,
+          host,
+          port,
+          database,
+          username,
+          password,
+          entities: [Order],
+          synchronize: true,
+          logging: configService.get<string>('NODE_ENV') !== 'production',
+        };
+      },
     }),
     TypeOrmModule.forFeature([Order]),
   ],

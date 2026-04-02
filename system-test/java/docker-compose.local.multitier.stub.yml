@@ -7,7 +7,7 @@ services:
       context: ../../system/multitier/frontend-react
       dockerfile: Dockerfile
     ports:
-      - "3102:3000"
+      - "3112:3000"
     environment:
       - BACKEND_API_URL=http://backend:8081
     depends_on:
@@ -20,7 +20,7 @@ services:
       context: ../../system/multitier/backend-java
       dockerfile: Dockerfile
     ports:
-      - "8102:8081"
+      - "8112:8081"
     environment:
       - POSTGRES_DB_HOST=postgres
       - POSTGRES_DB_PORT=5432
@@ -58,7 +58,7 @@ services:
   external-stub:
     image: wiremock/wiremock:3.10.0
     ports:
-      - "9102:8080"
+      - "9112:8080"
     volumes:
       - ../../system/external-stub:/home/wiremock
     command: --verbose --global-response-templating

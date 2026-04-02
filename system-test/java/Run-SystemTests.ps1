@@ -32,19 +32,19 @@ $AllSystemConfig = @{
 
             SystemComponents = @(
                 @{ Name = "Frontend";
-                    Url = "http://localhost:3101";
+                    Url = "http://localhost:3111";
                     ContainerName = "frontend" }
                 @{ Name = "Backend API";
-                    Url = "http://localhost:8101/health";
+                    Url = "http://localhost:8111/health";
                     ContainerName = "backend" }
             )
 
             ExternalSystems = @(
                 @{ Name = "ERP API (Real)";
-                    Url = "http://localhost:9101/erp/health";
+                    Url = "http://localhost:9111/erp/health";
                     ContainerName = "external-real" }
                 @{ Name = "Clock API (Real)";
-                    Url = "http://localhost:9101/clock/health";
+                    Url = "http://localhost:9111/clock/health";
                     ContainerName = "external-real" }
             )
         }
@@ -54,19 +54,19 @@ $AllSystemConfig = @{
 
             SystemComponents = @(
                 @{ Name = "Frontend";
-                    Url = "http://localhost:3102";
+                    Url = "http://localhost:3112";
                     ContainerName = "frontend" }
                 @{ Name = "Backend API";
-                    Url = "http://localhost:8102/health";
+                    Url = "http://localhost:8112/health";
                     ContainerName = "backend" }
             )
 
             ExternalSystems = @(
                 @{ Name = "ERP API (Stub)";
-                    Url = "http://localhost:9102/erp/health";
+                    Url = "http://localhost:9112/erp/health";
                     ContainerName = "external-stub" }
                 @{ Name = "Clock API (Stub)";
-                    Url = "http://localhost:9102/clock/health";
+                    Url = "http://localhost:9112/clock/health";
                     ContainerName = "external-stub" }
             )
         }

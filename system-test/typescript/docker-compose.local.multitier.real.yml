@@ -7,7 +7,7 @@ services:
       context: ../../system/multitier/frontend-react
       dockerfile: Dockerfile
     ports:
-      - "3301:3000"
+      - "3311:3000"
     environment:
       - BACKEND_API_URL=http://backend:8081
     depends_on:
@@ -20,7 +20,7 @@ services:
       context: ../../system/multitier/backend-typescript
       dockerfile: Dockerfile
     ports:
-      - "8301:8081"
+      - "8311:8081"
     environment:
       - POSTGRES_DB_HOST=postgres
       - POSTGRES_DB_PORT=5432
@@ -58,7 +58,7 @@ services:
   external-real:
     image: node:18-alpine
     ports:
-      - "9301:9000"
+      - "9311:9000"
     volumes:
       - ../../system/external-real-sim:/app
     working_dir: /app

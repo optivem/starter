@@ -5,7 +5,7 @@ services:
   frontend:
     image: ghcr.io/optivem/starter/multitier-frontend-react:latest
     ports:
-      - "3201:3000"
+      - "3211:3000"
     environment:
       - BACKEND_API_URL=http://backend:8081
     depends_on:
@@ -16,7 +16,7 @@ services:
   backend:
     image: ghcr.io/optivem/starter/multitier-backend-dotnet:latest
     ports:
-      - "8201:8081"
+      - "8211:8081"
     environment:
       - POSTGRES_DB_HOST=postgres
       - POSTGRES_DB_PORT=5432
@@ -55,7 +55,7 @@ services:
   external-real:
     image: node:18-alpine
     ports:
-      - "9201:9000"
+      - "9211:9000"
     volumes:
       - ../../system/external-real-sim:/app
     working_dir: /app
