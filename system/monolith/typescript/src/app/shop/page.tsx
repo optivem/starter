@@ -37,8 +37,13 @@ export default function ShopPage() {
       const body: Record<string, unknown> = {};
       if (sku !== "") body.sku = sku;
       if (quantity !== "") {
-        const num = Number(quantity);
-        body.quantity = isNaN(num) ? quantity : num;
+        const trimmed = quantity.trim();
+        if (trimmed === '') {
+          body.quantity = quantity;
+        } else {
+          const num = Number(trimmed);
+          body.quantity = isNaN(num) ? quantity : num;
+        }
       }
 
       const response = await fetch("/api/orders", {

@@ -205,6 +205,7 @@ export class ShopUiDriver implements ShopDriver {
       return failure({ message: 'No page available', fieldErrors: [] });
     }
 
+    await this.page.goto(this.baseUrl);
     const homePage = new HomePage(this.page);
     await homePage.clickOrderHistory();
 

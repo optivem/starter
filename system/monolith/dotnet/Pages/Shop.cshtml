@@ -62,8 +62,13 @@
             const body = {};
             if (sku !== '') body.sku = sku;
             if (quantityValue !== '') {
-                const num = Number(quantityValue);
-                body.quantity = isNaN(num) ? quantityValue : num;
+                const trimmed = quantityValue.trim();
+                if (trimmed === '') {
+                    body.quantity = quantityValue;
+                } else {
+                    const num = Number(trimmed);
+                    body.quantity = isNaN(num) ? quantityValue : num;
+                }
             }
 
             const response = await fetch('/api/orders', {
