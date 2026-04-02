@@ -35,6 +35,16 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Check GitHub API rate limit before triggering
+          remaining=$(gh api rate_limit --jq ".resources.core.remaining" 2>/dev/null || echo "999")
+          if [ "$remaining" -lt 50 ]; then
+            reset=$(gh api rate_limit --jq ".resources.core.reset" 2>/dev/null || echo "0")
+            wait=$(( reset - $(date +%s) + 5 ))
+            if [ "$wait" -gt 0 ]; then
+              echo "::warning::Rate limit low ($remaining remaining). Waiting ${wait}s for reset..."
+              sleep "$wait"
+            fi
+          fi
           gh workflow run monolith-java-verify.yml \
             --repo "${{ github.repository }}" \
             --ref main
@@ -62,6 +72,16 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Check GitHub API rate limit before triggering
+          remaining=$(gh api rate_limit --jq ".resources.core.remaining" 2>/dev/null || echo "999")
+          if [ "$remaining" -lt 50 ]; then
+            reset=$(gh api rate_limit --jq ".resources.core.reset" 2>/dev/null || echo "0")
+            wait=$(( reset - $(date +%s) + 5 ))
+            if [ "$wait" -gt 0 ]; then
+              echo "::warning::Rate limit low ($remaining remaining). Waiting ${wait}s for reset..."
+              sleep "$wait"
+            fi
+          fi
           gh workflow run monolith-dotnet-verify.yml \
             --repo "${{ github.repository }}" \
             --ref main
@@ -89,6 +109,16 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Check GitHub API rate limit before triggering
+          remaining=$(gh api rate_limit --jq ".resources.core.remaining" 2>/dev/null || echo "999")
+          if [ "$remaining" -lt 50 ]; then
+            reset=$(gh api rate_limit --jq ".resources.core.reset" 2>/dev/null || echo "0")
+            wait=$(( reset - $(date +%s) + 5 ))
+            if [ "$wait" -gt 0 ]; then
+              echo "::warning::Rate limit low ($remaining remaining). Waiting ${wait}s for reset..."
+              sleep "$wait"
+            fi
+          fi
           gh workflow run monolith-typescript-verify.yml \
             --repo "${{ github.repository }}" \
             --ref main
@@ -116,6 +146,16 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Check GitHub API rate limit before triggering
+          remaining=$(gh api rate_limit --jq ".resources.core.remaining" 2>/dev/null || echo "999")
+          if [ "$remaining" -lt 50 ]; then
+            reset=$(gh api rate_limit --jq ".resources.core.reset" 2>/dev/null || echo "0")
+            wait=$(( reset - $(date +%s) + 5 ))
+            if [ "$wait" -gt 0 ]; then
+              echo "::warning::Rate limit low ($remaining remaining). Waiting ${wait}s for reset..."
+              sleep "$wait"
+            fi
+          fi
           gh workflow run multitier-system-java-verify.yml \
             --repo "${{ github.repository }}" \
             --ref main
@@ -143,6 +183,16 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Check GitHub API rate limit before triggering
+          remaining=$(gh api rate_limit --jq ".resources.core.remaining" 2>/dev/null || echo "999")
+          if [ "$remaining" -lt 50 ]; then
+            reset=$(gh api rate_limit --jq ".resources.core.reset" 2>/dev/null || echo "0")
+            wait=$(( reset - $(date +%s) + 5 ))
+            if [ "$wait" -gt 0 ]; then
+              echo "::warning::Rate limit low ($remaining remaining). Waiting ${wait}s for reset..."
+              sleep "$wait"
+            fi
+          fi
           gh workflow run multitier-system-dotnet-verify.yml \
             --repo "${{ github.repository }}" \
             --ref main
@@ -170,6 +220,16 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Check GitHub API rate limit before triggering
+          remaining=$(gh api rate_limit --jq ".resources.core.remaining" 2>/dev/null || echo "999")
+          if [ "$remaining" -lt 50 ]; then
+            reset=$(gh api rate_limit --jq ".resources.core.reset" 2>/dev/null || echo "0")
+            wait=$(( reset - $(date +%s) + 5 ))
+            if [ "$wait" -gt 0 ]; then
+              echo "::warning::Rate limit low ($remaining remaining). Waiting ${wait}s for reset..."
+              sleep "$wait"
+            fi
+          fi
           gh workflow run multitier-system-typescript-verify.yml \
             --repo "${{ github.repository }}" \
             --ref main
