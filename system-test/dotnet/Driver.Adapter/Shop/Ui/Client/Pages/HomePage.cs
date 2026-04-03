@@ -12,7 +12,7 @@ public class HomePage : BasePage
 
 {
 
-    private const string ShopButtonSelector = "a[href='/shop']";
+    private const string ShopButtonSelector = "a[href='/new-order']";
 
     private const string OrderHistoryButtonSelector = "a[href='/order-history']";
 

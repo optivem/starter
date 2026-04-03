@@ -16,7 +16,7 @@ public class PlaceOrderNegativeUiTest : BaseE2eTest
     public async Task ShouldRejectOrderWithNonIntegerQuantity()
     {
         await shopUiPage!.GotoAsync(_configuration.ShopUiBaseUrl);
-        await shopUiPage.Locator("a[href='/shop']").ClickAsync();
+        await shopUiPage.Locator("a[href='/new-order']").ClickAsync();
 
         await shopUiPage.Locator("[aria-label=\"SKU\"]").FillAsync(CreateUniqueSku(Defaults.SKU));
         await shopUiPage.Locator("[aria-label=\"Quantity\"]").FillAsync("invalid-quantity");

@@ -16,7 +16,7 @@ class HomePage {
   constructor(private page: Page) {}
 
   async clickNewOrder(): Promise<void> {
-    await this.page.locator("a[href='/shop']").click({ timeout: TIMEOUT });
+    await this.page.locator("a[href='/new-order']").click({ timeout: TIMEOUT });
   }
 
   async clickOrderHistory(): Promise<void> {
