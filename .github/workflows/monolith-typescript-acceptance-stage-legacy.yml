@@ -279,7 +279,14 @@ jobs:
 
       - name: mod11 - Run Contract Tests (Stub)
         working-directory: system-test/typescript
-        run: npm test -- test/legacy/mod11/contract
+        run: npm test -- test/legacy/mod11/contract --testPathIgnorePatterns=isolated
+        env:
+          ENVIRONMENT: acceptance
+          EXTERNAL_SYSTEM_MODE: stub
+
+      - name: mod11 - Run Contract Tests (Isolated) (Stub)
+        working-directory: system-test/typescript
+        run: npm test -- "test/legacy/mod11/contract/.*isolated" --runInBand
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub

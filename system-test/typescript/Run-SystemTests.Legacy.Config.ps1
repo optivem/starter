@@ -152,7 +152,13 @@ $Config = @{
         # === mod11: Contract + E2E ===
         @{  Id = "mod11-contract-stub";
             Name = "mod11 - Contract (stub)";
-            Command = "`$env:EXTERNAL_SYSTEM_MODE = 'stub'; `$env:ENVIRONMENT = 'local'; npx jest test/legacy/mod11/contract --forceExit";
+            Command = "`$env:EXTERNAL_SYSTEM_MODE = 'stub'; `$env:ENVIRONMENT = 'local'; npx jest test/legacy/mod11/contract --testPathIgnorePatterns=isolated --forceExit";
+            Path = ".";
+            TestReportPath = "test-results\jest-results.html";
+            TestInstallCommands = $null },
+        @{  Id = "mod11-contract-stub-isolated";
+            Name = "mod11 - Contract Isolated (stub)";
+            Command = "`$env:EXTERNAL_SYSTEM_MODE = 'stub'; `$env:ENVIRONMENT = 'local'; npx jest `"test/legacy/mod11/contract/.*isolated`" --runInBand --forceExit";
             Path = ".";
             TestReportPath = "test-results\jest-results.html";
             TestInstallCommands = $null },

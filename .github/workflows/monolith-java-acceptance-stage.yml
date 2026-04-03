@@ -163,7 +163,11 @@ jobs:
         working-directory: system-test/java
 
       - name: Run Contract Tests (Stub)
-        run: ./gradlew test -Dversion=latest -Dtype=contract -DexternalSystemMode=stub -Denvironment=acceptance
+        run: ./gradlew test -Dversion=latest -Dtype=contract -DexcludeTags=isolated -DexternalSystemMode=stub -Denvironment=acceptance
+        working-directory: system-test/java
+
+      - name: Run Contract Tests (Isolated) (Stub)
+        run: ./gradlew test -Dversion=latest -Dtype=contract -DincludeTags=isolated -DexternalSystemMode=stub -Denvironment=acceptance
         working-directory: system-test/java
 
       - name: Run Contract Tests (Real)

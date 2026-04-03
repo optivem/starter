@@ -54,7 +54,14 @@ $Config = @{
         # === Contract Tests (stub) ===
         @{  Id = "contract-stub";
             Name = "latest - Contract (stub)";
-            Command = "dotnet test --filter 'FullyQualifiedName~.Latest.ExternalSystemContractTests&FullyQualifiedName~Stub' --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
+            Command = "dotnet test --filter 'FullyQualifiedName~.Latest.ExternalSystemContractTests&FullyQualifiedName~Stub&Category!=isolated' --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
+            Path = "SystemTests";
+            TestReportPath = "SystemTests\TestResults\testResults.html" },
+
+        # === Contract Tests Isolated (stub) ===
+        @{  Id = "contract-stub-isolated";
+            Name = "latest - Contract Isolated (stub)";
+            Command = "dotnet test --filter 'FullyQualifiedName~.Latest.ExternalSystemContractTests&FullyQualifiedName~Stub&Category=isolated' --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
             TestReportPath = "SystemTests\TestResults\testResults.html" },
 

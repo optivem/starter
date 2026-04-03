@@ -10,23 +10,15 @@ public abstract class BaseSystemDslTest : BaseConfigurableTest, IAsyncLifetime
 
     public virtual async Task InitializeAsync()
     {
-        await TestLock.WaitAsync();
-
         var configuration = LoadConfiguration();
         _app = new UseCaseDsl(configuration);
+        await Task.CompletedTask;
     }
 
     public virtual async Task DisposeAsync()
     {
-        try
-        {
-            if (_app != null)
-                await _app.DisposeAsync();
-        }
-        finally
-        {
-            TestLock.Release();
-        }
+        if (_app != null)
+            await _app.DisposeAsync();
     }
 }
 

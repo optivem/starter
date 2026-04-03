@@ -8,6 +8,3 @@ class ErpStubContractTest extends BaseErpContractTest {
         return ExternalSystemMode.STUB;
     }
 }
-
-
-

@@ -56,7 +56,15 @@ $Config = @{
         # === Contract Tests (stub) ===
         @{  Id = "contract-stub";
             Name = "latest - Contract (stub)";
-            Command = "`$env:EXTERNAL_SYSTEM_MODE = 'stub'; `$env:ENVIRONMENT = 'local'; npx jest test/latest/contract --forceExit";
+            Command = "`$env:EXTERNAL_SYSTEM_MODE = 'stub'; `$env:ENVIRONMENT = 'local'; npx jest test/latest/contract --testPathIgnorePatterns=isolated --forceExit";
+            Path = ".";
+            TestReportPath = "test-results\jest-results.html";
+            TestInstallCommands = $null },
+
+        # === Contract Tests Isolated (stub) ===
+        @{  Id = "contract-stub-isolated";
+            Name = "latest - Contract Isolated (stub)";
+            Command = "`$env:EXTERNAL_SYSTEM_MODE = 'stub'; `$env:ENVIRONMENT = 'local'; npx jest `"test/latest/contract/.*isolated`" --runInBand --forceExit";
             Path = ".";
             TestReportPath = "test-results\jest-results.html";
             TestInstallCommands = $null },

@@ -20,9 +20,9 @@ public abstract class BaseDriverTest : BaseConfigurableTest, IAsyncLifetime
         _configuration = LoadConfiguration();
     }
 
-    public virtual async Task InitializeAsync()
+    public virtual Task InitializeAsync()
     {
-        await TestLock.WaitAsync();
+        return Task.CompletedTask;
     }
 
     protected void SetUpShopApiDriver()
@@ -42,16 +42,9 @@ public abstract class BaseDriverTest : BaseConfigurableTest, IAsyncLifetime
 
     public virtual async Task DisposeAsync()
     {
-        try
-        {
-            if (_shopDriver != null)
-                await _shopDriver.DisposeAsync();
-            _erpDriver?.Dispose();
-        }
-        finally
-        {
-            TestLock.Release();
-        }
+        if (_shopDriver != null)
+            await _shopDriver.DisposeAsync();
+        _erpDriver?.Dispose();
     }
 }
 

@@ -147,7 +147,12 @@ $Config = @{
         # === mod11: Contract + E2E ===
         @{  Id = "mod11-contract-stub";
             Name = "mod11 - Contract (stub)";
-            Command = "dotnet test --filter 'FullyQualifiedName~.Legacy.Mod11.ExternalSystemContractTests&FullyQualifiedName~Stub' --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
+            Command = "dotnet test --filter 'FullyQualifiedName~.Legacy.Mod11.ExternalSystemContractTests&FullyQualifiedName~Stub&Category!=isolated' --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
+            Path = "SystemTests";
+            TestReportPath = "SystemTests\TestResults\testResults.html" },
+        @{  Id = "mod11-contract-stub-isolated";
+            Name = "mod11 - Contract Isolated (stub)";
+            Command = "dotnet test --filter 'FullyQualifiedName~.Legacy.Mod11.ExternalSystemContractTests&FullyQualifiedName~Stub&Category=isolated' --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
             TestReportPath = "SystemTests\TestResults\testResults.html" },
         @{  Id = "mod11-contract-real";

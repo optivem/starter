@@ -1,9 +1,10 @@
 package com.optivem.shop.systemtest.legacy.mod11.contract.clock;
 
 import com.optivem.shop.systemtest.configuration.ExternalSystemMode;
+import com.optivem.testing.Isolated;
 import org.junit.jupiter.api.Test;
 
-
+@Isolated
 class ClockStubContractTest extends BaseClockContractTest {
     @Override
     protected ExternalSystemMode getFixedExternalSystemMode() {
@@ -17,6 +18,3 @@ class ClockStubContractTest extends BaseClockContractTest {
                 .then().clock().hasTime("2024-01-02T09:00:00Z");
     }
 }
-
-
-

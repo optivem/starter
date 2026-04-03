@@ -283,7 +283,13 @@ jobs:
           CHANNEL: UI
 
       - name: mod11 - Run Contract Tests (Stub)
-        run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod11.ExternalSystemContractTests&FullyQualifiedName~Stub" --verbosity normal
+        run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod11.ExternalSystemContractTests&FullyQualifiedName~Stub&Category!=isolated" --verbosity normal
+        working-directory: system-test/dotnet
+        env:
+          ENVIRONMENT: acceptance
+
+      - name: mod11 - Run Contract Tests (Isolated) (Stub)
+        run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod11.ExternalSystemContractTests&FullyQualifiedName~Stub&Category=isolated" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance

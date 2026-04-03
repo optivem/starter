@@ -182,7 +182,14 @@ jobs:
 
       - name: Run Contract Tests (Stub)
         working-directory: system-test/typescript
-        run: npm test -- test/latest/contract
+        run: npm test -- test/latest/contract --testPathIgnorePatterns=isolated
+        env:
+          ENVIRONMENT: acceptance
+          EXTERNAL_SYSTEM_MODE: stub
+
+      - name: Run Contract Tests (Isolated) (Stub)
+        working-directory: system-test/typescript
+        run: npm test -- "test/latest/contract/.*isolated" --runInBand
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub

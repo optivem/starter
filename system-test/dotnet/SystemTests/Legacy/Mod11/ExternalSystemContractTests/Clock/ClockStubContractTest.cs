@@ -2,6 +2,8 @@ using Dsl.Port;
 
 namespace SystemTests.Legacy.Mod11.ExternalSystemContractTests.Clock;
 
+[Collection("Isolated")]
+[Trait("Category", "isolated")]
 public class ClockStubContractTest : BaseClockContractTest
 {
     protected override ExternalSystemMode? FixedExternalSystemMode => ExternalSystemMode.Stub;

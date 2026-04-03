@@ -56,7 +56,15 @@ $Config = @{
         # === Contract Tests (stub) ===
         @{  Id = "contract-stub";
             Name = "latest - Contract (stub)";
-            Command = "& .\gradlew.bat test -Dversion=latest -Dtype=contract -DexternalSystemMode=stub -Dmode=stub -Denvironment=local";
+            Command = "& .\gradlew.bat test -Dversion=latest -Dtype=contract -DexcludeTags=isolated -DexternalSystemMode=stub -Dmode=stub -Denvironment=local";
+            Path = ".";
+            TestReportPath = "build\reports\tests\test\index.html";
+            TestInstallCommands = $null; },
+
+        # === Contract Tests Isolated (stub) ===
+        @{  Id = "contract-stub-isolated";
+            Name = "latest - Contract Isolated (stub)";
+            Command = "& .\gradlew.bat test -Dversion=latest -Dtype=contract -DincludeTags=isolated -DexternalSystemMode=stub -Dmode=stub -Denvironment=local";
             Path = ".";
             TestReportPath = "build\reports\tests\test\index.html";
             TestInstallCommands = $null; },

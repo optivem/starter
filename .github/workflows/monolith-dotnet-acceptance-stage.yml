@@ -185,7 +185,14 @@ jobs:
           CHANNEL: UI
 
       - name: Run Contract Tests (Stub)
-        run: dotnet test --filter "FullyQualifiedName~.Latest.ExternalSystemContractTests" --verbosity normal
+        run: dotnet test --filter "FullyQualifiedName~.Latest.ExternalSystemContractTests&Category!=isolated" --verbosity normal
+        working-directory: system-test/dotnet
+        env:
+          ENVIRONMENT: acceptance
+          EXTERNAL_SYSTEM_MODE: stub
+
+      - name: Run Contract Tests (Isolated) (Stub)
+        run: dotnet test --filter "FullyQualifiedName~.Latest.ExternalSystemContractTests&Category=isolated" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
