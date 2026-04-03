@@ -33,9 +33,9 @@ export function useOrderForm() {
     if (quantityTrimmed === '') {
       errors.push({ field: 'quantity', message: 'Quantity must not be empty' });
     } else {
-      const quantityNum = parseFloat(quantityTrimmed);
+      const quantityNum = Number.parseFloat(quantityTrimmed);
 
-      if (isNaN(quantityNum)) {
+      if (Number.isNaN(quantityNum)) {
         errors.push({ field: 'quantity', message: 'Quantity must be an integer' });
       } else if (!Number.isInteger(quantityNum)) {
         errors.push({ field: 'quantity', message: 'Quantity must be an integer' });

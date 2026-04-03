@@ -15,7 +15,7 @@ interface NotificationContextType {
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
-export function NotificationProvider({ children }: { children: ReactNode }) {
+export function NotificationProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
   const [notificationId, setNotificationId] = useState<number>(0);

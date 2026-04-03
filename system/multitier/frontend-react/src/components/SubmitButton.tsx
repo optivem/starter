@@ -39,7 +39,7 @@ export function SubmitButton({
   ariaLabel,
   className = 'btn btn-primary',
   ...rest
-}: SubmitButtonProps) {
+}: Readonly<SubmitButtonProps>) {
   return (
     <button
       type="submit"

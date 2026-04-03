@@ -20,7 +20,7 @@ export function FormInput({
   onChange,
   ariaLabel,
   ...inputProps
-}: FormInputProps) {
+}: Readonly<FormInputProps>) {
   // Auto-generate ID from label if not provided
   const inputId = id || label.toLowerCase().replace(/[^a-z0-9]+/g, '-');
 

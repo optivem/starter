@@ -13,7 +13,7 @@ export interface OrderFormProps {
  * Order placement form component
  * Collects SKU and quantity
  */
-export function OrderForm({ formData, onFormChange, onSubmit, isSubmitting }: OrderFormProps) {
+export function OrderForm({ formData, onFormChange, onSubmit, isSubmitting }: Readonly<OrderFormProps>) {
   return (
     <div className="card shadow">
       <div className="card-header bg-primary text-white">
@@ -33,7 +33,7 @@ export function OrderForm({ formData, onFormChange, onSubmit, isSubmitting }: Or
             value={formData.quantityValue}
             onChange={(e) => onFormChange({
               quantityValue: e.target.value,
-              quantity: parseInt(e.target.value) || 0
+              quantity: Number.parseInt(e.target.value) || 0
             })}
             inputMode="numeric"
             placeholder="Enter quantity"

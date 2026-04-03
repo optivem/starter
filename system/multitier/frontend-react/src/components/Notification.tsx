@@ -11,7 +11,7 @@ interface NotificationProps {
  * @param successMessage - Success message string to display
  * @param error - ApiError object with message and optional field-level errors
  */
-export function Notification({ successMessage, error, notificationId }: NotificationProps) {
+export function Notification({ successMessage, error, notificationId }: Readonly<NotificationProps>) {
   // Handle error messages
   if (error) {
     return (

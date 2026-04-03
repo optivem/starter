@@ -9,7 +9,7 @@ export interface OrderDetailViewProps {
  * Order detail view component for displaying comprehensive order information
  * Renders all order fields in a consistent grid layout
  */
-export function OrderDetailView({ order }: OrderDetailViewProps) {
+export function OrderDetailView({ order }: Readonly<OrderDetailViewProps>) {
   return (
     <div className="row">
       <DetailField label="Order Number" value={order.orderNumber} ariaLabel="Display Order Number" />

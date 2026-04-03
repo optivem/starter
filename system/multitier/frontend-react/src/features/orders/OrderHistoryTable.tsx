@@ -35,7 +35,7 @@ export function OrderHistoryTable({
   isLoading,
   error,
   onRefresh
-}: OrderHistoryTableProps) {
+}: Readonly<OrderHistoryTableProps>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 

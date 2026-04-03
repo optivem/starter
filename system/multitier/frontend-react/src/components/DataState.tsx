@@ -24,7 +24,7 @@ export function DataState({
   emptyMessage = 'No data available',
   onRetry,
   children,
-}: DataStateProps) {
+}: Readonly<DataStateProps>) {
   if (isLoading) {
     return <LoadingSpinner message={loadingMessage} />;
   }

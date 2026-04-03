@@ -12,7 +12,7 @@ export interface FeatureCardProps {
  * Feature card component for displaying navigation cards on the home page
  * Provides a consistent layout for feature links with icon, title, description, and call-to-action
  */
-export function FeatureCard({ icon, title, description, linkTo, linkText }: FeatureCardProps) {
+export function FeatureCard({ icon, title, description, linkTo, linkText }: Readonly<FeatureCardProps>) {
   return (
     <div className="col-md-4 mb-3">
       <div className="card h-100">

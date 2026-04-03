@@ -8,7 +8,7 @@ interface LoadingSpinnerProps {
  * @param message - Optional loading message to display
  * @param size - Size variant (sm, md, lg)
  */
-export function LoadingSpinner({ message = 'Loading...', size = 'md' }: LoadingSpinnerProps) {
+export function LoadingSpinner({ message = 'Loading...', size = 'md' }: Readonly<LoadingSpinnerProps>) {
   const sizeClass = size === 'sm' ? 'spinner-border-sm' : '';
 
   return (

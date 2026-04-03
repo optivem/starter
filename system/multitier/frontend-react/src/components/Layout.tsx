@@ -22,7 +22,7 @@ interface LayoutProps {
  * @param title - Optional page title displayed in navbar
  * @param breadcrumbs - Optional breadcrumb navigation items
  */
-export function Layout({ children, title, breadcrumbs }: LayoutProps) {
+export function Layout({ children, title, breadcrumbs }: Readonly<LayoutProps>) {
   const { successMessage, error, notificationId } = useNotificationContext();
 
   return (

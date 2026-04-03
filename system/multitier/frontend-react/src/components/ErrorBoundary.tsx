@@ -78,7 +78,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
                 </button>
                 <button
                   className="btn btn-secondary"
-                  onClick={() => window.location.href = '/'}
+                  onClick={() => globalThis.location.href = '/'}
                 >
                   Go to Home
                 </button>

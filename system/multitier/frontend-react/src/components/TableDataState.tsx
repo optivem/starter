@@ -23,7 +23,7 @@ export function TableDataState({
   loadingMessage = 'Loading...',
   emptyMessage = 'No data available',
   onRetry,
-}: TableDataStateProps) {
+}: Readonly<TableDataStateProps>) {
   if (isLoading) {
     return (
       <tr>

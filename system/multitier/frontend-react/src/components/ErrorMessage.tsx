@@ -8,7 +8,7 @@ interface ErrorMessageProps {
  * @param message - Error message to display
  * @param onRetry - Optional callback function to retry the failed operation
  */
-export function ErrorMessage({ message, onRetry }: ErrorMessageProps) {
+export function ErrorMessage({ message, onRetry }: Readonly<ErrorMessageProps>) {
   return (
     <div className="alert alert-danger d-flex justify-content-between align-items-center" role="alert">
       <div>

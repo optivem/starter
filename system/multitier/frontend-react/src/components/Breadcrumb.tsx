@@ -13,7 +13,7 @@ interface BreadcrumbProps {
  * Breadcrumb navigation component for showing page hierarchy
  * @param items - Array of breadcrumb items with labels and optional paths
  */
-export function Breadcrumb({ items }: BreadcrumbProps) {
+export function Breadcrumb({ items }: Readonly<BreadcrumbProps>) {
   return (
     <nav aria-label="breadcrumb">
       <ol className="breadcrumb">
