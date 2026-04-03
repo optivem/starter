@@ -136,21 +136,21 @@ jobs:
           pwsh SystemTests/bin/Debug/net8.0/playwright.ps1 install --with-deps
         working-directory: system-test/dotnet
 
-      - name: Smoke (Stub)
+      - name: Run Smoke Tests (Stub)
         run: dotnet test --filter "FullyQualifiedName~.Latest.SmokeTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
 
-      - name: Smoke (Real)
+      - name: Run Smoke Tests (Real)
         run: dotnet test --filter "FullyQualifiedName~.Latest.SmokeTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: real
 
-      - name: Acceptance - API Channel
+      - name: Run Acceptance Tests - API Channel
         run: dotnet test --filter "FullyQualifiedName~.Latest.AcceptanceTests&Category!=isolated" --verbosity normal
         working-directory: system-test/dotnet
         env:
@@ -158,7 +158,7 @@ jobs:
           EXTERNAL_SYSTEM_MODE: stub
           CHANNEL: API
 
-      - name: Acceptance - UI Channel
+      - name: Run Acceptance Tests - UI Channel
         run: dotnet test --filter "FullyQualifiedName~.Latest.AcceptanceTests&Category!=isolated" --verbosity normal
         working-directory: system-test/dotnet
         env:
@@ -166,7 +166,7 @@ jobs:
           EXTERNAL_SYSTEM_MODE: stub
           CHANNEL: UI
 
-      - name: Acceptance (Isolated) - API Channel
+      - name: Run Acceptance Tests (Isolated) - API Channel
         run: dotnet test --filter "FullyQualifiedName~.Latest.AcceptanceTests&Category=isolated" --verbosity normal
         working-directory: system-test/dotnet
         env:
@@ -174,7 +174,7 @@ jobs:
           EXTERNAL_SYSTEM_MODE: stub
           CHANNEL: API
 
-      - name: Acceptance (Isolated) - UI Channel
+      - name: Run Acceptance Tests (Isolated) - UI Channel
         run: dotnet test --filter "FullyQualifiedName~.Latest.AcceptanceTests&Category=isolated" --verbosity normal
         working-directory: system-test/dotnet
         env:
@@ -182,28 +182,28 @@ jobs:
           EXTERNAL_SYSTEM_MODE: stub
           CHANNEL: UI
 
-      - name: Contract (Stub)
+      - name: Run Contract Tests (Stub)
         run: dotnet test --filter "FullyQualifiedName~.Latest.ExternalSystemContractTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
 
-      - name: Contract (Real)
+      - name: Run Contract Tests (Real)
         run: dotnet test --filter "FullyQualifiedName~.Latest.ExternalSystemContractTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: real
 
-      - name: E2E - API Channel
+      - name: Run E2E Tests - API Channel
         run: dotnet test --filter "FullyQualifiedName~.Latest.E2eTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           CHANNEL: API
 
-      - name: E2E - UI Channel
+      - name: Run E2E Tests - UI Channel
         run: dotnet test --filter "FullyQualifiedName~.Latest.E2eTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
