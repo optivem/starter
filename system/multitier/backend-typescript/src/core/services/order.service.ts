@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import Decimal from 'decimal.js';
 import { Order } from '../entities/order.entity';
 import { OrderStatus } from '../entities/order-status.enum';
@@ -61,7 +61,7 @@ export class OrderService {
     const unitPrice = await this.getUnitPrice(sku);
     const dayOfWeek = orderTimestamp.getUTCDay();
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-    const discountFactor = isWeekend ? 0.5 : 1.0;
+    const discountFactor = isWeekend ? 0.5 : 1;
     const totalPrice = new Decimal(unitPrice).mul(quantity).mul(discountFactor).toNumber();
 
     const orderNumber = this.generateOrderNumber();

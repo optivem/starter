@@ -18,7 +18,7 @@ const buildPostgresUrl = (): string => {
 };
 
 export const getAppConfig = (): AppConfig => ({
-  port: parseInt(process.env.PORT || '8081', 10),
+  port: Number.parseInt(process.env.PORT || '8081', 10),
   allowedOrigins: process.env.ALLOWED_ORIGINS || 'http://localhost:8080',
   postgresUrl: buildPostgresUrl(),
   externalSystemMode: process.env.EXTERNAL_SYSTEM_MODE || 'real',

@@ -22,7 +22,7 @@ function buildOrderBody(sku: string, quantity: string): Record<string, unknown> 
       body.quantity = quantity;
     } else {
       const num = Number(trimmed);
-      body.quantity = isNaN(num) ? quantity : num;
+      body.quantity = Number.isNaN(num) ? quantity : num;
     }
   }
   return body;

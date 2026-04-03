@@ -110,7 +110,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         problemDetail.setProperty(PROP_TIMESTAMP, Instant.now());
 
         List<Map<String, Object>> errors = new ArrayList<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
+        ex.getBindingResult().getAllErrors().forEach(error -> {
             Map<String, Object> errorDetail = new HashMap<>();
             errorDetail.put(PROP_FIELD, ((FieldError) error).getField());
             errorDetail.put(PROP_MESSAGE, error.getDefaultMessage());

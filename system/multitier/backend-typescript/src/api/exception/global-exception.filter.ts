@@ -50,14 +50,13 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     ex: ValidationException,
     response: Response,
   ) {
-    if (ex.fieldName !== null) {
+    if (ex.fieldName === null) {
       const body: Record<string, unknown> = {
         type: VALIDATION_ERROR_TYPE_URI,
         title: 'Validation Error',
         status: 422,
-        detail: 'The request contains one or more validation errors',
+        detail: ex.message,
         timestamp: new Date().toISOString(),
-        errors: [{ field: ex.fieldName, message: ex.message }],
       };
       response.status(422).json(body);
     } else {
@@ -65,8 +64,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         type: VALIDATION_ERROR_TYPE_URI,
         title: 'Validation Error',
         status: 422,
-        detail: ex.message,
+        detail: 'The request contains one or more validation errors',
         timestamp: new Date().toISOString(),
+        errors: [{ field: ex.fieldName, message: ex.message }],
       };
       response.status(422).json(body);
     }
@@ -174,7 +174,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       if (isTypeMismatch === 'empty') {
         const emptyMessage =
           constraints['isNotEmpty'] ||
-          constraints[constraintKeys[constraintKeys.length - 1]];
+          constraints[constraintKeys.at(-1)!];
         errors.push({
           field,
           message: emptyMessage,

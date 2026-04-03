@@ -1,7 +1,6 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { findByOrderNumber } from '@/lib/db';
 import { notFoundResponse, internalErrorResponse } from '@/lib/errors';
-import { NextResponse } from 'next/server';
 
 export async function GET(
   _request: NextRequest,
@@ -20,8 +19,8 @@ export async function GET(
       orderTimestamp: order.order_timestamp.toISOString(),
       sku: order.sku,
       quantity: order.quantity,
-      unitPrice: parseFloat(order.unit_price),
-      totalPrice: parseFloat(order.total_price),
+      unitPrice: Number.parseFloat(order.unit_price),
+      totalPrice: Number.parseFloat(order.total_price),
       status: order.status,
     });
   } catch (error) {
