@@ -2,6 +2,7 @@ package com.optivem.shop.dsl.driver.adapter.shared.client.http;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.optivem.shop.dsl.common.Closer;
 import com.optivem.shop.dsl.common.Result;
@@ -40,6 +41,7 @@ public class JsonHttpClient<E> implements AutoCloseable {
     private static ObjectMapper createObjectMapper() {
         var mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         // Enable case-insensitive property binding
         mapper.setConfig(mapper.getDeserializationConfig()
                 .with(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES));
@@ -251,5 +253,3 @@ public class JsonHttpClient<E> implements AutoCloseable {
         return Result.success(response);
     }
 }
-
-

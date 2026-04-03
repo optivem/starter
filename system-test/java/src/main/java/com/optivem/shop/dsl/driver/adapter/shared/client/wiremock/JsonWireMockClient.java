@@ -5,6 +5,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.UrlPathPattern;
 import com.optivem.shop.dsl.common.Result;
 import wiremock.com.fasterxml.jackson.databind.ObjectMapper;
+import wiremock.com.fasterxml.jackson.databind.SerializationFeature;
 import wiremock.com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import com.github.tomakehurst.wiremock.stubbing.StubMapping;
@@ -40,6 +41,7 @@ public class JsonWireMockClient {
     private static ObjectMapper createObjectMapper() {
         var mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return mapper;
     }
 
