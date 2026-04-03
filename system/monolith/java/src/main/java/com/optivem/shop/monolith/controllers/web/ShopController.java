@@ -13,6 +13,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class ShopController {
 
+    private static final String ATTR_ERROR = "error";
+    private static final String ATTR_QUANTITY = "quantity";
+    private static final String REDIRECT_NEW_ORDER = "redirect:/new-order";
+
     private final OrderService orderService;
 
     public ShopController(OrderService orderService) {
@@ -35,40 +39,32 @@ public class ShopController {
             try {
                 request.setQuantity(Integer.parseInt(quantity));
             } catch (NumberFormatException e) {
-                redirectAttributes.addFlashAttribute("error", "Quantity must be an integer");
-                redirectAttributes.addFlashAttribute("sku", sku);
-                redirectAttributes.addFlashAttribute("quantity", quantity);
-                return "redirect:/new-order";
+                return redirectWithError(redirectAttributes, "Quantity must be an integer", sku, quantity);
             }
 
             if (request.getQuantity() <= 0) {
-                redirectAttributes.addFlashAttribute("error", "Quantity must be positive");
-                redirectAttributes.addFlashAttribute("sku", sku);
-                redirectAttributes.addFlashAttribute("quantity", quantity);
-                return "redirect:/new-order";
+                return redirectWithError(redirectAttributes, "Quantity must be positive", sku, quantity);
             }
 
             if (request.getSku() == null || request.getSku().isBlank()) {
-                redirectAttributes.addFlashAttribute("error", "SKU must not be empty");
-                redirectAttributes.addFlashAttribute("sku", sku);
-                redirectAttributes.addFlashAttribute("quantity", quantity);
-                return "redirect:/new-order";
+                return redirectWithError(redirectAttributes, "SKU must not be empty", sku, quantity);
             }
 
             PlaceOrderResponse response = orderService.placeOrder(request);
             redirectAttributes.addFlashAttribute("success",
                     "Success! Order has been created with Order Number " + response.getOrderNumber());
-            return "redirect:/new-order";
+            return REDIRECT_NEW_ORDER;
         } catch (ValidationException e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            redirectAttributes.addFlashAttribute("sku", sku);
-            redirectAttributes.addFlashAttribute("quantity", quantity);
-            return "redirect:/new-order";
+            return redirectWithError(redirectAttributes, e.getMessage(), sku, quantity);
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "An unexpected error occurred: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("sku", sku);
-            redirectAttributes.addFlashAttribute("quantity", quantity);
-            return "redirect:/new-order";
+            return redirectWithError(redirectAttributes, "An unexpected error occurred: " + e.getMessage(), sku, quantity);
         }
+    }
+
+    private String redirectWithError(RedirectAttributes redirectAttributes, String errorMessage, String sku, String quantity) {
+        redirectAttributes.addFlashAttribute(ATTR_ERROR, errorMessage);
+        redirectAttributes.addFlashAttribute("sku", sku);
+        redirectAttributes.addFlashAttribute(ATTR_QUANTITY, quantity);
+        return REDIRECT_NEW_ORDER;
     }
 }

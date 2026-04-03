@@ -6,6 +6,7 @@ import com.optivem.shop.backend.core.validation.TypeValidationMessageExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
@@ -96,10 +97,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-                                                                   org.springframework.http.HttpHeaders headers,
-                                                                   org.springframework.http.HttpStatusCode status,
-                                                                   org.springframework.web.context.request.WebRequest request) {
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(@NonNull MethodArgumentNotValidException ex,
+                                                                   @NonNull org.springframework.http.HttpHeaders headers,
+                                                                   @NonNull org.springframework.http.HttpStatusCode status,
+                                                                   @NonNull org.springframework.web.context.request.WebRequest request) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.UNPROCESSABLE_ENTITY,
                 VALIDATION_DETAIL
@@ -123,10 +124,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @Override
-    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
-                                                                   org.springframework.http.HttpHeaders headers,
-                                                                   org.springframework.http.HttpStatusCode status,
-                                                                   org.springframework.web.context.request.WebRequest request) {
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(@NonNull HttpMessageNotReadableException ex,
+                                                                   @NonNull org.springframework.http.HttpHeaders headers,
+                                                                   @NonNull org.springframework.http.HttpStatusCode status,
+                                                                   @NonNull org.springframework.web.context.request.WebRequest request) {
         log.error("HttpMessageNotReadableException: {}", ex.getMessage(), ex);
 
         ProblemDetail problemDetail = tryParseFieldError(ex.getMessage());
