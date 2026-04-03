@@ -72,7 +72,7 @@ $Config = @{
         # === E2E Tests (real) - API ===
         @{  Id = "e2e-api";
             Name = "latest - E2E (real) - API";
-            Command = "& .\gradlew.bat test -Dversion=latest -Dtype=e2e -DexternalSystemMode=real -Dchannel=API -Denvironment=local";
+            Command = "& .\gradlew.bat test -Dversion=latest -Dtype=e2e -Dchannel=API -Denvironment=local";
             Path = ".";
             TestReportPath = "build\reports\tests\test\index.html";
             TestInstallCommands = $null; },
@@ -80,7 +80,7 @@ $Config = @{
         # === E2E Tests (real) - UI ===
         @{  Id = "e2e-ui";
             Name = "latest - E2E (real) - UI";
-            Command = "& .\gradlew.bat test -Dversion=latest -Dtype=e2e -DexternalSystemMode=real -Dchannel=UI -Denvironment=local";
+            Command = "& .\gradlew.bat test -Dversion=latest -Dtype=e2e -Dchannel=UI -Denvironment=local";
             Path = ".";
             TestReportPath = "build\reports\tests\test\index.html";
             TestInstallCommands = $null; }

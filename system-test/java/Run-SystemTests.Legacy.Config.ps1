@@ -16,7 +16,7 @@ $Config = @{
         # === mod03: E2E ===
         @{  Id = "mod03-e2e";
             Name = "mod03 (e2e) - E2E (real)";
-            Command = "& .\gradlew.bat test -Dversion=mod03 -Dtype=e2e -DexternalSystemMode=real -Denvironment=local";
+            Command = "& .\gradlew.bat test -Dversion=mod03 -Dtype=e2e -Denvironment=local";
             Path = ".";
             TestReportPath = "build\reports\tests\test\index.html";
             TestInstallCommands = $null; },
@@ -30,7 +30,7 @@ $Config = @{
             TestInstallCommands = $null; },
         @{  Id = "mod04-e2e";
             Name = "mod04 (clients) - E2E (real)";
-            Command = "& .\gradlew.bat test -Dversion=mod04 -Dtype=e2e -DexternalSystemMode=real -Denvironment=local";
+            Command = "& .\gradlew.bat test -Dversion=mod04 -Dtype=e2e -Denvironment=local";
             Path = ".";
             TestReportPath = "build\reports\tests\test\index.html";
             TestInstallCommands = $null; },
@@ -44,7 +44,7 @@ $Config = @{
             TestInstallCommands = $null; },
         @{  Id = "mod05-e2e";
             Name = "mod05 (drivers) - E2E (real)";
-            Command = "& .\gradlew.bat test -Dversion=mod05 -Dtype=e2e -DexternalSystemMode=real -Denvironment=local";
+            Command = "& .\gradlew.bat test -Dversion=mod05 -Dtype=e2e -Denvironment=local";
             Path = ".";
             TestReportPath = "build\reports\tests\test\index.html";
             TestInstallCommands = $null; },
@@ -58,13 +58,13 @@ $Config = @{
             TestInstallCommands = $null; },
         @{  Id = "mod06-e2e-api";
             Name = "mod06 (channels) - E2E (real) - API";
-            Command = "& .\gradlew.bat test -Dversion=mod06 -Dtype=e2e -DexternalSystemMode=real -Dchannel=API -Denvironment=local";
+            Command = "& .\gradlew.bat test -Dversion=mod06 -Dtype=e2e -Dchannel=API -Denvironment=local";
             Path = ".";
             TestReportPath = "build\reports\tests\test\index.html";
             TestInstallCommands = $null; },
         @{  Id = "mod06-e2e-ui";
             Name = "mod06 (channels) - E2E (real) - UI";
-            Command = "& .\gradlew.bat test -Dversion=mod06 -Dtype=e2e -DexternalSystemMode=real -Dchannel=UI -Denvironment=local";
+            Command = "& .\gradlew.bat test -Dversion=mod06 -Dtype=e2e -Dchannel=UI -Denvironment=local";
             Path = ".";
             TestReportPath = "build\reports\tests\test\index.html";
             TestInstallCommands = $null; },
@@ -78,13 +78,13 @@ $Config = @{
             TestInstallCommands = $null; },
         @{  Id = "mod07-e2e-api";
             Name = "mod07 (app dsl) - E2E (real) - API";
-            Command = "& .\gradlew.bat test -Dversion=mod07 -Dtype=e2e -DexternalSystemMode=real -Dchannel=API -Denvironment=local";
+            Command = "& .\gradlew.bat test -Dversion=mod07 -Dtype=e2e -Dchannel=API -Denvironment=local";
             Path = ".";
             TestReportPath = "build\reports\tests\test\index.html";
             TestInstallCommands = $null; },
         @{  Id = "mod07-e2e-ui";
             Name = "mod07 (app dsl) - E2E (real) - UI";
-            Command = "& .\gradlew.bat test -Dversion=mod07 -Dtype=e2e -DexternalSystemMode=real -Dchannel=UI -Denvironment=local";
+            Command = "& .\gradlew.bat test -Dversion=mod07 -Dtype=e2e -Dchannel=UI -Denvironment=local";
             Path = ".";
             TestReportPath = "build\reports\tests\test\index.html";
             TestInstallCommands = $null; },
@@ -98,13 +98,13 @@ $Config = @{
             TestInstallCommands = $null; },
         @{  Id = "mod08-e2e-api";
             Name = "mod08 (scenario dsl) - E2E (real) - API";
-            Command = "& .\gradlew.bat test -Dversion=mod08 -Dtype=e2e -DexternalSystemMode=real -Dchannel=API -Denvironment=local";
+            Command = "& .\gradlew.bat test -Dversion=mod08 -Dtype=e2e -Dchannel=API -Denvironment=local";
             Path = ".";
             TestReportPath = "build\reports\tests\test\index.html";
             TestInstallCommands = $null; },
         @{  Id = "mod08-e2e-ui";
             Name = "mod08 (scenario dsl) - E2E (real) - UI";
-            Command = "& .\gradlew.bat test -Dversion=mod08 -Dtype=e2e -DexternalSystemMode=real -Dchannel=UI -Denvironment=local";
+            Command = "& .\gradlew.bat test -Dversion=mod08 -Dtype=e2e -Dchannel=UI -Denvironment=local";
             Path = ".";
             TestReportPath = "build\reports\tests\test\index.html";
             TestInstallCommands = $null; },
@@ -164,13 +164,13 @@ $Config = @{
             TestInstallCommands = $null; },
         @{  Id = "mod11-e2e-api";
             Name = "mod11 (contract) - E2E (real) - API";
-            Command = "& .\gradlew.bat test -Dversion=mod11 -Dtype=e2e -DexternalSystemMode=real -Dchannel=API -Denvironment=local";
+            Command = "& .\gradlew.bat test -Dversion=mod11 -Dtype=e2e -Dchannel=API -Denvironment=local";
             Path = ".";
             TestReportPath = "build\reports\tests\test\index.html";
             TestInstallCommands = $null; },
         @{  Id = "mod11-e2e-ui";
             Name = "mod11 (contract) - E2E (real) - UI";
-            Command = "& .\gradlew.bat test -Dversion=mod11 -Dtype=e2e -DexternalSystemMode=real -Dchannel=UI -Denvironment=local";
+            Command = "& .\gradlew.bat test -Dversion=mod11 -Dtype=e2e -Dchannel=UI -Denvironment=local";
             Path = ".";
             TestReportPath = "build\reports\tests\test\index.html";
             TestInstallCommands = $null; }
