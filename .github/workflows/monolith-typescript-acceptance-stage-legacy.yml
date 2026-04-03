@@ -169,7 +169,6 @@ jobs:
         run: npm test -- test/legacy/mod05/e2e
         env:
           ENVIRONMENT: acceptance
-          EXTERNAL_SYSTEM_MODE: real
 
       # === mod06: Smoke + E2E ===
       - name: mod06 - Smoke
@@ -184,7 +183,6 @@ jobs:
         run: npm test -- test/legacy/mod06/e2e
         env:
           ENVIRONMENT: acceptance
-          EXTERNAL_SYSTEM_MODE: real
           CHANNEL: API
 
       - name: mod06 - E2E - UI Channel
@@ -192,7 +190,6 @@ jobs:
         run: npm test -- test/legacy/mod06/e2e
         env:
           ENVIRONMENT: acceptance
-          EXTERNAL_SYSTEM_MODE: real
           CHANNEL: UI
 
       # === mod07: Smoke + E2E ===
@@ -208,7 +205,6 @@ jobs:
         run: npm test -- test/legacy/mod07/e2e
         env:
           ENVIRONMENT: acceptance
-          EXTERNAL_SYSTEM_MODE: real
           CHANNEL: API
 
       - name: mod07 - E2E - UI Channel
@@ -216,7 +212,6 @@ jobs:
         run: npm test -- test/legacy/mod07/e2e
         env:
           ENVIRONMENT: acceptance
-          EXTERNAL_SYSTEM_MODE: real
           CHANNEL: UI
 
       # === mod08: Smoke + E2E ===
@@ -232,7 +227,6 @@ jobs:
         run: npm test -- test/legacy/mod08/e2e
         env:
           ENVIRONMENT: acceptance
-          EXTERNAL_SYSTEM_MODE: real
           CHANNEL: API
 
       - name: mod08 - E2E - UI Channel
@@ -240,7 +234,6 @@ jobs:
         run: npm test -- test/legacy/mod08/e2e
         env:
           ENVIRONMENT: acceptance
-          EXTERNAL_SYSTEM_MODE: real
           CHANNEL: UI
 
       # === mod09: Smoke (stub + real) ===
