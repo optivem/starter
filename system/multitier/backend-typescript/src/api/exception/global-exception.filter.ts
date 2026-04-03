@@ -192,15 +192,13 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         });
       } else {
         // Normal validation error - use the first constraint message
-        for (const key of constraintKeys) {
-          errors.push({
-            field,
-            message: constraints[key],
-            code: key === 'isNotEmpty' ? 'NotBlank' : null,
-            rejectedValue: null,
-          });
-          break; // Only report the first error per field
-        }
+        const key = constraintKeys[0];
+        errors.push({
+          field,
+          message: constraints[key],
+          code: key === 'isNotEmpty' ? 'NotBlank' : null,
+          rejectedValue: null,
+        });
       }
     }
 
