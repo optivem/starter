@@ -134,132 +134,123 @@ jobs:
           pwsh SystemTests/bin/Debug/net8.0/playwright.ps1 install --with-deps
         working-directory: system-test/dotnet
 
-      # === mod02: Smoke ===
-      - name: mod02 - Smoke
+      - name: mod02 - Run Smoke Tests
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod02.SmokeTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: real
 
-      # === mod03: E2E ===
-      - name: mod03 - E2E
+      - name: mod03 - Run E2E Tests
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod03.E2eTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
 
-      # === mod04: Smoke + E2E ===
-      - name: mod04 - Smoke
+      - name: mod04 - Run Smoke Tests
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod04.SmokeTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: real
 
-      - name: mod04 - E2E
+      - name: mod04 - Run E2E Tests
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod04.E2eTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
 
-      # === mod05: Smoke + E2E ===
-      - name: mod05 - Smoke
+      - name: mod05 - Run Smoke Tests
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod05.SmokeTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: real
 
-      - name: mod05 - E2E
+      - name: mod05 - Run E2E Tests
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod05.E2eTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
 
-      # === mod06: Smoke + E2E ===
-      - name: mod06 - Smoke
+      - name: mod06 - Run Smoke Tests
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod06.SmokeTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: real
 
-      - name: mod06 - E2E - API Channel
+      - name: mod06 - Run E2E Tests - API Channel
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod06.E2eTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           CHANNEL: API
 
-      - name: mod06 - E2E - UI Channel
+      - name: mod06 - Run E2E Tests - UI Channel
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod06.E2eTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           CHANNEL: UI
 
-      # === mod07: Smoke + E2E ===
-      - name: mod07 - Smoke
+      - name: mod07 - Run Smoke Tests
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod07.SmokeTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: real
 
-      - name: mod07 - E2E - API Channel
+      - name: mod07 - Run E2E Tests - API Channel
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod07.E2eTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           CHANNEL: API
 
-      - name: mod07 - E2E - UI Channel
+      - name: mod07 - Run E2E Tests - UI Channel
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod07.E2eTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           CHANNEL: UI
 
-      # === mod08: Smoke + E2E ===
-      - name: mod08 - Smoke
+      - name: mod08 - Run Smoke Tests
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod08.SmokeTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: real
 
-      - name: mod08 - E2E - API Channel
+      - name: mod08 - Run E2E Tests - API Channel
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod08.E2eTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           CHANNEL: API
 
-      - name: mod08 - E2E - UI Channel
+      - name: mod08 - Run E2E Tests - UI Channel
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod08.E2eTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           CHANNEL: UI
 
-      # === mod09: Smoke (stub + real) ===
-      - name: mod09 - Smoke (Stub)
+      - name: mod09 - Run Smoke Tests (Stub)
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod09.SmokeTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
 
-      - name: mod09 - Smoke (Real)
+      - name: mod09 - Run Smoke Tests (Real)
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod09.SmokeTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: real
 
-      # === mod10: Acceptance ===
-      - name: mod10 - Acceptance - API Channel
+      - name: mod10 - Run Acceptance Tests - API Channel
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod10.AcceptanceTests&Category!=isolated" --verbosity normal
         working-directory: system-test/dotnet
         env:
@@ -267,7 +258,7 @@ jobs:
           EXTERNAL_SYSTEM_MODE: stub
           CHANNEL: API
 
-      - name: mod10 - Acceptance - UI Channel
+      - name: mod10 - Run Acceptance Tests - UI Channel
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod10.AcceptanceTests&Category!=isolated" --verbosity normal
         working-directory: system-test/dotnet
         env:
@@ -275,7 +266,7 @@ jobs:
           EXTERNAL_SYSTEM_MODE: stub
           CHANNEL: UI
 
-      - name: mod10 - Acceptance (Isolated) - API Channel
+      - name: mod10 - Run Acceptance Tests (Isolated) - API Channel
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod10.AcceptanceTests&Category=isolated" --verbosity normal
         working-directory: system-test/dotnet
         env:
@@ -283,7 +274,7 @@ jobs:
           EXTERNAL_SYSTEM_MODE: stub
           CHANNEL: API
 
-      - name: mod10 - Acceptance (Isolated) - UI Channel
+      - name: mod10 - Run Acceptance Tests (Isolated) - UI Channel
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod10.AcceptanceTests&Category=isolated" --verbosity normal
         working-directory: system-test/dotnet
         env:
@@ -291,27 +282,26 @@ jobs:
           EXTERNAL_SYSTEM_MODE: stub
           CHANNEL: UI
 
-      # === mod11: Contract + E2E ===
-      - name: mod11 - Contract (Stub)
+      - name: mod11 - Run Contract Tests (Stub)
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod11.ExternalSystemContractTests&FullyQualifiedName~Stub" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
 
-      - name: mod11 - Contract (Real)
+      - name: mod11 - Run Contract Tests (Real)
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod11.ExternalSystemContractTests&FullyQualifiedName~Real" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
 
-      - name: mod11 - E2E - API Channel
+      - name: mod11 - Run E2E Tests - API Channel
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod11.E2eTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           CHANNEL: API
 
-      - name: mod11 - E2E - UI Channel
+      - name: mod11 - Run E2E Tests - UI Channel
         run: dotnet test --filter "FullyQualifiedName~.Legacy.Mod11.E2eTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
