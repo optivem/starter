@@ -75,7 +75,8 @@ jobs:
           compose-file: docker-compose.pipeline.monolith.real.yml
           systems: |
             [
-              { "name": "Shop", "url": "http://localhost:3111/" },
+              { "name": "Shop UI", "url": "http://localhost:3111/" },
+              { "name": "Shop API", "url": "http://localhost:8111/health" },
               { "name": "ERP", "url": "http://localhost:9111/erp/health" },
               { "name": "Clock", "url": "http://localhost:9111/clock/health" }
             ]
