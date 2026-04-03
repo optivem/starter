@@ -31,6 +31,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     private static final Pattern CLASS_NAME_PATTERN = Pattern.compile("(com\\.optivem\\.shop\\.backend\\.core\\.dtos\\.[^\\[\\]\"\\s\\)]+)");
 
+    private static final String VALIDATION_DETAIL = "The request contains one or more validation errors";
+    private static final String VALIDATION_TITLE = "Validation Error";
+    private static final String PROP_TIMESTAMP = "timestamp";
+    private static final String PROP_ERRORS = "errors";
+    private static final String PROP_FIELD = "field";
+    private static final String PROP_MESSAGE = "message";
+
     @Value("${error.types.validation-error}")
     private String validationErrorTypeUri;
 
@@ -48,18 +55,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         if (ex.getFieldName() != null) {
             ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                     HttpStatus.UNPROCESSABLE_ENTITY,
-                    "The request contains one or more validation errors"
+                    VALIDATION_DETAIL
             );
             problemDetail.setType(URI.create(validationErrorTypeUri));
-            problemDetail.setTitle("Validation Error");
-            problemDetail.setProperty("timestamp", Instant.now());
+            problemDetail.setTitle(VALIDATION_TITLE);
+            problemDetail.setProperty(PROP_TIMESTAMP, Instant.now());
 
             List<Map<String, Object>> errors = new ArrayList<>();
             Map<String, Object> errorDetail = new HashMap<>();
-            errorDetail.put("field", ex.getFieldName());
-            errorDetail.put("message", ex.getMessage());
+            errorDetail.put(PROP_FIELD, ex.getFieldName());
+            errorDetail.put(PROP_MESSAGE, ex.getMessage());
             errors.add(errorDetail);
-            problemDetail.setProperty("errors", errors);
+            problemDetail.setProperty(PROP_ERRORS, errors);
 
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(problemDetail);
         } else {
@@ -68,8 +75,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                     ex.getMessage()
             );
             problemDetail.setType(URI.create(validationErrorTypeUri));
-            problemDetail.setTitle("Validation Error");
-            problemDetail.setProperty("timestamp", Instant.now());
+            problemDetail.setTitle(VALIDATION_TITLE);
+            problemDetail.setProperty(PROP_TIMESTAMP, Instant.now());
 
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(problemDetail);
         }
@@ -83,7 +90,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         );
         problemDetail.setType(URI.create(resourceNotFoundTypeUri));
         problemDetail.setTitle("Resource Not Found");
-        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty(PROP_TIMESTAMP, Instant.now());
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(problemDetail);
     }
@@ -95,22 +102,22 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                                    org.springframework.web.context.request.WebRequest request) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.UNPROCESSABLE_ENTITY,
-                "The request contains one or more validation errors"
+                VALIDATION_DETAIL
         );
         problemDetail.setType(URI.create(validationErrorTypeUri));
-        problemDetail.setTitle("Validation Error");
-        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setTitle(VALIDATION_TITLE);
+        problemDetail.setProperty(PROP_TIMESTAMP, Instant.now());
 
         List<Map<String, Object>> errors = new ArrayList<>();
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             Map<String, Object> errorDetail = new HashMap<>();
-            errorDetail.put("field", ((FieldError) error).getField());
-            errorDetail.put("message", error.getDefaultMessage());
+            errorDetail.put(PROP_FIELD, ((FieldError) error).getField());
+            errorDetail.put(PROP_MESSAGE, error.getDefaultMessage());
             errorDetail.put("code", error.getCode());
             errorDetail.put("rejectedValue", ((FieldError) error).getRejectedValue());
             errors.add(errorDetail);
         });
-        problemDetail.setProperty("errors", errors);
+        problemDetail.setProperty(PROP_ERRORS, errors);
 
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body((Object) problemDetail);
     }
@@ -140,7 +147,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         );
         problemDetail.setType(URI.create(badRequestTypeUri));
         problemDetail.setTitle("Bad Request");
-        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty(PROP_TIMESTAMP, Instant.now());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body((Object) problemDetail);
     }
@@ -167,19 +174,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
                     ProblemDetail pd = ProblemDetail.forStatusAndDetail(
                             HttpStatus.UNPROCESSABLE_ENTITY,
-                            "The request contains one or more validation errors"
+                            VALIDATION_DETAIL
                     );
                     pd.setType(URI.create(validationErrorTypeUri));
-                    pd.setTitle("Validation Error");
-                    pd.setProperty("timestamp", Instant.now());
+                    pd.setTitle(VALIDATION_TITLE);
+                    pd.setProperty(PROP_TIMESTAMP, Instant.now());
 
                     List<Map<String, Object>> errors = new ArrayList<>();
                     Map<String, Object> errorDetail = new HashMap<>();
-                    errorDetail.put("field", fieldName);
-                    errorDetail.put("message", fieldMessage);
+                    errorDetail.put(PROP_FIELD, fieldName);
+                    errorDetail.put(PROP_MESSAGE, fieldMessage);
                     errorDetail.put("code", "TYPE_MISMATCH");
                     errors.add(errorDetail);
-                    pd.setProperty("errors", errors);
+                    pd.setProperty(PROP_ERRORS, errors);
 
                     return pd;
                 })
@@ -215,7 +222,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         );
         problemDetail.setType(URI.create(internalServerErrorTypeUri));
         problemDetail.setTitle("Internal Server Error");
-        problemDetail.setProperty("timestamp", Instant.now());
+        problemDetail.setProperty(PROP_TIMESTAMP, Instant.now());
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problemDetail);
     }
