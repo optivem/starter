@@ -5,7 +5,7 @@ import type { PlaceOrderRequest, PlaceOrderResponse, ViewOrderDetailsResponse, B
 import type { Result } from '../types/result.types';
 
 class OrderService {
-  private baseUrl: string;
+  private readonly baseUrl: string;
 
   constructor(baseUrl: string = '/api/orders') {
     this.baseUrl = baseUrl;
@@ -30,7 +30,7 @@ class OrderService {
   }
 
   async browseOrderHistory(orderNumberFilter?: string): Promise<Result<BrowseOrderHistoryResponse>> {
-    const url = orderNumberFilter && orderNumberFilter.trim()
+    const url = orderNumberFilter?.trim()
       ? `${this.baseUrl}?orderNumber=${encodeURIComponent(orderNumberFilter.trim())}`
       : this.baseUrl;
     return fetchJson<BrowseOrderHistoryResponse>(url, {
