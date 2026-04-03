@@ -22,16 +22,13 @@
      gh run view <run-id> --repo optivem/starter --log-failed
      ```
    - Investigate the root cause of the failure.
-   - Fix the issue in the codebase.
+   - Fix the issue in the starter repo only.
    - Verify the fix compiles:
      ```bash
      dotnet build
      ```
      (run from the relevant test project directory, e.g. `system-test/dotnet`)
-   - Commit the fix:
-     ```bash
-     bash "$(git rev-parse --show-toplevel)/../github-utils/scripts/commit.sh"
-     ```
+   - Commit the fix using the `/commit` skill. Do not ask the user for approval — commit directly.
    - Go back to step 1 (re-trigger the failing workflow).
 
 5. **Repeat** until all failing acceptance stage workflows pass.
@@ -49,9 +46,9 @@ There are 12 acceptance stage workflows, organized by architecture and language:
 | Multitier   | .NET       | multitier-dotnet-acceptance-stage.yml        | multitier-dotnet-acceptance-stage-legacy.yml        |
 | Multitier   | TypeScript | multitier-typescript-acceptance-stage.yml    | multitier-typescript-acceptance-stage-legacy.yml    |
 
-To check which workflows are currently failing:
+To check which acceptance stage workflows are currently failing:
 ```bash
-gh run list --repo optivem/starter --limit 20 --json name,conclusion | jq '.[] | select(.conclusion=="failure")'
+gh run list --repo optivem/starter --limit 20 --json name,conclusion | jq '.[] | select(.conclusion=="failure" and (.name | test("acceptance-stage")))'
 ```
 
 ## Stop Conditions
@@ -59,7 +56,7 @@ gh run list --repo optivem/starter --limit 20 --json name,conclusion | jq '.[] |
 Stop the loop and report to the user if:
 - A test fails due to an external issue not under your control (subscription limits, third-party service outage, rate limiting).
 - You cannot determine the root cause after thorough investigation.
-- The same fix fails twice in CI after passing locally.
+- You have already attempted two fix-and-retrigger cycles for the same failure and it keeps failing in CI.
 
 ## Guidelines
 
@@ -67,4 +64,5 @@ Stop the loop and report to the user if:
 - When investigating failures, check both the system test code (`system-test/`) and the application code (`system/`).
 - Java is the reference implementation. All backends (Java/.NET/TypeScript) must return identical API responses.
 - Never use `git pull --rebase`. Always plain `git pull`.
-- Never commit, push, or sync repos with ad-hoc commands. Always use the commit script.
+- Never commit, push, or sync repos with ad-hoc commands. Always use the `/commit` skill.
+- Only make changes to the starter repo. Do not modify other repos.
