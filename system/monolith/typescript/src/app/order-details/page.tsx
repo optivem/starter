@@ -83,7 +83,7 @@ function OrderDetailsContent() {
           <h4 className="mb-0">Order Details</h4>
         </div>
         <div className="card-body">
-          {loading ? (
+          {loading && (
             <div className="text-center py-5">
               <output>
                 <div className="spinner-border text-primary">
@@ -92,7 +92,8 @@ function OrderDetailsContent() {
               </output>
               <p className="mt-3">Loading order details...</p>
             </div>
-          ) : error ? (
+          )}
+          {!loading && error && (
             <div
               className="alert alert-danger d-flex justify-content-between align-items-center"
               role="alert"
@@ -101,11 +102,13 @@ function OrderDetailsContent() {
                 <strong>Error:</strong> {error}
               </div>
             </div>
-          ) : !order ? (
+          )}
+          {!loading && !error && !order && (
             <div className="text-center py-5 text-muted">
               <p>Order not found</p>
             </div>
-          ) : (
+          )}
+          {!loading && !error && order && (
             <>
               <div className="row">
                 <div className="col-md-6 mb-3">
