@@ -20,7 +20,11 @@ public abstract class BaseChannelDriverTest : BaseConfigurableTest, IAsyncLifeti
     public virtual async Task InitializeAsync()
     {
         await TestLock.WaitAsync();
+        await SetupDrivers();
+    }
 
+    private async Task SetupDrivers()
+    {
         var configuration = LoadConfiguration();
 
         // Only create shop driver if channel context is set (for channel-parameterized tests)
@@ -55,7 +59,7 @@ public abstract class BaseChannelDriverTest : BaseConfigurableTest, IAsyncLifeti
     protected async Task SetChannelAsync(Channel channel)
     {
         ChannelContext.Set(channel.Type);
-        await InitializeAsync();
+        await SetupDrivers();
     }
 
     private static async Task<IShopDriver?> CreateShopDriverAsync(Dsl.Core.Configuration configuration)
