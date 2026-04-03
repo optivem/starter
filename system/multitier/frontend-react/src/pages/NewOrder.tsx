@@ -5,10 +5,10 @@ import { useNotificationContext } from '../contexts/NotificationContext';
 import { useOrderForm } from '../hooks';
 
 /**
- * Shop page component for placing orders
+ * New Order page component for placing orders
  * Provides a form interface for customers to submit orders with SKU and quantity
  */
-export function Shop() {
+export function NewOrder() {
   const { setSuccess, handleResult } = useNotificationContext();
   const {
     formData,
@@ -25,7 +25,7 @@ export function Shop() {
   }, [submitOrder, handleResult, setSuccess]);
 
   return (
-    <Layout title="Shop" breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Shop' }]}>
+    <Layout title="New Order" breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'New Order' }]}>
       <div className="row">
         <div className="col-lg-6 mx-auto">
           <OrderForm

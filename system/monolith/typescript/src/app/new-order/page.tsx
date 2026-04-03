@@ -13,7 +13,7 @@ interface ErrorData {
   errors?: FieldError[];
 }
 
-export default function ShopPage() {
+export default function NewOrderPage() {
   const [sku, setSku] = useState("");
   const [quantity, setQuantity] = useState("");
   const [notification, setNotification] = useState<{
@@ -97,7 +97,7 @@ export default function ShopPage() {
             <Link href="/">Home</Link>
           </li>
           <li className="breadcrumb-item active" aria-current="page">
-            Shop
+            New Order
           </li>
         </ol>
       </nav>

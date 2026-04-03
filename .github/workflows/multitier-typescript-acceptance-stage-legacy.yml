@@ -264,7 +264,7 @@ jobs:
       # === mod10: Acceptance ===
       - name: mod10 - Acceptance - API Channel
         working-directory: system-test/typescript
-        run: npm test -- test/legacy/mod10/acceptance
+        run: npm test -- test/legacy/mod10/acceptance --testPathIgnorePatterns=isolated
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
@@ -272,7 +272,7 @@ jobs:
 
       - name: mod10 - Acceptance - UI Channel
         working-directory: system-test/typescript
-        run: npm test -- test/legacy/mod10/acceptance
+        run: npm test -- test/legacy/mod10/acceptance --testPathIgnorePatterns=isolated
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
@@ -280,7 +280,7 @@ jobs:
 
       - name: mod10 - Acceptance (Isolated) - API Channel
         working-directory: system-test/typescript
-        run: npm test -- test/legacy/mod10/acceptance
+        run: npm test -- "test/legacy/mod10/acceptance/.*isolated" --runInBand
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
@@ -288,7 +288,7 @@ jobs:
 
       - name: mod10 - Acceptance (Isolated) - UI Channel
         working-directory: system-test/typescript
-        run: npm test -- test/legacy/mod10/acceptance
+        run: npm test -- "test/legacy/mod10/acceptance/.*isolated" --runInBand
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub

@@ -19,12 +19,12 @@ public class ShopController {
         this.orderService = orderService;
     }
 
-    @GetMapping("/shop")
+    @GetMapping("/new-order")
     public String shop() {
-        return "shop";
+        return "new-order";
     }
 
-    @PostMapping("/shop")
+    @PostMapping("/new-order")
     public String placeOrder(@RequestParam String sku,
                              @RequestParam String quantity,
                              RedirectAttributes redirectAttributes) {
@@ -38,37 +38,37 @@ public class ShopController {
                 redirectAttributes.addFlashAttribute("error", "Quantity must be an integer");
                 redirectAttributes.addFlashAttribute("sku", sku);
                 redirectAttributes.addFlashAttribute("quantity", quantity);
-                return "redirect:/shop";
+                return "redirect:/new-order";
             }
 
             if (request.getQuantity() <= 0) {
                 redirectAttributes.addFlashAttribute("error", "Quantity must be positive");
                 redirectAttributes.addFlashAttribute("sku", sku);
                 redirectAttributes.addFlashAttribute("quantity", quantity);
-                return "redirect:/shop";
+                return "redirect:/new-order";
             }
 
             if (request.getSku() == null || request.getSku().isBlank()) {
                 redirectAttributes.addFlashAttribute("error", "SKU must not be empty");
                 redirectAttributes.addFlashAttribute("sku", sku);
                 redirectAttributes.addFlashAttribute("quantity", quantity);
-                return "redirect:/shop";
+                return "redirect:/new-order";
             }
 
             PlaceOrderResponse response = orderService.placeOrder(request);
             redirectAttributes.addFlashAttribute("success",
                     "Success! Order has been created with Order Number " + response.getOrderNumber());
-            return "redirect:/shop";
+            return "redirect:/new-order";
         } catch (ValidationException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             redirectAttributes.addFlashAttribute("sku", sku);
             redirectAttributes.addFlashAttribute("quantity", quantity);
-            return "redirect:/shop";
+            return "redirect:/new-order";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "An unexpected error occurred: " + e.getMessage());
             redirectAttributes.addFlashAttribute("sku", sku);
             redirectAttributes.addFlashAttribute("quantity", quantity);
-            return "redirect:/shop";
+            return "redirect:/new-order";
         }
     }
 }

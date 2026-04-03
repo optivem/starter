@@ -16,8 +16,8 @@ export function Home() {
             icon="New Order"
             title="New Order"
             description="Place a new order with our easy-to-use interface"
-            linkTo="/shop"
-            linkText="Shop Now"
+            linkTo="/new-order"
+            linkText="New Order"
           />
           <FeatureCard
             icon="Order History"

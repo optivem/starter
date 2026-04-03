@@ -3,7 +3,7 @@ package com.optivem.shop.dsl.driver.adapter.shop.ui.client.pages;
 import com.optivem.shop.dsl.driver.adapter.shared.client.playwright.PageClient;
 
 public class HomePage extends BasePage {
-    private static final String SHOP_BUTTON_SELECTOR = "a[href='/shop']";
+    private static final String SHOP_BUTTON_SELECTOR = "a[href='/new-order']";
     private static final String ORDER_HISTORY_BUTTON_SELECTOR = "a[href='/order-history']";
     public HomePage(PageClient pageClient) {
         super(pageClient);
@@ -19,6 +19,3 @@ public class HomePage extends BasePage {
         return new OrderHistoryPage(pageClient);
     }
 }
-
-
-

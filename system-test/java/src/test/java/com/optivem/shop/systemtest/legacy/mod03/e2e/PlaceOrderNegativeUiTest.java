@@ -17,7 +17,7 @@ class PlaceOrderNegativeUiTest extends BaseE2eTest {
     @Test
     void shouldRejectOrderWithNonIntegerQuantity() {
         shopUiPage.navigate(getShopUiBaseUrl());
-        shopUiPage.locator("a[href='/shop']").click();
+        shopUiPage.locator("a[href='/new-order']").click();
 
         shopUiPage.locator("[aria-label=\"SKU\"]").fill(SKU + "-" + UUID.randomUUID().toString().substring(0, 8));
         shopUiPage.locator("[aria-label=\"Quantity\"]").fill("invalid-quantity");

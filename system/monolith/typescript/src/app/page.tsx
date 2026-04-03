@@ -14,8 +14,8 @@ export default function Home() {
               <p className="card-text">
                 Place a new order with our easy-to-use interface
               </p>
-              <Link className="btn btn-primary" href="/shop">
-                Shop Now
+              <Link className="btn btn-primary" href="/new-order">
+                New Order
               </Link>
             </div>
           </div>
