@@ -13,6 +13,21 @@ interface ErrorData {
   errors?: FieldError[];
 }
 
+function buildOrderBody(sku: string, quantity: string): Record<string, unknown> {
+  const body: Record<string, unknown> = {};
+  if (sku !== "") body.sku = sku;
+  if (quantity !== "") {
+    const trimmed = quantity.trim();
+    if (trimmed === "") {
+      body.quantity = quantity;
+    } else {
+      const num = Number(trimmed);
+      body.quantity = isNaN(num) ? quantity : num;
+    }
+  }
+  return body;
+}
+
 export default function NewOrderPage() {
   const [sku, setSku] = useState("");
   const [quantity, setQuantity] = useState("");
@@ -34,17 +49,7 @@ export default function NewOrderPage() {
     setNotificationCounter(nextId);
 
     try {
-      const body: Record<string, unknown> = {};
-      if (sku !== "") body.sku = sku;
-      if (quantity !== "") {
-        const trimmed = quantity.trim();
-        if (trimmed === '') {
-          body.quantity = quantity;
-        } else {
-          const num = Number(trimmed);
-          body.quantity = isNaN(num) ? quantity : num;
-        }
-      }
+      const body = buildOrderBody(sku, quantity);
 
       const response = await fetch("/api/orders", {
         method: "POST",
