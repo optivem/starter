@@ -139,43 +139,43 @@ jobs:
         run: ./gradlew clean compileJava compileTestJava
         working-directory: system-test/java
 
-      - name: Smoke (Stub)
+      - name: Run Smoke Tests (Stub)
         run: ./gradlew test -Dversion=latest -Dtype=smoke -DexternalSystemMode=stub -Denvironment=acceptance
         working-directory: system-test/java
 
-      - name: Smoke (Real)
+      - name: Run Smoke Tests (Real)
         run: ./gradlew test -Dversion=latest -Dtype=smoke -DexternalSystemMode=real -Denvironment=acceptance
         working-directory: system-test/java
 
-      - name: Acceptance - API Channel
+      - name: Run Acceptance Tests - API Channel
         run: ./gradlew test -Dversion=latest -Dtype=acceptance -DexcludeTags=isolated -Dchannel=API -Denvironment=acceptance
         working-directory: system-test/java
 
-      - name: Acceptance - UI Channel
+      - name: Run Acceptance Tests - UI Channel
         run: ./gradlew test -Dversion=latest -Dtype=acceptance -DexcludeTags=isolated -Dchannel=UI -Denvironment=acceptance
         working-directory: system-test/java
 
-      - name: Acceptance (Isolated) - API Channel
+      - name: Run Acceptance Tests (Isolated) - API Channel
         run: ./gradlew test -Dversion=latest -Dtype=acceptance -DincludeTags=isolated -Dchannel=API -Denvironment=acceptance
         working-directory: system-test/java
 
-      - name: Acceptance (Isolated) - UI Channel
+      - name: Run Acceptance Tests (Isolated) - UI Channel
         run: ./gradlew test -Dversion=latest -Dtype=acceptance -DincludeTags=isolated -Dchannel=UI -Denvironment=acceptance
         working-directory: system-test/java
 
-      - name: Contract (Stub)
+      - name: Run Contract Tests (Stub)
         run: ./gradlew test -Dversion=latest -Dtype=contract -DexternalSystemMode=stub -Denvironment=acceptance
         working-directory: system-test/java
 
-      - name: Contract (Real)
+      - name: Run Contract Tests (Real)
         run: ./gradlew test -Dversion=latest -Dtype=contract -DexternalSystemMode=real -Denvironment=acceptance
         working-directory: system-test/java
 
-      - name: E2E - API Channel
+      - name: Run E2E Tests - API Channel
         run: ./gradlew test -Dversion=latest -Dtype=e2e -Dchannel=API -Denvironment=acceptance
         working-directory: system-test/java
 
-      - name: E2E - UI Channel
+      - name: Run E2E Tests - UI Channel
         run: ./gradlew test -Dversion=latest -Dtype=e2e -Dchannel=UI -Denvironment=acceptance
         working-directory: system-test/java
 
