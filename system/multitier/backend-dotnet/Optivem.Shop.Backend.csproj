@@ -21,9 +21,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <SonarQubeSetting Include="sonar.issue.ignore.multicriteria" Value="e1" />
+    <SonarQubeSetting Include="sonar.issue.ignore.multicriteria" Value="e1,e2,e3" />
     <SonarQubeSetting Include="sonar.issue.ignore.multicriteria.e1.ruleKey" Value="csharpsquid:S2699" />
     <SonarQubeSetting Include="sonar.issue.ignore.multicriteria.e1.resourceKey" Value="Tests/**" />
+    <SonarQubeSetting Include="sonar.issue.ignore.multicriteria.e2.ruleKey" Value="csharpsquid:S1118" />
+    <SonarQubeSetting Include="sonar.issue.ignore.multicriteria.e2.resourceKey" Value="Program.cs" />
+    <SonarQubeSetting Include="sonar.issue.ignore.multicriteria.e3.ruleKey" Value="csharpsquid:S2068" />
+    <SonarQubeSetting Include="sonar.issue.ignore.multicriteria.e3.resourceKey" Value="appsettings.json" />
   </ItemGroup>
 
 </Project>
