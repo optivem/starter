@@ -3,9 +3,9 @@ import { Pool } from 'pg';
 const pool = new Pool({
   host: process.env.POSTGRES_DB_HOST || 'localhost',
   port: parseInt(process.env.POSTGRES_DB_PORT || '5432', 10),
-  database: process.env.POSTGRES_DB_NAME || 'shop',
-  user: process.env.POSTGRES_DB_USER || 'shop_user',
-  password: process.env.POSTGRES_DB_PASSWORD || 'shop_password',
+  database: process.env.POSTGRES_DB_NAME || 'app',
+  user: process.env.POSTGRES_DB_USER || 'app',
+  password: process.env.POSTGRES_DB_PASSWORD || 'app',
 });
 
 let initialized = false;

@@ -21,9 +21,9 @@ import { Order } from './core/entities/order.entity';
       useFactory: (configService: ConfigService) => {
         const host = configService.get<string>('POSTGRES_DB_HOST', 'localhost');
         const port = configService.get<number>('POSTGRES_DB_PORT', 5432);
-        const database = configService.get<string>('POSTGRES_DB_NAME', 'shop');
-        const username = configService.get<string>('POSTGRES_DB_USER', 'shop');
-        const password = configService.get<string>('POSTGRES_DB_PASSWORD', 'shop');
+        const database = configService.get<string>('POSTGRES_DB_NAME', 'app');
+        const username = configService.get<string>('POSTGRES_DB_USER', 'app');
+        const password = configService.get<string>('POSTGRES_DB_PASSWORD', 'app');
         return {
           type: 'postgres' as const,
           host,

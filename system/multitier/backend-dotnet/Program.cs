@@ -48,9 +48,9 @@ builder.Services.AddCors(options =>
 // Configure PostgreSQL
 var pgHost = Environment.GetEnvironmentVariable("POSTGRES_DB_HOST") ?? "localhost";
 var pgPort = Environment.GetEnvironmentVariable("POSTGRES_DB_PORT") ?? "5432";
-var pgName = Environment.GetEnvironmentVariable("POSTGRES_DB_NAME") ?? "shop";
-var pgUser = Environment.GetEnvironmentVariable("POSTGRES_DB_USER") ?? "shop";
-var pgPass = Environment.GetEnvironmentVariable("POSTGRES_DB_PASSWORD") ?? "shop";
+var pgName = Environment.GetEnvironmentVariable("POSTGRES_DB_NAME") ?? "app";
+var pgUser = Environment.GetEnvironmentVariable("POSTGRES_DB_USER") ?? "app";
+var pgPass = Environment.GetEnvironmentVariable("POSTGRES_DB_PASSWORD") ?? "app";
 var connectionString = $"Host={pgHost};Port={pgPort};Database={pgName};Username={pgUser};Password={pgPass}";
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString));

@@ -187,14 +187,14 @@ jobs:
           CHANNEL: UI
 
       - name: Contract (Stub)
-        run: dotnet test --filter "FullyQualifiedName~.Latest.ContractTests" --verbosity normal
+        run: dotnet test --filter "FullyQualifiedName~.Latest.ExternalSystemContractTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
 
       - name: Contract (Real)
-        run: dotnet test --filter "FullyQualifiedName~.Latest.ContractTests" --verbosity normal
+        run: dotnet test --filter "FullyQualifiedName~.Latest.ExternalSystemContractTests" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance

@@ -68,7 +68,7 @@ $Config = @{
         # === E2E Tests (real) - API ===
         @{  Id = "e2e-api";
             Name = "latest - E2E (real) - API";
-            Command = "dotnet test --filter 'FullyQualifiedName~.Latest.E2eTests' --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
+            Command = "dotnet test --filter 'FullyQualifiedName~.Latest.E2eTests' -e CHANNEL=API --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
             TestReportPath = "SystemTests\TestResults\testResults.html";
             TestInstallCommands = "pwsh bin/Debug/net8.0/playwright.ps1 install" },
