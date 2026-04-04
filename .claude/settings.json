@@ -39,7 +39,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -Command \"[Console]::Beep(1000, 500)\""
+            "command": "powershell -Command \"[System.Media.SystemSounds]::Beep.Play()\""
           },
           {
             "type": "command",
