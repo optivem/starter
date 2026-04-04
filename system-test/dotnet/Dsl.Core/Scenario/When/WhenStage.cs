@@ -11,20 +11,22 @@ namespace Dsl.Core.Scenario.When
     {
         private readonly UseCaseDsl _app;
         private readonly ScenarioDsl _scenario;
+        private bool _hasPromotion;
         private bool _hasProduct;
         private readonly Func<Task>? _givenSetup;
 
-        public WhenStage(Channel? channel, UseCaseDsl app, ScenarioDsl scenario, bool hasProduct, Func<Task>? givenSetup = null)
+        public WhenStage(Channel? channel, UseCaseDsl app, ScenarioDsl scenario, bool hasProduct, bool hasPromotion, Func<Task>? givenSetup = null)
             : base(channel)
         {
             _app = app;
             _scenario = scenario;
             _hasProduct = hasProduct;
+            _hasPromotion = hasPromotion;
             _givenSetup = givenSetup;
         }
 
         public WhenStage(Channel? channel, UseCaseDsl app, ScenarioDsl scenario)
-            : this(channel, app, scenario, false, null)
+            : this(channel, app, scenario, false, false, null)
         {
         }
 
@@ -33,6 +35,16 @@ namespace Dsl.Core.Scenario.When
             if (_givenSetup != null)
             {
                 await _givenSetup();
+            }
+
+            if (!_hasPromotion)
+            {
+                var result = await _app.Erp().ReturnsPromotion()
+                    .WithActive(DefaultPromotionActive)
+                    .WithDiscount(DefaultPromotionDiscount)
+                    .Execute();
+                result.ShouldSucceed();
+                _hasPromotion = true;
             }
 
             if (!_hasProduct)

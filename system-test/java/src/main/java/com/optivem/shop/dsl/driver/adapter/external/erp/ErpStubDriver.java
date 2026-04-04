@@ -1,8 +1,10 @@
 package com.optivem.shop.dsl.driver.adapter.external.erp;
 
 import com.optivem.shop.dsl.driver.adapter.external.erp.client.ErpStubClient;
+import com.optivem.shop.dsl.driver.adapter.external.erp.client.dtos.ExtGetPromotionResponse;
 import com.optivem.shop.dsl.driver.adapter.external.erp.client.dtos.ExtProductDetailsResponse;
 import com.optivem.shop.dsl.driver.port.external.erp.dtos.ReturnsProductRequest;
+import com.optivem.shop.dsl.driver.port.external.erp.dtos.ReturnsPromotionRequest;
 import com.optivem.shop.dsl.driver.port.shared.dtos.ErrorResponse;
 import com.optivem.shop.dsl.common.Converter;
 import com.optivem.shop.dsl.common.Result;
@@ -34,6 +36,17 @@ public class ErpStubDriver extends BaseErpDriver<ErpStubClient> {
                 .build();
 
         return client.configureGetProduct(extProductDetailsResponse)
+                .mapError(ext -> ErrorResponse.builder().message(ext.getMessage()).build());
+    }
+
+    @Override
+    public Result<Void, ErrorResponse> returnsPromotion(ReturnsPromotionRequest request) {
+        var extPromotionResponse = ExtGetPromotionResponse.builder()
+                .promotionActive(request.isPromotionActive())
+                .discount(Converter.toBigDecimal(request.getDiscount()))
+                .build();
+
+        return client.configureGetPromotion(extPromotionResponse)
                 .mapError(ext -> ErrorResponse.builder().message(ext.getMessage()).build());
     }
 }

@@ -54,6 +54,8 @@ public abstract class BaseErpDriver<TClient> : IErpDriver
 
     public abstract Task<Result<VoidValue, ErpErrorResponse>> ReturnsProductAsync(ReturnsProductRequest request);
 
+    public abstract Task<Result<VoidValue, ErpErrorResponse>> ReturnsPromotionAsync(ReturnsPromotionRequest request);
+
     protected static ErpErrorResponse MapError(ExtErpErrorResponse extError)
     {
         return new ErpErrorResponse { Message = extError.Message };

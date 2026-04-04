@@ -17,6 +17,10 @@ public final class ScenarioDefaults {
     public static final String DEFAULT_QUANTITY = "1";
     public static final OrderStatus DEFAULT_ORDER_STATUS = OrderStatus.PLACED;
 
+    // Promotion defaults
+    public static final boolean DEFAULT_PROMOTION_ACTIVE = false;
+    public static final String DEFAULT_PROMOTION_DISCOUNT = "1.00";
+
     // Clock defaults
     public static final String DEFAULT_TIME = "2025-12-24T10:00:00Z";
     public static final String WEEKDAY_TIME = "2026-01-15T10:30:00Z";
@@ -28,4 +32,3 @@ public final class ScenarioDefaults {
         // Prevent instantiation
     }
 }
-

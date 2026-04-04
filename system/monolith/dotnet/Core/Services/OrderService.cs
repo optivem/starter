@@ -43,8 +43,8 @@ public class OrderService
         }
 
         var unitPrice = await GetUnitPriceAsync(sku);
-        var isWeekend = utcTime.DayOfWeek == DayOfWeek.Saturday || utcTime.DayOfWeek == DayOfWeek.Sunday;
-        var discountFactor = isWeekend ? 0.5m : 1.0m;
+        var promotion = await _erpGateway.GetPromotionDetailsAsync();
+        var discountFactor = promotion.PromotionActive ? promotion.Discount : 1.0m;
         var totalPrice = unitPrice * quantity * discountFactor;
 
         var orderNumber = GenerateOrderNumber();

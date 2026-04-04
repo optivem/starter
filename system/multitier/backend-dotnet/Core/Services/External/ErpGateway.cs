@@ -46,4 +46,27 @@ public class ErpGateway
             throw new InvalidOperationException($"Failed to fetch product details for SKU: {sku} from URL: {url}. Error: {e.GetType().Name}: {e.Message}", e);
         }
     }
+
+    public async Task<GetPromotionResponse> GetPromotionDetailsAsync()
+    {
+        var url = $"{_erpUrl}/api/promotion";
+
+        try
+        {
+            var response = await _httpClient.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var body = await response.Content.ReadAsStringAsync();
+                throw new InvalidOperationException($"ERP API returned status {(int)response.StatusCode} for promotion. URL: {url}. Response: {body}");
+            }
+
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<GetPromotionResponse>(content, JsonOptions)!;
+        }
+        catch (HttpRequestException e)
+        {
+            throw new InvalidOperationException($"Failed to fetch promotion details from URL: {url}. Error: {e.GetType().Name}: {e.Message}", e);
+        }
+    }
 }

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'node:crypto';
 import Decimal from 'decimal.js';
 import { insertOrder, findAllOrders } from '@/lib/db';
-import { getCurrentTime, getProductDetails } from '@/lib/external';
+import { getCurrentTime, getProductDetails, getPromotionDetails } from '@/lib/external';
 import { validatePlaceOrderRequest } from '@/lib/validation';
 import { validationErrorResponse, generalValidationErrorResponse, internalErrorResponse } from '@/lib/errors';
 
@@ -50,9 +50,8 @@ export async function POST(request: NextRequest) {
     }
 
     const unitPrice = product.price;
-    const dayOfWeek = now.getUTCDay();
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-    const discountFactor = isWeekend ? 0.5 : 1;
+    const promotion = await getPromotionDetails();
+    const discountFactor = promotion.promotionActive ? promotion.discount : 1;
     const totalPrice = new Decimal(unitPrice).mul(quantity).mul(discountFactor).toNumber();
 
     const orderNumber = `ORD-${crypto.randomUUID().toUpperCase()}`;

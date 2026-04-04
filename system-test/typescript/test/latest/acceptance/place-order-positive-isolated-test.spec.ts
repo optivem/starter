@@ -36,7 +36,7 @@ describe('PlaceOrder Positive Isolated Test', () => {
     }
   });
 
-  it(`shouldApplyFullPriceOnWeekday_${channel.toUpperCase()}`, async () => {
+  it(`shouldApplyFullPriceWithoutPromotion_${channel.toUpperCase()}`, async () => {
     const scenario = createScenario({ channel, externalSystemMode, browser });
     try {
       await scenario
@@ -44,8 +44,8 @@ describe('PlaceOrder Positive Isolated Test', () => {
         .product()
         .withUnitPrice(20.0)
         .and()
-        .clock()
-        .withWeekday()
+        .promotion()
+        .withActive(false)
         .when()
         .placeOrder()
         .withQuantity(5)
@@ -59,7 +59,7 @@ describe('PlaceOrder Positive Isolated Test', () => {
     }
   });
 
-  it(`shouldApplyWeekendDiscount_${channel.toUpperCase()}`, async () => {
+  it(`shouldApplyDiscountWhenPromotionIsActive_${channel.toUpperCase()}`, async () => {
     const scenario = createScenario({ channel, externalSystemMode, browser });
     try {
       await scenario
@@ -67,8 +67,9 @@ describe('PlaceOrder Positive Isolated Test', () => {
         .product()
         .withUnitPrice(20.0)
         .and()
-        .clock()
-        .withWeekend()
+        .promotion()
+        .withActive(true)
+        .withDiscount(0.5)
         .when()
         .placeOrder()
         .withQuantity(5)

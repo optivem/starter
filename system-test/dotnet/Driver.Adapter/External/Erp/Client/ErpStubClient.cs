@@ -19,6 +19,7 @@ public class ErpStubClient : BaseErpClient
 {
 
     private const string ErpProductsEndpoint = "/erp/api/products";
+    private const string ErpPromotionEndpoint = "/erp/api/promotion";
 
 
 
@@ -54,7 +55,11 @@ public class ErpStubClient : BaseErpClient
 
             .MapErrorAsync(ExtErpErrorResponse.From);
 
+    public Task<Result<VoidValue, ExtErpErrorResponse>> ConfigureGetPromotionAsync(ExtGetPromotionResponse response)
 
+        => _wireMockClient.StubGetAsync(ErpPromotionEndpoint, HttpStatus.Ok, response)
+
+            .MapErrorAsync(ExtErpErrorResponse.From);
 
     public Task RemoveStubsAsync() => _wireMockClient.RemoveStubsAsync();
 

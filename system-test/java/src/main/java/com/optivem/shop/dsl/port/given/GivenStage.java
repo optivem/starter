@@ -3,6 +3,7 @@ package com.optivem.shop.dsl.port.given;
 import com.optivem.shop.dsl.port.given.steps.GivenClock;
 import com.optivem.shop.dsl.port.given.steps.GivenOrder;
 import com.optivem.shop.dsl.port.given.steps.GivenProduct;
+import com.optivem.shop.dsl.port.given.steps.GivenPromotion;
 import com.optivem.shop.dsl.port.then.ThenStage;
 import com.optivem.shop.dsl.port.when.WhenStage;
 
@@ -11,11 +12,11 @@ public interface GivenStage {
 
     GivenProduct product();
 
+    GivenPromotion promotion();
+
     GivenOrder order();
 
     WhenStage when();
 
     ThenStage then();
 }
-
-

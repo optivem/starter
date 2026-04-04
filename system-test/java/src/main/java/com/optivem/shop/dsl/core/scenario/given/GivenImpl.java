@@ -5,6 +5,7 @@ import com.optivem.shop.dsl.core.scenario.then.ThenImpl;
 import com.optivem.shop.dsl.core.scenario.given.steps.GivenClockImpl;
 import com.optivem.shop.dsl.core.scenario.given.steps.GivenOrderImpl;
 import com.optivem.shop.dsl.core.scenario.given.steps.GivenProductImpl;
+import com.optivem.shop.dsl.core.scenario.given.steps.GivenPromotionImpl;
 import com.optivem.shop.dsl.port.given.GivenStage;
 import com.optivem.shop.dsl.port.then.ThenStage;
 import com.optivem.shop.dsl.core.scenario.when.WhenImpl;
@@ -15,12 +16,14 @@ import java.util.List;
 public class GivenImpl implements GivenStage {
     private final UseCaseDsl app;
     private GivenClockImpl clock;
+    private GivenPromotionImpl promotion;
     private final List<GivenProductImpl> products;
     private final List<GivenOrderImpl> orders;
 
     public GivenImpl(UseCaseDsl app) {
         this.app = app;
         this.clock = null;
+        this.promotion = new GivenPromotionImpl(this);
         this.products = new ArrayList<>();
         this.orders = new ArrayList<>();
     }
@@ -42,9 +45,15 @@ public class GivenImpl implements GivenStage {
         return clock;
     }
 
+    @Override
+    public GivenPromotionImpl promotion() {
+        promotion = new GivenPromotionImpl(this);
+        return promotion;
+    }
+
     public WhenImpl when() {
         setup();
-        return new WhenImpl(app, !products.isEmpty());
+        return new WhenImpl(app, !products.isEmpty(), true);
     }
 
     public ThenStage then() {
@@ -54,8 +63,13 @@ public class GivenImpl implements GivenStage {
 
     private void setup() {
         setupClock();
+        setupPromotion();
         setupErp();
         setupShop();
+    }
+
+    private void setupPromotion() {
+        promotion.execute(app);
     }
 
     private void setupClock() {
@@ -81,6 +95,3 @@ public class GivenImpl implements GivenStage {
         }
     }
 }
-
-
-

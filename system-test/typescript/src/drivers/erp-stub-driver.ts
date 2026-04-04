@@ -1,5 +1,5 @@
 import { Result, success, failure } from '../common/result';
-import { ErrorResponse, GetProductResponse, ReturnsProductRequest } from '../common/dtos';
+import { ErrorResponse, GetProductResponse, ReturnsProductRequest, ReturnsPromotionRequest } from '../common/dtos';
 import { ErpDriver } from './types';
 import { JsonWireMockClient } from '../clients/wiremock-client';
 
@@ -33,6 +33,14 @@ export class ErpStubDriver implements ErpDriver {
       price: parseFloat(request.price),
       category: 'Test',
       brand: 'Test',
+    });
+    return success(undefined);
+  }
+
+  async returnsPromotion(request: ReturnsPromotionRequest): Promise<Result<void, ErrorResponse>> {
+    await this.wireMock.stubGet('/erp/api/promotion', {
+      promotionActive: request.promotionActive,
+      discount: Number.parseFloat(request.discount),
     });
     return success(undefined);
   }

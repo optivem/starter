@@ -3,6 +3,7 @@ package com.optivem.shop.dsl.driver.adapter.external.erp;
 import com.optivem.shop.dsl.driver.adapter.external.erp.client.ErpRealClient;
 import com.optivem.shop.dsl.driver.adapter.external.erp.client.dtos.ExtCreateProductRequest;
 import com.optivem.shop.dsl.driver.port.external.erp.dtos.ReturnsProductRequest;
+import com.optivem.shop.dsl.driver.port.external.erp.dtos.ReturnsPromotionRequest;
 import com.optivem.shop.dsl.driver.port.shared.dtos.ErrorResponse;
 import com.optivem.shop.dsl.common.Result;
 
@@ -14,6 +15,11 @@ public class ErpRealDriver extends BaseErpDriver<ErpRealClient> {
 
     public ErpRealDriver(String baseUrl) {
         super(new ErpRealClient(baseUrl));
+    }
+
+    @Override
+    public Result<Void, ErrorResponse> returnsPromotion(ReturnsPromotionRequest request) {
+        return Result.success();
     }
 
     @Override

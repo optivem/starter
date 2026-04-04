@@ -2,6 +2,7 @@ using Driver.Port.External.Erp;
 using Dsl.Core.External.Erp.UseCases;
 using Dsl.Core.Shared;
 
+
 namespace Dsl.Core.External.Erp;
 
 public class ErpDsl : IDisposable, IAsyncDisposable
@@ -40,6 +41,8 @@ public class ErpDsl : IDisposable, IAsyncDisposable
     public GoToErp GoToErp() => new(_driver, _context);
 
     public ReturnsProduct ReturnsProduct() => new(_driver, _context);
+
+    public ReturnsPromotion ReturnsPromotion() => new(_driver, _context);
 
     public GetProduct GetProduct() => new(_driver, _context);
 }

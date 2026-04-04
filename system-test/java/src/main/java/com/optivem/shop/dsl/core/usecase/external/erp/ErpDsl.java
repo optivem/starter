@@ -4,6 +4,7 @@ import com.optivem.shop.dsl.driver.port.external.erp.ErpDriver;
 import com.optivem.shop.dsl.core.usecase.external.erp.usecases.GetProduct;
 import com.optivem.shop.dsl.core.usecase.external.erp.usecases.GoToErp;
 import com.optivem.shop.dsl.core.usecase.external.erp.usecases.ReturnsProduct;
+import com.optivem.shop.dsl.core.usecase.external.erp.usecases.ReturnsPromotion;
 import com.optivem.shop.dsl.common.Closer;
 import com.optivem.shop.dsl.core.shared.UseCaseContext;
 
@@ -31,5 +32,9 @@ public class ErpDsl implements AutoCloseable {
 
     public GetProduct getProduct() {
         return new GetProduct(driver, context);
+    }
+
+    public ReturnsPromotion returnsPromotion() {
+        return new ReturnsPromotion(driver, context);
     }
 }
