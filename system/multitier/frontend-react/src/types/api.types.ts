@@ -8,7 +8,7 @@ export enum OrderStatus {
 export interface PlaceOrderRequest {
   sku: string;
   quantity: number;
-  country: string;
+  country?: string;
   couponCode?: string;
 }
 
