@@ -46,9 +46,6 @@ export function useOrderForm() {
       }
     }
 
-    if (!data.country.trim()) {
-      errors.push({ field: 'country', message: 'Country must not be empty' });
-    }
 
     return errors;
   };

@@ -12,7 +12,7 @@ class OrderService {
   }
 
   async placeOrder(sku: string, quantity: number, country: string, couponCode?: string): Promise<Result<PlaceOrderResponse>> {
-    const requestBody: PlaceOrderRequest = { sku, quantity, country, ...(couponCode ? { couponCode } : {}) };
+    const requestBody: PlaceOrderRequest = { sku, quantity, ...(country.trim() ? { country } : {}), ...(couponCode ? { couponCode } : {}) };
 
     return fetchJson<PlaceOrderResponse>(this.baseUrl, {
       method: 'POST',
