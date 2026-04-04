@@ -12,6 +12,8 @@ public interface IGivenStage
 
     IGivenClock Clock();
 
+    IGivenPromotion Promotion();
+
     IWhenStage When();
 
     IThenStage Then();

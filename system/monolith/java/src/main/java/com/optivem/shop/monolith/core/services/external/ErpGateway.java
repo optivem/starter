@@ -1,6 +1,7 @@
 package com.optivem.shop.monolith.core.services.external;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.optivem.shop.monolith.core.dtos.external.GetPromotionResponse;
 import com.optivem.shop.monolith.core.dtos.external.ProductDetailsResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,38 @@ public class ErpGateway {
 
     @Value("${erp.url}")
     private String erpUrl;
+
+    public GetPromotionResponse getPromotionDetails() {
+        var url = erpUrl + "/api/promotion";
+
+        try {
+            var httpClient = HttpClient.newBuilder()
+                    .connectTimeout(Duration.ofSeconds(10))
+                    .build();
+
+            var request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .timeout(Duration.ofSeconds(10))
+                    .GET()
+                    .build();
+
+            var response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() != 200) {
+                throw new IllegalStateException("ERP API returned status " + response.statusCode()
+                        + " for promotion. URL: " + url + ". Response: " + response.body());
+            }
+
+            return OBJECT_MAPPER.readValue(response.body(), GetPromotionResponse.class);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Failed to fetch promotion details from URL: " + url
+                    + ". Error: " + e.getClass().getSimpleName() + ": " + e.getMessage(), e);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to fetch promotion details from URL: " + url
+                    + ". Error: " + e.getClass().getSimpleName() + ": " + e.getMessage(), e);
+        }
+    }
 
     public Optional<ProductDetailsResponse> getProductDetails(String sku) {
         var url = erpUrl + "/api/products/" + sku;

@@ -17,6 +17,7 @@ namespace Dsl.Core.Scenario.Given
         private readonly List<GivenProduct> _products;
         private readonly List<GivenOrder> _orders;
         private GivenClock? _clock;
+        private GivenPromotion _promotion;
 
         public GivenStage(Channel? channel, UseCaseDsl app, ScenarioDsl scenario)
             : base(channel)
@@ -26,6 +27,7 @@ namespace Dsl.Core.Scenario.Given
             _products = new List<GivenProduct>();
             _orders = new List<GivenOrder>();
             _clock = null;
+            _promotion = new GivenPromotion(this);
         }
 
         public GivenProduct Product()
@@ -54,9 +56,17 @@ namespace Dsl.Core.Scenario.Given
 
         IGivenClock IGivenStage.Clock() => Clock();
 
+        public GivenPromotion Promotion()
+        {
+            _promotion = new GivenPromotion(this);
+            return _promotion;
+        }
+
+        IGivenPromotion IGivenStage.Promotion() => Promotion();
+
         public WhenStage When()
         {
-            return new WhenStage(Channel, _app, _scenario, _products.Any(), SetupGiven);
+            return new WhenStage(Channel, _app, _scenario, _products.Any(), true, SetupGiven);
         }
 
         IWhenStage IGivenStage.When() => When();
@@ -71,8 +81,14 @@ namespace Dsl.Core.Scenario.Given
         private async Task SetupGiven()
         {
             await SetupClock();
+            await SetupPromotion();
             await SetupErp();
             await SetupShop();
+        }
+
+        private async Task SetupPromotion()
+        {
+            await _promotion.Execute(_app);
         }
 
         private async Task SetupClock()

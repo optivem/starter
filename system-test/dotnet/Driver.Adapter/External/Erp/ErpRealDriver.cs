@@ -33,5 +33,8 @@ public class ErpRealDriver : BaseErpDriver<ErpRealClient>
         return _client.CreateProductAsync(createProductRequest)
             .MapErrorAsync(error => MapError(error));
     }
+
+    public override Task<Result<VoidValue, ErpErrorResponse>> ReturnsPromotionAsync(ReturnsPromotionRequest request)
+        => Task.FromResult(Result.Success<ErpErrorResponse>());
 }
 

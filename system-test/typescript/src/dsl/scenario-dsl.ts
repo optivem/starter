@@ -28,10 +28,17 @@ interface ProductConfig {
   price: string;
 }
 
+interface PromotionConfig {
+  promotionActive: boolean;
+  discount: string;
+}
+
 class ScenarioContext {
   clockConfig: ClockConfig | null = null;
   productConfigs: ProductConfig[] = [];
   hasExplicitProduct = false;
+  promotionConfig: PromotionConfig = { promotionActive: DEFAULTS.PROMOTION_ACTIVE, discount: DEFAULTS.PROMOTION_DISCOUNT };
+  hasExplicitPromotion = false;
 }
 
 // === Main Entry Point ===
@@ -120,6 +127,11 @@ class GivenStage {
     return new GivenProduct(this, config);
   }
 
+  promotion(): GivenPromotion {
+    this.ctx.hasExplicitPromotion = true;
+    return new GivenPromotion(this, this.ctx.promotionConfig);
+  }
+
   and(): GivenStage {
     return this;
   }
@@ -151,6 +163,35 @@ class GivenClock {
 
   withWeekend(): GivenClock {
     this.config.time = DEFAULTS.WEEKEND_TIME;
+    return this;
+  }
+
+  and(): GivenStage {
+    return this.stage;
+  }
+
+  when(): WhenStage {
+    return this.stage.when();
+  }
+
+  then(): ThenContractStage {
+    return this.stage.then();
+  }
+}
+
+class GivenPromotion {
+  constructor(
+    private stage: GivenStage,
+    private config: PromotionConfig,
+  ) {}
+
+  withActive(promotionActive: boolean): GivenPromotion {
+    this.config.promotionActive = promotionActive;
+    return this;
+  }
+
+  withDiscount(discount: number | string): GivenPromotion {
+    this.config.discount = typeof discount === 'number' ? discount.toFixed(2) : discount;
     return this;
   }
 
@@ -287,7 +328,13 @@ class ThenResultStage implements PromiseLike<void> {
       await this.app.clockDriver.returnsTime({ time: this.ctx.clockConfig.time });
     }
 
-    // 2. Setup given: products (explicit or default for success tests only)
+    // 2. Setup given: promotion
+    await this.app.erpDriver.returnsPromotion({
+      promotionActive: this.ctx.promotionConfig.promotionActive,
+      discount: this.ctx.promotionConfig.discount,
+    });
+
+    // 3. Setup given: products (explicit or default for success tests only)
     if (this.ctx.hasExplicitProduct) {
       for (const pc of this.ctx.productConfigs) {
         await this.app.erpDriver.returnsProduct({ sku: pc.sku, price: pc.price });

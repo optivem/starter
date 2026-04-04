@@ -67,10 +67,18 @@ server.post('/erp/api/products', (req, res, next) => {
   next();
 });
 
+// Promotion endpoint - returns default no-promotion state
+server.get('/erp/api/promotion', (req, res) => {
+  res.status(200).json({
+    promotionActive: false,
+    discount: 1.0
+  });
+});
+
 server.get('/erp/api', (req, res) => {
   res.status(200).json({
     message: 'ERP API',
-    endpoints: ['/erp/api/products']
+    endpoints: ['/erp/api/products', '/erp/api/promotion']
   });
 });
 server.use('/erp/api', erpRouter);

@@ -9,18 +9,33 @@ import static com.optivem.shop.dsl.core.scenario.ScenarioDefaults.*;
 
 public class WhenImpl implements WhenStage {
     private final UseCaseDsl app;
+    private boolean hasPromotion;
     private boolean hasProduct;
 
-    public WhenImpl(UseCaseDsl app, boolean hasProduct) {
+    public WhenImpl(UseCaseDsl app, boolean hasProduct, boolean hasPromotion) {
         this.app = app;
         this.hasProduct = hasProduct;
+        this.hasPromotion = hasPromotion;
+    }
+
+    public WhenImpl(UseCaseDsl app, boolean hasProduct) {
+        this(app, hasProduct, false);
     }
 
     public WhenImpl(UseCaseDsl app) {
-        this(app, false);
+        this(app, false, false);
     }
 
     private void ensureDefaults() {
+        if (!hasPromotion) {
+            app.erp().returnsPromotion()
+                    .withActive(DEFAULT_PROMOTION_ACTIVE)
+                    .withDiscount(DEFAULT_PROMOTION_DISCOUNT)
+                    .execute()
+                    .shouldSucceed();
+            hasPromotion = true;
+        }
+
         if (!hasProduct) {
             app.erp().returnsProduct()
                     .sku(DEFAULT_SKU)
@@ -42,6 +57,3 @@ public class WhenImpl implements WhenStage {
     }
 
 }
-
-
-

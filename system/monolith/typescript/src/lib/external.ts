@@ -28,6 +28,21 @@ export interface ProductDetails {
   price: number;
 }
 
+export interface PromotionDetails {
+  promotionActive: boolean;
+  discount: number;
+}
+
+export async function getPromotionDetails(): Promise<PromotionDetails> {
+  const url = `${ERP_API_URL()}/api/promotion`;
+  const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch promotion details: ${response.status}`);
+  }
+  const data = await response.json() as { promotionActive: boolean; discount: number };
+  return { promotionActive: data.promotionActive, discount: data.discount };
+}
+
 export async function getProductDetails(sku: string): Promise<ProductDetails | null> {
   const url = `${ERP_API_URL()}/api/products/${encodeURIComponent(sku)}`;
   const response = await fetch(url, { signal: AbortSignal.timeout(10000) });

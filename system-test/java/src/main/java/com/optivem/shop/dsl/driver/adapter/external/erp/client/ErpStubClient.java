@@ -1,6 +1,7 @@
 package com.optivem.shop.dsl.driver.adapter.external.erp.client;
 
 import com.optivem.shop.dsl.driver.adapter.shared.client.http.HttpStatus;
+import com.optivem.shop.dsl.driver.adapter.external.erp.client.dtos.ExtGetPromotionResponse;
 import com.optivem.shop.dsl.driver.adapter.external.erp.client.dtos.ExtProductDetailsResponse;
 import com.optivem.shop.dsl.driver.adapter.external.erp.client.dtos.error.ExtErpErrorResponse;
 import com.optivem.shop.dsl.common.Result;
@@ -8,6 +9,7 @@ import com.optivem.shop.dsl.driver.adapter.shared.client.wiremock.JsonWireMockCl
 
 public class ErpStubClient extends BaseErpClient {
     private static final String ERP_PRODUCTS_ENDPOINT = "/erp/api/products";
+    private static final String ERP_PROMOTION_ENDPOINT = "/erp/api/promotion";
 
     private final JsonWireMockClient wireMockClient;
 
@@ -19,6 +21,11 @@ public class ErpStubClient extends BaseErpClient {
     public Result<Void, ExtErpErrorResponse> configureGetProduct(ExtProductDetailsResponse response) {
         var sku = response.getId();
         return wireMockClient.stubGet(ERP_PRODUCTS_ENDPOINT + "/" + sku, HttpStatus.OK, response)
+                .mapError(ExtErpErrorResponse::new);
+    }
+
+    public Result<Void, ExtErpErrorResponse> configureGetPromotion(ExtGetPromotionResponse response) {
+        return wireMockClient.stubGet(ERP_PROMOTION_ENDPOINT, HttpStatus.OK, response)
                 .mapError(ExtErpErrorResponse::new);
     }
 

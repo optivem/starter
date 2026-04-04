@@ -1,5 +1,5 @@
 import { Result, success, failure } from '../common/result';
-import { ErrorResponse, GetProductResponse, ReturnsProductRequest } from '../common/dtos';
+import { ErrorResponse, GetProductResponse, ReturnsProductRequest, ReturnsPromotionRequest } from '../common/dtos';
 import { ErpDriver } from './types';
 
 export class ErpRealDriver implements ErpDriver {
@@ -35,6 +35,10 @@ export class ErpRealDriver implements ErpDriver {
     });
     if (response.ok) return success(undefined);
     return failure({ message: `Failed to create product: ${response.status}`, fieldErrors: [] });
+  }
+
+  async returnsPromotion(_request: ReturnsPromotionRequest): Promise<Result<void, ErrorResponse>> {
+    return success(undefined);
   }
 
   async close(): Promise<void> {}

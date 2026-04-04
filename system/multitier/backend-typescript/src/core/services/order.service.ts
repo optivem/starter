@@ -59,9 +59,8 @@ export class OrderService {
     }
 
     const unitPrice = await this.getUnitPrice(sku);
-    const dayOfWeek = orderTimestamp.getUTCDay();
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
-    const discountFactor = isWeekend ? 0.5 : 1;
+    const promotion = await this.erpGateway.getPromotionDetails();
+    const discountFactor = promotion.promotionActive ? promotion.discount : 1;
     const totalPrice = new Decimal(unitPrice).mul(quantity).mul(discountFactor).toNumber();
 
     const orderNumber = this.generateOrderNumber();

@@ -39,5 +39,17 @@ public class ErpStubDriver : BaseErpDriver<ErpStubClient>
         return _client.ConfigureGetProductAsync(extProductDetailsResponse)
             .MapErrorAsync(error => MapError(error));
     }
+
+    public override Task<Result<VoidValue, ErpErrorResponse>> ReturnsPromotionAsync(ReturnsPromotionRequest request)
+    {
+        var extGetPromotionResponse = new ExtGetPromotionResponse
+        {
+            PromotionActive = request.PromotionActive,
+            Discount = decimal.Parse(request.Discount!)
+        };
+
+        return _client.ConfigureGetPromotionAsync(extGetPromotionResponse)
+            .MapErrorAsync(error => MapError(error));
+    }
 }
 

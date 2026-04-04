@@ -23,10 +23,10 @@ class PlaceOrderPositiveIsolatedTest extends BaseAcceptanceTest {
 
     @TestTemplate
     @Channel({ChannelType.UI, ChannelType.API})
-    void shouldApplyFullPriceOnWeekday() {
+    void shouldApplyFullPriceWithoutPromotion() {
         scenario
                 .given().product().withUnitPrice(20.00)
-                .and().clock().withWeekday()
+                .and().promotion().withActive(false)
                 .when().placeOrder().withQuantity(5)
                 .then().shouldSucceed()
                 .and().order()
@@ -35,10 +35,10 @@ class PlaceOrderPositiveIsolatedTest extends BaseAcceptanceTest {
 
     @TestTemplate
     @Channel({ChannelType.UI, ChannelType.API})
-    void shouldApplyWeekendDiscount() {
+    void shouldApplyDiscountWhenPromotionIsActive() {
         scenario
                 .given().product().withUnitPrice(20.00)
-                .and().clock().withWeekend()
+                .and().promotion().withActive(true).withDiscount(0.5)
                 .when().placeOrder().withQuantity(5)
                 .then().shouldSucceed()
                 .and().order()

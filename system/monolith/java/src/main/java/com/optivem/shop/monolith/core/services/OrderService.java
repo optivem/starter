@@ -14,7 +14,6 @@ import com.optivem.shop.monolith.core.services.external.ErpGateway;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.MonthDay;
@@ -55,9 +54,8 @@ public class OrderService {
             }
         }
         var unitPrice = getUnitPrice(sku);
-        var dayOfWeek = now.getDayOfWeek();
-        var isWeekend = dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY;
-        var discountFactor = isWeekend ? BigDecimal.valueOf(0.5) : BigDecimal.ONE;
+        var promotion = erpGateway.getPromotionDetails();
+        var discountFactor = promotion.isPromotionActive() ? promotion.getDiscount() : BigDecimal.ONE;
         var totalPrice = unitPrice.multiply(BigDecimal.valueOf(quantity)).multiply(discountFactor);
 
         var orderNumber = generateOrderNumber();

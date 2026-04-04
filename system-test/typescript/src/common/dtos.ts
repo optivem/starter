@@ -51,6 +51,11 @@ export interface ReturnsProductRequest {
   price: string;
 }
 
+export interface ReturnsPromotionRequest {
+  promotionActive: boolean;
+  discount: string;
+}
+
 export interface GetTimeResponse {
   time: string;
 }
