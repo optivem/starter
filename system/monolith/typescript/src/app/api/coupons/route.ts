@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { insertCoupon, findAllCoupons, findCouponByCode } from '@/lib/db';
 import { validationErrorResponse, internalErrorResponse } from '@/lib/errors';
+import { validatePublishCouponRequest } from '@/lib/validation';
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,33 +21,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const errors: { field: string; message: string }[] = [];
-
-    const code = body.code;
-    if (code === undefined || code === null || (typeof code === 'string' && code.trim() === '')) {
-      errors.push({ field: 'code', message: 'Code must not be empty' });
+    const fieldErrors = validatePublishCouponRequest(body);
+    if (fieldErrors.length > 0) {
+      return validationErrorResponse(fieldErrors);
     }
 
-    const rawDiscountRate = body.discountRate;
-    if (rawDiscountRate === undefined || rawDiscountRate === null) {
-      errors.push({ field: 'discountRate', message: 'Discount rate must not be empty' });
-    } else {
-      const dr = typeof rawDiscountRate === 'string' ? Number(rawDiscountRate) : rawDiscountRate as number;
-      if (Number.isNaN(dr) || dr <= 0 || dr > 1) {
-        errors.push({ field: 'discountRate', message: 'Discount rate must be between 0 and 1' });
-      }
-    }
-
-    if (errors.length > 0) {
-      return validationErrorResponse(errors);
-    }
-
-    const codeStr = (code as string).trim();
-    const discountRate = typeof rawDiscountRate === 'string' ? Number(rawDiscountRate) : rawDiscountRate as number;
+    const codeStr = (body.code as string).trim();
+    const discountRate = typeof body.discountRate === 'string' ? Number(body.discountRate) : body.discountRate as number;
 
     const existing = await findCouponByCode(codeStr);
     if (existing) {
-      return validationErrorResponse([{ field: 'code', message: `Coupon code already exists: ${codeStr}` }]);
+      return validationErrorResponse([{ field: 'couponCode', message: `Coupon code ${codeStr} already exists` }]);
     }
 
     const validFrom = body.validFrom ? new Date(body.validFrom as string) : null;

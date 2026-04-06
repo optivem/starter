@@ -20,6 +20,41 @@ export function validatePlaceOrderRequest(body: Record<string, unknown>): FieldE
     }
   }
 
+  const country = body.country;
+  if (country === undefined || country === null || (typeof country === 'string' && country.trim() === '')) {
+    errors.push({ field: 'country', message: 'Country must not be empty' });
+  }
+
+  return errors;
+}
+
+export function validatePublishCouponRequest(body: Record<string, unknown>): FieldError[] {
+  const errors: FieldError[] = [];
+
+  const code = body.code;
+  if (code === undefined || code === null || (typeof code === 'string' && code.trim() === '')) {
+    errors.push({ field: 'code', message: 'Coupon code must not be blank' });
+  }
+
+  const rawDiscountRate = body.discountRate;
+  if (rawDiscountRate === undefined || rawDiscountRate === null) {
+    errors.push({ field: 'discountRate', message: 'Discount rate must not be null' });
+  } else {
+    const dr = typeof rawDiscountRate === 'string' ? Number(rawDiscountRate) : rawDiscountRate as number;
+    if (Number.isNaN(dr) || dr <= 0) {
+      errors.push({ field: 'discountRate', message: 'Discount rate must be greater than 0.00' });
+    } else if (dr > 1) {
+      errors.push({ field: 'discountRate', message: 'Discount rate must be at most 1.00' });
+    }
+  }
+
+  const rawUsageLimit = body.usageLimit;
+  if (rawUsageLimit !== undefined && rawUsageLimit !== null) {
+    const ul = typeof rawUsageLimit === 'string' ? Number(rawUsageLimit) : rawUsageLimit as number;
+    if (!Number.isNaN(ul) && ul <= 0) {
+      errors.push({ field: 'usageLimit', message: 'Usage limit must be positive' });
+    }
+  }
 
   return errors;
 }

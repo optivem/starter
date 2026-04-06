@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
     const sku = body.sku as string;
     const quantity = typeof body.quantity === 'string' ? Number(body.quantity) : body.quantity as number;
-    const country = (body.country as string)?.trim() || 'US';
+    const country = (body.country as string)?.trim() || '';
     const couponCode = typeof body.couponCode === 'string' && body.couponCode.trim() !== '' ? body.couponCode as string : null;
 
     const now = await getCurrentTime();
@@ -60,15 +60,32 @@ export async function POST(request: NextRequest) {
     let appliedCouponCode: string | null = null;
     if (couponCode) {
       const coupon = await findCouponByCode(couponCode);
-      if (coupon) {
-        const now2 = new Date();
-        const isExpired = coupon.valid_to && new Date(coupon.valid_to) < now2;
-        const isOverLimit = coupon.usage_limit !== null && coupon.used_count >= coupon.usage_limit;
-        if (!isExpired && !isOverLimit) {
-          discountRate = Number(coupon.discount_rate);
-          appliedCouponCode = couponCode;
-        }
+      if (!coupon) {
+        return validationErrorResponse([
+          { field: 'couponCode', message: `Coupon code ${couponCode} does not exist` },
+        ]);
       }
+
+      if (coupon.valid_from && now < new Date(coupon.valid_from)) {
+        return validationErrorResponse([
+          { field: 'couponCode', message: `Coupon code ${couponCode} is not yet valid` },
+        ]);
+      }
+
+      if (coupon.valid_to && now > new Date(coupon.valid_to)) {
+        return validationErrorResponse([
+          { field: 'couponCode', message: `Coupon code ${couponCode} has expired` },
+        ]);
+      }
+
+      if (coupon.usage_limit !== null && coupon.used_count >= coupon.usage_limit) {
+        return validationErrorResponse([
+          { field: 'couponCode', message: `Coupon code ${couponCode} has exceeded its usage limit` },
+        ]);
+      }
+
+      discountRate = Number(coupon.discount_rate);
+      appliedCouponCode = couponCode;
     }
     const discountAmount = new Decimal(basePrice).mul(discountRate).toNumber();
     const subtotalPrice = new Decimal(basePrice).sub(discountAmount).toNumber();

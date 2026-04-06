@@ -29,7 +29,7 @@ public class PlaceOrderPositiveIsolatedTest : BaseAcceptanceTest
             .When().PlaceOrder().WithQuantity(5)
             .Then().ShouldSucceed()
             .And().Order()
-            .HasTotalPrice(100.00m);
+            .HasTotalPrice(107.00m);
     }
 
     [Theory]
@@ -42,6 +42,6 @@ public class PlaceOrderPositiveIsolatedTest : BaseAcceptanceTest
             .When().PlaceOrder().WithQuantity(5)
             .Then().ShouldSucceed()
             .And().Order()
-            .HasTotalPrice(50.00m);
+            .HasTotalPrice(53.50m);
     }
 }
