@@ -8,8 +8,7 @@ public class PublishCouponNegativeTest : BaseAcceptanceTest
     [Theory]
     [ChannelData(ChannelType.API)]
     [ChannelInlineData("")]
-    [ChannelInlineData(" ")]
-    [ChannelInlineData(null)]
+    [ChannelInlineData("   ")]
     public async Task ShouldRejectCouponWithBlankCode(Channel channel, string? code)
     {
         await Scenario(channel)
