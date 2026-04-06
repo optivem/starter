@@ -200,6 +200,9 @@ export class ShopUiDriver implements ShopDriver {
     if (request.country) {
       await newOrderPage.fillCountry(request.country);
     }
+    if (request.couponCode) {
+      await newOrderPage.fillCouponCode(request.couponCode);
+    }
     await newOrderPage.clickPlaceOrder();
 
     const notificationResult = await getNotification(this.page!);
