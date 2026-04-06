@@ -132,7 +132,7 @@ Same domain changes as multitier Java, applied to `system/monolith/java/`. SSR v
 
 ---
 
-## Phase 6: Monolith .NET ⬜
+## Phase 6: Monolith .NET ✅
 
 Same as Phase 3, applied to `system/monolith/dotnet/`. Razor pages updated for new fields.
 
@@ -140,7 +140,7 @@ Same as Phase 3, applied to `system/monolith/dotnet/`. Razor pages updated for n
 
 ---
 
-## Phase 7: Monolith TypeScript (Next.js) ⬜
+## Phase 7: Monolith TypeScript (Next.js) ✅
 
 Same domain changes applied to `system/monolith/typescript/`. Tax gateway in `external.ts`; coupon logic in `db.ts` or new file; new `/api/coupons` route; Next.js pages updated.
 
