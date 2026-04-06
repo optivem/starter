@@ -57,13 +57,15 @@ public class PlaceOrder : BaseShopCommand<PlaceOrderResponse, PlaceOrderVerifica
     public override async Task<ShopUseCaseResult<PlaceOrderResponse, PlaceOrderVerification>> Execute()
     {
         var sku = _context.GetParamValue(_skuParamAlias);
+        var country = _context.GetParamValueOrLiteral(_country);
+        var couponCode = _context.GetParamValue(_couponCode);
 
         var request = new PlaceOrderRequest
         {
             Sku = sku,
             Quantity = _quantity,
-            Country = _country,
-            CouponCode = _couponCode,
+            Country = country,
+            CouponCode = couponCode,
         };
 
         var result = await _driver.PlaceOrderAsync(request);

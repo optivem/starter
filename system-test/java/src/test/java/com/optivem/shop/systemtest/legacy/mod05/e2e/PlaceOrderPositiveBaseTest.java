@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 import static com.optivem.shop.dsl.common.ResultAssert.assertThatResult;
+import static com.optivem.shop.systemtest.commons.constants.Defaults.COUNTRY;
 import static com.optivem.shop.systemtest.commons.constants.Defaults.SKU;
 import static org.assertj.core.api.Assertions.assertThat;
 

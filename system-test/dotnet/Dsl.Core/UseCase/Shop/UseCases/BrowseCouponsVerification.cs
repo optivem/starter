@@ -18,8 +18,9 @@ public class BrowseCouponsVerification : ResponseVerification<BrowseCouponsRespo
         return this;
     }
 
-    public BrowseCouponsVerification ContainsCouponWithCode(string expectedCode)
+    public BrowseCouponsVerification ContainsCouponWithCode(string expectedCodeAlias)
     {
+        var expectedCode = Context.GetParamValue(expectedCodeAlias);
         Response.Coupons.ShouldContain(
             c => c.Code == expectedCode,
             $"Expected coupon with code '{expectedCode}' to be present, but was not found");
