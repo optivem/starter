@@ -5,6 +5,8 @@ import {
   PlaceOrderResponse,
   ViewOrderResponse,
   ErrorResponse,
+  PublishCouponRequest,
+  BrowseCouponsResponse,
 } from '../common/dtos';
 import { ShopDriver } from './types';
 
@@ -198,6 +200,9 @@ export class ShopUiDriver implements ShopDriver {
     if (request.country) {
       await newOrderPage.fillCountry(request.country);
     }
+    if (request.couponCode) {
+      await newOrderPage.fillCouponCode(request.couponCode);
+    }
     await newOrderPage.clickPlaceOrder();
 
     const notificationResult = await getNotification(this.page!);
@@ -237,6 +242,14 @@ export class ShopUiDriver implements ShopDriver {
       totalPrice: await detailsPage.getTotalPrice(),
       status: await detailsPage.getStatus(),
     });
+  }
+
+  async publishCoupon(_request: PublishCouponRequest): Promise<Result<void, ErrorResponse>> {
+    throw new Error('publishCoupon is not supported via UI channel');
+  }
+
+  async browseCoupons(): Promise<Result<BrowseCouponsResponse, ErrorResponse>> {
+    throw new Error('browseCoupons is not supported via UI channel');
   }
 
   async close(): Promise<void> {
