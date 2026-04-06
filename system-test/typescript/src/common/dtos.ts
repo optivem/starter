@@ -15,16 +15,21 @@ export interface ViewOrderResponse {
   sku: string;
   quantity: number;
   unitPrice: number;
+  basePrice?: number;
+  discountRate?: number;
+  discountAmount?: number;
   subtotalPrice?: number;
   taxRate?: number;
-  discountRate?: number;
-  appliedCouponCode?: string | null;
+  taxAmount?: number;
   totalPrice: number;
+  country?: string;
+  appliedCouponCode?: string | null;
   status: string;
 }
 
 export enum OrderStatus {
   PLACED = 'PLACED',
+  CANCELLED = 'CANCELLED',
 }
 
 export interface ErrorResponse {
@@ -65,6 +70,9 @@ export interface ReturnsPromotionRequest {
 export interface PublishCouponRequest {
   code: string;
   discountRate: number;
+  validFrom?: string;
+  validTo?: string;
+  usageLimit?: number | string;
 }
 
 export interface BrowseCouponItem {
@@ -82,4 +90,14 @@ export interface GetTimeResponse {
 
 export interface ReturnsTimeRequest {
   time: string;
+}
+
+export interface GetTaxResponse {
+  country: string;
+  taxRate: number;
+}
+
+export interface ReturnsTaxRateRequest {
+  country: string;
+  taxRate: string;
 }

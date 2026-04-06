@@ -13,20 +13,22 @@ namespace Dsl.Core.Scenario.When
         private readonly ScenarioDsl _scenario;
         private bool _hasPromotion;
         private bool _hasProduct;
+        private bool _hasTaxRate;
         private readonly Func<Task>? _givenSetup;
 
-        public WhenStage(Channel? channel, UseCaseDsl app, ScenarioDsl scenario, bool hasProduct, bool hasPromotion, Func<Task>? givenSetup = null)
+        public WhenStage(Channel? channel, UseCaseDsl app, ScenarioDsl scenario, bool hasProduct, bool hasPromotion, bool hasTaxRate, Func<Task>? givenSetup = null)
             : base(channel)
         {
             _app = app;
             _scenario = scenario;
             _hasProduct = hasProduct;
             _hasPromotion = hasPromotion;
+            _hasTaxRate = hasTaxRate;
             _givenSetup = givenSetup;
         }
 
         public WhenStage(Channel? channel, UseCaseDsl app, ScenarioDsl scenario)
-            : this(channel, app, scenario, false, false, null)
+            : this(channel, app, scenario, false, false, false, null)
         {
         }
 
@@ -56,6 +58,16 @@ namespace Dsl.Core.Scenario.When
                 result.ShouldSucceed();
                 _hasProduct = true;
             }
+
+            if (!_hasTaxRate)
+            {
+                var result = await _app.Tax().ReturnsTaxRate()
+                    .Country(DefaultCountry)
+                    .TaxRate(DefaultTaxRate)
+                    .Execute();
+                result.ShouldSucceed();
+                _hasTaxRate = true;
+            }
         }
 
         public GoToShop GoToShop()
@@ -71,6 +83,13 @@ namespace Dsl.Core.Scenario.When
         }
 
         IPlaceOrder IWhenStage.PlaceOrder() => PlaceOrder();
+
+        public CancelOrder CancelOrder()
+        {
+            return new CancelOrder(_app, _scenario, () => EnsureGiven());
+        }
+
+        ICancelOrder IWhenStage.CancelOrder() => CancelOrder();
 
         public ViewOrder ViewOrder()
         {
@@ -94,5 +113,3 @@ namespace Dsl.Core.Scenario.When
         IBrowseCoupons IWhenStage.BrowseCoupons() => BrowseCoupons();
     }
 }
-
-

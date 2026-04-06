@@ -1,9 +1,10 @@
-import { ShopDriver, ErpDriver, ClockDriver } from '../drivers/types';
+import { ShopDriver, ErpDriver, ClockDriver, TaxDriver } from '../drivers/types';
 import {
   ErrorResponse,
   ViewOrderResponse,
   GetTimeResponse,
   GetProductResponse,
+  GetTaxResponse,
   BrowseCouponsResponse,
 } from '../common/dtos';
 import { DEFAULTS } from './defaults';
@@ -21,6 +22,7 @@ export class AppContext {
   private readonly shopDriverFactory: (channel: string) => ShopDriver;
   readonly erpDriver: ErpDriver;
   readonly clockDriver: ClockDriver;
+  readonly taxDriver: TaxDriver;
 
   constructor(opts: {
     channelMode: ChannelMode;
@@ -28,12 +30,14 @@ export class AppContext {
     shopDriverFactory: (channel: string) => ShopDriver;
     erpDriver: ErpDriver;
     clockDriver: ClockDriver;
+    taxDriver: TaxDriver;
   }) {
     this.channelMode = opts.channelMode;
     this.channel = opts.channel;
     this.shopDriverFactory = opts.shopDriverFactory;
     this.erpDriver = opts.erpDriver;
     this.clockDriver = opts.clockDriver;
+    this.taxDriver = opts.taxDriver;
   }
 
   shop(mode?: ChannelMode): ShopDriver {
@@ -52,6 +56,7 @@ export class AppContext {
     }
     await this.erpDriver.close();
     await this.clockDriver.close();
+    await this.taxDriver.close();
   }
 }
 
@@ -74,12 +79,31 @@ interface PromotionConfig {
 interface CouponConfig {
   code: string;
   discountRate: number;
+  validFrom?: string;
+  validTo?: string;
+  usageLimit?: number | string;
+}
+
+interface CountryConfig {
+  country: string;
+  taxRate: string;
+}
+
+interface OrderConfig {
+  sku: string;
+  quantity: string;
+  country: string;
+  couponCode: string | null;
+  status: string;
+  orderNumber?: string;
 }
 
 class ScenarioContext {
   clockConfig: ClockConfig | null = null;
   productConfigs: ProductConfig[] = [];
   couponConfigs: CouponConfig[] = [];
+  countryConfigs: CountryConfig[] = [];
+  orderConfigs: OrderConfig[] = [];
   hasExplicitProduct = false;
   promotionConfig: PromotionConfig = { promotionActive: DEFAULTS.PROMOTION_ACTIVE, discount: DEFAULTS.PROMOTION_DISCOUNT };
   hasExplicitPromotion = false;
@@ -132,6 +156,13 @@ class AssumeStage {
       expect(result.success).toBe(true);
     });
   }
+
+  tax(): AssumeRunning {
+    return new AssumeRunning(async () => {
+      const result = await this.app.taxDriver.goToTax();
+      expect(result.success).toBe(true);
+    });
+  }
 }
 
 class AssumeRunning implements PromiseLike<void> {
@@ -178,6 +209,24 @@ class GivenStage {
     const config: CouponConfig = { code: '', discountRate: 0.10 };
     this.ctx.couponConfigs.push(config);
     return new GivenCoupon(this, config);
+  }
+
+  country(): GivenCountry {
+    const config: CountryConfig = { country: DEFAULTS.COUNTRY, taxRate: DEFAULTS.TAX_RATE };
+    this.ctx.countryConfigs.push(config);
+    return new GivenCountry(this, config);
+  }
+
+  order(): GivenOrder {
+    const config: OrderConfig = {
+      sku: DEFAULTS.SKU,
+      quantity: DEFAULTS.QUANTITY,
+      country: DEFAULTS.COUNTRY,
+      couponCode: null,
+      status: DEFAULTS.STATUS,
+    };
+    this.ctx.orderConfigs.push(config);
+    return new GivenOrder(this, config);
   }
 
   and(): GivenStage {
@@ -296,8 +345,100 @@ class GivenCoupon {
     return this;
   }
 
+  withCouponCode(code: string): GivenCoupon {
+    return this.withCode(code);
+  }
+
   withDiscountRate(discountRate: number): GivenCoupon {
     this.config.discountRate = discountRate;
+    return this;
+  }
+
+  withValidFrom(validFrom: string): GivenCoupon {
+    this.config.validFrom = validFrom;
+    return this;
+  }
+
+  withValidTo(validTo: string): GivenCoupon {
+    this.config.validTo = validTo;
+    return this;
+  }
+
+  withUsageLimit(usageLimit: number | string): GivenCoupon {
+    this.config.usageLimit = usageLimit;
+    return this;
+  }
+
+  and(): GivenStage {
+    return this.stage;
+  }
+
+  when(): WhenStage {
+    return this.stage.when();
+  }
+}
+
+class GivenCountry {
+  constructor(
+    private readonly stage: GivenStage,
+    private readonly config: CountryConfig,
+  ) {}
+
+  withCode(country: string): GivenCountry {
+    this.config.country = country;
+    return this;
+  }
+
+  withCountry(country: string): GivenCountry {
+    return this.withCode(country);
+  }
+
+  withTaxRate(taxRate: string | number): GivenCountry {
+    this.config.taxRate = typeof taxRate === 'number' ? taxRate.toString() : taxRate;
+    return this;
+  }
+
+  and(): GivenStage {
+    return this.stage;
+  }
+
+  when(): WhenStage {
+    return this.stage.when();
+  }
+
+  then(): ThenContractStage {
+    return this.stage.then();
+  }
+}
+
+class GivenOrder {
+  constructor(
+    private readonly stage: GivenStage,
+    private readonly config: OrderConfig,
+  ) {}
+
+  withSku(sku: string): GivenOrder {
+    this.config.sku = sku;
+    return this;
+  }
+
+  withQuantity(quantity: string | number): GivenOrder {
+    this.config.quantity = String(quantity);
+    return this;
+  }
+
+  withCountry(country: string): GivenOrder {
+    this.config.country = country;
+    return this;
+  }
+
+  withCouponCode(couponCode: string | null): GivenOrder {
+    this.config.couponCode = couponCode;
+    return this;
+  }
+
+  withStatus(status: string): GivenOrder {
+    this.config.status = status;
     return this;
   }
 
@@ -322,8 +463,16 @@ class WhenStage {
     return new WhenPlaceOrder(this.app, this.ctx);
   }
 
+  cancelOrder(): WhenCancelOrder {
+    return new WhenCancelOrder(this.app, this.ctx);
+  }
+
+  viewOrder(): WhenViewOrder {
+    return new WhenViewOrder(this.app, this.ctx);
+  }
+
   publishCoupon(): WhenPublishCoupon {
-    return new WhenPublishCoupon(this.app);
+    return new WhenPublishCoupon(this.app, this.ctx);
   }
 
   browseCoupons(): WhenBrowseCoupons {
@@ -367,15 +516,61 @@ class WhenPlaceOrder {
   }
 }
 
+class WhenCancelOrder {
+  private orderNumber: string = DEFAULTS.ORDER_NUMBER;
+
+  constructor(
+    private readonly app: AppContext,
+    private readonly ctx: ScenarioContext,
+  ) {}
+
+  withOrderNumber(orderNumber: string): WhenCancelOrder {
+    this.orderNumber = orderNumber;
+    return this;
+  }
+
+  then(): ThenCancelOrderResultStage {
+    return new ThenCancelOrderResultStage(this.app, this.ctx, this.orderNumber);
+  }
+}
+
+class WhenViewOrder {
+  private orderNumber: string = DEFAULTS.ORDER_NUMBER;
+
+  constructor(
+    private readonly app: AppContext,
+    private readonly ctx: ScenarioContext,
+  ) {}
+
+  withOrderNumber(orderNumber: string): WhenViewOrder {
+    this.orderNumber = orderNumber;
+    return this;
+  }
+
+  then(): ThenViewOrderResultStage {
+    return new ThenViewOrderResultStage(this.app, this.ctx, this.orderNumber);
+  }
+}
+
 class WhenPublishCoupon {
   private code: string = '';
   private discountRate: number = 0;
+  private validFrom?: string;
+  private validTo?: string;
+  private usageLimit?: number | string;
 
-  constructor(private readonly app: AppContext) {}
+  constructor(
+    private readonly app: AppContext,
+    private readonly ctx: ScenarioContext,
+  ) {}
 
   withCode(code: string): WhenPublishCoupon {
     this.code = code;
     return this;
+  }
+
+  withCouponCode(code: string): WhenPublishCoupon {
+    return this.withCode(code);
   }
 
   withDiscountRate(discountRate: number): WhenPublishCoupon {
@@ -383,8 +578,23 @@ class WhenPublishCoupon {
     return this;
   }
 
+  withValidFrom(validFrom: string): WhenPublishCoupon {
+    this.validFrom = validFrom;
+    return this;
+  }
+
+  withValidTo(validTo: string): WhenPublishCoupon {
+    this.validTo = validTo;
+    return this;
+  }
+
+  withUsageLimit(usageLimit: number | string): WhenPublishCoupon {
+    this.usageLimit = usageLimit;
+    return this;
+  }
+
   then(): ThenPublishCouponResultStage {
-    return new ThenPublishCouponResultStage(this.app, this.code, this.discountRate);
+    return new ThenPublishCouponResultStage(this.app, this.ctx, this.code, this.discountRate, this.validFrom, this.validTo, this.usageLimit);
   }
 }
 
@@ -450,6 +660,10 @@ class ThenResultStage implements PromiseLike<void> {
       await this.app.clockDriver.returnsTime({ time: this.ctx.clockConfig.time });
     }
 
+    for (const countryConfig of this.ctx.countryConfigs) {
+      await this.app.taxDriver.returnsTaxRate({ country: countryConfig.country, taxRate: countryConfig.taxRate });
+    }
+
     await this.app.erpDriver.returnsPromotion({
       promotionActive: this.ctx.promotionConfig.promotionActive,
       discount: this.ctx.promotionConfig.discount,
@@ -459,12 +673,18 @@ class ThenResultStage implements PromiseLike<void> {
       for (const pc of this.ctx.productConfigs) {
         await this.app.erpDriver.returnsProduct({ sku: pc.sku, price: pc.price });
       }
-    } else if (this._expectSuccess) {
-      await this.app.erpDriver.returnsProduct({ sku: this.sku, price: DEFAULTS.UNIT_PRICE });
+    } else {
+      await this.app.erpDriver.returnsProduct({ sku: DEFAULTS.SKU, price: DEFAULTS.UNIT_PRICE });
     }
 
     for (const cc of this.ctx.couponConfigs) {
-      await this.app.shop().publishCoupon({ code: cc.code, discountRate: cc.discountRate });
+      await this.app.shop().publishCoupon({
+        code: cc.code,
+        discountRate: cc.discountRate,
+        validFrom: cc.validFrom,
+        validTo: cc.validTo,
+        usageLimit: cc.usageLimit,
+      });
     }
 
     const result = await this.app.shop('dynamic').placeOrder({
@@ -517,8 +737,12 @@ class ThenPublishCouponResultStage implements PromiseLike<void> {
 
   constructor(
     private readonly app: AppContext,
+    private readonly ctx: ScenarioContext,
     private readonly code: string,
     private readonly discountRate: number,
+    private readonly validFrom?: string,
+    private readonly validTo?: string,
+    private readonly usageLimit?: number | string,
   ) {}
 
   shouldSucceed(): ThenPublishCouponSuccess {
@@ -542,7 +766,24 @@ class ThenPublishCouponResultStage implements PromiseLike<void> {
   }
 
   private async _doExecute(): Promise<void> {
-    const result = await this.app.shop('dynamic').publishCoupon({ code: this.code, discountRate: this.discountRate });
+    // Set up given coupons first (for duplicate tests)
+    for (const cc of this.ctx.couponConfigs) {
+      await this.app.shop().publishCoupon({
+        code: cc.code,
+        discountRate: cc.discountRate,
+        validFrom: cc.validFrom,
+        validTo: cc.validTo,
+        usageLimit: cc.usageLimit,
+      });
+    }
+
+    const result = await this.app.shop('static').publishCoupon({
+      code: this.code,
+      discountRate: this.discountRate,
+      validFrom: this.validFrom,
+      validTo: this.validTo,
+      usageLimit: this.usageLimit,
+    });
 
     if (this._expectSuccess) {
       expect(result.success).toBe(true);
@@ -633,7 +874,7 @@ class ThenBrowseCouponsResultStage implements PromiseLike<void> {
       await this.app.shop().publishCoupon({ code: cc.code, discountRate: cc.discountRate });
     }
 
-    const result = await this.app.shop('dynamic').browseCoupons();
+    const result = await this.app.shop('static').browseCoupons();
     expect(result.success).toBe(true);
     if (result.success) {
       this._browseResult = result.value;
@@ -697,6 +938,382 @@ class ThenBrowseCoupons implements PromiseLike<void> {
         for (const fn of this._assertions) fn(result);
       })
       .then(onfulfilled, onrejected);
+  }
+}
+
+// === THEN CANCEL ORDER RESULT STAGE ===
+
+class ThenCancelOrderResultStage implements PromiseLike<void> {
+  private _expectSuccess = true;
+  private _orderAssertions: ((order: ViewOrderResponse) => void)[] = [];
+  private _errorAssertions: ((error: ErrorResponse) => void)[] = [];
+  private _executionPromise: Promise<void> | null = null;
+
+  constructor(
+    private readonly app: AppContext,
+    private readonly ctx: ScenarioContext,
+    private readonly orderNumber: string,
+  ) {}
+
+  shouldSucceed(): ThenCancelOrderSuccess {
+    this._expectSuccess = true;
+    return new ThenCancelOrderSuccess(this);
+  }
+
+  shouldFail(): ThenCancelOrderFailure {
+    this._expectSuccess = false;
+    return new ThenCancelOrderFailure(this);
+  }
+
+  _addOrderAssertion(fn: (order: ViewOrderResponse) => void): void {
+    this._orderAssertions.push(fn);
+  }
+
+  _addErrorAssertion(fn: (error: ErrorResponse) => void): void {
+    this._errorAssertions.push(fn);
+  }
+
+  private async execute(): Promise<void> {
+    if (this._executionPromise) return this._executionPromise;
+    this._executionPromise = this._doExecute();
+    return this._executionPromise;
+  }
+
+  private async _doExecute(): Promise<void> {
+    if (this.ctx.clockConfig) {
+      await this.app.clockDriver.returnsTime({ time: this.ctx.clockConfig.time });
+    }
+
+    for (const countryConfig of this.ctx.countryConfigs) {
+      await this.app.taxDriver.returnsTaxRate({ country: countryConfig.country, taxRate: countryConfig.taxRate });
+    }
+
+    await this.app.erpDriver.returnsPromotion({
+      promotionActive: this.ctx.promotionConfig.promotionActive,
+      discount: this.ctx.promotionConfig.discount,
+    });
+
+    if (this.ctx.hasExplicitProduct) {
+      for (const pc of this.ctx.productConfigs) {
+        await this.app.erpDriver.returnsProduct({ sku: pc.sku, price: pc.price });
+      }
+    } else {
+      await this.app.erpDriver.returnsProduct({ sku: DEFAULTS.SKU, price: DEFAULTS.UNIT_PRICE });
+    }
+
+    for (const cc of this.ctx.couponConfigs) {
+      await this.app.shop().publishCoupon({
+        code: cc.code,
+        discountRate: cc.discountRate,
+        validFrom: cc.validFrom,
+        validTo: cc.validTo,
+        usageLimit: cc.usageLimit,
+      });
+    }
+
+    // Place any given orders
+    for (const oc of this.ctx.orderConfigs) {
+      const placeResult = await this.app.shop().placeOrder({
+        sku: oc.sku,
+        quantity: oc.quantity,
+        country: oc.country,
+        couponCode: oc.couponCode,
+      });
+      if (placeResult.success) {
+        oc.orderNumber = placeResult.value.orderNumber;
+        if (oc.status === 'CANCELLED') {
+          await this.app.shop().cancelOrder(placeResult.value.orderNumber);
+        }
+      }
+    }
+
+    const targetOrderNumber = this.ctx.orderConfigs.length > 0 && this.ctx.orderConfigs[0].orderNumber
+      ? this.ctx.orderConfigs[0].orderNumber
+      : this.orderNumber;
+
+    const result = await this.app.shop('dynamic').cancelOrder(targetOrderNumber);
+
+    if (this._expectSuccess) {
+      expect(result.success).toBe(true);
+
+      if (this._orderAssertions.length > 0) {
+        const orderResult = await this.app.shop().viewOrder(targetOrderNumber);
+        expect(orderResult.success).toBe(true);
+        if (orderResult.success) {
+          for (const fn of this._orderAssertions) fn(orderResult.value);
+        }
+      }
+    } else {
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        for (const fn of this._errorAssertions) fn(result.error);
+      }
+    }
+  }
+
+  then<TResult1 = void, TResult2 = never>(
+    onfulfilled?: ((value: void) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.execute().then(onfulfilled, onrejected);
+  }
+}
+
+class ThenCancelOrderSuccess implements PromiseLike<void> {
+  constructor(private readonly stage: ThenCancelOrderResultStage) {}
+
+  and(): ThenCancelOrderSuccessAnd {
+    return new ThenCancelOrderSuccessAnd(this.stage);
+  }
+
+  then<TResult1 = void, TResult2 = never>(
+    onfulfilled?: ((value: void) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.stage.then(onfulfilled, onrejected);
+  }
+}
+
+class ThenCancelOrderSuccessAnd implements PromiseLike<void> {
+  constructor(private readonly stage: ThenCancelOrderResultStage) {}
+
+  order(): ThenCancelOrderOrder {
+    return new ThenCancelOrderOrder(this.stage);
+  }
+
+  then<TResult1 = void, TResult2 = never>(
+    onfulfilled?: ((value: void) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.stage.then(onfulfilled, onrejected);
+  }
+}
+
+class ThenCancelOrderOrder implements PromiseLike<void> {
+  constructor(private readonly stage: ThenCancelOrderResultStage) {}
+
+  hasStatus(status: string): ThenCancelOrderOrder {
+    this.stage._addOrderAssertion((order) => {
+      expect(order.status).toBe(status);
+    });
+    return this;
+  }
+
+  then<TResult1 = void, TResult2 = never>(
+    onfulfilled?: ((value: void) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.stage.then(onfulfilled, onrejected);
+  }
+}
+
+class ThenCancelOrderFailure implements PromiseLike<void> {
+  constructor(private readonly stage: ThenCancelOrderResultStage) {}
+
+  errorMessage(expected: string): ThenCancelOrderFailure {
+    this.stage._addErrorAssertion((error) => {
+      expect(error.message).toBe(expected);
+    });
+    return this;
+  }
+
+  fieldErrorMessage(field: string, message: string): ThenCancelOrderFailure {
+    this.stage._addErrorAssertion((error) => {
+      const fieldError = error.fieldErrors.find((fe) => fe.field === field);
+      expect(fieldError).toBeDefined();
+      expect(fieldError!.message).toBe(message);
+    });
+    return this;
+  }
+
+  then<TResult1 = void, TResult2 = never>(
+    onfulfilled?: ((value: void) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.stage.then(onfulfilled, onrejected);
+  }
+}
+
+// === THEN VIEW ORDER RESULT STAGE ===
+
+class ThenViewOrderResultStage implements PromiseLike<void> {
+  private _expectSuccess = true;
+  private _orderAssertions: ((order: ViewOrderResponse) => void)[] = [];
+  private _errorAssertions: ((error: ErrorResponse) => void)[] = [];
+  private _executionPromise: Promise<void> | null = null;
+
+  constructor(
+    private readonly app: AppContext,
+    private readonly ctx: ScenarioContext,
+    private readonly orderNumber: string,
+  ) {}
+
+  shouldSucceed(): ThenViewOrderSuccess {
+    this._expectSuccess = true;
+    return new ThenViewOrderSuccess(this);
+  }
+
+  shouldFail(): ThenViewOrderFailure {
+    this._expectSuccess = false;
+    return new ThenViewOrderFailure(this);
+  }
+
+  _addOrderAssertion(fn: (order: ViewOrderResponse) => void): void {
+    this._orderAssertions.push(fn);
+  }
+
+  _addErrorAssertion(fn: (error: ErrorResponse) => void): void {
+    this._errorAssertions.push(fn);
+  }
+
+  private async execute(): Promise<void> {
+    if (this._executionPromise) return this._executionPromise;
+    this._executionPromise = this._doExecute();
+    return this._executionPromise;
+  }
+
+  private async _doExecute(): Promise<void> {
+    if (this.ctx.clockConfig) {
+      await this.app.clockDriver.returnsTime({ time: this.ctx.clockConfig.time });
+    }
+
+    for (const countryConfig of this.ctx.countryConfigs) {
+      await this.app.taxDriver.returnsTaxRate({ country: countryConfig.country, taxRate: countryConfig.taxRate });
+    }
+
+    await this.app.erpDriver.returnsPromotion({
+      promotionActive: this.ctx.promotionConfig.promotionActive,
+      discount: this.ctx.promotionConfig.discount,
+    });
+
+    if (this.ctx.hasExplicitProduct) {
+      for (const pc of this.ctx.productConfigs) {
+        await this.app.erpDriver.returnsProduct({ sku: pc.sku, price: pc.price });
+      }
+    } else {
+      await this.app.erpDriver.returnsProduct({ sku: DEFAULTS.SKU, price: DEFAULTS.UNIT_PRICE });
+    }
+
+    for (const cc of this.ctx.couponConfigs) {
+      await this.app.shop().publishCoupon({
+        code: cc.code,
+        discountRate: cc.discountRate,
+        validFrom: cc.validFrom,
+        validTo: cc.validTo,
+        usageLimit: cc.usageLimit,
+      });
+    }
+
+    // Place any given orders
+    for (const oc of this.ctx.orderConfigs) {
+      const placeResult = await this.app.shop().placeOrder({
+        sku: oc.sku,
+        quantity: oc.quantity,
+        country: oc.country,
+        couponCode: oc.couponCode,
+      });
+      if (placeResult.success) {
+        oc.orderNumber = placeResult.value.orderNumber;
+      }
+    }
+
+    const targetOrderNumber = this.ctx.orderConfigs.length > 0 && this.ctx.orderConfigs[0].orderNumber
+      ? this.ctx.orderConfigs[0].orderNumber
+      : this.orderNumber;
+
+    const result = await this.app.shop('dynamic').viewOrder(targetOrderNumber);
+
+    if (this._expectSuccess) {
+      expect(result.success).toBe(true);
+      if (result.success) {
+        for (const fn of this._orderAssertions) fn(result.value);
+      }
+    } else {
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        for (const fn of this._errorAssertions) fn(result.error);
+      }
+    }
+  }
+
+  then<TResult1 = void, TResult2 = never>(
+    onfulfilled?: ((value: void) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.execute().then(onfulfilled, onrejected);
+  }
+}
+
+class ThenViewOrderSuccess implements PromiseLike<void> {
+  constructor(private readonly stage: ThenViewOrderResultStage) {}
+
+  and(): ThenViewOrderSuccessAnd {
+    return new ThenViewOrderSuccessAnd(this.stage);
+  }
+
+  then<TResult1 = void, TResult2 = never>(
+    onfulfilled?: ((value: void) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.stage.then(onfulfilled, onrejected);
+  }
+}
+
+class ThenViewOrderSuccessAnd implements PromiseLike<void> {
+  constructor(private readonly stage: ThenViewOrderResultStage) {}
+
+  order(): ThenViewOrderOrder {
+    return new ThenViewOrderOrder(this.stage);
+  }
+
+  then<TResult1 = void, TResult2 = never>(
+    onfulfilled?: ((value: void) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.stage.then(onfulfilled, onrejected);
+  }
+}
+
+class ThenViewOrderOrder implements PromiseLike<void> {
+  constructor(private readonly stage: ThenViewOrderResultStage) {}
+
+  hasStatus(status: string): ThenViewOrderOrder {
+    this.stage._addOrderAssertion((order) => {
+      expect(order.status).toBe(status);
+    });
+    return this;
+  }
+
+  hasOrderNumberPrefix(prefix: string): ThenViewOrderOrder {
+    this.stage._addOrderAssertion((order) => {
+      expect(order.orderNumber.startsWith(prefix)).toBe(true);
+    });
+    return this;
+  }
+
+  then<TResult1 = void, TResult2 = never>(
+    onfulfilled?: ((value: void) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.stage.then(onfulfilled, onrejected);
+  }
+}
+
+class ThenViewOrderFailure implements PromiseLike<void> {
+  constructor(private readonly stage: ThenViewOrderResultStage) {}
+
+  errorMessage(expected: string): ThenViewOrderFailure {
+    this.stage._addErrorAssertion((error) => {
+      expect(error.message).toBe(expected);
+    });
+    return this;
+  }
+
+  then<TResult1 = void, TResult2 = never>(
+    onfulfilled?: ((value: void) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.stage.then(onfulfilled, onrejected);
   }
 }
 
@@ -781,9 +1398,30 @@ class ThenOrder implements PromiseLike<void> {
     return this;
   }
 
-  hasAppliedCouponCode(code: string): ThenOrder {
+  hasAppliedCouponCode(code: string | null): ThenOrder {
     this.stage._addOrderAssertion((order) => {
       expect(order.appliedCouponCode).toBe(code);
+    });
+    return this;
+  }
+
+  hasBasePrice(price: number): ThenOrder {
+    this.stage._addOrderAssertion((order) => {
+      expect(order.basePrice).toBe(price);
+    });
+    return this;
+  }
+
+  hasDiscountAmount(amount: number): ThenOrder {
+    this.stage._addOrderAssertion((order) => {
+      expect(order.discountAmount).toBe(amount);
+    });
+    return this;
+  }
+
+  hasTaxAmount(amount: number): ThenOrder {
+    this.stage._addOrderAssertion((order) => {
+      expect(order.taxAmount).toBe(amount);
     });
     return this;
   }
@@ -852,6 +1490,7 @@ class ThenFailure implements PromiseLike<void> {
 class ThenContractStage implements PromiseLike<void> {
   private _clockAssertions: ((time: GetTimeResponse) => void)[] = [];
   private _productAssertions: Map<string, ((product: GetProductResponse) => void)[]> = new Map();
+  private _countryAssertions: Map<string, ((tax: GetTaxResponse) => void)[]> = new Map();
   private _executionPromise: Promise<void> | null = null;
 
   constructor(
@@ -867,6 +1506,10 @@ class ThenContractStage implements PromiseLike<void> {
     return new ThenContractProduct(this, sku);
   }
 
+  country(countryCode: string): ThenContractCountry {
+    return new ThenContractCountry(this, countryCode);
+  }
+
   _addClockAssertion(fn: (time: GetTimeResponse) => void): void {
     this._clockAssertions.push(fn);
   }
@@ -874,6 +1517,11 @@ class ThenContractStage implements PromiseLike<void> {
   _addProductAssertion(sku: string, fn: (product: GetProductResponse) => void): void {
     if (!this._productAssertions.has(sku)) this._productAssertions.set(sku, []);
     this._productAssertions.get(sku)!.push(fn);
+  }
+
+  _addCountryAssertion(country: string, fn: (tax: GetTaxResponse) => void): void {
+    if (!this._countryAssertions.has(country)) this._countryAssertions.set(country, []);
+    this._countryAssertions.get(country)!.push(fn);
   }
 
   private async execute(): Promise<void> {
@@ -891,6 +1539,10 @@ class ThenContractStage implements PromiseLike<void> {
       await this.app.erpDriver.returnsProduct({ sku: pc.sku, price: pc.price });
     }
 
+    for (const cc of this.ctx.countryConfigs) {
+      await this.app.taxDriver.returnsTaxRate({ country: cc.country, taxRate: cc.taxRate });
+    }
+
     if (this._clockAssertions.length > 0) {
       const timeResult = await this.app.clockDriver.getTime();
       expect(timeResult.success).toBe(true);
@@ -904,6 +1556,14 @@ class ThenContractStage implements PromiseLike<void> {
       expect(productResult.success).toBe(true);
       if (productResult.success) {
         for (const fn of assertions) fn(productResult.value);
+      }
+    }
+
+    for (const [countryCode, assertions] of this._countryAssertions) {
+      const taxResult = await this.app.taxDriver.getTaxRate(countryCode);
+      expect(taxResult.success).toBe(true);
+      if (taxResult.success) {
+        for (const fn of assertions) fn(taxResult.value);
       }
     }
   }
@@ -954,6 +1614,41 @@ class ThenContractProduct implements PromiseLike<void> {
   hasPrice(price: number): ThenContractProduct {
     this.stage._addProductAssertion(this.sku, (p) => {
       expect(p.price).toBe(price);
+    });
+    return this;
+  }
+
+  then<TResult1 = void, TResult2 = never>(
+    onfulfilled?: ((value: void) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.stage.then(onfulfilled, onrejected);
+  }
+}
+
+class ThenContractCountry implements PromiseLike<void> {
+  constructor(
+    private readonly stage: ThenContractStage,
+    private readonly countryCode: string,
+  ) {}
+
+  hasCountry(expected: string): ThenContractCountry {
+    this.stage._addCountryAssertion(this.countryCode, (t) => {
+      expect(t.country).toBe(expected);
+    });
+    return this;
+  }
+
+  hasTaxRate(rate: number): ThenContractCountry {
+    this.stage._addCountryAssertion(this.countryCode, (t) => {
+      expect(t.taxRate).toBe(rate);
+    });
+    return this;
+  }
+
+  hasTaxRateIsPositive(): ThenContractCountry {
+    this.stage._addCountryAssertion(this.countryCode, (t) => {
+      expect(t.taxRate).toBeGreaterThan(0);
     });
     return this;
   }

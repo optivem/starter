@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::title}, ~{::section})}">
+<head>
+    <title>Coupon Management</title>
+</head>
+<body>
+<section>
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Coupon Management</li>
+        </ol>
+    </nav>
+
+    <h2>Coupon Management</h2>
+
+    <div id="notifications"></div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Create New Coupon</h4>
+        </div>
+        <div class="card-body">
+            <form id="createCouponForm">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="code" class="form-label">Coupon Code:</label>
+                        <input type="text" class="form-control" id="code"
+                               aria-label="Coupon Code" placeholder="e.g., SUMMER2026">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="discountRate" class="form-label">Discount Rate (0-1):</label>
+                        <input type="number" class="form-control" id="discountRate"
+                               aria-label="Discount Rate" step="0.01" placeholder="e.g., 0.2 for 20% off">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="validFrom" class="form-label">Valid From (Optional):</label>
+                        <input type="datetime-local" class="form-control" id="validFrom"
+                               aria-label="Valid From">
+                        <small class="form-text text-muted">Leave empty for immediate validity</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="validTo" class="form-label">Valid To (Optional):</label>
+                        <input type="datetime-local" class="form-control" id="validTo"
+                               aria-label="Valid To">
+                        <small class="form-text text-muted">Leave empty for no expiration</small>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="usageLimit" class="form-label">Usage Limit (Optional):</label>
+                        <input type="number" class="form-control" id="usageLimit"
+                               aria-label="Usage Limit" placeholder="Leave empty for unlimited">
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100" id="submitBtn"
+                                aria-label="Create Coupon">Create Coupon</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Existing Coupons</h4>
+            <button class="btn btn-light btn-sm" id="refreshBtn"
+                    aria-label="Refresh Coupon List">Refresh</button>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover" aria-label="Coupons Table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Discount Rate</th>
+                            <th>Valid From</th>
+                            <th>Valid To</th>
+                            <th>Usage Limit</th>
+                            <th>Used Count</th>
+                        </tr>
+                    </thead>
+                    <tbody id="couponsTableBody">
+                        <tr id="loadingRow">
+                            <td colspan="6" class="text-center py-3">Loading coupons...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var notificationCounter = 0;
+
+        function showNotification(type, message, fields) {
+            notificationCounter++;
+            var nid = notificationCounter;
+            var notifications = document.getElementById('notifications');
+            var html = '<div class="notification ' + type + '" role="alert" data-notification-id="' + nid + '">';
+            if (type === 'error') {
+                html += '<div class="error-message">' + message + '</div>';
+                if (fields && fields.length > 0) {
+                    fields.forEach(function(err) {
+                        var fieldPart = err.field ? err.field + ': ' : '';
+                        html += '<div class="field-error">' + fieldPart + err.message + '</div>';
+                    });
+                }
+            } else {
+                html += message;
+            }
+            html += '</div>';
+            notifications.innerHTML = html;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'Immediate';
+            return new Date(dateStr).toLocaleString('en-US', { timeZone: 'UTC' });
+        }
+
+        function formatValidTo(dateStr) {
+            if (!dateStr) return 'Never';
+            return new Date(dateStr).toLocaleString('en-US', { timeZone: 'UTC' });
+        }
+
+        function formatUsageLimit(value) {
+            if (value === null || value === 2147483647) return 'Unlimited';
+            return value;
+        }
+
+        async function loadCoupons() {
+            var tbody = document.getElementById('couponsTableBody');
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3">Loading coupons...</td></tr>';
+
+            try {
+                var response = await fetch('/api/coupons');
+                if (!response.ok) throw new Error('Failed to load coupons');
+
+                var data = await response.json();
+                var coupons = data.coupons;
+
+                if (coupons.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">No coupons found</td></tr>';
+                    return;
+                }
+
+                var html = '';
+                coupons.forEach(function(coupon) {
+                    html += '<tr>';
+                    html += '<td>' + coupon.code + '</td>';
+                    html += '<td>' + (coupon.discountRate * 100).toFixed(2) + '%</td>';
+                    html += '<td>' + formatDate(coupon.validFrom) + '</td>';
+                    html += '<td>' + formatValidTo(coupon.validTo) + '</td>';
+                    html += '<td>' + formatUsageLimit(coupon.usageLimit) + '</td>';
+                    html += '<td>' + coupon.usedCount + '</td>';
+                    html += '</tr>';
+                });
+                tbody.innerHTML = html;
+            } catch (err) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-danger">Error loading coupons</td></tr>';
+            }
+        }
+
+        loadCoupons();
+
+        document.getElementById('refreshBtn').addEventListener('click', loadCoupons);
+
+        document.getElementById('createCouponForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            var btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Creating...';
+
+            var code = document.getElementById('code').value;
+            var discountRate = parseFloat(document.getElementById('discountRate').value);
+            var validFrom = document.getElementById('validFrom').value;
+            var validTo = document.getElementById('validTo').value;
+            var usageLimit = document.getElementById('usageLimit').value;
+
+            var request = {
+                code: code,
+                discountRate: discountRate
+            };
+
+            if (validFrom && validFrom.trim()) {
+                request.validFrom = new Date(validFrom + 'Z').toISOString();
+            }
+            if (validTo && validTo.trim()) {
+                request.validTo = new Date(validTo + 'Z').toISOString();
+            }
+            if (usageLimit && usageLimit.trim()) {
+                request.usageLimit = parseInt(usageLimit);
+            }
+
+            try {
+                var response = await fetch('/api/coupons', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(request)
+                });
+
+                if (response.ok) {
+                    showNotification('success', "Coupon '" + code + "' created successfully!");
+                    document.getElementById('createCouponForm').reset();
+                    setTimeout(loadCoupons, 100);
+                } else {
+                    var data = await response.json();
+                    showNotification('error', data.detail || 'Failed to create coupon', data.errors);
+                }
+            } catch (err) {
+                showNotification('error', 'Network error: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Create Coupon';
+            }
+        });
+    </script>
+</section>
+</body>
+</html>

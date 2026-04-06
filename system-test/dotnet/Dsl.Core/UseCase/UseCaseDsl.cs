@@ -7,11 +7,13 @@ using Driver.Adapter.Shop.Api;
 using Driver.Adapter.Shop.Ui;
 using Dsl.Core.Shop;
 using Driver.Port.Shop;
-using Dsl.Core.Shop;
+using Driver.Port.External.Tax;
+using Dsl.Core.External.Tax;
 using Driver.Adapter.External.Erp;
 using Optivem.Testing;
 using Dsl.Core.Shared;
 using Driver.Adapter.External.Clock;
+using Driver.Adapter.External.Tax;
 using Optivem.Shop.SystemTest.Channel;
 
 namespace Dsl.Core;
@@ -24,6 +26,7 @@ public class UseCaseDsl : IAsyncDisposable
     private readonly Configuration _configuration;
     private readonly Dictionary<string, ShopDsl> _shops = new();
     private ErpDsl? _erp;
+    private TaxDsl? _tax;
     private ClockDsl? _clock;
 
     public UseCaseDsl(Configuration configuration)
@@ -69,6 +72,8 @@ public class UseCaseDsl : IAsyncDisposable
 
     public ErpDsl Erp() => GetOrCreate(ref _erp, () => new ErpDsl(CreateErpDriver(), _context));
 
+    public TaxDsl Tax() => GetOrCreate(ref _tax, () => new TaxDsl(CreateTaxDriver(), _context));
+
     public ClockDsl Clock() => GetOrCreate(ref _clock, () => new ClockDsl(CreateClockDriver(), _context));
 
     private async Task<IShopDriver> CreateShopDriverForChannelAsync(string channelType)
@@ -91,6 +96,16 @@ public class UseCaseDsl : IAsyncDisposable
         };
     }
 
+    private ITaxDriver CreateTaxDriver()
+    {
+        return _context.ExternalSystemMode switch
+        {
+            ExternalSystemMode.Real => new TaxRealDriver(_configuration.TaxBaseUrl),
+            ExternalSystemMode.Stub => new TaxStubDriver(_configuration.TaxBaseUrl),
+            _ => throw new InvalidOperationException($"Unknown external system mode: {_context.ExternalSystemMode}")
+        };
+    }
+
     private IClockDriver CreateClockDriver()
     {
         return _context.ExternalSystemMode switch
@@ -109,6 +124,8 @@ public class UseCaseDsl : IAsyncDisposable
         if (_erp != null)
             await _erp.DisposeAsync();
 
+        _tax?.Dispose();
+
         if (_clock != null)
             await _clock.DisposeAsync();
 
@@ -120,8 +137,3 @@ public class UseCaseDsl : IAsyncDisposable
         return instance ??= supplier();
     }
 }
-
-
-
-
-

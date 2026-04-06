@@ -31,6 +31,14 @@ public class AssumeStage : IAssumeStage
         }, this);
     }
 
+    public IAssumeRunning Tax()
+    {
+        return new AssumeRunningAction(async () =>
+        {
+            (await _app.Tax().GoToTax().Execute()).ShouldSucceed();
+        }, this);
+    }
+
     public IAssumeRunning Clock()
     {
         return new AssumeRunningAction(async () =>

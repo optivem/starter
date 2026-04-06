@@ -8,6 +8,8 @@ public interface IWhenStage
 
     IPlaceOrder PlaceOrder();
 
+    ICancelOrder CancelOrder();
+
     IViewOrder ViewOrder();
 
     IPublishCoupon PublishCoupon();

@@ -32,6 +32,13 @@ public class ThenStageBase : IThenStage
         return new Steps.ThenProduct(_app, verification);
     }
 
+    public async Task<IThenCountry> Country(string countryAlias)
+    {
+        await EnsureSetup();
+        var verification = (await _app.Tax().GetTaxRate().Country(countryAlias).Execute()).ShouldSucceed();
+        return new Steps.ThenCountry(_app, verification);
+    }
+
     protected async Task EnsureSetup()
     {
         if (!_setupCompleted && _setup != null)

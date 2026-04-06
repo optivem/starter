@@ -16,6 +16,7 @@ namespace Dsl.Core.Scenario.Given
         private readonly ScenarioDsl _scenario;
         private readonly List<GivenProduct> _products;
         private readonly List<GivenOrder> _orders;
+        private readonly List<GivenCountry> _countries;
         private readonly List<GivenCoupon> _coupons;
         private GivenClock? _clock;
         private GivenPromotion _promotion;
@@ -27,6 +28,7 @@ namespace Dsl.Core.Scenario.Given
             _scenario = scenario;
             _products = new List<GivenProduct>();
             _orders = new List<GivenOrder>();
+            _countries = new List<GivenCountry>();
             _coupons = new List<GivenCoupon>();
             _clock = null;
             _promotion = new GivenPromotion(this);
@@ -58,6 +60,15 @@ namespace Dsl.Core.Scenario.Given
 
         IGivenClock IGivenStage.Clock() => Clock();
 
+        public GivenCountry Country()
+        {
+            var countryBuilder = new GivenCountry(this);
+            _countries.Add(countryBuilder);
+            return countryBuilder;
+        }
+
+        IGivenCountry IGivenStage.Country() => Country();
+
         public GivenPromotion Promotion()
         {
             _promotion = new GivenPromotion(this);
@@ -77,7 +88,7 @@ namespace Dsl.Core.Scenario.Given
 
         public WhenStage When()
         {
-            return new WhenStage(Channel, _app, _scenario, _products.Any(), true, SetupGiven);
+            return new WhenStage(Channel, _app, _scenario, _products.Any(), true, _countries.Any(), SetupGiven);
         }
 
         IWhenStage IGivenStage.When() => When();
@@ -94,8 +105,8 @@ namespace Dsl.Core.Scenario.Given
             await SetupClock();
             await SetupPromotion();
             await SetupErp();
+            await SetupTax();
             await SetupShop();
-            await SetupCoupons();
         }
 
         private async Task SetupPromotion()
@@ -125,9 +136,38 @@ namespace Dsl.Core.Scenario.Given
             }
         }
 
+        private async Task SetupTax()
+        {
+            if (_orders.Any() && !_countries.Any())
+            {
+                var defaultCountry = new GivenCountry(this);
+                _countries.Add(defaultCountry);
+            }
+
+            foreach (var country in _countries)
+            {
+                await country.Execute(_app);
+            }
+        }
+
         private async Task SetupShop()
         {
+            await SetupCoupons();
             await SetupOrders();
+        }
+
+        private async Task SetupCoupons()
+        {
+            if (_orders.Any() && !_coupons.Any())
+            {
+                var defaultCoupon = new GivenCoupon(this);
+                _coupons.Add(defaultCoupon);
+            }
+
+            foreach (var coupon in _coupons)
+            {
+                await coupon.Execute(_app);
+            }
         }
 
         private async Task SetupOrders()
@@ -137,15 +177,5 @@ namespace Dsl.Core.Scenario.Given
                 await order.Execute(_app);
             }
         }
-
-        private async Task SetupCoupons()
-        {
-            foreach (var coupon in _coupons)
-            {
-                await coupon.Execute(_app);
-            }
-        }
     }
 }
-
-

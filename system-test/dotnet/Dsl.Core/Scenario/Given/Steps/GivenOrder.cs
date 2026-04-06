@@ -11,6 +11,8 @@ public class GivenOrder : BaseGiven, IGivenOrder
     private string? _orderNumber;
     private string? _sku;
     private string? _quantity;
+    private string? _country;
+    private string? _couponCodeAlias;
     private OrderStatus _status;
 
     public GivenOrder(GivenStage givenClause) : base(givenClause)
@@ -18,6 +20,8 @@ public class GivenOrder : BaseGiven, IGivenOrder
         WithOrderNumber(DefaultOrderNumber);
         WithSku(DefaultSku);
         WithQuantity(DefaultQuantity);
+        WithCountry(DefaultCountry);
+        WithCouponCode(Empty);
         WithStatus(DefaultOrderStatus);
     }
 
@@ -52,6 +56,22 @@ public class GivenOrder : BaseGiven, IGivenOrder
 
     IGivenOrder IGivenOrder.WithQuantity(int? quantity) => WithQuantity(quantity);
 
+    public GivenOrder WithCountry(string? country)
+    {
+        _country = country;
+        return this;
+    }
+
+    IGivenOrder IGivenOrder.WithCountry(string? country) => WithCountry(country);
+
+    public GivenOrder WithCouponCode(string? couponCodeAlias)
+    {
+        _couponCodeAlias = couponCodeAlias;
+        return this;
+    }
+
+    IGivenOrder IGivenOrder.WithCouponCode(string? couponCode) => WithCouponCode(couponCode);
+
     public GivenOrder WithStatus(OrderStatus status)
     {
         _status = status;
@@ -68,10 +88,17 @@ public class GivenOrder : BaseGiven, IGivenOrder
             .OrderNumber(_orderNumber)
             .Sku(_sku)
             .Quantity(_quantity)
+            .Country(_country)
+            .CouponCode(_couponCodeAlias)
             .Execute())
             .ShouldSucceed();
+
+        if (_status == OrderStatus.Cancelled)
+        {
+            (await shop.CancelOrder()
+                .OrderNumber(_orderNumber)
+                .Execute())
+                .ShouldSucceed();
+        }
     }
 }
-
-
-

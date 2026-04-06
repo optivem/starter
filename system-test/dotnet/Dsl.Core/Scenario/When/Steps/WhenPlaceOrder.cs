@@ -1,5 +1,4 @@
 using Dsl.Core.Scenario.When.Steps.Base;
-using Dsl.Port;
 using Dsl.Port.When.Steps;
 using Dsl.Core.Shared;
 using Common;
@@ -18,12 +17,14 @@ public class PlaceOrder : BaseWhen<PlaceOrderResponse, PlaceOrderVerification>, 
     private string? _quantity;
     private string? _country;
     private string? _couponCode;
+
     public PlaceOrder(UseCaseDsl app, ScenarioDsl scenario, Func<Task> ensureGiven) : base(app, scenario, ensureGiven)
     {
         WithOrderNumber(DefaultOrderNumber);
         WithSku(DefaultSku);
         WithQuantity(DefaultQuantity);
         WithCountry(DefaultCountry);
+        WithCouponCode(Empty);
     }
 
     public PlaceOrder WithOrderNumber(string? orderNumber)
@@ -73,9 +74,16 @@ public class PlaceOrder : BaseWhen<PlaceOrderResponse, PlaceOrderVerification>, 
 
     IPlaceOrder IPlaceOrder.WithCouponCode(string? couponCode) => WithCouponCode(couponCode);
 
+    public PlaceOrder WithCouponCode()
+    {
+        return WithCouponCode(DefaultCouponCode);
+    }
+
+    IPlaceOrder IPlaceOrder.WithCouponCode() => WithCouponCode();
+
     protected override async Task<ExecutionResult<PlaceOrderResponse, PlaceOrderVerification>> Execute(UseCaseDsl app)
     {
-        var shop = await app.Shop(ChannelMode.Dynamic, Channel);
+        var shop = await app.Shop(Channel);
         var result = await shop.PlaceOrder()
             .OrderNumber(_orderNumber)
             .Sku(_sku)
@@ -86,9 +94,7 @@ public class PlaceOrder : BaseWhen<PlaceOrderResponse, PlaceOrderVerification>, 
 
         return new ExecutionResultBuilder<PlaceOrderResponse, PlaceOrderVerification>(result)
             .OrderNumber(_orderNumber)
+            .CouponCode(_couponCode)
             .Build();
     }
 }
-
-
-

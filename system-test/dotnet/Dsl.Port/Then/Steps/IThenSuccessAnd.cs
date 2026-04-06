@@ -10,5 +10,11 @@ public interface IThenSuccessAnd
 
     Task<IThenProduct> Product(string skuAlias);
 
+    Task<IThenCountry> Country(string countryAlias);
+
+    IThenCoupon Coupon(string couponCode);
+
+    IThenCoupon Coupon();
+
     IThenBrowseCoupons Coupons();
 }

@@ -13,6 +13,9 @@ export interface TestConfig {
     clock: {
       url: string;
     };
+    tax: {
+      url: string;
+    };
   };
 }
 

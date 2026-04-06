@@ -38,7 +38,7 @@ export class OrderService {
   async placeOrder(request: PlaceOrderRequest): Promise<PlaceOrderResponse> {
     const sku = request.sku;
     const quantity = request.quantity;
-    const country = request.country?.trim() || 'US';
+    const country = request.country;
     const couponCode = request.couponCode;
 
     const orderTimestamp = await this.clockGateway.getCurrentTime();
@@ -131,6 +131,41 @@ export class OrderService {
     }
 
     return Number(taxDetails.taxRate);
+  }
+
+  async cancelOrder(orderNumber: string): Promise<void> {
+    const now = await this.clockGateway.getCurrentTime();
+
+    const utcMonth = now.getUTCMonth();
+    const utcDay = now.getUTCDate();
+
+    if (utcMonth === 11 && utcDay === 31) {
+      const blackoutStart = new Date(Date.UTC(now.getUTCFullYear(), 11, 31, 22, 0, 0));
+      const blackoutEnd = new Date(Date.UTC(now.getUTCFullYear(), 11, 31, 22, 30, 0));
+
+      if (now >= blackoutStart && now <= blackoutEnd) {
+        throw new ValidationException(
+          'Order cancellation is not allowed on December 31st between 22:00 and 23:00',
+        );
+      }
+    }
+
+    const order = await this.orderRepository.findOne({
+      where: { orderNumber },
+    });
+
+    if (!order) {
+      throw new NotExistValidationException(
+        `Order ${orderNumber} does not exist.`,
+      );
+    }
+
+    if (order.status === OrderStatus.CANCELLED) {
+      throw new ValidationException('Order has already been cancelled');
+    }
+
+    order.status = OrderStatus.CANCELLED;
+    await this.orderRepository.save(order);
   }
 
   async browseOrderHistory(

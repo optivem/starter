@@ -12,6 +12,8 @@ public interface IGivenStage
 
     IGivenClock Clock();
 
+    IGivenCountry Country();
+
     IGivenPromotion Promotion();
 
     IGivenCoupon Coupon();

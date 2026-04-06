@@ -41,6 +41,36 @@ public class ThenSuccessAnd<TSuccessResponse, TSuccessVerification>
 
     async Task<IThenProduct> IThenSuccessAnd.Product(string skuAlias) => await Product(skuAlias);
 
+    public async Task<IThenCountry> Country(string countryAlias)
+    {
+        var verification = (await _thenClause.App.Tax().GetTaxRate().Country(countryAlias).Execute()).ShouldSucceed();
+        return new Steps.ThenCountry(_thenClause.App, verification);
+    }
+
+    async Task<IThenCountry> IThenSuccessAnd.Country(string countryAlias) => await Country(countryAlias);
+
+    public ThenSuccessCoupon<TSuccessResponse, TSuccessVerification> Coupon(string couponCode)
+    {
+        return new ThenSuccessCoupon<TSuccessResponse, TSuccessVerification>(
+            _thenClause,
+            () => Task.FromResult(couponCode));
+    }
+
+    IThenCoupon IThenSuccessAnd.Coupon(string couponCode) => Coupon(couponCode);
+
+    public ThenSuccessCoupon<TSuccessResponse, TSuccessVerification> Coupon()
+    {
+        return new ThenSuccessCoupon<TSuccessResponse, TSuccessVerification>(
+            _thenClause,
+            async () =>
+            {
+                var result = await _thenClause.GetExecutionResult();
+                return result.CouponCode ?? throw new InvalidOperationException("Cannot verify coupon: no coupon code available from the executed operation");
+            });
+    }
+
+    IThenCoupon IThenSuccessAnd.Coupon() => Coupon();
+
     public ThenBrowseCoupons Coupons()
     {
         var thenClause = (ThenStage<BrowseCouponsResponse, BrowseCouponsVerification>)(object)_thenClause;

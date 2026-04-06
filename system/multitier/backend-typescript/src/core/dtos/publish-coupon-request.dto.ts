@@ -3,12 +3,14 @@ import {
   IsNumber,
   IsOptional,
   IsPositive,
+  Matches,
   Max,
   Min,
 } from 'class-validator';
 
 export class PublishCouponRequest {
   @IsNotEmpty({ message: 'Coupon code must not be blank' })
+  @Matches(/\S/, { message: 'Coupon code must not be blank' })
   code: string;
 
   @IsNumber({}, { message: 'Discount rate must not be null' })

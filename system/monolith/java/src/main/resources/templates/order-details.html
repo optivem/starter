@@ -91,8 +91,8 @@
                         <p class="fs-5 fw-bold" aria-label="Display Total Price" id="detailTotalPrice"></p>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <strong>Applied Coupon Code:</strong>
-                        <p aria-label="Display Applied Coupon Code" id="detailAppliedCouponCode"></p>
+                        <strong>Applied Coupon:</strong>
+                        <p aria-label="Display Applied Coupon" id="detailAppliedCouponCode"></p>
                     </div>
                 </div>
                 <div class="mt-4 d-flex gap-2">
@@ -161,7 +161,7 @@
                 document.getElementById('detailTaxRate').textContent = (order.taxRate * 100).toFixed(2) + '%';
                 document.getElementById('detailTaxAmount').textContent = '$' + order.taxAmount.toFixed(2);
                 document.getElementById('detailTotalPrice').textContent = '$' + order.totalPrice.toFixed(2);
-                document.getElementById('detailAppliedCouponCode').textContent = order.appliedCouponCode || '-';
+                document.getElementById('detailAppliedCouponCode').textContent = order.appliedCouponCode || 'None';
 
                 orderDetails.style.display = 'block';
             } catch (err) {

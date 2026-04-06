@@ -117,6 +117,39 @@ public class OrderService
         return taxDetails.TaxRate;
     }
 
+    public async Task CancelOrderAsync(string orderNumber)
+    {
+        var now = (await _clockGateway.GetCurrentTimeAsync()).ToUniversalTime();
+
+        if (now.Month == 12 && now.Day == 31)
+        {
+            var currentTime = TimeOnly.FromDateTime(now);
+            var cancelBlackoutStart = new TimeOnly(22, 0);
+            var cancelBlackoutEnd = new TimeOnly(22, 30);
+
+            if (currentTime >= cancelBlackoutStart && currentTime <= cancelBlackoutEnd)
+            {
+                throw new ValidationException("Order cancellation is not allowed on December 31st between 22:00 and 23:00");
+            }
+        }
+
+        var order = await _dbContext.Orders
+            .FirstOrDefaultAsync(o => o.OrderNumber == orderNumber);
+
+        if (order == null)
+        {
+            throw new NotExistValidationException($"Order {orderNumber} does not exist.");
+        }
+
+        if (order.Status == OrderStatus.CANCELLED)
+        {
+            throw new ValidationException("Order has already been cancelled");
+        }
+
+        order.Status = OrderStatus.CANCELLED;
+        await _dbContext.SaveChangesAsync();
+    }
+
     public async Task<BrowseOrderHistoryResponse> BrowseOrderHistoryAsync(string? orderNumberFilter)
     {
         List<Order> orders;

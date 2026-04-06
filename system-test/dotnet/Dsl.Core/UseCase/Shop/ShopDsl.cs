@@ -30,6 +30,8 @@ public class ShopDsl : IAsyncDisposable
 
     public PlaceOrder PlaceOrder() => new(_driver, _context);
 
+    public CancelOrder CancelOrder() => new(_driver, _context);
+
     public ViewOrder ViewOrder() => new(_driver, _context);
 
     public PublishCoupon PublishCoupon() => new(_driver, _context);

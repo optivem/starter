@@ -81,6 +81,10 @@ class OrderDetailsPage {
       .waitFor({ state: 'visible', timeout: TIMEOUT });
   }
 
+  async clickCancelOrder(): Promise<void> {
+    await this.page.locator('[aria-label="Cancel Order"]').click({ timeout: TIMEOUT });
+  }
+
   async getOrderNumber(): Promise<string> {
     return (
       (await this.page.locator("[aria-label='Display Order Number']").textContent({ timeout: TIMEOUT }))?.trim() || ''
@@ -218,19 +222,20 @@ export class ShopUiDriver implements ShopDriver {
 
   async viewOrder(orderNumber: string): Promise<Result<ViewOrderResponse, ErrorResponse>> {
     if (!this.page) {
-      return failure({ message: 'No page available', fieldErrors: [] });
+      const goResult = await this.goToShop();
+      if (!goResult.success) return failure(goResult.error);
     }
 
-    await this.page.goto(this.baseUrl);
-    const homePage = new HomePage(this.page);
+    await this.page!.goto(this.baseUrl);
+    const homePage = new HomePage(this.page!);
     await homePage.clickOrderHistory();
 
-    const orderHistoryPage = new OrderHistoryPage(this.page);
+    const orderHistoryPage = new OrderHistoryPage(this.page!);
     await orderHistoryPage.fillOrderNumber(orderNumber);
     await orderHistoryPage.clickSearch();
     await orderHistoryPage.clickViewOrderDetails(orderNumber);
 
-    const detailsPage = new OrderDetailsPage(this.page);
+    const detailsPage = new OrderDetailsPage(this.page!);
     await detailsPage.waitForLoad();
 
     return success({
@@ -242,6 +247,32 @@ export class ShopUiDriver implements ShopDriver {
       totalPrice: await detailsPage.getTotalPrice(),
       status: await detailsPage.getStatus(),
     });
+  }
+
+  async cancelOrder(orderNumber: string): Promise<Result<void, ErrorResponse>> {
+    if (!this.page) {
+      const goResult = await this.goToShop();
+      if (!goResult.success) return failure(goResult.error);
+    }
+
+    await this.page!.goto(this.baseUrl);
+    const homePage = new HomePage(this.page!);
+    await homePage.clickOrderHistory();
+
+    const orderHistoryPage = new OrderHistoryPage(this.page!);
+    await orderHistoryPage.fillOrderNumber(orderNumber);
+    await orderHistoryPage.clickSearch();
+    await orderHistoryPage.clickViewOrderDetails(orderNumber);
+
+    const detailsPage = new OrderDetailsPage(this.page!);
+    await detailsPage.waitForLoad();
+    await detailsPage.clickCancelOrder();
+
+    const notificationResult = await getNotification(this.page!);
+    if (notificationResult.success) {
+      return success(undefined);
+    }
+    return failure(notificationResult.error);
   }
 
   async publishCoupon(_request: PublishCouponRequest): Promise<Result<void, ErrorResponse>> {

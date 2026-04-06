@@ -9,7 +9,17 @@ public interface IThenOrder
 
     IThenOrder HasQuantity(int expectedQuantity);
 
+    IThenOrder HasCountry(string expectedCountry);
+
     IThenOrder HasUnitPrice(decimal expectedUnitPrice);
+
+    IThenOrder HasBasePrice(decimal expectedBasePrice);
+
+    IThenOrder HasBasePrice(string basePrice);
+
+    IThenOrder HasSubtotalPrice(decimal expectedSubtotalPrice);
+
+    IThenOrder HasSubtotalPrice(string expectedSubtotalPrice);
 
     IThenOrder HasTotalPrice(decimal expectedTotalPrice);
 
@@ -17,17 +27,35 @@ public interface IThenOrder
 
     IThenOrder HasStatus(OrderStatus expectedStatus);
 
-    IThenOrder HasOrderNumberPrefix(string expectedPrefix);
-
-    IThenOrder HasTotalPriceGreaterThanZero();
-
-    IThenOrder HasSubtotalPrice(decimal expectedSubtotalPrice);
-
-    IThenOrder HasTaxRate(decimal expectedTaxRate);
+    IThenOrder HasDiscountRateGreaterThanOrEqualToZero();
 
     IThenOrder HasDiscountRate(decimal expectedDiscountRate);
 
-    IThenOrder HasAppliedCouponCode(string expectedCouponCode);
+    IThenOrder HasDiscountAmount(decimal expectedDiscountAmount);
+
+    IThenOrder HasDiscountAmount(string expectedDiscountAmount);
+
+    IThenOrder HasAppliedCoupon(string expectedCouponCode);
+
+    IThenOrder HasAppliedCoupon();
+
+    IThenOrder HasDiscountAmountGreaterThanOrEqualToZero();
+
+    IThenOrder HasSubtotalPriceGreaterThanZero();
+
+    IThenOrder HasTaxRate(decimal expectedTaxRate);
+
+    IThenOrder HasTaxRate(string expectedTaxRate);
+
+    IThenOrder HasTaxRateGreaterThanOrEqualToZero();
+
+    IThenOrder HasTaxAmount(string expectedTaxAmount);
+
+    IThenOrder HasTaxAmountGreaterThanOrEqualToZero();
+
+    IThenOrder HasTotalPriceGreaterThanZero();
+
+    IThenOrder HasOrderNumberPrefix(string expectedPrefix);
 
     TaskAwaiter GetAwaiter();
 }

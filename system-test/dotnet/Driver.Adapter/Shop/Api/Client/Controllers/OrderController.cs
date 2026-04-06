@@ -46,6 +46,10 @@ public class OrderController
 
 
 
+    public Task<Result<VoidValue, ProblemDetailResponse>> CancelOrderAsync(string? orderNumber)
+
+        => _httpClient.PostAsync($"{Endpoint}/{orderNumber}/cancel");
+
 }
 
 

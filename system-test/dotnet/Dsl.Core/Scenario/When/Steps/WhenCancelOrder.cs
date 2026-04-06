@@ -1,0 +1,41 @@
+using Dsl.Core.Scenario.When.Steps.Base;
+using Dsl.Port.When.Steps;
+using Dsl.Core.Shared;
+using Common;
+using Driver.Adapter;
+using Driver.Port.Shop.Dtos;
+using Dsl.Core.Shop.UseCases;
+using Optivem.Testing;
+using static Dsl.Core.Gherkin.GherkinDefaults;
+
+namespace Dsl.Core.Scenario.When.Steps;
+
+public class CancelOrder : BaseWhen<VoidValue, VoidVerification>, ICancelOrder
+{
+    private string? _orderNumber;
+
+    public CancelOrder(UseCaseDsl app, ScenarioDsl scenario, Func<Task> ensureGiven) : base(app, scenario, ensureGiven)
+    {
+        WithOrderNumber(DefaultOrderNumber);
+    }
+
+    public CancelOrder WithOrderNumber(string? orderNumber)
+    {
+        _orderNumber = orderNumber;
+        return this;
+    }
+
+    ICancelOrder ICancelOrder.WithOrderNumber(string? orderNumber) => WithOrderNumber(orderNumber);
+
+    protected override async Task<ExecutionResult<VoidValue, VoidVerification>> Execute(UseCaseDsl app)
+    {
+        var shop = await app.Shop(Channel);
+        var result = await shop.CancelOrder()
+            .OrderNumber(_orderNumber)
+            .Execute();
+
+        return new ExecutionResultBuilder<VoidValue, VoidVerification>(result)
+            .OrderNumber(_orderNumber)
+            .Build();
+    }
+}

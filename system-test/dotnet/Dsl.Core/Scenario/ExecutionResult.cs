@@ -8,7 +8,7 @@ namespace Dsl.Core.Scenario
         where TSuccessVerification : ResponseVerification<TSuccessResponse>
     {
         internal ExecutionResult(ShopUseCaseResult<TSuccessResponse, TSuccessVerification> result,
-            string? orderNumber)
+            string? orderNumber, string? couponCode)
         {
             if (result == null)
             {
@@ -17,15 +17,18 @@ namespace Dsl.Core.Scenario
 
             Result = result;
             OrderNumber = orderNumber;
-            Context = new ExecutionResultContext(orderNumber);
+            CouponCode = couponCode;
+            Context = new ExecutionResultContext(orderNumber, couponCode);
         }
 
         public ShopUseCaseResult<TSuccessResponse, TSuccessVerification> Result { get; }
 
         public string? OrderNumber { get; }
 
+        public string? CouponCode { get; }
+
         /// <summary>
-        /// Context with order number from the executed operation.
+        /// Context with order number and coupon code from the executed operation.
         /// </summary>
         public ExecutionResultContext Context { get; }
     }

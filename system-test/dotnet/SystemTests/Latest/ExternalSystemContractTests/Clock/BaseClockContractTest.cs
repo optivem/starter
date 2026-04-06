@@ -8,7 +8,7 @@ public abstract class BaseClockContractTest : BaseExternalSystemContractTest
     public async Task ShouldBeAbleToGetTime()
     {
         (await Scenario()
-            .Given().Clock().WithTime()
+            .Given().Clock().WithTime("2024-01-02T09:00:00Z")
             .Then().Clock())
             .HasTime();
     }

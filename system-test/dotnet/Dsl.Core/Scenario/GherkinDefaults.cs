@@ -27,6 +27,16 @@ public static class GherkinDefaults
     public const string WeekdayTime = "2026-01-15T10:30:00Z";
     public const string WeekendTime = "2026-01-17T10:30:00Z";
 
+    // Tax defaults
+    public const string DefaultTaxRate = "0.07";
+
+    // Coupon defaults
+    public const string DefaultCouponCode = "DEFAULT-COUPON";
+    public const string DefaultDiscountRate = "0.10";
+    public const string DefaultValidFrom = "2024-01-01T00:00:00Z";
+    public const string DefaultValidTo = "2024-12-31T23:59:59Z";
+    public const string DefaultUsageLimit = "1000";
+
     public const string Empty = "";
 }
 

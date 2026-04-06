@@ -9,6 +9,8 @@ import {
   ReturnsPromotionRequest,
   GetTimeResponse,
   ReturnsTimeRequest,
+  GetTaxResponse,
+  ReturnsTaxRateRequest,
   PublishCouponRequest,
   BrowseCouponsResponse,
 } from '../common/dtos';
@@ -16,6 +18,7 @@ import {
 export interface ShopDriver {
   goToShop(): Promise<Result<void, ErrorResponse>>;
   placeOrder(request: PlaceOrderRequest): Promise<Result<PlaceOrderResponse, ErrorResponse>>;
+  cancelOrder(orderNumber: string): Promise<Result<void, ErrorResponse>>;
   viewOrder(orderNumber: string): Promise<Result<ViewOrderResponse, ErrorResponse>>;
   publishCoupon(request: PublishCouponRequest): Promise<Result<void, ErrorResponse>>;
   browseCoupons(): Promise<Result<BrowseCouponsResponse, ErrorResponse>>;
@@ -34,5 +37,12 @@ export interface ClockDriver {
   goToClock(): Promise<Result<void, ErrorResponse>>;
   getTime(): Promise<Result<GetTimeResponse, ErrorResponse>>;
   returnsTime(request: ReturnsTimeRequest): Promise<Result<void, ErrorResponse>>;
+  close(): Promise<void>;
+}
+
+export interface TaxDriver {
+  goToTax(): Promise<Result<void, ErrorResponse>>;
+  getTaxRate(country: string): Promise<Result<GetTaxResponse, ErrorResponse>>;
+  returnsTaxRate(request: ReturnsTaxRateRequest): Promise<Result<void, ErrorResponse>>;
   close(): Promise<void>;
 }

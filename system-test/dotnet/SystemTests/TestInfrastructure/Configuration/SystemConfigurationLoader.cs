@@ -16,9 +16,10 @@ public static class SystemConfigurationLoader
         var shopUiBaseUrl = GetValue(configuration, "Shop:UiBaseUrl");
         var shopApiBaseUrl = GetValue(configuration, "Shop:ApiBaseUrl");
         var erpBaseUrl = GetValue(configuration, "Erp:ApiBaseUrl");
+        var taxBaseUrl = GetValue(configuration, "Tax:ApiBaseUrl");
         var clockBaseUrl = GetValue(configuration, "Clock:ApiBaseUrl");
 
-        return new Dsl.Core.Configuration(shopUiBaseUrl, shopApiBaseUrl, erpBaseUrl, clockBaseUrl,
+        return new Dsl.Core.Configuration(shopUiBaseUrl, shopApiBaseUrl, erpBaseUrl, taxBaseUrl, clockBaseUrl,
             externalSystemMode, channelMode);
     }
 

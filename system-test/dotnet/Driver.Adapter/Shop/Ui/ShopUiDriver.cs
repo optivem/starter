@@ -17,6 +17,10 @@ public class ShopUiDriver : IShopDriver
     private NewOrderPage? _newOrderPage;
     private OrderHistoryPage? _orderHistoryPage;
     private OrderDetailsPage? _orderDetailsPage;
+    private CouponManagementPage? _couponManagementPage;
+
+    private const int MaxBrowseRetries = 10;
+    private static readonly TimeSpan BrowseRetryDelay = TimeSpan.FromSeconds(1);
 
     private ShopUiDriver(ShopUiClient client)
     {
@@ -54,12 +58,14 @@ public class ShopUiDriver : IShopDriver
         var sku = request.Sku;
         var quantity = request.Quantity;
         var country = request.Country;
+        var couponCode = request.CouponCode;
 
         await EnsureOnNewOrderPageAsync();
 
         await _newOrderPage!.InputSkuAsync(sku);
         await _newOrderPage.InputQuantityAsync(quantity);
         await _newOrderPage.InputCountryAsync(country);
+        await _newOrderPage.InputCouponCodeAsync(couponCode);
         await _newOrderPage.ClickPlaceOrderAsync();
 
         var result = await _newOrderPage.GetResultAsync();
@@ -75,6 +81,42 @@ public class ShopUiDriver : IShopDriver
         };
 
         return Success(response);
+    }
+
+    public async Task<Result<VoidValue, SystemError>> CancelOrderAsync(string? orderNumber)
+    {
+        var viewResult = await ViewOrderAsync(orderNumber);
+        if (viewResult.IsFailure)
+        {
+            return viewResult.MapVoid();
+        }
+
+        await _orderDetailsPage!.ClickCancelOrderAsync();
+
+        var cancelResult = await _orderDetailsPage.GetResultAsync();
+        if (cancelResult.IsFailure)
+        {
+            return Failure(cancelResult.Error);
+        }
+
+        var successMessage = cancelResult.Value;
+        if (!successMessage.Contains("cancelled successfully!"))
+        {
+            return Failure("Did not receive expected cancellation success message");
+        }
+
+        var displayStatusAfterCancel = await _orderDetailsPage.GetStatusAsync();
+        if (displayStatusAfterCancel != OrderStatus.Cancelled)
+        {
+            return Failure("Order status not updated to CANCELLED");
+        }
+
+        if (!await _orderDetailsPage.IsCancelButtonHiddenAsync())
+        {
+            return Failure("Cancel button still visible");
+        }
+
+        return Success();
     }
 
     public async Task<Result<ViewOrderResponse, SystemError>> ViewOrderAsync(string? orderNumber)
@@ -95,9 +137,17 @@ public class ShopUiDriver : IShopDriver
         var orderTimestamp = await _orderDetailsPage.GetOrderTimestampAsync();
         var sku = await _orderDetailsPage.GetSkuAsync();
         var quantity = await _orderDetailsPage.GetQuantityAsync();
+        var country = await _orderDetailsPage.GetCountryAsync();
         var unitPrice = await _orderDetailsPage.GetUnitPriceAsync();
+        var basePrice = await _orderDetailsPage.GetBasePriceAsync();
+        var discountRate = await _orderDetailsPage.GetDiscountRateAsync();
+        var discountAmount = await _orderDetailsPage.GetDiscountAmountAsync();
+        var subtotalPrice = await _orderDetailsPage.GetSubtotalPriceAsync();
+        var taxRate = await _orderDetailsPage.GetTaxRateAsync();
+        var taxAmount = await _orderDetailsPage.GetTaxAmountAsync();
         var totalPrice = await _orderDetailsPage.GetTotalPriceAsync();
         var status = await _orderDetailsPage.GetStatusAsync();
+        var appliedCouponCode = await _orderDetailsPage.GetAppliedCouponAsync();
 
         var response = new ViewOrderResponse
         {
@@ -105,12 +155,60 @@ public class ShopUiDriver : IShopDriver
             OrderTimestamp = orderTimestamp.DateTime,
             Sku = sku,
             Quantity = quantity,
+            Country = country,
             UnitPrice = unitPrice,
+            BasePrice = basePrice,
+            DiscountRate = discountRate,
+            DiscountAmount = discountAmount,
+            SubtotalPrice = subtotalPrice,
+            TaxRate = taxRate,
+            TaxAmount = taxAmount,
             TotalPrice = totalPrice,
             Status = status,
+            AppliedCouponCode = appliedCouponCode
         };
 
         return Success(response);
+    }
+
+    public async Task<Result<VoidValue, SystemError>> PublishCouponAsync(PublishCouponRequest request)
+    {
+        await EnsureOnCouponManagementPageAsync();
+
+        await _couponManagementPage!.InputCouponCodeAsync(request.Code);
+        await _couponManagementPage.InputDiscountRateAsync(request.DiscountRate);
+        await _couponManagementPage.InputValidFromAsync(request.ValidFrom);
+        await _couponManagementPage.InputValidToAsync(request.ValidTo);
+        await _couponManagementPage.InputUsageLimitAsync(request.UsageLimit);
+        await _couponManagementPage.ClickPublishCouponAsync();
+
+        var result = await _couponManagementPage.GetResultAsync();
+        return result.MapVoid();
+    }
+
+    public async Task<Result<BrowseCouponsResponse, SystemError>> BrowseCouponsAsync()
+    {
+        // Retry with fresh page navigations to handle UI eventual consistency —
+        // after publishing a coupon or placing an order, the coupon table
+        // may not yet reflect the latest state on first load.
+        for (int attempt = 0; attempt < MaxBrowseRetries; attempt++)
+        {
+            await NavigateToCouponManagementPageAsync();
+            var coupons = await _couponManagementPage!.ReadCouponsAsync();
+
+            if (coupons.Count > 0)
+            {
+                return Success(new BrowseCouponsResponse { Coupons = coupons });
+            }
+
+            await Task.Delay(BrowseRetryDelay);
+        }
+
+        // Final attempt — return whatever we get (even if empty)
+        await NavigateToCouponManagementPageAsync();
+        var finalCoupons = await _couponManagementPage!.ReadCouponsAsync();
+
+        return Success(new BrowseCouponsResponse { Coupons = finalCoupons });
     }
 
     private async Task<HomePage> GetHomePageAsync()
@@ -143,12 +241,6 @@ public class ShopUiDriver : IShopDriver
         }
     }
 
-    public Task<Result<VoidValue, SystemError>> PublishCouponAsync(PublishCouponRequest request)
-        => throw new NotSupportedException("PublishCoupon is not supported via UI channel");
-
-    public Task<Result<BrowseCouponsResponse, SystemError>> BrowseCouponsAsync()
-        => throw new NotSupportedException("BrowseCoupons is not supported via UI channel");
-
     private async Task<Result<VoidValue, SystemError>> EnsureOnOrderDetailsPageAsync(string? orderNumber)
     {
         await EnsureOnOrderHistoryPageAsync();
@@ -168,6 +260,21 @@ public class ShopUiDriver : IShopDriver
         return Success();
     }
 
+    private async Task EnsureOnCouponManagementPageAsync()
+    {
+        if (!IsOnPage(Page.CouponManagement))
+        {
+            await NavigateToCouponManagementPageAsync();
+        }
+    }
+
+    private async Task NavigateToCouponManagementPageAsync()
+    {
+        var homePage = await GetHomePageAsync();
+        _couponManagementPage = await homePage.ClickCouponManagementAsync();
+        SetCurrentPage(Page.CouponManagement);
+    }
+
     private bool IsOnPage(Page page)
     {
         return _currentPage == page;
@@ -184,8 +291,7 @@ public class ShopUiDriver : IShopDriver
         Home,
         NewOrder,
         OrderHistory,
-        OrderDetails
+        OrderDetails,
+        CouponManagement
     }
-
 }
-

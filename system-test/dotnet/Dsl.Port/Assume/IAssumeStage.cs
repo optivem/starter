@@ -8,5 +8,7 @@ public interface IAssumeStage
 
     IAssumeRunning Erp();
 
+    IAssumeRunning Tax();
+
     IAssumeRunning Clock();
 }

@@ -15,6 +15,7 @@ namespace Dsl.Core.Scenario
     {
         private readonly ShopUseCaseResult<TSuccessResponse, TSuccessVerification> _result;
         private string? _orderNumber;
+        private string? _couponCode;
 
         internal ExecutionResultBuilder(UseCaseResult<TSuccessResponse, SystemError, TSuccessVerification, SystemErrorFailureVerification> result)
         {
@@ -28,11 +29,18 @@ namespace Dsl.Core.Scenario
             return this;
         }
 
+        public ExecutionResultBuilder<TSuccessResponse, TSuccessVerification> CouponCode(string? couponCode)
+        {
+            _couponCode = couponCode;
+            return this;
+        }
+
         public ExecutionResult<TSuccessResponse, TSuccessVerification> Build()
         {
             return new ExecutionResult<TSuccessResponse, TSuccessVerification>(
                 _result,
-                _orderNumber);
+                _orderNumber,
+                _couponCode);
         }
     }
 }

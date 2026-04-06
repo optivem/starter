@@ -45,6 +45,19 @@ export class ShopApiDriver implements ShopDriver {
     return failure(mapProblemDetail(problemDetail));
   }
 
+  async cancelOrder(orderNumber: string): Promise<Result<void, ErrorResponse>> {
+    const response = await fetch(`${this.baseUrl}/api/orders/${orderNumber}/cancel`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+
+    if (response.ok || response.status === 204) return success(undefined);
+
+    const problemDetail = (await response.json()) as ProblemDetailResponse;
+    return failure(mapProblemDetail(problemDetail));
+  }
+
   async viewOrder(orderNumber: string): Promise<Result<ViewOrderResponse, ErrorResponse>> {
     const response = await fetch(`${this.baseUrl}/api/orders/${orderNumber}`);
     if (response.ok) {

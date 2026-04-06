@@ -35,4 +35,11 @@ public class OrderController : ControllerBase
         var response = await _orderService.GetOrderAsync(orderNumber);
         return Ok(response);
     }
+
+    [HttpPost("{orderNumber}/cancel")]
+    public async Task<IActionResult> CancelOrder(string orderNumber)
+    {
+        await _orderService.CancelOrderAsync(orderNumber);
+        return NoContent();
+    }
 }

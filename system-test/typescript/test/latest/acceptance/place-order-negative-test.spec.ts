@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { chromium, Browser } from 'playwright';
 import { createScenario, Channel, ExternalSystemMode } from '../../../src/test-setup';
 
@@ -110,6 +111,100 @@ describe('PlaceOrder Negative Test', () => {
         await scenario.close();
       }
     });
+  });
+
+  const emptyCountries = ['', '   '];
+
+  emptyCountries.forEach((country) => {
+    it(`shouldRejectOrderWithEmptyCountry_${channel.toUpperCase()}_"${country}"`, async () => {
+      const scenario = createScenario({ channel, externalSystemMode, browser });
+      try {
+        await scenario
+          .when()
+          .placeOrder()
+          .withQuantity(1)
+          .withCountry(country)
+          .then()
+          .shouldFail()
+          .errorMessage('The request contains one or more validation errors')
+          .fieldErrorMessage('country', 'Country must not be empty');
+      } finally {
+        await scenario.close();
+      }
+    });
+  });
+
+  it(`shouldRejectOrderWithInvalidCountry_${channel.toUpperCase()}`, async () => {
+    const scenario = createScenario({ channel, externalSystemMode, browser });
+    try {
+      await scenario
+        .when()
+        .placeOrder()
+        .withQuantity(1)
+        .withCountry('XX')
+        .then()
+        .shouldFail()
+        .errorMessage('The request contains one or more validation errors')
+        .fieldErrorMessage('country', 'Country does not exist: XX');
+    } finally {
+      await scenario.close();
+    }
+  });
+
+  it(`cannotPlaceOrderWithNonExistentCoupon_${channel.toUpperCase()}`, async () => {
+    const scenario = createScenario({ channel, externalSystemMode, browser });
+    try {
+      await scenario
+        .when()
+        .placeOrder()
+        .withQuantity(1)
+        .withCouponCode('NON-EXISTENT-COUPON')
+        .then()
+        .shouldFail()
+        .errorMessage('The request contains one or more validation errors')
+        .fieldErrorMessage('couponCode', 'Coupon code NON-EXISTENT-COUPON does not exist');
+    } finally {
+      await scenario.close();
+    }
+  });
+
+  it(`cannotPlaceOrderWithCouponThatHasExceededUsageLimit_${channel.toUpperCase()}`, async () => {
+    const scenario = createScenario({ channel, externalSystemMode, browser });
+    try {
+      const couponCode = `LIMITED-${randomUUID().slice(0, 8)}`;
+
+      // First place an order with the coupon to exhaust usage
+      await scenario
+        .given()
+        .coupon()
+        .withCode(couponCode)
+        .withDiscountRate(0.1)
+        .withUsageLimit(1)
+        .when()
+        .placeOrder()
+        .withQuantity(1)
+        .withCouponCode(couponCode)
+        .then()
+        .shouldSucceed();
+
+      // Now try to use same coupon again — should fail
+      const scenario2 = createScenario({ channel: 'api', externalSystemMode });
+      try {
+        await scenario2
+          .when()
+          .placeOrder()
+          .withQuantity(1)
+          .withCouponCode(couponCode)
+          .then()
+          .shouldFail()
+          .errorMessage('The request contains one or more validation errors')
+          .fieldErrorMessage('couponCode', `Coupon code ${couponCode} has exceeded its usage limit`);
+      } finally {
+        await scenario2.close();
+      }
+    } finally {
+      await scenario.close();
+    }
   });
 
   // API-only test: null quantity

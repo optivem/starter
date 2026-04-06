@@ -13,5 +13,9 @@ public interface IGivenOrder : IGivenStep
 
     IGivenOrder WithQuantity(int? quantity);
 
+    IGivenOrder WithCountry(string? country);
+
+    IGivenOrder WithCouponCode(string? couponCode);
+
     IGivenOrder WithStatus(OrderStatus status);
 }

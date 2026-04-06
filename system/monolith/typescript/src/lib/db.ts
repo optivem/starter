@@ -126,6 +126,14 @@ export async function findAllOrders(orderNumberFilter?: string): Promise<OrderRo
   return result.rows;
 }
 
+export async function updateOrderStatus(orderNumber: string, status: string): Promise<void> {
+  await ensureSchema();
+  await pool.query(
+    'UPDATE orders SET status = $1 WHERE order_number = $2',
+    [status, orderNumber]
+  );
+}
+
 export async function insertCoupon(coupon: {
   code: string;
   discountRate: number;

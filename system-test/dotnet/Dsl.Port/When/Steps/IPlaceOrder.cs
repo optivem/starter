@@ -15,4 +15,6 @@ public interface IPlaceOrder : IWhenStep
     IPlaceOrder WithCountry(string? country);
 
     IPlaceOrder WithCouponCode(string? couponCode);
+
+    IPlaceOrder WithCouponCode();
 }

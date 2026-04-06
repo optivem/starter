@@ -1,40 +1,91 @@
+using Common;
 using Dsl.Port.Given.Steps;
 using Dsl.Core.Scenario.Given;
+using static Dsl.Core.Gherkin.GherkinDefaults;
 
 namespace Dsl.Core.Gherkin.Given;
 
 public class GivenCoupon : BaseGiven, IGivenCoupon
 {
-    private string? _code;
-    private decimal _discountRate;
+    private string? _couponCode;
+    private string? _discountRate;
+    private string? _validFrom;
+    private string? _validTo;
+    private string? _usageLimit;
 
-    public GivenCoupon(GivenStage givenClause)
-        : base(givenClause)
+    public GivenCoupon(GivenStage givenClause) : base(givenClause)
     {
+        WithCouponCode(DefaultCouponCode);
+        WithDiscountRate(DefaultDiscountRate);
+        WithValidFrom(Empty);
+        WithValidTo(Empty);
+        WithUsageLimit(Empty);
     }
 
-    public GivenCoupon WithCode(string? code)
+    public GivenCoupon WithCouponCode(string? couponCode)
     {
-        _code = code;
+        _couponCode = couponCode;
         return this;
     }
 
-    IGivenCoupon IGivenCoupon.WithCode(string? code) => WithCode(code);
+    IGivenCoupon IGivenCoupon.WithCouponCode(string? couponCode) => WithCouponCode(couponCode);
 
-    public GivenCoupon WithDiscountRate(decimal discountRate)
+    public GivenCoupon WithDiscountRate(string? discountRate)
     {
         _discountRate = discountRate;
         return this;
     }
 
-    IGivenCoupon IGivenCoupon.WithDiscountRate(decimal discountRate) => WithDiscountRate(discountRate);
+    IGivenCoupon IGivenCoupon.WithDiscountRate(string? discountRate) => WithDiscountRate(discountRate);
+
+    public GivenCoupon WithDiscountRate(decimal? discountRate)
+    {
+        _discountRate = Converter.FromDecimal(discountRate);
+        return this;
+    }
+
+    IGivenCoupon IGivenCoupon.WithDiscountRate(decimal? discountRate) => WithDiscountRate(discountRate);
+
+    public GivenCoupon WithValidFrom(string? validFrom)
+    {
+        _validFrom = validFrom;
+        return this;
+    }
+
+    IGivenCoupon IGivenCoupon.WithValidFrom(string? validFrom) => WithValidFrom(validFrom);
+
+    public GivenCoupon WithValidTo(string? validTo)
+    {
+        _validTo = validTo;
+        return this;
+    }
+
+    IGivenCoupon IGivenCoupon.WithValidTo(string? validTo) => WithValidTo(validTo);
+
+    public GivenCoupon WithUsageLimit(string? usageLimit)
+    {
+        _usageLimit = usageLimit;
+        return this;
+    }
+
+    IGivenCoupon IGivenCoupon.WithUsageLimit(string? usageLimit) => WithUsageLimit(usageLimit);
+
+    public GivenCoupon WithUsageLimit(int? usageLimit)
+    {
+        return WithUsageLimit(Converter.FromInteger(usageLimit));
+    }
+
+    IGivenCoupon IGivenCoupon.WithUsageLimit(int? usageLimit) => WithUsageLimit(usageLimit);
 
     internal override async Task Execute(UseCaseDsl app)
     {
-        var shop = await app.ApiShop();
+        var shop = await app.Shop(Channel);
         (await shop.PublishCoupon()
-            .Code(_code)
+            .CouponCode(_couponCode)
             .DiscountRate(_discountRate)
+            .ValidFrom(_validFrom)
+            .ValidTo(_validTo)
+            .UsageLimit(_usageLimit)
             .Execute())
             .ShouldSucceed();
     }

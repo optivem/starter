@@ -16,6 +16,8 @@ public class HomePage : BasePage
 
     private const string OrderHistoryButtonSelector = "a[href='/order-history']";
 
+    private const string CouponManagementButtonSelector = "a[href='/admin-coupons']";
+
 
 
     public HomePage(PageClient pageClient) : base(pageClient)
@@ -49,6 +51,16 @@ public class HomePage : BasePage
     }
 
 
+
+    public async Task<CouponManagementPage> ClickCouponManagementAsync()
+
+    {
+
+        await PageClient.ClickAsync(CouponManagementButtonSelector);
+
+        return new CouponManagementPage(PageClient);
+
+    }
 
 }
 

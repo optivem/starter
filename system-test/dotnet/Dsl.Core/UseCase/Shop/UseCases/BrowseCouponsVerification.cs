@@ -1,6 +1,7 @@
 using Dsl.Core.Shared;
-using Driver.Port.Shop.Dtos;
 using Shouldly;
+using Driver.Port.Shop.Dtos;
+using Common;
 
 namespace Dsl.Core.Shop.UseCases;
 
@@ -11,6 +12,12 @@ public class BrowseCouponsVerification : ResponseVerification<BrowseCouponsRespo
     {
     }
 
+    public BrowseCouponsVerification HasCouponWithCode(string couponCodeAlias)
+    {
+        FindCouponByCode(couponCodeAlias);
+        return this;
+    }
+
     public BrowseCouponsVerification ContainsCouponWithCode(string expectedCode)
     {
         Response.Coupons.ShouldContain(
@@ -19,10 +26,61 @@ public class BrowseCouponsVerification : ResponseVerification<BrowseCouponsRespo
         return this;
     }
 
+    public BrowseCouponsVerification CouponHasDiscountRate(string couponCodeAlias, decimal expectedDiscountRate)
+    {
+        var coupon = FindCouponByCode(couponCodeAlias);
+        coupon.DiscountRate.ShouldBe(expectedDiscountRate, $"Expected coupon '{couponCodeAlias}' to have discount rate {expectedDiscountRate:F2}");
+        return this;
+    }
+
+    public BrowseCouponsVerification CouponHasValidFrom(string couponCodeAlias, string? expectedValidFrom)
+    {
+        var coupon = FindCouponByCode(couponCodeAlias);
+        DateTime? expectedValidFromDateTime = Converter.ToDateTime(expectedValidFrom);
+        coupon.ValidFrom.ShouldBe(expectedValidFromDateTime, $"Expected coupon '{couponCodeAlias}' to have validFrom '{expectedValidFrom}'");
+        return this;
+    }
+
+    public BrowseCouponsVerification CouponHasValidTo(string couponCodeAlias, string? expectedValidTo)
+    {
+        var coupon = FindCouponByCode(couponCodeAlias);
+        DateTime? expectedValidToDateTime = Converter.ToDateTime(expectedValidTo);
+        coupon.ValidTo.ShouldBe(expectedValidToDateTime, $"Expected coupon '{couponCodeAlias}' to have validTo '{expectedValidTo}'");
+        return this;
+    }
+
+    public BrowseCouponsVerification CouponHasUsageLimit(string couponCodeAlias, int expectedUsageLimit)
+    {
+        var coupon = FindCouponByCode(couponCodeAlias);
+        coupon.UsageLimit.ShouldBe(expectedUsageLimit, $"Expected coupon '{couponCodeAlias}' to have usage limit {expectedUsageLimit}");
+        return this;
+    }
+
+    public BrowseCouponsVerification CouponHasUsedCount(string couponCode, int expectedUsedCount)
+    {
+        var coupon = FindCouponByCode(couponCode);
+        coupon.UsedCount.ShouldBe(expectedUsedCount, $"Expected coupon '{couponCode}' to have used count {expectedUsedCount}");
+        return this;
+    }
+
     public BrowseCouponsVerification CouponCount(int expectedCount)
     {
         Response.Coupons.Count.ShouldBe(expectedCount,
             $"Expected {expectedCount} coupons, but found {Response.Coupons.Count}");
         return this;
+    }
+
+    private CouponDto FindCouponByCode(string couponCodeAlias)
+    {
+        Response.ShouldNotBeNull();
+        Response.Coupons.ShouldNotBeNull("No coupons found in response");
+
+        var couponCode = Context.GetParamValue(couponCodeAlias);
+
+        var coupon = Response.Coupons.FirstOrDefault(c => string.Equals(couponCode, c.Code));
+
+        coupon.ShouldNotBeNull($"Coupon with code '{couponCode}' not found. Available coupons: [{string.Join(", ", Response.Coupons.Select(c => c.Code))}]");
+
+        return coupon;
     }
 }

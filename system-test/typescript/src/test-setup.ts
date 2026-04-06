@@ -6,7 +6,9 @@ import { ErpRealDriver } from './drivers/erp-real-driver';
 import { ErpStubDriver } from './drivers/erp-stub-driver';
 import { ClockRealDriver } from './drivers/clock-real-driver';
 import { ClockStubDriver } from './drivers/clock-stub-driver';
-import { ErpDriver, ClockDriver } from './drivers/types';
+import { TaxRealDriver } from './drivers/tax-real-driver';
+import { TaxStubDriver } from './drivers/tax-stub-driver';
+import { ErpDriver, ClockDriver, TaxDriver } from './drivers/types';
 import { Browser } from 'playwright';
 
 export type Channel = 'api' | 'ui';
@@ -33,6 +35,7 @@ export function createScenario(options: ScenarioOptions = {}): ScenarioDsl {
     shopDriverFactory: (ch) => createShopDriverForChannel(config, ch as Channel, options),
     erpDriver: createErpDriver(config, mode),
     clockDriver: createClockDriver(config, mode),
+    taxDriver: createTaxDriver(config, mode),
   });
 
   return new ScenarioDsl(app);
@@ -54,4 +57,9 @@ function createErpDriver(config: TestConfig, mode: ExternalSystemMode): ErpDrive
 function createClockDriver(config: TestConfig, mode: ExternalSystemMode): ClockDriver {
   if (mode === 'stub') return new ClockStubDriver(config.externalSystems.clock.url);
   return new ClockRealDriver();
+}
+
+function createTaxDriver(config: TestConfig, mode: ExternalSystemMode): TaxDriver {
+  if (mode === 'stub') return new TaxStubDriver(config.externalSystems.tax.url);
+  return new TaxRealDriver(config.externalSystems.tax.url);
 }

@@ -9,6 +9,9 @@
     },
     "clock": {
       "url": "http://localhost:9312/clock"
+    },
+    "tax": {
+      "url": "http://localhost:9312/tax"
     }
   }
 }
