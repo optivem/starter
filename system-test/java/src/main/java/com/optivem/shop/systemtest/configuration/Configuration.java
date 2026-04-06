@@ -14,5 +14,4 @@ public class Configuration {
     private final String taxBaseUrl;
     private final ExternalSystemMode externalSystemMode;
     private final ChannelMode channelMode;
-    private final String staticChannel;
 }

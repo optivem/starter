@@ -13,7 +13,7 @@ public class ConfigurationLoader {
     }
 
     public static Configuration load(Environment environmentMode, ExternalSystemMode externalSystemMode,
-                                     ChannelMode channelMode, String staticChannel) {
+                                     ChannelMode channelMode) {
         var configFile = getConfigFileName(environmentMode, externalSystemMode);
         var config = loadYamlFile(configFile);
 
@@ -24,7 +24,7 @@ public class ConfigurationLoader {
         var taxBaseUrl = getNestedStringValue(config, "test", "tax", "api", BASE_URL);
 
         return new Configuration(shopUiBaseUrl, shopApiBaseUrl, erpBaseUrl, clockBaseUrl, taxBaseUrl,
-                externalSystemMode, channelMode, staticChannel);
+                externalSystemMode, channelMode);
     }
 
     private static String getConfigFileName(Environment environmentMode, ExternalSystemMode externalSystemMode) {

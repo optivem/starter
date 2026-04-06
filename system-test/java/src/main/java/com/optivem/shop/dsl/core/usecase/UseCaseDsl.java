@@ -6,6 +6,7 @@ import com.optivem.shop.dsl.core.usecase.external.clock.ClockDsl;
 import com.optivem.shop.dsl.core.usecase.external.erp.ErpDsl;
 import com.optivem.shop.dsl.core.usecase.external.tax.TaxDsl;
 import com.optivem.shop.dsl.core.usecase.shop.ShopDsl;
+import com.optivem.shop.dsl.channel.ChannelType;
 import com.optivem.shop.dsl.driver.port.external.clock.ClockDriver;
 import com.optivem.shop.dsl.driver.port.external.erp.ErpDriver;
 import com.optivem.shop.dsl.driver.port.external.tax.TaxDriver;
@@ -15,58 +16,38 @@ import com.optivem.shop.dsl.port.ExternalSystemMode;
 import com.optivem.testing.contexts.ChannelContext;
 
 import java.io.Closeable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class UseCaseDsl implements Closeable {
+    private static final String STATIC_CHANNEL = ChannelType.API;
+
     private final UseCaseContext context;
     private final ChannelMode channelMode;
-    private final String staticChannel;
     private final Function<String, ShopDriver> shopDriverFactory;
     private final Supplier<ErpDriver> erpDriverSupplier;
     private final Supplier<ClockDriver> clockDriverSupplier;
     private final Supplier<TaxDriver> taxDriverSupplier;
 
-    private ShopDriver shopDriver;
-    private ShopDriver dynamicShopDriver;
+    private final Map<String, ShopDsl> shops = new HashMap<>();
     private ErpDriver erpDriver;
     private ClockDriver clockDriver;
     private TaxDriver taxDriver;
 
-    private ShopDsl shop;
-    private ShopDsl dynamicShop;
     private ErpDsl erp;
     private ClockDsl clock;
     private TaxDsl tax;
 
     public UseCaseDsl(ExternalSystemMode externalSystemMode,
-                     Function<String, ShopDriver> shopDriverFactory,
-                     Supplier<ErpDriver> erpDriverSupplier,
-                     Supplier<ClockDriver> clockDriverSupplier,
-                     Supplier<TaxDriver> taxDriverSupplier) {
-        this(externalSystemMode, ChannelMode.DYNAMIC, null, shopDriverFactory, erpDriverSupplier, clockDriverSupplier, taxDriverSupplier);
-    }
-
-    public UseCaseDsl(ExternalSystemMode externalSystemMode,
                      ChannelMode channelMode,
-                     String staticChannel,
                      Function<String, ShopDriver> shopDriverFactory,
                      Supplier<ErpDriver> erpDriverSupplier,
                      Supplier<ClockDriver> clockDriverSupplier,
                      Supplier<TaxDriver> taxDriverSupplier) {
-        this(new UseCaseContext(externalSystemMode), channelMode, staticChannel, shopDriverFactory, erpDriverSupplier, clockDriverSupplier, taxDriverSupplier);
-    }
-
-    private UseCaseDsl(UseCaseContext context,
-                      ChannelMode channelMode,
-                      String staticChannel,
-                      Function<String, ShopDriver> shopDriverFactory,
-                      Supplier<ErpDriver> erpDriverSupplier,
-                      Supplier<ClockDriver> clockDriverSupplier,
-                      Supplier<TaxDriver> taxDriverSupplier) {
-        this.context = context;
+        this.context = new UseCaseContext(externalSystemMode);
         this.channelMode = channelMode;
-        this.staticChannel = staticChannel;
         this.shopDriverFactory = shopDriverFactory;
         this.erpDriverSupplier = erpDriverSupplier;
         this.clockDriverSupplier = clockDriverSupplier;
@@ -75,17 +56,7 @@ public class UseCaseDsl implements Closeable {
 
     @Override
     public void close() {
-        if (shop != null) {
-            Closer.close(shop);
-        } else {
-            Closer.close(shopDriver);
-        }
-
-        if (dynamicShop != null && dynamicShop != shop) {
-            Closer.close(dynamicShop);
-        } else if (dynamicShopDriver != null && dynamicShopDriver != shopDriver) {
-            Closer.close(dynamicShopDriver);
-        }
+        shops.values().forEach(Closer::close);
 
         if (erp != null) {
             Closer.close(erp);
@@ -106,28 +77,27 @@ public class UseCaseDsl implements Closeable {
         }
     }
 
-    public ShopDsl shop() {
-        var channel = resolveShopChannel();
-        return getOrCreate(shop, () -> {
-            shopDriver = shopDriverFactory.apply(channel);
-            shop = new ShopDsl(shopDriver, context);
-            return shop;
-        });
+    public ShopDsl shop(ChannelMode mode) {
+        var channel = resolveShopChannel(mode);
+        return getOrCreateShop(channel);
     }
 
-    public ShopDsl shop(ChannelMode mode) {
-        if (mode == ChannelMode.DYNAMIC) {
-            var channel = ChannelContext.get();
-            if (channel.equals(resolveShopChannel())) {
-                return shop();
-            }
-            return getOrCreate(dynamicShop, () -> {
-                dynamicShopDriver = shopDriverFactory.apply(channel);
-                dynamicShop = new ShopDsl(dynamicShopDriver, context);
-                return dynamicShop;
-            });
+    public ShopDsl shop() {
+        return shop(channelMode);
+    }
+
+    private ShopDsl getOrCreateShop(String channel) {
+        return shops.computeIfAbsent(channel, ch ->
+                new ShopDsl(shopDriverFactory.apply(ch), context));
+    }
+
+    private String resolveShopChannel(ChannelMode mode) {
+        if (mode == ChannelMode.STATIC) {
+            return STATIC_CHANNEL;
+        } else if (mode == ChannelMode.DYNAMIC) {
+            return ChannelContext.get();
         }
-        return shop();
+        throw new IllegalStateException("Unknown channel mode: " + mode);
     }
 
     public ErpDsl erp() {
@@ -152,13 +122,6 @@ public class UseCaseDsl implements Closeable {
             tax = new TaxDsl(taxDriver, context);
             return tax;
         });
-    }
-
-    private String resolveShopChannel() {
-        if (channelMode == ChannelMode.STATIC) {
-            return staticChannel;
-        }
-        return ChannelContext.get();
     }
 
     private static <T> T getOrCreate(T instance, Supplier<T> supplier) {
