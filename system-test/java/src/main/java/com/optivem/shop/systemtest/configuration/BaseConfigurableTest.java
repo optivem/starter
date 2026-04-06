@@ -29,19 +29,12 @@ public abstract class BaseConfigurableTest {
         return null;
     }
 
-    protected String getFixedStaticChannel() {
-        return null;
-    }
-
     protected Configuration loadConfiguration() {
         var environment = PropertyLoader.getEnvironment(getFixedEnvironment());
         var externalSystemMode = PropertyLoader.getExternalSystemMode(getFixedExternalSystemMode());
         var channelMode = PropertyLoader.getChannelMode(getFixedChannelMode());
-        var staticChannel = (channelMode == ChannelMode.STATIC)
-                ? PropertyLoader.getStaticChannel(getFixedStaticChannel())
-                : null;
 
-        return ConfigurationLoader.load(environment, externalSystemMode, channelMode, staticChannel);
+        return ConfigurationLoader.load(environment, externalSystemMode, channelMode);
     }
 
     protected UseCaseDsl createUseCaseDsl(Configuration configuration) {
@@ -51,7 +44,6 @@ public abstract class BaseConfigurableTest {
         return new UseCaseDsl(
                 externalSystemMode,
                 configuration.getChannelMode(),
-                configuration.getStaticChannel(),
                 channel -> createShopDriverForChannel(configuration, channel),
                 () -> createErpDriver(configuration),
                 () -> createClockDriver(configuration)

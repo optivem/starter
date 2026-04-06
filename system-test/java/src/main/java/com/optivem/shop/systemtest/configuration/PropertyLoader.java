@@ -36,14 +36,6 @@ public class PropertyLoader {
         return ChannelMode.valueOf(value.toUpperCase());
     }
 
-    public static String getStaticChannel(String fixedStaticChannel) {
-        if (fixedStaticChannel != null) {
-            return fixedStaticChannel;
-        }
-
-        return getRequiredSystemProperty("staticChannel", "UI|API");
-    }
-
     private static String getRequiredSystemProperty(String propertyName, String allowedValues) {
         var value = System.getProperty(propertyName);
         if (value == null || value.isBlank()) {

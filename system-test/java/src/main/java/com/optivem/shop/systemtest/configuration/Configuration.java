@@ -13,5 +13,4 @@ public class Configuration {
     private final String clockBaseUrl;
     private final ExternalSystemMode externalSystemMode;
     private final ChannelMode channelMode;
-    private final String staticChannel;
 }
