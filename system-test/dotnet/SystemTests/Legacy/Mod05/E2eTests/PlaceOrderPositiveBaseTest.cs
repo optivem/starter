@@ -18,7 +18,7 @@ public abstract class PlaceOrderPositiveBaseTest : BaseE2eTest
         (await _erpDriver!.ReturnsProductAsync(new ReturnsProductRequest { Sku = sku, Price = "20.00" })).ShouldBeSuccess();
 
         // WhenStage
-        var placeOrderRequest = new PlaceOrderRequest { Sku = sku, Quantity = "5" };
+        var placeOrderRequest = new PlaceOrderRequest { Sku = sku, Quantity = "5", Country = Defaults.COUNTRY };
         var placeOrderResult = await _shopDriver!.PlaceOrderAsync(placeOrderRequest);
         placeOrderResult.ShouldBeSuccess();
 

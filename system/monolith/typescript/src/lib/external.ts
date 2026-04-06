@@ -16,7 +16,7 @@ export async function getCurrentTime(): Promise<Date> {
 
 async function getStubTime(): Promise<Date> {
   const url = `${CLOCK_API_URL()}/api/time`;
-  const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
+  const response = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(10000) });
   if (!response.ok) {
     throw new Error(`Failed to fetch current time: ${response.status}`);
   }
@@ -36,7 +36,7 @@ export interface PromotionDetails {
 
 export async function getPromotionDetails(): Promise<PromotionDetails> {
   const url = `${ERP_API_URL()}/api/promotion`;
-  const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
+  const response = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(10000) });
   if (!response.ok) {
     throw new Error(`Failed to fetch promotion details: ${response.status}`);
   }
@@ -46,7 +46,7 @@ export async function getPromotionDetails(): Promise<PromotionDetails> {
 
 export async function getProductDetails(sku: string): Promise<ProductDetails | null> {
   const url = `${ERP_API_URL()}/api/products/${encodeURIComponent(sku)}`;
-  const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
+  const response = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(10000) });
   if (response.status === 404) {
     return null;
   }
@@ -65,7 +65,7 @@ export interface TaxDetails {
 
 export async function getTaxDetails(country: string): Promise<TaxDetails | null> {
   const url = `${TAX_API_URL()}/api/countries/${encodeURIComponent(country)}`;
-  const response = await fetch(url, { signal: AbortSignal.timeout(10000) });
+  const response = await fetch(url, { cache: 'no-store', signal: AbortSignal.timeout(10000) });
   if (response.status === 404) {
     return null;
   }

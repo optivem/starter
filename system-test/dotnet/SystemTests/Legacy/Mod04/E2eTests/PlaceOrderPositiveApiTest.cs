@@ -24,7 +24,7 @@ public class PlaceOrderPositiveApiTest : BaseE2eTest
         (await _erpClient!.CreateProductAsync(new ExtCreateProductRequest { Id = sku, Title = "Test Product", Description = "Test Description", Category = "Test Category", Brand = "Test Brand", Price = "20.00" })).ShouldBeSuccess();
 
         // WhenStage
-        var placeOrderRequest = new PlaceOrderRequest { Sku = sku, Quantity = "5" };
+        var placeOrderRequest = new PlaceOrderRequest { Sku = sku, Quantity = "5", Country = Defaults.COUNTRY };
         var placeOrderResult = await _shopApiClient!.Orders().PlaceOrderAsync(placeOrderRequest);
         placeOrderResult.ShouldBeSuccess();
 

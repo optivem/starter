@@ -28,6 +28,7 @@ public class PlaceOrderPositiveUiTest : BaseE2eTest
         var newOrderPage = await homePage.ClickNewOrderAsync();
         await newOrderPage.InputSkuAsync(sku);
         await newOrderPage.InputQuantityAsync("5");
+        await newOrderPage.InputCountryAsync(Defaults.COUNTRY);
         await newOrderPage.ClickPlaceOrderAsync();
 
         var placeOrderResult = await newOrderPage.GetResultAsync();

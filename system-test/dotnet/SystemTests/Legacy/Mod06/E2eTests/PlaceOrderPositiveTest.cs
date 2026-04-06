@@ -32,6 +32,7 @@ public class PlaceOrderPositiveTest : BaseE2eTest
         {
             Sku = sku,
             Quantity = "5",
+            Country = Defaults.COUNTRY,
         };
         var placeOrderResult = await _shopDriver!.PlaceOrderAsync(placeOrderRequest);
         placeOrderResult.ShouldBeSuccess();
