@@ -32,7 +32,7 @@ public class OrderService
     {
         var sku = request.Sku!;
         var quantity = request.Quantity!.Value;
-        var country = !string.IsNullOrWhiteSpace(request.Country) ? request.Country : "US";
+        var country = request.Country!;
         var couponCode = request.CouponCode;
 
         var orderTimestamp = await _clockGateway.GetCurrentTimeAsync();
