@@ -1,5 +1,6 @@
 using Common;
 using Dsl.Core.Scenario.When.Steps.Base;
+using Dsl.Port;
 using Dsl.Port.When.Steps;
 using Dsl.Core.Shared;
 using Driver.Adapter;
@@ -34,7 +35,7 @@ public class WhenPublishCoupon : BaseWhen<VoidValue, VoidVerification>, IPublish
 
     protected override async Task<ExecutionResult<VoidValue, VoidVerification>> Execute(UseCaseDsl app)
     {
-        var shop = await app.ApiShop();
+        var shop = await app.Shop(ChannelMode.Dynamic, Channel);
         var result = await shop.PublishCoupon()
             .Code(_code)
             .DiscountRate(_discountRate)

@@ -1,19 +1,17 @@
 import { loadConfiguration, TestConfig } from '../config/configuration-loader';
-import { ScenarioDsl, AppContext } from './dsl/scenario-dsl';
+import { ScenarioDsl, AppContext, ChannelMode } from './dsl/scenario-dsl';
 import { ShopApiDriver } from './drivers/shop-api-driver';
 import { ShopUiDriver } from './drivers/shop-ui-driver';
 import { ErpRealDriver } from './drivers/erp-real-driver';
 import { ErpStubDriver } from './drivers/erp-stub-driver';
 import { ClockRealDriver } from './drivers/clock-real-driver';
 import { ClockStubDriver } from './drivers/clock-stub-driver';
-import { ShopDriver, ErpDriver, ClockDriver } from './drivers/types';
+import { ErpDriver, ClockDriver } from './drivers/types';
 import { Browser } from 'playwright';
 
 export type Channel = 'api' | 'ui';
-export type ChannelMode = 'dynamic' | 'static';
+export { ChannelMode } from './dsl/scenario-dsl';
 export type ExternalSystemMode = 'real' | 'stub';
-
-const STATIC_CHANNEL: Channel = 'api';
 
 export interface ScenarioOptions {
   channel?: Channel;
@@ -26,21 +24,17 @@ export function createScenario(options: ScenarioOptions = {}): ScenarioDsl {
   const mode = options.externalSystemMode || 'real';
   const config = loadConfiguration({ externalSystemMode: mode });
 
-  const channelMode = options.channelMode || (process.env.CHANNEL_MODE?.toLowerCase() as ChannelMode) || 'dynamic';
+  const channelMode: ChannelMode = options.channelMode || (process.env.CHANNEL_MODE?.toLowerCase() as ChannelMode) || 'dynamic';
+  const channel = options.channel || 'api';
 
-  const actionShopDriver = createShopDriverForChannel(config, options.channel || 'api', options);
+  const app = new AppContext({
+    channelMode,
+    channel,
+    shopDriverFactory: (ch) => createShopDriverForChannel(config, ch as Channel, options),
+    erpDriver: createErpDriver(config, mode),
+    clockDriver: createClockDriver(config, mode),
+  });
 
-  let shopDriver: ShopDriver;
-  if (channelMode === 'static') {
-    shopDriver = createShopDriverForChannel(config, STATIC_CHANNEL, options);
-  } else {
-    shopDriver = actionShopDriver;
-  }
-
-  const erpDriver = createErpDriver(config, mode);
-  const clockDriver = createClockDriver(config, mode);
-
-  const app: AppContext = { shopDriver, actionShopDriver, erpDriver, clockDriver };
   return new ScenarioDsl(app);
 }
 

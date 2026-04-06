@@ -5,6 +5,7 @@ import com.optivem.shop.dsl.core.scenario.ExecutionResult;
 import com.optivem.shop.dsl.core.scenario.ExecutionResultBuilder;
 import com.optivem.shop.dsl.core.usecase.UseCaseDsl;
 import com.optivem.shop.dsl.core.shared.VoidVerification;
+import com.optivem.shop.dsl.port.ChannelMode;
 import com.optivem.shop.dsl.port.when.steps.WhenPublishCoupon;
 
 public class WhenPublishCouponImpl extends BaseWhenStep<Void, VoidVerification> implements WhenPublishCoupon {
@@ -34,7 +35,7 @@ public class WhenPublishCouponImpl extends BaseWhenStep<Void, VoidVerification> 
 
     @Override
     protected ExecutionResult<Void, VoidVerification> execute(UseCaseDsl app) {
-        var result = app.shop().publishCoupon()
+        var result = app.shop(ChannelMode.DYNAMIC).publishCoupon()
                 .withCode(code)
                 .withDiscountRate(discountRate)
                 .execute();

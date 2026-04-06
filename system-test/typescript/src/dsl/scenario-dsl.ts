@@ -10,11 +10,48 @@ import { DEFAULTS } from './defaults';
 
 // --- App Context ---
 
-export interface AppContext {
-  shopDriver: ShopDriver;
-  actionShopDriver: ShopDriver;
-  erpDriver: ErpDriver;
-  clockDriver: ClockDriver;
+export type ChannelMode = 'dynamic' | 'static';
+
+const STATIC_CHANNEL = 'api';
+
+export class AppContext {
+  private readonly shops = new Map<string, ShopDriver>();
+  private readonly channelMode: ChannelMode;
+  private readonly channel: string;
+  private readonly shopDriverFactory: (channel: string) => ShopDriver;
+  readonly erpDriver: ErpDriver;
+  readonly clockDriver: ClockDriver;
+
+  constructor(opts: {
+    channelMode: ChannelMode;
+    channel: string;
+    shopDriverFactory: (channel: string) => ShopDriver;
+    erpDriver: ErpDriver;
+    clockDriver: ClockDriver;
+  }) {
+    this.channelMode = opts.channelMode;
+    this.channel = opts.channel;
+    this.shopDriverFactory = opts.shopDriverFactory;
+    this.erpDriver = opts.erpDriver;
+    this.clockDriver = opts.clockDriver;
+  }
+
+  shop(mode?: ChannelMode): ShopDriver {
+    const resolvedMode = mode ?? this.channelMode;
+    const channel = resolvedMode === 'static' ? STATIC_CHANNEL : this.channel;
+    if (!this.shops.has(channel)) {
+      this.shops.set(channel, this.shopDriverFactory(channel));
+    }
+    return this.shops.get(channel)!;
+  }
+
+  async closeAll(): Promise<void> {
+    for (const driver of this.shops.values()) {
+      await driver.close();
+    }
+    await this.erpDriver.close();
+    await this.clockDriver.close();
+  }
 }
 
 // --- Scenario Context (shared state across stages) ---
@@ -65,12 +102,7 @@ export class ScenarioDsl {
   }
 
   async close(): Promise<void> {
-    await this.app.shopDriver.close();
-    if (this.app.actionShopDriver !== this.app.shopDriver) {
-      await this.app.actionShopDriver.close();
-    }
-    await this.app.erpDriver.close();
-    await this.app.clockDriver.close();
+    await this.app.closeAll();
   }
 }
 
@@ -81,7 +113,7 @@ class AssumeStage {
 
   shop(): AssumeRunning {
     return new AssumeRunning(async () => {
-      const result = await this.app.shopDriver.goToShop();
+      const result = await this.app.shop().goToShop();
       expect(result.success).toBe(true);
     });
   }
@@ -431,10 +463,10 @@ class ThenResultStage implements PromiseLike<void> {
     }
 
     for (const cc of this.ctx.couponConfigs) {
-      await this.app.shopDriver.publishCoupon({ code: cc.code, discountRate: cc.discountRate });
+      await this.app.shop().publishCoupon({ code: cc.code, discountRate: cc.discountRate });
     }
 
-    const result = await this.app.actionShopDriver.placeOrder({
+    const result = await this.app.shop('dynamic').placeOrder({
       sku: this.sku,
       quantity: this.quantity,
       country: this.country,
@@ -446,7 +478,7 @@ class ThenResultStage implements PromiseLike<void> {
       if (!result.success) return;
 
       if (this._orderAssertions.length > 0) {
-        const orderResult = await this.app.shopDriver.viewOrder(result.value.orderNumber);
+        const orderResult = await this.app.shop().viewOrder(result.value.orderNumber);
         expect(orderResult.success).toBe(true);
         if (orderResult.success) {
           for (const fn of this._orderAssertions) fn(orderResult.value);
@@ -509,7 +541,7 @@ class ThenPublishCouponResultStage implements PromiseLike<void> {
   }
 
   private async _doExecute(): Promise<void> {
-    const result = await this.app.shopDriver.publishCoupon({ code: this.code, discountRate: this.discountRate });
+    const result = await this.app.shop('dynamic').publishCoupon({ code: this.code, discountRate: this.discountRate });
 
     if (this._expectSuccess) {
       expect(result.success).toBe(true);
@@ -597,10 +629,10 @@ class ThenBrowseCouponsResultStage implements PromiseLike<void> {
 
   private async _doExecute(): Promise<void> {
     for (const cc of this.ctx.couponConfigs) {
-      await this.app.shopDriver.publishCoupon({ code: cc.code, discountRate: cc.discountRate });
+      await this.app.shop().publishCoupon({ code: cc.code, discountRate: cc.discountRate });
     }
 
-    const result = await this.app.shopDriver.browseCoupons();
+    const result = await this.app.shop('dynamic').browseCoupons();
     expect(result.success).toBe(true);
     if (result.success) {
       this._browseResult = result.value;
