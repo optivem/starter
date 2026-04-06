@@ -1,4 +1,5 @@
 using Dsl.Core.Scenario.When.Steps.Base;
+using Dsl.Port;
 using Dsl.Port.When.Steps;
 using Dsl.Core.Shared;
 using Driver.Adapter;
@@ -16,7 +17,7 @@ public class WhenBrowseCoupons : BaseWhen<BrowseCouponsResponse, BrowseCouponsVe
 
     protected override async Task<ExecutionResult<BrowseCouponsResponse, BrowseCouponsVerification>> Execute(UseCaseDsl app)
     {
-        var shop = await app.ApiShop();
+        var shop = await app.Shop(ChannelMode.Dynamic, Channel);
         var result = await shop.BrowseCoupons()
             .Execute();
 
