@@ -48,7 +48,7 @@ $Config = @{
         # === Acceptance Tests Isolated (stub) - UI ===
         @{  Id = "acceptance-isolated-ui";
             Name = "latest - Acceptance Isolated (stub) - UI";
-            Command = "& .\gradlew.bat test -Dversion=latest -Dtype=acceptance -DincludeTags=isolated -Dchannel=UI -Denvironment=local";
+            Command = "& .\gradlew.bat test -Dversion=latest -Dtype=acceptance -DincludeTags=isolated -Dchannel=UI -Denvironment=local -DchannelMode=static";
             Path = ".";
             TestReportPath = "build\reports\tests\test\index.html";
             TestInstallCommands = $null; },
@@ -88,7 +88,7 @@ $Config = @{
         # === E2E Tests (real) - UI ===
         @{  Id = "e2e-ui";
             Name = "latest - E2E (real) - UI";
-            Command = "& .\gradlew.bat test -Dversion=latest -Dtype=e2e -Dchannel=UI -Denvironment=local";
+            Command = "& .\gradlew.bat test -Dversion=latest -Dtype=e2e -Dchannel=UI -Denvironment=local -DchannelMode=static";
             Path = ".";
             TestReportPath = "build\reports\tests\test\index.html";
             TestInstallCommands = $null; }

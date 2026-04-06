@@ -15,10 +15,10 @@ export async function POST(
     const utcDay = now.getUTCDate();
 
     if (utcMonth === 11 && utcDay === 31) {
-      const utcHour = now.getUTCHours();
-      const utcMinute = now.getUTCMinutes();
+      const blackoutStart = new Date(Date.UTC(now.getUTCFullYear(), 11, 31, 22, 0, 0));
+      const blackoutEnd = new Date(Date.UTC(now.getUTCFullYear(), 11, 31, 22, 30, 0));
 
-      if (utcHour === 22 && utcMinute <= 30) {
+      if (now >= blackoutStart && now <= blackoutEnd) {
         return generalValidationErrorResponse(
           'Order cancellation is not allowed on December 31st between 22:00 and 23:00'
         );
