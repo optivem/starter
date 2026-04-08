@@ -1,6 +1,5 @@
 package com.optivem.shop.dsl.driver.adapter.shop.api.client.controllers;
 
-import com.optivem.shop.dsl.common.Converter;
 import com.optivem.shop.dsl.driver.adapter.shop.api.client.dtos.errors.ProblemDetailResponse;
 import com.optivem.shop.dsl.driver.adapter.shared.client.http.JsonHttpClient;
 import com.optivem.shop.dsl.driver.port.shop.dtos.BrowseCouponsResponse;
@@ -17,13 +16,7 @@ public class CouponController {
     }
 
     public Result<Void, ProblemDetailResponse> publishCoupon(PublishCouponRequest request) {
-        var body = new java.util.HashMap<String, Object>();
-        body.put("code", request.getCode());
-        body.put("discountRate", Converter.toBigDecimal(request.getDiscountRate()));
-        body.put("validFrom", request.getValidFrom());
-        body.put("validTo", request.getValidTo());
-        body.put("usageLimit", request.getUsageLimit());
-        return httpClient.post(ENDPOINT, body);
+        return httpClient.post(ENDPOINT, request);
     }
 
     public Result<BrowseCouponsResponse, ProblemDetailResponse> browseCoupons() {
