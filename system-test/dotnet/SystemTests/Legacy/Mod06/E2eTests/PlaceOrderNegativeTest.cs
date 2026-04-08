@@ -21,6 +21,7 @@ public class PlaceOrderNegativeTest : BaseE2eTest
         {
             Sku = CreateUniqueSku(Defaults.SKU),
             Quantity = "3.5",
+            Country = Defaults.COUNTRY,
         };
 
         var result = await _shopDriver!.PlaceOrderAsync(request);
