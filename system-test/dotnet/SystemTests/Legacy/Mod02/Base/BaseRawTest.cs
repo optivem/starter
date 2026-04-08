@@ -17,6 +17,7 @@ public abstract class BaseRawTest : BaseConfigurableTest, IAsyncLifetime
     protected HttpClient? _shopApiHttpClient;
 
     protected HttpClient? _erpHttpClient;
+    protected HttpClient? _taxHttpClient;
 
     protected JsonSerializerOptions? _httpObjectMapper;
 
@@ -64,6 +65,7 @@ public abstract class BaseRawTest : BaseConfigurableTest, IAsyncLifetime
     protected void SetUpExternalHttpClients()
     {
         _erpHttpClient = new HttpClient();
+        _taxHttpClient = new HttpClient();
         _httpObjectMapper = CreateObjectMapper();
     }
 
@@ -87,6 +89,7 @@ public abstract class BaseRawTest : BaseConfigurableTest, IAsyncLifetime
 
         _shopApiHttpClient?.Dispose();
         _erpHttpClient?.Dispose();
+        _taxHttpClient?.Dispose();
     }
 }
 

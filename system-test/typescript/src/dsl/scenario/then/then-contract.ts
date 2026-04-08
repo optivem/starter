@@ -1,0 +1,177 @@
+import { GetTimeResponse, GetProductResponse, GetTaxResponse } from '../../../common/dtos';
+import { AppContext } from '../app-context';
+import { ScenarioContext } from '../scenario-context';
+
+export class ThenContractStage implements PromiseLike<void> {
+  private _clockAssertions: ((time: GetTimeResponse) => void)[] = [];
+  private _productAssertions: Map<string, ((product: GetProductResponse) => void)[]> = new Map();
+  private _countryAssertions: Map<string, ((tax: GetTaxResponse) => void)[]> = new Map();
+  private _executionPromise: Promise<void> | null = null;
+
+  constructor(
+    private readonly app: AppContext,
+    private readonly ctx: ScenarioContext,
+  ) {}
+
+  clock(): ThenContractClock {
+    return new ThenContractClock(this);
+  }
+
+  product(sku: string): ThenContractProduct {
+    return new ThenContractProduct(this, sku);
+  }
+
+  country(countryCode: string): ThenContractCountry {
+    return new ThenContractCountry(this, countryCode);
+  }
+
+  _addClockAssertion(fn: (time: GetTimeResponse) => void): void {
+    this._clockAssertions.push(fn);
+  }
+
+  _addProductAssertion(sku: string, fn: (product: GetProductResponse) => void): void {
+    if (!this._productAssertions.has(sku)) this._productAssertions.set(sku, []);
+    this._productAssertions.get(sku)!.push(fn);
+  }
+
+  _addCountryAssertion(country: string, fn: (tax: GetTaxResponse) => void): void {
+    if (!this._countryAssertions.has(country)) this._countryAssertions.set(country, []);
+    this._countryAssertions.get(country)!.push(fn);
+  }
+
+  private async execute(): Promise<void> {
+    if (this._executionPromise) return this._executionPromise;
+    this._executionPromise = this._doExecute();
+    return this._executionPromise;
+  }
+
+  private async _doExecute(): Promise<void> {
+    if (this.ctx.clockConfig) {
+      await this.app.clockDriver.returnsTime({ time: this.ctx.clockConfig.time });
+    }
+
+    for (const pc of this.ctx.productConfigs) {
+      await this.app.erpDriver.returnsProduct({ sku: pc.sku, price: pc.price });
+    }
+
+    for (const cc of this.ctx.countryConfigs) {
+      await this.app.taxDriver.returnsTaxRate({ country: cc.country, taxRate: cc.taxRate });
+    }
+
+    if (this._clockAssertions.length > 0) {
+      const timeResult = await this.app.clockDriver.getTime();
+      expect(timeResult.success).toBe(true);
+      if (timeResult.success) {
+        for (const fn of this._clockAssertions) fn(timeResult.value);
+      }
+    }
+
+    for (const [sku, assertions] of this._productAssertions) {
+      const productResult = await this.app.erpDriver.getProduct(sku);
+      expect(productResult.success).toBe(true);
+      if (productResult.success) {
+        for (const fn of assertions) fn(productResult.value);
+      }
+    }
+
+    for (const [countryCode, assertions] of this._countryAssertions) {
+      const taxResult = await this.app.taxDriver.getTaxRate(countryCode);
+      expect(taxResult.success).toBe(true);
+      if (taxResult.success) {
+        for (const fn of assertions) fn(taxResult.value);
+      }
+    }
+  }
+
+  then<TResult1 = void, TResult2 = never>(
+    onfulfilled?: ((value: void) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.execute().then(onfulfilled, onrejected);
+  }
+}
+
+export class ThenContractClock implements PromiseLike<void> {
+  constructor(private readonly stage: ThenContractStage) {}
+
+  hasTime(time?: string): ThenContractClock {
+    this.stage._addClockAssertion((t) => {
+      if (time) {
+        expect(t.time).toContain(time);
+      } else {
+        expect(t.time).toBeTruthy();
+      }
+    });
+    return this;
+  }
+
+  then<TResult1 = void, TResult2 = never>(
+    onfulfilled?: ((value: void) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.stage.then(onfulfilled, onrejected);
+  }
+}
+
+export class ThenContractProduct implements PromiseLike<void> {
+  constructor(
+    private readonly stage: ThenContractStage,
+    private readonly sku: string,
+  ) {}
+
+  hasSku(expectedSku: string): ThenContractProduct {
+    this.stage._addProductAssertion(this.sku, (p) => {
+      expect(p.sku).toBe(expectedSku);
+    });
+    return this;
+  }
+
+  hasPrice(price: number): ThenContractProduct {
+    this.stage._addProductAssertion(this.sku, (p) => {
+      expect(p.price).toBe(price);
+    });
+    return this;
+  }
+
+  then<TResult1 = void, TResult2 = never>(
+    onfulfilled?: ((value: void) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.stage.then(onfulfilled, onrejected);
+  }
+}
+
+export class ThenContractCountry implements PromiseLike<void> {
+  constructor(
+    private readonly stage: ThenContractStage,
+    private readonly countryCode: string,
+  ) {}
+
+  hasCountry(expected: string): ThenContractCountry {
+    this.stage._addCountryAssertion(this.countryCode, (t) => {
+      expect(t.country).toBe(expected);
+    });
+    return this;
+  }
+
+  hasTaxRate(rate: number): ThenContractCountry {
+    this.stage._addCountryAssertion(this.countryCode, (t) => {
+      expect(t.taxRate).toBe(rate);
+    });
+    return this;
+  }
+
+  hasTaxRateIsPositive(): ThenContractCountry {
+    this.stage._addCountryAssertion(this.countryCode, (t) => {
+      expect(t.taxRate).toBeGreaterThan(0);
+    });
+    return this;
+  }
+
+  then<TResult1 = void, TResult2 = never>(
+    onfulfilled?: ((value: void) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.stage.then(onfulfilled, onrejected);
+  }
+}

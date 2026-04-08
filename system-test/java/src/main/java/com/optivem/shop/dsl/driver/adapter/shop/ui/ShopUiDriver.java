@@ -98,6 +98,25 @@ public class ShopUiDriver implements ShopDriver {
     }
 
     @Override
+    public Result<Void, ErrorResponse> deliverOrder(String orderNumber) {
+        var viewResult = viewOrder(orderNumber);
+
+        if (viewResult.isFailure()) {
+            return viewResult.mapVoid();
+        }
+
+        orderDetailsPage.clickDeliverOrder();
+
+        var result = orderDetailsPage.getResult();
+
+        if (result.isFailure()) {
+            return result.mapVoid();
+        }
+
+        return success();
+    }
+
+    @Override
     public Result<ViewOrderResponse, ErrorResponse> viewOrder(String orderNumber) {
         var result = ensureOnOrderDetailsPage(orderNumber);
         if (result.isFailure()) {

@@ -51,11 +51,12 @@ public class OrderService
         var unitPrice = await GetUnitPriceAsync(sku);
         var promotion = await _erpGateway.GetPromotionDetailsAsync();
         var promotionFactor = promotion.PromotionActive ? promotion.Discount : 1.0m;
-        var basePrice = unitPrice * quantity * promotionFactor;
+        var basePrice = unitPrice * quantity;
+        var promotedPrice = basePrice * promotionFactor;
 
         var discountRate = await _couponService.GetDiscountAsync(couponCode);
-        var discountAmount = basePrice * discountRate;
-        var subtotalPrice = basePrice - discountAmount;
+        var discountAmount = promotedPrice * discountRate;
+        var subtotalPrice = promotedPrice - discountAmount;
 
         var taxRate = await GetTaxRateAsync(country);
         var taxAmount = subtotalPrice * taxRate;
@@ -115,6 +116,25 @@ public class OrderService
         }
 
         return taxDetails.TaxRate;
+    }
+
+    public async Task DeliverOrderAsync(string orderNumber)
+    {
+        var order = await _dbContext.Orders
+            .FirstOrDefaultAsync(o => o.OrderNumber == orderNumber);
+
+        if (order == null)
+        {
+            throw new NotExistValidationException($"Order {orderNumber} does not exist.");
+        }
+
+        if (order.Status != OrderStatus.PLACED)
+        {
+            throw new ValidationException("Order cannot be delivered in its current status");
+        }
+
+        order.Status = OrderStatus.DELIVERED;
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task CancelOrderAsync(string orderNumber)

@@ -21,6 +21,7 @@ public class OrderDetailsPage : BasePage
     private const string StatusOutputSelector = "[aria-label='Display Status']";
     private const string AppliedCouponOutputSelector = "[aria-label='Display Applied Coupon']";
     private const string CancelOrderOutputSelector = "[aria-label='Cancel Order']";
+    private const string DeliverOrderOutputSelector = "[aria-label='Deliver Order']";
 
     // Display text constants
     private const string TextNone = "None";
@@ -121,6 +122,11 @@ public class OrderDetailsPage : BasePage
     public async Task ClickCancelOrderAsync()
     {
         await PageClient.ClickAsync(CancelOrderOutputSelector);
+    }
+
+    public async Task ClickDeliverOrderAsync()
+    {
+        await PageClient.ClickAsync(DeliverOrderOutputSelector);
     }
 
     public async Task<bool> IsCancelButtonHiddenAsync()

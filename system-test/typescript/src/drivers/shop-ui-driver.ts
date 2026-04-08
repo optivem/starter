@@ -87,6 +87,12 @@ class OrderDetailsPage {
     await cancelButton.click({ timeout: TIMEOUT });
   }
 
+  async clickDeliverOrder(): Promise<void> {
+    const deliverButton = this.page.locator('[aria-label="Deliver Order"]');
+    await deliverButton.waitFor({ state: 'visible', timeout: TIMEOUT });
+    await deliverButton.click({ timeout: TIMEOUT });
+  }
+
   async getOrderNumber(): Promise<string> {
     return (
       (await this.page.locator("[aria-label='Display Order Number']").textContent({ timeout: TIMEOUT }))?.trim() || ''
@@ -203,7 +209,7 @@ export class ShopUiDriver implements ShopDriver {
     if (request.quantity !== null) {
       await newOrderPage.fillQuantity(request.quantity);
     }
-    if (request.country) {
+    if (request.country !== undefined && request.country !== null) {
       await newOrderPage.fillCountry(request.country);
     }
     if (request.couponCode) {
@@ -269,6 +275,32 @@ export class ShopUiDriver implements ShopDriver {
     const detailsPage = new OrderDetailsPage(this.page!);
     await detailsPage.waitForLoad();
     await detailsPage.clickCancelOrder();
+
+    const notificationResult = await getNotification(this.page!);
+    if (notificationResult.success) {
+      return success(undefined);
+    }
+    return failure(notificationResult.error);
+  }
+
+  async deliverOrder(orderNumber: string): Promise<Result<void, ErrorResponse>> {
+    if (!this.page) {
+      const goResult = await this.goToShop();
+      if (!goResult.success) return failure(goResult.error);
+    }
+
+    await this.page!.goto(this.baseUrl);
+    const homePage = new HomePage(this.page!);
+    await homePage.clickOrderHistory();
+
+    const orderHistoryPage = new OrderHistoryPage(this.page!);
+    await orderHistoryPage.fillOrderNumber(orderNumber);
+    await orderHistoryPage.clickSearch();
+    await orderHistoryPage.clickViewOrderDetails(orderNumber);
+
+    const detailsPage = new OrderDetailsPage(this.page!);
+    await detailsPage.waitForLoad();
+    await detailsPage.clickDeliverOrder();
 
     const notificationResult = await getNotification(this.page!);
     if (notificationResult.success) {

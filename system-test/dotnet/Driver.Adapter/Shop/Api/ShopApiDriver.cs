@@ -48,6 +48,10 @@ public class ShopApiDriver : IShopDriver
         => _apiClient.Orders().CancelOrderAsync(orderNumber)
             .MapErrorAsync(MapError);
 
+    public Task<Result<VoidValue, SystemError>> DeliverOrderAsync(string? orderNumber)
+        => _apiClient.Orders().DeliverOrderAsync(orderNumber)
+            .MapErrorAsync(MapError);
+
     public Task<Result<ViewOrderResponse, SystemError>> ViewOrderAsync(string? orderNumber)
         => _apiClient.Orders().ViewOrderAsync(orderNumber)
             .MapErrorAsync(MapError);

@@ -19,7 +19,7 @@ export function useOrderForm() {
     sku: '',
     quantity: 0,
     quantityValue: '',
-    country: '',
+    country: 'US',
     couponCode: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,6 +46,10 @@ export function useOrderForm() {
       }
     }
 
+
+    if (!data.country) {
+      errors.push({ field: 'country', message: 'Country must not be empty' });
+    }
 
     return errors;
   };
@@ -96,7 +100,7 @@ export function useOrderForm() {
       sku: '',
       quantity: 0,
       quantityValue: '',
-      country: '',
+      country: 'US',
       couponCode: '',
     });
   };

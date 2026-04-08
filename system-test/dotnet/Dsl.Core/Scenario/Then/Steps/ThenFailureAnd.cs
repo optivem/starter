@@ -44,6 +44,27 @@ public class ThenFailureAnd<TSuccessResponse, TSuccessVerification>
     }
 
     async Task<IThenProduct> IThenFailureAnd.Product(string skuAlias) => await Product(skuAlias);
+
+    public ThenFailureCoupon<TSuccessResponse, TSuccessVerification> Coupon(string couponCode)
+    {
+        return new ThenFailureCoupon<TSuccessResponse, TSuccessVerification>(
+            _thenClause, _failureAssertions, () => Task.FromResult(couponCode));
+    }
+
+    public ThenFailureCoupon<TSuccessResponse, TSuccessVerification> Coupon()
+    {
+        return new ThenFailureCoupon<TSuccessResponse, TSuccessVerification>(
+            _thenClause, _failureAssertions,
+            async () =>
+            {
+                var result = await _thenClause.GetExecutionResult();
+                return result.CouponCode ?? throw new InvalidOperationException("Cannot verify coupon: no coupon code available from the executed operation");
+            });
+    }
+
+    IThenCoupon IThenFailureAnd.Coupon(string couponCode) => Coupon(couponCode);
+
+    IThenCoupon IThenFailureAnd.Coupon() => Coupon();
 }
 
 

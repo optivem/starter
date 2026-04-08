@@ -6,6 +6,7 @@ using Driver.Adapter.Shop.Ui;
 using Dsl.Core.Shop;
 using Driver.Port.Shop;
 using Driver.Adapter.External.Erp;
+using Driver.Adapter.External.Tax;
 using Optivem.Testing;
 using Xunit;
 
@@ -16,6 +17,7 @@ public abstract class BaseChannelDriverTest : BaseConfigurableTest, IAsyncLifeti
 {
     protected IShopDriver? _shopDriver;
     protected ErpRealDriver? _erpDriver;
+    protected TaxRealDriver? _taxDriver;
 
     public virtual async Task InitializeAsync()
     {
@@ -38,6 +40,7 @@ public abstract class BaseChannelDriverTest : BaseConfigurableTest, IAsyncLifeti
         }
 
         _erpDriver = new ErpRealDriver(configuration.ErpBaseUrl);
+        _taxDriver = new TaxRealDriver(configuration.TaxBaseUrl);
     }
 
     public virtual async Task DisposeAsync()
@@ -46,6 +49,7 @@ public abstract class BaseChannelDriverTest : BaseConfigurableTest, IAsyncLifeti
             await _shopDriver.DisposeAsync();
 
         _erpDriver?.Dispose();
+        _taxDriver?.Dispose();
     }
 
     protected async Task SetChannelAsync(Channel channel)

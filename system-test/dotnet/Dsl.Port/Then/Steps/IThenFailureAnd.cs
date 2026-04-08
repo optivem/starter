@@ -9,4 +9,8 @@ public interface IThenFailureAnd
     Task<IThenClock> Clock();
 
     Task<IThenProduct> Product(string skuAlias);
+
+    IThenCoupon Coupon(string couponCode);
+
+    IThenCoupon Coupon();
 }

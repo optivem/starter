@@ -42,3 +42,7 @@ body {
 .status-PLACED {
     color: #198754;
 }
+
+.status-DELIVERED {
+    color: #0d6efd;
+}

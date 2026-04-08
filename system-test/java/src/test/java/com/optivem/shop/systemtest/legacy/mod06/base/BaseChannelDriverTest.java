@@ -3,6 +3,7 @@ package com.optivem.shop.systemtest.legacy.mod06.base;
 import com.optivem.shop.systemtest.configuration.BaseConfigurableTest;
 import com.optivem.shop.systemtest.configuration.Configuration;
 import com.optivem.shop.dsl.driver.adapter.external.erp.ErpRealDriver;
+import com.optivem.shop.dsl.driver.adapter.external.tax.TaxRealDriver;
 import com.optivem.shop.dsl.channel.ChannelType;
 import com.optivem.shop.dsl.driver.adapter.shop.api.ShopApiDriver;
 import com.optivem.shop.dsl.driver.port.shop.ShopDriver;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 public class BaseChannelDriverTest extends BaseConfigurableTest {
     protected ShopDriver shopDriver;
     protected ErpRealDriver erpDriver;
+    protected TaxRealDriver taxDriver;
 
     @BeforeEach
     void setUp() {
@@ -26,12 +28,14 @@ public class BaseChannelDriverTest extends BaseConfigurableTest {
 
         shopDriver = createChannelShopDriver(configuration);
         erpDriver = new ErpRealDriver(configuration.getErpBaseUrl());
+        taxDriver = new TaxRealDriver(configuration.getTaxBaseUrl());
     }
 
     @AfterEach
     void tearDown() {
         Closer.close(shopDriver);
         Closer.close(erpDriver);
+        Closer.close(taxDriver);
     }
 
     private ShopDriver createChannelShopDriver(Configuration configuration) {
@@ -50,4 +54,3 @@ public class BaseChannelDriverTest extends BaseConfigurableTest {
         }
     }
 }
-

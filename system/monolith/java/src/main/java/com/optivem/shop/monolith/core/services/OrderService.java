@@ -64,11 +64,12 @@ public class OrderService {
         var unitPrice = getUnitPrice(sku);
         var promotion = erpGateway.getPromotionDetails();
         var promotionFactor = promotion.isPromotionActive() ? promotion.getDiscount() : BigDecimal.ONE;
-        var basePrice = unitPrice.multiply(BigDecimal.valueOf(quantity)).multiply(promotionFactor);
+        var basePrice = unitPrice.multiply(BigDecimal.valueOf(quantity));
+        var promotedPrice = basePrice.multiply(promotionFactor);
 
         var discountRate = couponService.getDiscount(couponCode);
-        var discountAmount = basePrice.multiply(discountRate);
-        var subtotalPrice = basePrice.subtract(discountAmount);
+        var discountAmount = promotedPrice.multiply(discountRate);
+        var subtotalPrice = promotedPrice.subtract(discountAmount);
 
         var taxRate = getTaxRate(country);
         var taxAmount = subtotalPrice.multiply(taxRate);
@@ -111,6 +112,27 @@ public class OrderService {
         }
 
         return countryDetails.get().getTaxRate();
+    }
+
+    public void deliverOrder(String orderNumber) {
+        if (orderNumber == null || orderNumber.trim().isEmpty()) {
+            throw new ValidationException("Order number must not be empty");
+        }
+
+        var optionalOrder = orderRepository.findByOrderNumber(orderNumber);
+
+        if (optionalOrder.isEmpty()) {
+            throw new NotExistValidationException("Order " + orderNumber + " does not exist.");
+        }
+
+        var order = optionalOrder.get();
+
+        if (order.getStatus() != OrderStatus.PLACED) {
+            throw new ValidationException("Order cannot be delivered in its current status");
+        }
+
+        order.setStatus(OrderStatus.DELIVERED);
+        orderRepository.save(order);
     }
 
     public void cancelOrder(String orderNumber) {

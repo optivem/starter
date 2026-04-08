@@ -39,6 +39,11 @@ public class ShopApiDriver implements ShopDriver {
     }
 
     @Override
+    public Result<Void, ErrorResponse> deliverOrder(String orderNumber) {
+        return apiClient.orders().deliverOrder(orderNumber).mapError(SystemErrorMapper::from);
+    }
+
+    @Override
     public Result<ViewOrderResponse, ErrorResponse> viewOrder(String orderNumber) {
         return apiClient.orders().viewOrder(orderNumber).mapError(SystemErrorMapper::from);
     }

@@ -30,6 +30,7 @@ function OrderDetailsContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isDelivering, setIsDelivering] = useState(false);
   const [notification, setNotification] = useState<{
     type: "success" | "error";
     message: string;
@@ -123,6 +124,55 @@ function OrderDetailsContent() {
       });
     } finally {
       setIsCancelling(false);
+    }
+  }
+
+  async function handleDeliver() {
+    if (!orderNumber) return;
+    setIsDelivering(true);
+    setNotification(null);
+
+    const nextId = notificationCounter + 1;
+    setNotificationCounter(nextId);
+
+    try {
+      const response = await fetch(
+        `/api/orders/${encodeURIComponent(orderNumber)}/deliver`,
+        { method: "POST" }
+      );
+      if (response.ok) {
+        setOrder((prev) => (prev ? { ...prev, status: "DELIVERED" } : prev));
+        setNotification({
+          type: "success",
+          message: "Order has been delivered successfully",
+          fieldErrors: [],
+          id: nextId,
+        });
+      } else {
+        const data = await response.json();
+        const fieldErrors: string[] = [];
+        if (data.errors && data.errors.length > 0) {
+          data.errors.forEach((err: { field?: string; message: string }) => {
+            const fieldPart = err.field ? `${err.field}: ` : "";
+            fieldErrors.push(`${fieldPart}${err.message}`);
+          });
+        }
+        setNotification({
+          type: "error",
+          message: data.detail || "Failed to deliver order",
+          fieldErrors,
+          id: nextId,
+        });
+      }
+    } catch (err) {
+      setNotification({
+        type: "error",
+        message: `Network error: ${err instanceof Error ? err.message : String(err)}`,
+        fieldErrors: [],
+        id: nextId,
+      });
+    } finally {
+      setIsDelivering(false);
     }
   }
 
@@ -296,6 +346,14 @@ function OrderDetailsContent() {
                   disabled={isCancelling}
                 >
                   {isCancelling ? "Cancelling..." : "Cancel Order"}
+                </button>
+                <button
+                  className="btn btn-warning"
+                  aria-label="Deliver Order"
+                  onClick={handleDeliver}
+                  disabled={isDelivering}
+                >
+                  {isDelivering ? "Delivering..." : "Deliver Order"}
                 </button>
                 <Link href="/order-history" className="btn btn-secondary">
                   Back to Order History

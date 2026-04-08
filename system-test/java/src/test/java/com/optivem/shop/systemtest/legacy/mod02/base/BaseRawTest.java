@@ -22,6 +22,7 @@ public class BaseRawTest extends BaseConfigurableTest {
 
     protected HttpClient shopApiHttpClient;
     protected HttpClient erpHttpClient;
+    protected HttpClient taxHttpClient;
 
     protected ObjectMapper httpObjectMapper;
 
@@ -56,6 +57,7 @@ public class BaseRawTest extends BaseConfigurableTest {
 
     protected void setUpExternalHttpClients() {
         erpHttpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
+        taxHttpClient = HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).build();
         httpObjectMapper = createObjectMapper();
     }
 
@@ -69,6 +71,10 @@ public class BaseRawTest extends BaseConfigurableTest {
 
     protected String getErpBaseUrl() {
         return configuration.getErpBaseUrl();
+    }
+
+    protected String getTaxBaseUrl() {
+        return configuration.getTaxBaseUrl();
     }
 
     private ObjectMapper createObjectMapper() {
@@ -89,6 +95,7 @@ public class BaseRawTest extends BaseConfigurableTest {
         Closer.close(shopUiBrowser);
         Closer.close(shopUiPlaywright);
         Closer.close(erpHttpClient);
+        Closer.close(taxHttpClient);
         Closer.close(shopApiHttpClient);
     }
 }

@@ -82,5 +82,12 @@ public class GivenOrderImpl extends BaseGivenStep implements GivenOrder {
                     .execute()
                     .shouldSucceed();
         }
+
+        if (status == OrderStatus.DELIVERED) {
+            app.shop().deliverOrder()
+                    .orderNumber(orderNumber)
+                    .execute()
+                    .shouldSucceed();
+        }
     }
 }

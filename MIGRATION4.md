@@ -11,11 +11,12 @@ Single sequenced plan combining ESHOP_COMPARISON (app code) and ESHOP_TESTS_COMP
 - **Read only files you need to change** — the comparison docs already identify exact files and line numbers.
 - **Work on all 3 languages + all architectures in parallel** — spawn agents for Java, .NET, TypeScript simultaneously per phase.
 - **Copy and adapt from eshop** — don't write from scratch.
-- **Run tests per phase, not per file:**
-  1. If system code changed: `./Run-SystemTests -Rebuild -SkipTests`
-  2. Then: `./Run-SystemTests`
-  3. For legacy test changes: `./Run-SystemTests -Legacy`
-- **Fix before moving on** — if a phase fails, diagnose and fix before starting the next phase.
+- **Autonomous execution** — make all code changes across all phases first, then do one full test run at the very end. Do not ask the user to run tests or review intermediate results. Only stop for user review at the very end, before committing. Exception: pause and ask the user if facing a major design decision or completely stuck.
+- **Test once at the end** — after all phases are complete, run in this sequence (languages: Java → .NET → TypeScript). Each step only runs if the previous one passed:
+  1. Latest + multitier (all languages) — rebuild on first run ✅ PASSED
+  2. Latest + monolith (all languages) — rebuild on first run ✅ Java/.NET passed, TS running
+  3. Legacy + multitier (all languages) — deferred, user will decide
+  4. Legacy + monolith (all languages) — deferred, user will decide
 - **Keep this doc up to date** — if you discover new optimizations, blockers, or corrections during work, update this doc immediately.
 
 ---
@@ -115,15 +116,17 @@ Add the missing `ThenFailureCoupon` class to starter's DSL.
 - .NET: `Dsl.Core/Scenario/Then/Steps/ThenFailureCoupon.cs`
 - Java/TypeScript: equivalents
 
-### 5.2 Add missing legacy module tests (all 3 languages)
+### 5.2 Legacy module tests — decisions
 
-Bring ~44 (.NET), ~39 (Java), ~41 (TypeScript) legacy test files from eshop-tests:
-- ViewOrder E2e tests (Mod03-Mod08)
-- TaxSmokeTest (Mod02-Mod09)
-- Mod03 Smoke tests (ErpSmokeTest, ShopApiSmokeTest, ShopUiSmokeTest)
-- Mod10: CancelOrder tests (4), ViewOrder tests (2), Coupon tests (3)
-- Mod11: Tax contract tests (3)
-- Mod06: SystemErrorAssertExtensions
+**Skip (not needed):**
+- ViewOrder E2e tests (Mod03-Mod08) — bullet-tracer approach, PlaceOrder only through mods
+- Mod03 Smoke tests (ErpSmoke, ShopApiSmoke, ShopUiSmoke) — lessons only cover E2E at Mod03
+- Mod10 CancelOrder/ViewOrder/Coupon tests — already fully covered in latest (4+2+3 tests, all 3 langs)
+- Mod06 SystemErrorAssertExtensions — only needed for skipped ViewOrder E2e tests
+- Mod11 Tax contract tests — check if already in latest
+
+**Add:**
+- TaxSmokeTest — add wherever smoke tests already exist in starter's legacy mods
 
 ---
 
