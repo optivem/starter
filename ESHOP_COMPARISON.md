@@ -129,15 +129,16 @@ Goal: Starter should contain everything eshop has, plus its own improvements. Ke
    - Wire deliver button back into `OrderDetails.tsx` via `OrderActions`
 
 6. **Restore OrderHistoryTable columns**
-   - Add back `country` column
-   - Add back `appliedCouponCode` column
+   - Add back `country` column (data already in types, just not rendered)
+   - Add back `appliedCouponCode` column (data already in types, just not rendered)
 
-7. **Restore api.types.ts type definitions**
-   - Add back `OrderStatus` enum, all request/response interfaces
-   - Apply starter's code quality conventions (`Readonly` where applicable)
+7. **Restore api.types.ts missing pieces**
+   - Add `DELIVERED` to `OrderStatus` enum
+   - Add `GetCouponResponse` interface
+   - Make `PlaceOrderRequest.country` required (not optional)
 
 8. **Restore country validation in order form**
-   - Add back country validation in `useOrderForm.ts`
+   - Add back country validation in `useOrderForm.ts` ("Country must not be empty")
    - Restore default `country: 'US'`
 
 9. **Restore couponCode as optional**
@@ -157,9 +158,26 @@ Goal: Starter should contain everything eshop has, plus its own improvements. Ke
 - Line endings normalized to LF
 - Commented-out code removed
 
-### Decision Points (need your input)
+### Decisions (resolved)
 
-- **Cancel logic**: Which time window and validation order is correct — eshop's (22:00–23:00, validate order number first) or starter's (23:59, check restriction first)?
-- **Route naming**: Keep starter's `/new-order` or revert to eshop's `/shop`?
-- **Branding**: Keep "Shop" or revert to "Optivem eShop"?
-- **CouponService constants**: Are `FIELD_VALID_FROM/TO` and `MSG_*_MUST_BE_FUTURE` actually used? If not, leave removed.
+- **Cancel logic**: Keep starter's way (23:59 start, check restriction before DB lookup)
+- **Route naming**: Keep starter's `/new-order`
+- **Branding**: Keep "Shop"
+- **CouponService constants**: Dead code (not referenced anywhere in eshop) — leave removed
+
+---
+
+## TODO: Migrate Delivery Test Infrastructure (separate task)
+
+Starter's system-test has `OrderStatus.DELIVERED` in the DTO but none of the actual test infrastructure that eshop-tests has. The following would need to be migrated separately:
+
+- `ShopDriver.deliverOrder()` — driver port interface method
+- `ShopApiDriver.deliverOrder()` — API driver adapter (POSTs to `/{orderNumber}/deliver`)
+- `ShopUiDriver.deliverOrder()` — UI driver adapter (Playwright)
+- `OrderDetailsPage.clickDeliverOrder()` — UI page object (`[aria-label='Deliver Order']` selector)
+- `OrderController.deliverOrder()` — API client method
+- `DeliverOrder` use case class — DSL core
+- `ShopDsl.deliverOrder()` — DSL entry point
+- `GivenOrderImpl` — scenario setup uses delivery to create orders in DELIVERED state
+
+This should be done after the app-level delivery feature is restored in starter.
