@@ -29,9 +29,9 @@ public class PublishCouponPositiveTest : BaseAcceptanceTest
             .When().PublishCoupon()
                 .WithCouponCode("SUMMER2025")
                 .WithDiscountRate(0.15m)
-                .WithValidFrom("")
-                .WithValidTo("")
-                .WithUsageLimit("")
+                .WithValidFrom(null)
+                .WithValidTo(null)
+                .WithUsageLimit(null)
             .Then().ShouldSucceed();
     }
 

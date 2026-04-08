@@ -13,10 +13,6 @@ public class Converter {
         throw new IllegalStateException("Utility class");
     }
 
-    public static String toNullIfBlank(String value) {
-        return (value == null || value.isBlank()) ? null : value;
-    }
-
     public static BigDecimal toBigDecimal(String value) {
         return from(value, BigDecimal::new);
     }

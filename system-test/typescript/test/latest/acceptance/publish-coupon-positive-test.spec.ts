@@ -32,6 +32,9 @@ describe('PublishCoupon Positive Test', () => {
         .publishCoupon()
         .withCode(uniqueCode('MINIMAL'))
         .withDiscountRate(0.05)
+        .withValidFrom(undefined)
+        .withValidTo(undefined)
+        .withUsageLimit(undefined)
         .then()
         .shouldSucceed();
     } finally {

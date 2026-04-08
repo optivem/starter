@@ -131,12 +131,14 @@ jobs:
           working-directory: system-test/java
 
       - name: Cache Playwright Browsers
+        id: cache-playwright
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('system-test/java/build.gradle') }}
 
       - name: Install Playwright Dependencies
+        if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
         working-directory: system-test/java
 

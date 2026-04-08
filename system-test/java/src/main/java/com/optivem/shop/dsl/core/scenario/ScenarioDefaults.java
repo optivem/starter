@@ -37,7 +37,7 @@ public final class ScenarioDefaults {
     public static final String WEEKDAY_TIME = "2026-01-15T10:30:00Z";
     public static final String WEEKEND_TIME = "2026-01-17T10:30:00Z";
 
-    public static final String EMPTY = "";
+    public static final String EMPTY = null;
 
     private ScenarioDefaults() {
         // Prevent instantiation

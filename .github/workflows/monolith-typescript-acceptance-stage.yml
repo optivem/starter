@@ -131,12 +131,14 @@ jobs:
           working-directory: system-test/typescript
 
       - name: Cache Playwright Browsers
+        id: cache-playwright
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('system-test/typescript/package-lock.json') }}
 
       - name: Install Playwright Dependencies
+        if: steps.cache-playwright.outputs.cache-hit != 'true'
         working-directory: system-test/typescript
         run: npx playwright install --with-deps chromium
 

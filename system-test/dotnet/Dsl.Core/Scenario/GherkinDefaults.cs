@@ -37,7 +37,7 @@ public static class GherkinDefaults
     public const string DefaultValidTo = "2024-12-31T23:59:59Z";
     public const string DefaultUsageLimit = "1000";
 
-    public const string Empty = "";
+    public const string? Empty = null;
 }
 
 

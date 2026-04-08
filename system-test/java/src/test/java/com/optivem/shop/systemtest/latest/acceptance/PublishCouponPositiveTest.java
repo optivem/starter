@@ -26,9 +26,9 @@ class PublishCouponPositiveTest extends BaseAcceptanceTest {
                 .when().publishCoupon()
                     .withCouponCode("SUMMER2025")
                     .withDiscountRate(0.15)
-                    .withValidFrom("")
-                    .withValidTo("")
-                    .withUsageLimit("")
+                    .withValidFrom(null)
+                    .withValidTo(null)
+                    .withUsageLimit(null)
                 .then().shouldSucceed();
     }
 
