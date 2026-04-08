@@ -11,21 +11,23 @@ const timesInsideBlackout = [
 
 const BLACKOUT_ERROR = 'Order cancellation is not allowed on December 31st between 22:00 and 23:00';
 
-forChannels('ui', 'api')(() => {
-    timesInsideBlackout.forEach((time) => {
-        test(`cannotCancelAnOrderOn31stDecBetween2200And2230_${time}`, async ({ scenario }) => {
-            await scenario
-                .given()
-                .clock()
-                .withTime(time)
-                .and()
-                .order()
-                .withStatus(OrderStatus.PLACED)
-                .when()
-                .cancelOrder()
-                .then()
-                .shouldFail()
-                .errorMessage(BLACKOUT_ERROR);
+test.describe('@isolated', () => {
+    forChannels('ui', 'api')(() => {
+        timesInsideBlackout.forEach((time) => {
+            test(`cannotCancelAnOrderOn31stDecBetween2200And2230_${time}`, async ({ scenario }) => {
+                await scenario
+                    .given()
+                    .clock()
+                    .withTime(time)
+                    .and()
+                    .order()
+                    .withStatus(OrderStatus.PLACED)
+                    .when()
+                    .cancelOrder()
+                    .then()
+                    .shouldFail()
+                    .errorMessage(BLACKOUT_ERROR);
+            });
         });
     });
 });

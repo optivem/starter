@@ -8,20 +8,22 @@ const timesOutsideBlackout = [
     '2025-01-01T22:15:00Z',
 ];
 
-forChannels('ui', 'api')(() => {
-    timesOutsideBlackout.forEach((time) => {
-        test(`shouldBeAbleToCancelOrderOutsideOfBlackoutPeriod31stDecBetween2200And2230_${time}`, async ({ scenario }) => {
-            await scenario
-                .given()
-                .clock()
-                .withTime(time)
-                .and()
-                .order()
-                .withStatus(OrderStatus.PLACED)
-                .when()
-                .cancelOrder()
-                .then()
-                .shouldSucceed();
+test.describe('@isolated', () => {
+    forChannels('ui', 'api')(() => {
+        timesOutsideBlackout.forEach((time) => {
+            test(`shouldBeAbleToCancelOrderOutsideOfBlackoutPeriod31stDecBetween2200And2230_${time}`, async ({ scenario }) => {
+                await scenario
+                    .given()
+                    .clock()
+                    .withTime(time)
+                    .and()
+                    .order()
+                    .withStatus(OrderStatus.PLACED)
+                    .when()
+                    .cancelOrder()
+                    .then()
+                    .shouldSucceed();
+            });
         });
     });
 });
