@@ -214,7 +214,7 @@ public abstract class BasePage
 
         var selector = WithNotificationId(NotificationErrorFieldSelector, notificationId);
 
-        
+
 
         if (!await PageClient.IsVisibleAsync(selector))
 

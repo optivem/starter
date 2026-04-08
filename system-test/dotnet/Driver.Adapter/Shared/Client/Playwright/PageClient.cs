@@ -75,9 +75,9 @@ public class PageClient
     {
         try
         {
-            var locator = await GetLocatorAsync(selector);
-            var count = await locator.CountAsync();
-            return count > 0;
+            var locator = _page.Locator(selector);
+            await locator.First.WaitForAsync(GetDefaultWaitForOptions());
+            return await locator.CountAsync() > 0;
         }
         catch (Exception)
         {
