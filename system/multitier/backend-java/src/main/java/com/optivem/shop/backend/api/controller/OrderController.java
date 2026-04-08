@@ -49,4 +49,10 @@ public class OrderController {
         orderService.cancelOrder(orderNumber);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/api/orders/{orderNumber}/deliver")
+    public ResponseEntity<Void> deliverOrder(@PathVariable String orderNumber) {
+        orderService.deliverOrder(orderNumber);
+        return ResponseEntity.noContent().build();
+    }
 }

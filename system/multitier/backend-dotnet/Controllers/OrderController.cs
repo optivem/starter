@@ -42,4 +42,11 @@ public class OrderController : ControllerBase
         await _orderService.CancelOrderAsync(orderNumber);
         return NoContent();
     }
+
+    [HttpPost("{orderNumber}/deliver")]
+    public async Task<IActionResult> DeliverOrder(string orderNumber)
+    {
+        await _orderService.DeliverOrderAsync(orderNumber);
+        return NoContent();
+    }
 }

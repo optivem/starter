@@ -3,6 +3,7 @@ using Dsl.Core;
 using Driver.Adapter.External.Erp.Client;
 using Driver.Adapter.Shop.Api.Client;
 using Driver.Adapter.Shop.Ui.Client;
+using Driver.Adapter.External.Tax.Client;
 using Xunit;
 
 namespace SystemTests.Legacy.Mod04.Base;
@@ -15,6 +16,7 @@ public abstract class BaseClientTest : BaseConfigurableTest, IAsyncLifetime
     protected ShopApiClient? _shopApiClient;
 
     protected ErpRealClient? _erpClient;
+    protected TaxRealClient? _taxClient;
 
     protected BaseClientTest()
     {
@@ -39,6 +41,7 @@ public abstract class BaseClientTest : BaseConfigurableTest, IAsyncLifetime
     protected void SetUpExternalClients()
     {
         _erpClient = new ErpRealClient(_configuration.ErpBaseUrl);
+        _taxClient = new TaxRealClient(_configuration.TaxBaseUrl);
     }
 
     public virtual async Task DisposeAsync()
@@ -47,6 +50,7 @@ public abstract class BaseClientTest : BaseConfigurableTest, IAsyncLifetime
             await _shopUiClient.DisposeAsync();
         _shopApiClient?.Dispose();
         _erpClient?.Dispose();
+        _taxClient?.Dispose();
     }
 }
 

@@ -54,7 +54,8 @@ export async function POST(request: NextRequest) {
     const unitPrice = product.price;
     const promotion = await getPromotionDetails();
     const promotionFactor = promotion.promotionActive ? promotion.discount : 1;
-    const basePrice = new Decimal(unitPrice).mul(quantity).mul(promotionFactor).toNumber();
+    const basePrice = new Decimal(unitPrice).mul(quantity).toNumber();
+    const promotedPrice = new Decimal(basePrice).mul(promotionFactor).toNumber();
 
     let discountRate = 0;
     let appliedCouponCode: string | null = null;
@@ -87,8 +88,8 @@ export async function POST(request: NextRequest) {
       discountRate = Number(coupon.discount_rate);
       appliedCouponCode = couponCode;
     }
-    const discountAmount = new Decimal(basePrice).mul(discountRate).toNumber();
-    const subtotalPrice = new Decimal(basePrice).sub(discountAmount).toNumber();
+    const discountAmount = new Decimal(promotedPrice).mul(discountRate).toNumber();
+    const subtotalPrice = new Decimal(promotedPrice).sub(discountAmount).toNumber();
 
     const taxDetails = await getTaxDetails(country);
     if (!taxDetails) {

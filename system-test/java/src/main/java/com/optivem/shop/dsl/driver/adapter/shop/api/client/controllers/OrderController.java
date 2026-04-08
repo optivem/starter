@@ -28,4 +28,8 @@ public class OrderController {
         return httpClient.post(ENDPOINT + "/" + orderNumber + "/cancel");
     }
 
+    public Result<Void, ProblemDetailResponse> deliverOrder(String orderNumber) {
+        return httpClient.post(ENDPOINT + "/" + orderNumber + "/deliver");
+    }
+
 }

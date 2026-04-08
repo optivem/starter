@@ -12,6 +12,7 @@ export function OrderDetails() {
   const { order, isLoading, error, refresh } = useOrderDetails(orderNumber);
   const { handleResult, setSuccess } = useNotificationContext();
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isDelivering, setIsDelivering] = useState(false);
 
   const handleCancel = useCallback(async () => {
     if (!orderNumber) return;
@@ -21,6 +22,16 @@ export function OrderDetails() {
       refresh();
     });
     setIsCancelling(false);
+  }, [orderNumber, handleResult, setSuccess, refresh]);
+
+  const handleDeliver = useCallback(async () => {
+    if (!orderNumber) return;
+    setIsDelivering(true);
+    handleResult(await orderService.deliverOrder(orderNumber), () => {
+      setSuccess('Order has been delivered successfully');
+      refresh();
+    });
+    setIsDelivering(false);
   }, [orderNumber, handleResult, setSuccess, refresh]);
 
   return (
@@ -55,6 +66,14 @@ export function OrderDetails() {
                     disabled={isCancelling}
                   >
                     {isCancelling ? 'Cancelling...' : 'Cancel Order'}
+                  </button>
+                  <button
+                    className="btn btn-warning"
+                    aria-label="Deliver Order"
+                    onClick={handleDeliver}
+                    disabled={isDelivering}
+                  >
+                    {isDelivering ? 'Delivering...' : 'Deliver Order'}
                   </button>
                   <button
                     className="btn btn-secondary"

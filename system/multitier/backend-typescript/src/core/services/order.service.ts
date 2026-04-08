@@ -67,11 +67,12 @@ export class OrderService {
     const unitPrice = await this.getUnitPrice(sku);
     const promotion = await this.erpGateway.getPromotionDetails();
     const promotionFactor = promotion.promotionActive ? promotion.discount : 1;
-    const basePrice = new Decimal(unitPrice).mul(quantity).mul(promotionFactor).toNumber();
+    const basePrice = new Decimal(unitPrice).mul(quantity).toNumber();
+    const promotedPrice = new Decimal(basePrice).mul(promotionFactor).toNumber();
 
     const discountRate = await this.couponService.getDiscount(couponCode);
-    const discountAmount = new Decimal(basePrice).mul(discountRate).toNumber();
-    const subtotalPrice = new Decimal(basePrice).sub(discountAmount).toNumber();
+    const discountAmount = new Decimal(promotedPrice).mul(discountRate).toNumber();
+    const subtotalPrice = new Decimal(promotedPrice).sub(discountAmount).toNumber();
 
     const taxRate = await this.getTaxRate(country);
     const taxAmount = new Decimal(subtotalPrice).mul(taxRate).toNumber();
@@ -131,6 +132,27 @@ export class OrderService {
     }
 
     return Number(taxDetails.taxRate);
+  }
+
+  async deliverOrder(orderNumber: string): Promise<void> {
+    const order = await this.orderRepository.findOne({
+      where: { orderNumber },
+    });
+
+    if (!order) {
+      throw new NotExistValidationException(
+        `Order ${orderNumber} does not exist.`,
+      );
+    }
+
+    if (order.status !== OrderStatus.PLACED) {
+      throw new ValidationException(
+        'Order cannot be delivered in its current status',
+      );
+    }
+
+    order.status = OrderStatus.DELIVERED;
+    await this.orderRepository.save(order);
   }
 
   async cancelOrder(orderNumber: string): Promise<void> {

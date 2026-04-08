@@ -100,5 +100,13 @@ public class GivenOrder : BaseGiven, IGivenOrder
                 .Execute())
                 .ShouldSucceed();
         }
+
+        if (_status == OrderStatus.Delivered)
+        {
+            (await shop.DeliverOrder()
+                .OrderNumber(_orderNumber)
+                .Execute())
+                .ShouldSucceed();
+        }
     }
 }

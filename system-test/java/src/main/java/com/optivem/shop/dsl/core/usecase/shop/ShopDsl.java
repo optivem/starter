@@ -3,6 +3,7 @@ package com.optivem.shop.dsl.core.usecase.shop;
 import com.optivem.shop.dsl.driver.port.shop.ShopDriver;
 import com.optivem.shop.dsl.core.usecase.shop.usecases.BrowseCoupons;
 import com.optivem.shop.dsl.core.usecase.shop.usecases.CancelOrder;
+import com.optivem.shop.dsl.core.usecase.shop.usecases.DeliverOrder;
 import com.optivem.shop.dsl.core.usecase.shop.usecases.GoToShop;
 import com.optivem.shop.dsl.core.usecase.shop.usecases.PlaceOrder;
 import com.optivem.shop.dsl.core.usecase.shop.usecases.PublishCoupon;
@@ -36,6 +37,10 @@ public class ShopDsl implements Closeable {
 
     public CancelOrder cancelOrder() {
         return new CancelOrder(driver, context);
+    }
+
+    public DeliverOrder deliverOrder() {
+        return new DeliverOrder(driver, context);
     }
 
     public ViewOrder viewOrder() {

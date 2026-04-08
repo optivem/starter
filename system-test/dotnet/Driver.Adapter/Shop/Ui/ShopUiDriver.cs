@@ -119,6 +119,37 @@ public class ShopUiDriver : IShopDriver
         return Success();
     }
 
+    public async Task<Result<VoidValue, SystemError>> DeliverOrderAsync(string? orderNumber)
+    {
+        var viewResult = await ViewOrderAsync(orderNumber);
+        if (viewResult.IsFailure)
+        {
+            return viewResult.MapVoid();
+        }
+
+        await _orderDetailsPage!.ClickDeliverOrderAsync();
+
+        var deliverResult = await _orderDetailsPage.GetResultAsync();
+        if (deliverResult.IsFailure)
+        {
+            return Failure(deliverResult.Error);
+        }
+
+        var successMessage = deliverResult.Value;
+        if (!successMessage.Contains("delivered successfully"))
+        {
+            return Failure("Did not receive expected delivery success message");
+        }
+
+        var displayStatusAfterDeliver = await _orderDetailsPage.GetStatusAsync();
+        if (displayStatusAfterDeliver != OrderStatus.Delivered)
+        {
+            return Failure("Order status not updated to DELIVERED");
+        }
+
+        return Success();
+    }
+
     public async Task<Result<ViewOrderResponse, SystemError>> ViewOrderAsync(string? orderNumber)
     {
         var result = await EnsureOnOrderDetailsPageAsync(orderNumber);

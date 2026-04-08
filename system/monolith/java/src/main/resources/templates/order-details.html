@@ -97,6 +97,7 @@
                 </div>
                 <div class="mt-4 d-flex gap-2">
                     <button id="cancelOrderBtn" class="btn btn-danger" aria-label="Cancel Order">Cancel Order</button>
+                    <button id="deliverOrderBtn" class="btn btn-warning" aria-label="Deliver Order">Deliver Order</button>
                     <a href="/order-history" class="btn btn-secondary">Back to Order History</a>
                 </div>
             </div>
@@ -172,6 +173,48 @@
         }
 
         loadOrderDetails();
+
+        document.getElementById('deliverOrderBtn').addEventListener('click', async function() {
+            var pathParts = window.location.pathname.split('/');
+            var orderNumber = decodeURIComponent(pathParts[pathParts.length - 1]);
+            var notifications = document.getElementById('notifications');
+            var btn = document.getElementById('deliverOrderBtn');
+
+            window._notificationCounter = (window._notificationCounter || 0) + 1;
+            var nid = window._notificationCounter;
+
+            btn.disabled = true;
+            btn.textContent = 'Delivering...';
+            notifications.innerHTML = '';
+
+            try {
+                var response = await fetch('/api/orders/' + encodeURIComponent(orderNumber) + '/deliver', {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    notifications.innerHTML = '<div class="notification success" role="alert" data-notification-id="' + nid + '">Order has been delivered successfully</div>';
+                    loadOrderDetails();
+                } else {
+                    var data = await response.json();
+                    var errorHtml = '<div class="notification error" role="alert" data-notification-id="' + nid + '">';
+                    errorHtml += '<div class="error-message">' + (data.detail || 'An error occurred') + '</div>';
+                    if (data.errors && data.errors.length > 0) {
+                        data.errors.forEach(function(err) {
+                            var fieldPart = err.field ? err.field + ': ' : '';
+                            errorHtml += '<div class="field-error">' + fieldPart + err.message + '</div>';
+                        });
+                    }
+                    errorHtml += '</div>';
+                    notifications.innerHTML = errorHtml;
+                }
+            } catch (err) {
+                notifications.innerHTML = '<div class="notification error" role="alert" data-notification-id="' + nid + '"><div class="error-message">Network error: ' + err.message + '</div></div>';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Deliver Order';
+            }
+        });
 
         document.getElementById('cancelOrderBtn').addEventListener('click', async function() {
             var pathParts = window.location.pathname.split('/');

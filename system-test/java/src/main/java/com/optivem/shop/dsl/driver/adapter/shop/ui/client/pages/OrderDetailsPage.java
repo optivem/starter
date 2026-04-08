@@ -24,6 +24,7 @@ public class OrderDetailsPage extends BasePage {
     private static final String STATUS_OUTPUT_SELECTOR = "[aria-label='Display Status']";
     private static final String APPLIED_COUPON_OUTPUT_SELECTOR = "[aria-label='Display Applied Coupon']";
     private static final String CANCEL_ORDER_SELECTOR = "[aria-label='Cancel Order']";
+    private static final String DELIVER_ORDER_SELECTOR = "[aria-label='Deliver Order']";
     private static final String TEXT_NONE = "None";
     private static final String DOLLAR_SYMBOL = "$";
     private static final String PERCENT_SYMBOL = "%";
@@ -102,6 +103,10 @@ public class OrderDetailsPage extends BasePage {
 
     public void clickCancelOrder() {
         pageClient.click(CANCEL_ORDER_SELECTOR);
+    }
+
+    public void clickDeliverOrder() {
+        pageClient.click(DELIVER_ORDER_SELECTOR);
     }
 
     public boolean isCancelButtonHidden() {

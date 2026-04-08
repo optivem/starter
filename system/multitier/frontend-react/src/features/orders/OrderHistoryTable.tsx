@@ -58,9 +58,17 @@ export function OrderHistoryTable({
         header: 'Quantity',
         cell: (info) => info.getValue(),
       }),
+      columnHelper.accessor('country', {
+        header: 'Country',
+        cell: (info) => info.getValue(),
+      }),
       columnHelper.accessor('totalPrice', {
         header: 'Total Price',
         cell: (info) => `$${info.getValue().toFixed(2)}`,
+      }),
+      columnHelper.accessor('appliedCouponCode', {
+        header: 'Coupon Code',
+        cell: (info) => info.getValue() ?? '-',
       }),
       columnHelper.accessor('status', {
         header: 'Status',

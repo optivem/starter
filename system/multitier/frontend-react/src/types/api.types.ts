@@ -3,13 +3,14 @@
 export enum OrderStatus {
   PLACED = 'PLACED',
   CANCELLED = 'CANCELLED',
+  DELIVERED = 'DELIVERED',
 }
 
 // API Request types
 export interface PlaceOrderRequest {
   sku: string;
   quantity: number;
-  country?: string;
+  country: string;
   couponCode?: string;
 }
 
@@ -76,4 +77,13 @@ export interface BrowseCouponsItemResponse {
 
 export interface BrowseCouponsResponse {
   coupons: BrowseCouponsItemResponse[];
+}
+
+export interface GetCouponResponse {
+  code: string;
+  discountRate: number;
+  validFrom?: string;
+  validTo?: string;
+  usageLimit: number;
+  usedCount: number;
 }

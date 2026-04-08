@@ -3,6 +3,7 @@ package com.optivem.shop.systemtest.legacy.mod04.base;
 import com.optivem.shop.systemtest.configuration.BaseConfigurableTest;
 import com.optivem.shop.systemtest.configuration.Configuration;
 import com.optivem.shop.dsl.driver.adapter.external.erp.client.ErpRealClient;
+import com.optivem.shop.dsl.driver.adapter.external.tax.client.TaxRealClient;
 import com.optivem.shop.dsl.driver.adapter.shop.api.client.ShopApiClient;
 import com.optivem.shop.dsl.driver.adapter.shop.ui.client.ShopUiClient;
 import com.optivem.shop.systemtest.infrastructure.playwright.BrowserLifecycleExtension;
@@ -16,7 +17,7 @@ public class BaseClientTest extends BaseConfigurableTest {
     protected ShopUiClient shopUiClient;
     protected ShopApiClient shopApiClient;
     protected ErpRealClient erpClient;
-
+    protected TaxRealClient taxClient;
 
     @BeforeEach
     protected void setUpConfiguration() {
@@ -33,6 +34,7 @@ public class BaseClientTest extends BaseConfigurableTest {
 
     protected void setUpExternalClients() {
         erpClient = new ErpRealClient(configuration.getErpBaseUrl());
+        taxClient = new TaxRealClient(configuration.getTaxBaseUrl());
     }
 
     @AfterEach
@@ -40,8 +42,7 @@ public class BaseClientTest extends BaseConfigurableTest {
         Closer.close(shopUiClient);
         Closer.close(shopApiClient);
         Closer.close(erpClient);
+        Closer.close(taxClient);
     }
 
 }
-
-
