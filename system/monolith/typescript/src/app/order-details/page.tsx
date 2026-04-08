@@ -30,6 +30,13 @@ function OrderDetailsContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCancelling, setIsCancelling] = useState(false);
+  const [notification, setNotification] = useState<{
+    type: "success" | "error";
+    message: string;
+    fieldErrors: string[];
+    id: number;
+  } | null>(null);
+  const [notificationCounter, setNotificationCounter] = useState(0);
 
   useEffect(() => {
     if (!orderNumber) {
@@ -73,6 +80,11 @@ function OrderDetailsContent() {
   async function handleCancel() {
     if (!orderNumber) return;
     setIsCancelling(true);
+    setNotification(null);
+
+    const nextId = notificationCounter + 1;
+    setNotificationCounter(nextId);
+
     try {
       const response = await fetch(
         `/api/orders/${encodeURIComponent(orderNumber)}/cancel`,
@@ -80,14 +92,35 @@ function OrderDetailsContent() {
       );
       if (response.ok) {
         setOrder((prev) => (prev ? { ...prev, status: "CANCELLED" } : prev));
+        setNotification({
+          type: "success",
+          message: "Order has been cancelled successfully",
+          fieldErrors: [],
+          id: nextId,
+        });
       } else {
         const data = await response.json();
-        setError(data.detail || "Failed to cancel order");
+        const fieldErrors: string[] = [];
+        if (data.errors && data.errors.length > 0) {
+          data.errors.forEach((err: { field?: string; message: string }) => {
+            const fieldPart = err.field ? `${err.field}: ` : "";
+            fieldErrors.push(`${fieldPart}${err.message}`);
+          });
+        }
+        setNotification({
+          type: "error",
+          message: data.detail || "Failed to cancel order",
+          fieldErrors,
+          id: nextId,
+        });
       }
     } catch (err) {
-      setError(
-        `Network error: ${err instanceof Error ? err.message : String(err)}`
-      );
+      setNotification({
+        type: "error",
+        message: `Network error: ${err instanceof Error ? err.message : String(err)}`,
+        fieldErrors: [],
+        id: nextId,
+      });
     } finally {
       setIsCancelling(false);
     }
@@ -109,6 +142,27 @@ function OrderDetailsContent() {
         </ol>
       </nav>
 
+      {notification && (
+        <div
+          role="alert"
+          className={`notification ${notification.type}`}
+          data-notification-id={notification.id}
+        >
+          {notification.type === "success" ? (
+            notification.message
+          ) : (
+            <>
+              <div className="error-message">{notification.message}</div>
+              {notification.fieldErrors.map((fe) => (
+                <div key={fe} className="field-error">
+                  {fe}
+                </div>
+              ))}
+            </>
+          )}
+        </div>
+      )}
+
       <div className="card shadow">
         <div className="card-header bg-primary text-white">
           <h4 className="mb-0">Order Details</h4>
@@ -124,14 +178,13 @@ function OrderDetailsContent() {
               <p className="mt-3">Loading order details...</p>
             </div>
           )}
-          {!loading && error && (
+          {!loading && error && !notification && (
             <div
-              className="alert alert-danger d-flex justify-content-between align-items-center"
+              className="notification error"
               role="alert"
+              data-notification-id={0}
             >
-              <div>
-                <strong>Error:</strong> {error}
-              </div>
+              <div className="error-message">{error}</div>
             </div>
           )}
           {!loading && !error && !order && (

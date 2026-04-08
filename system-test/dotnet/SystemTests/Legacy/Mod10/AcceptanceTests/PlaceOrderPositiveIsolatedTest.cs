@@ -15,6 +15,8 @@ public class PlaceOrderPositiveIsolatedTest : BaseAcceptanceTest
     {
         await Scenario(channel)
             .Given().Product().WithUnitPrice(20.00m)
+            .And().Promotion().WithActive(false)
+            .And().Country().WithCode("US").WithTaxRate("0.00")
             .And().Clock().WithWeekday()
             .When().PlaceOrder().WithQuantity(5)
             .Then().ShouldSucceed()
@@ -29,6 +31,7 @@ public class PlaceOrderPositiveIsolatedTest : BaseAcceptanceTest
         await Scenario(channel)
             .Given().Product().WithUnitPrice(20.00m)
             .And().Promotion().WithActive(true).WithDiscount("0.5")
+            .And().Country().WithCode("US").WithTaxRate("0.00")
             .When().PlaceOrder().WithQuantity(5)
             .Then().ShouldSucceed()
             .And().Order()
