@@ -126,6 +126,12 @@ jobs:
           node-version: 22.x
           working-directory: system-test/typescript
 
+      - name: Cache Playwright Browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('system-test/typescript/package-lock.json') }}
+
       - name: Install Playwright Dependencies
         working-directory: system-test/typescript
         run: npx playwright install --with-deps chromium

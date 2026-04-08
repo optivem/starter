@@ -129,13 +129,26 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      - name: Cache NuGet Packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('system-test/dotnet/**/*.csproj') }}
+          restore-keys: nuget-${{ runner.os }}-
+
       - name: Build Test Project
         run: dotnet build
         working-directory: system-test/dotnet
 
+      - name: Cache Playwright Browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('system-test/dotnet/**/*.csproj') }}
+
       - name: Install Playwright Dependencies
         run: |
-          pwsh SystemTests/bin/Debug/net8.0/playwright.ps1 install --with-deps
+          pwsh SystemTests/bin/Debug/net8.0/playwright.ps1 install --with-deps chromium
         working-directory: system-test/dotnet
 
       - name: Run Smoke Tests (Stub)
