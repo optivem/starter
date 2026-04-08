@@ -11,13 +11,13 @@
     </ol>
 </nav>
 
+<div id="notifications"></div>
+
 <div class="card shadow mb-4">
     <div class="card-header bg-primary text-white">
         <h4 class="mb-0">Create New Coupon</h4>
     </div>
     <div class="card-body">
-        <div id="formError" style="display: none;"></div>
-        <div id="formSuccess" style="display: none;"></div>
         <form id="createCouponForm" onsubmit="createCoupon(event)">
             <div class="row">
                 <div class="col-md-6 mb-3">
@@ -136,12 +136,30 @@
         }
     }
 
+    var notificationCounter = 0;
+
+    function showNotification(type, message, fields) {
+        notificationCounter++;
+        var nid = notificationCounter;
+        var notifications = document.getElementById('notifications');
+        var html = '<div class="notification ' + type + '" role="alert" data-notification-id="' + nid + '">';
+        if (type === 'error') {
+            html += '<div class="error-message">' + message + '</div>';
+            if (fields && fields.length > 0) {
+                fields.forEach(function(err) {
+                    var fieldPart = err.field ? err.field + ': ' : '';
+                    html += '<div class="field-error">' + fieldPart + err.message + '</div>';
+                });
+            }
+        } else {
+            html += message;
+        }
+        html += '</div>';
+        notifications.innerHTML = html;
+    }
+
     async function createCoupon(event) {
         event.preventDefault();
-        var formError = document.getElementById('formError');
-        var formSuccess = document.getElementById('formSuccess');
-        formError.style.display = 'none';
-        formSuccess.style.display = 'none';
 
         var body = {
             code: document.getElementById('couponCode').value,
@@ -165,18 +183,15 @@
             });
 
             if (response.ok) {
-                formSuccess.innerHTML = '<div class="alert alert-success">Coupon created successfully!</div>';
-                formSuccess.style.display = 'block';
+                showNotification('success', "Coupon '" + body.code + "' created successfully!");
                 document.getElementById('createCouponForm').reset();
-                loadCoupons();
+                setTimeout(loadCoupons, 100);
             } else {
                 var data = await response.json();
-                formError.innerHTML = '<div class="alert alert-danger">' + (data.detail || 'Failed to create coupon') + '</div>';
-                formError.style.display = 'block';
+                showNotification('error', data.detail || 'Failed to create coupon', data.errors);
             }
         } catch (err) {
-            formError.innerHTML = '<div class="alert alert-danger">Network error: ' + err.message + '</div>';
-            formError.style.display = 'block';
+            showNotification('error', 'Network error: ' + err.message);
         }
     }
 
