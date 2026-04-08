@@ -32,7 +32,6 @@ export class AppContext {
   shop(mode?: ChannelMode): ShopDriver {
     const resolvedMode = mode ?? this.channelMode;
     const channel = resolvedMode === 'static' ? STATIC_CHANNEL : this.channel;
-    console.log(`[ChannelMode] mode=${resolvedMode} → channel=${channel}`);
     if (!this.shops.has(channel)) {
       this.shops.set(channel, this.shopDriverFactory(channel));
     }

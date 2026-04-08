@@ -4,7 +4,7 @@ describe('Clock Real Contract Test', () => {
   it('shouldBeAbleToGetTime', async () => {
     const scenario = createScenario({ channel: 'api', externalSystemMode: 'real' });
     try {
-      await scenario.given().then().clock().hasTime();
+      await scenario.given().clock().withTime('2024-01-02T09:00:00Z').then().clock().hasTime();
     } finally {
       await scenario.close();
     }

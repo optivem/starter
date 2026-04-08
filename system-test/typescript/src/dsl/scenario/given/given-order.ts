@@ -8,6 +8,11 @@ export class GivenOrder {
     private readonly config: OrderConfig,
   ) {}
 
+  withOrderNumber(orderNumber: string): GivenOrder {
+    this.config.orderNumber = orderNumber;
+    return this;
+  }
+
   withSku(sku: string): GivenOrder {
     this.config.sku = sku;
     return this;

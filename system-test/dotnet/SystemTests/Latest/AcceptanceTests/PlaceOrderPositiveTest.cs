@@ -169,4 +169,50 @@ public class PlaceOrderPositiveTest : BaseAcceptanceTest
             .And().Coupon("SUMMER2025")
             .HasUsedCount(1);
     }
+
+    [Theory]
+    [ChannelData(ChannelType.API)]
+    public async Task OrderTotalShouldIncludeTax(Channel channel)
+    {
+        await Scenario(channel)
+            .Given().Country().WithCode("DE").WithTaxRate(0.19m)
+            .When().PlaceOrder().WithCountry("DE")
+            .Then().ShouldSucceed()
+            .And().Order()
+            .HasSubtotalPrice(20.00m)
+            .HasTaxRate(0.19m)
+            .HasTotalPrice(23.80m);
+    }
+
+    [Theory]
+    [ChannelData(ChannelType.API)]
+    public async Task OrderTotalShouldReflectCouponDiscount(Channel channel)
+    {
+        await Scenario(channel)
+            .Given().Coupon().WithCouponCode("DISC10").WithDiscountRate(0.10m)
+            .When().PlaceOrder().WithCouponCode("DISC10")
+            .Then().ShouldSucceed()
+            .And().Order()
+            .HasSubtotalPrice(18.00m)
+            .HasDiscountRate(0.10m)
+            .HasAppliedCoupon("DISC10")
+            .HasTotalPrice(19.26m);
+    }
+
+    [Theory]
+    [ChannelData(ChannelType.API)]
+    public async Task OrderTotalShouldApplyCouponDiscountAndTax(Channel channel)
+    {
+        await Scenario(channel)
+            .Given().Coupon().WithCouponCode("COMBO10").WithDiscountRate(0.10m)
+            .And().Country().WithCode("GB").WithTaxRate(0.20m)
+            .When().PlaceOrder().WithCountry("GB").WithCouponCode("COMBO10")
+            .Then().ShouldSucceed()
+            .And().Order()
+            .HasSubtotalPrice(18.00m)
+            .HasDiscountRate(0.10m)
+            .HasTaxRate(0.20m)
+            .HasAppliedCoupon("COMBO10")
+            .HasTotalPrice(21.60m);
+    }
 }

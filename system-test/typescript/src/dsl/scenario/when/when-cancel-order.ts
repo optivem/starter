@@ -1,4 +1,5 @@
 import { DEFAULTS } from '../../defaults';
+import { UseCaseContext } from '../../use-case-context';
 import { AppContext } from '../app-context';
 import { ScenarioContext } from '../scenario-context';
 import { ThenCancelOrderResultStage } from '../then/then-cancel-order';
@@ -9,6 +10,7 @@ export class WhenCancelOrder {
   constructor(
     private readonly app: AppContext,
     private readonly ctx: ScenarioContext,
+    private readonly useCaseContext: UseCaseContext,
   ) {}
 
   withOrderNumber(orderNumber: string): WhenCancelOrder {
@@ -17,6 +19,6 @@ export class WhenCancelOrder {
   }
 
   then(): ThenCancelOrderResultStage {
-    return new ThenCancelOrderResultStage(this.app, this.ctx, this.orderNumber);
+    return new ThenCancelOrderResultStage(this.app, this.ctx, this.useCaseContext, this.orderNumber);
   }
 }

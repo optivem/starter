@@ -1,4 +1,5 @@
 using SystemTests.Latest.AcceptanceTests.Base;
+using SystemTests.Commons.Providers;
 using Dsl.Core.Shop;
 using Optivem.Testing;
 
@@ -68,5 +69,19 @@ public class PublishCouponNegativeTest : BaseAcceptanceTest
             .Then().ShouldFail()
             .ErrorMessage("The request contains one or more validation errors")
             .FieldErrorMessage("usageLimit", "Usage limit must be positive");
+    }
+
+    [Theory]
+    [ChannelData(ChannelType.API)]
+    [ChannelClassData(typeof(EmptyArgumentsProvider))]
+    public async Task ShouldRejectCouponWithBlankCode(Channel channel, string code)
+    {
+        await Scenario(channel)
+            .When().PublishCoupon()
+                .WithCouponCode(code)
+                .WithDiscountRate(0.10m)
+            .Then().ShouldFail()
+            .ErrorMessage("The request contains one or more validation errors")
+            .FieldErrorMessage("code", "Coupon code must not be blank");
     }
 }

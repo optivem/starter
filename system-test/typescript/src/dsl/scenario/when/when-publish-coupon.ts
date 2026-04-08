@@ -1,3 +1,4 @@
+import { UseCaseContext } from '../../use-case-context';
 import { AppContext } from '../app-context';
 import { ScenarioContext } from '../scenario-context';
 import { ThenPublishCouponResultStage } from '../then/then-publish-coupon';
@@ -12,6 +13,7 @@ export class WhenPublishCoupon {
   constructor(
     private readonly app: AppContext,
     private readonly ctx: ScenarioContext,
+    private readonly useCaseContext: UseCaseContext,
   ) {}
 
   withCode(code: string): WhenPublishCoupon {
@@ -44,6 +46,6 @@ export class WhenPublishCoupon {
   }
 
   then(): ThenPublishCouponResultStage {
-    return new ThenPublishCouponResultStage(this.app, this.ctx, this.code, this.discountRate, this.validFrom, this.validTo, this.usageLimit);
+    return new ThenPublishCouponResultStage(this.app, this.ctx, this.useCaseContext, this.code, this.discountRate, this.validFrom, this.validTo, this.usageLimit);
   }
 }

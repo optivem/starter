@@ -1,4 +1,5 @@
 import { DEFAULTS } from '../../defaults';
+import { UseCaseContext } from '../../use-case-context';
 import { AppContext } from '../app-context';
 import { ScenarioContext, ProductConfig, CouponConfig, CountryConfig, OrderConfig } from '../scenario-context';
 import { WhenStage } from '../when/when-stage';
@@ -14,6 +15,7 @@ export class GivenStage {
   constructor(
     private readonly app: AppContext,
     private readonly ctx: ScenarioContext,
+    private readonly useCaseContext: UseCaseContext,
   ) {}
 
   clock(): GivenClock {
@@ -62,10 +64,10 @@ export class GivenStage {
   }
 
   when(): WhenStage {
-    return new WhenStage(this.app, this.ctx);
+    return new WhenStage(this.app, this.ctx, this.useCaseContext);
   }
 
   then(): ThenContractStage {
-    return new ThenContractStage(this.app, this.ctx);
+    return new ThenContractStage(this.app, this.ctx, this.useCaseContext);
   }
 }

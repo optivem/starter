@@ -1,12 +1,7 @@
-import { randomUUID } from 'node:crypto';
 import { createScenario, Channel, ExternalSystemMode } from '../../../src/test-setup';
 
 const channel = (process.env.CHANNEL?.toLowerCase() || 'api') as Channel;
 const externalSystemMode = (process.env.EXTERNAL_SYSTEM_MODE?.toLowerCase() || 'stub') as ExternalSystemMode;
-
-function uniqueCode(prefix: string): string {
-  return `${prefix}-${randomUUID().slice(0, 8)}`;
-}
 
 describe('PublishCoupon Positive Test', () => {
   it(`shouldBeAbleToPublishValidCoupon_${channel.toUpperCase()}`, async () => {
@@ -15,8 +10,11 @@ describe('PublishCoupon Positive Test', () => {
       await scenario
         .when()
         .publishCoupon()
-        .withCode(uniqueCode('SAVE10'))
-        .withDiscountRate(0.1)
+        .withCouponCode('SUMMER2025')
+        .withDiscountRate(0.15)
+        .withValidFrom('2024-06-01T00:00:00Z')
+        .withValidTo('2024-08-31T23:59:59Z')
+        .withUsageLimit(100)
         .then()
         .shouldSucceed();
     } finally {
@@ -30,8 +28,8 @@ describe('PublishCoupon Positive Test', () => {
       await scenario
         .when()
         .publishCoupon()
-        .withCode(uniqueCode('MINIMAL'))
-        .withDiscountRate(0.05)
+        .withCouponCode('SUMMER2025')
+        .withDiscountRate(0.15)
         .withValidFrom(undefined)
         .withValidTo(undefined)
         .withUsageLimit(undefined)
@@ -48,10 +46,10 @@ describe('PublishCoupon Positive Test', () => {
       await scenario
         .when()
         .publishCoupon()
-        .withCode(uniqueCode('FULL'))
+        .withCouponCode('SUMMER2025')
         .withDiscountRate(0.15)
-        .withValidFrom('2025-01-01T00:00:00Z')
-        .withValidTo('2025-12-31T23:59:59Z')
+        .withValidFrom('2024-06-01T00:00:00Z')
+        .withValidTo('2024-08-31T23:59:00Z')
         .withUsageLimit(100)
         .then()
         .shouldSucceed();
@@ -59,4 +57,21 @@ describe('PublishCoupon Positive Test', () => {
       await scenario.close();
     }
   });
+
+  if (channel === 'api') {
+    it('shouldPublishCouponSuccessfully_API', async () => {
+      const scenario = createScenario({ channel: 'api', externalSystemMode });
+      try {
+        await scenario
+          .when()
+          .publishCoupon()
+          .withCouponCode('SAVE10')
+          .withDiscountRate(0.1)
+          .then()
+          .shouldSucceed();
+      } finally {
+        await scenario.close();
+      }
+    });
+  }
 });

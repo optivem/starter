@@ -1,5 +1,6 @@
 import { loadConfiguration, TestConfig } from '../config/configuration-loader';
 import { ScenarioDsl, AppContext, ChannelMode } from './dsl/scenario-dsl';
+import { UseCaseContext } from './dsl/use-case-context';
 import { ShopApiDriver } from './drivers/shop-api-driver';
 import { ShopUiDriver } from './drivers/shop-ui-driver';
 import { ErpRealDriver } from './drivers/erp-real-driver';
@@ -38,7 +39,8 @@ export function createScenario(options: ScenarioOptions = {}): ScenarioDsl {
     taxDriver: createTaxDriver(config, mode),
   });
 
-  return new ScenarioDsl(app);
+  const useCaseContext = new UseCaseContext(mode);
+  return new ScenarioDsl(app, useCaseContext);
 }
 
 function createShopDriverForChannel(config: TestConfig, channel: Channel, options: ScenarioOptions) {

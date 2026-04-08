@@ -26,10 +26,11 @@ public class PlaceOrderPositiveIsolatedTest : BaseAcceptanceTest
         await Scenario(channel)
             .Given().Product().WithUnitPrice(20.00m)
             .And().Promotion().WithActive(false)
+            .And().Country().WithTaxRate(0.00m)
             .When().PlaceOrder().WithQuantity(5)
             .Then().ShouldSucceed()
             .And().Order()
-            .HasTotalPrice(107.00m);
+            .HasTotalPrice(100.00m);
     }
 
     [Theory]
@@ -39,9 +40,10 @@ public class PlaceOrderPositiveIsolatedTest : BaseAcceptanceTest
         await Scenario(channel)
             .Given().Product().WithUnitPrice(20.00m)
             .And().Promotion().WithActive(true).WithDiscount(0.5m)
+            .And().Country().WithTaxRate(0.00m)
             .When().PlaceOrder().WithQuantity(5)
             .Then().ShouldSucceed()
             .And().Order()
-            .HasTotalPrice(53.50m);
+            .HasTotalPrice(50.00m);
     }
 }

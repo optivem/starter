@@ -1,17 +1,19 @@
 import { ErrorResponse, ViewOrderResponse } from '../../../common/dtos';
 import { DEFAULTS } from '../../defaults';
+import { UseCaseContext } from '../../use-case-context';
 import { AppContext } from '../app-context';
 import { ScenarioContext } from '../scenario-context';
 
 export class ThenCancelOrderResultStage implements PromiseLike<void> {
   private _expectSuccess = true;
   private _orderAssertions: ((order: ViewOrderResponse) => void)[] = [];
-  private _errorAssertions: ((error: ErrorResponse) => void)[] = [];
+  private _errorAssertions: ((error: ErrorResponse, useCaseContext: UseCaseContext) => void)[] = [];
   private _executionPromise: Promise<void> | null = null;
 
   constructor(
     private readonly app: AppContext,
     private readonly ctx: ScenarioContext,
+    private readonly useCaseContext: UseCaseContext,
     private readonly orderNumber: string,
   ) {}
 
@@ -29,7 +31,7 @@ export class ThenCancelOrderResultStage implements PromiseLike<void> {
     this._orderAssertions.push(fn);
   }
 
-  _addErrorAssertion(fn: (error: ErrorResponse) => void): void {
+  _addErrorAssertion(fn: (error: ErrorResponse, useCaseContext: UseCaseContext) => void): void {
     this._errorAssertions.push(fn);
   }
 
@@ -44,8 +46,14 @@ export class ThenCancelOrderResultStage implements PromiseLike<void> {
       await this.app.clockDriver.returnsTime({ time: this.ctx.clockConfig.time });
     }
 
-    for (const countryConfig of this.ctx.countryConfigs) {
-      await this.app.taxDriver.returnsTaxRate({ country: countryConfig.country, taxRate: countryConfig.taxRate });
+    if (this.ctx.countryConfigs.length > 0) {
+      for (const countryConfig of this.ctx.countryConfigs) {
+        const resolvedCountry = this.useCaseContext.getParamValueOrLiteral(countryConfig.country) as string;
+        await this.app.taxDriver.returnsTaxRate({ country: resolvedCountry, taxRate: countryConfig.taxRate });
+      }
+    } else {
+      const resolvedCountry = this.useCaseContext.getParamValueOrLiteral(DEFAULTS.COUNTRY) as string;
+      await this.app.taxDriver.returnsTaxRate({ country: resolvedCountry, taxRate: DEFAULTS.TAX_RATE });
     }
 
     await this.app.erpDriver.returnsPromotion({
@@ -55,15 +63,18 @@ export class ThenCancelOrderResultStage implements PromiseLike<void> {
 
     if (this.ctx.hasExplicitProduct) {
       for (const pc of this.ctx.productConfigs) {
-        await this.app.erpDriver.returnsProduct({ sku: pc.sku, price: pc.price });
+        const resolvedSku = this.useCaseContext.getParamValue(pc.sku) as string;
+        await this.app.erpDriver.returnsProduct({ sku: resolvedSku, price: pc.price });
       }
     } else {
-      await this.app.erpDriver.returnsProduct({ sku: DEFAULTS.SKU, price: DEFAULTS.UNIT_PRICE });
+      const resolvedSku = this.useCaseContext.getParamValue(DEFAULTS.SKU) as string;
+      await this.app.erpDriver.returnsProduct({ sku: resolvedSku, price: DEFAULTS.UNIT_PRICE });
     }
 
     for (const cc of this.ctx.couponConfigs) {
+      const resolvedCode = this.useCaseContext.getParamValue(cc.code) as string;
       await this.app.shop().publishCoupon({
-        code: cc.code,
+        code: resolvedCode,
         discountRate: cc.discountRate,
         validFrom: cc.validFrom,
         validTo: cc.validTo,
@@ -73,11 +84,14 @@ export class ThenCancelOrderResultStage implements PromiseLike<void> {
 
     // Place any given orders
     for (const oc of this.ctx.orderConfigs) {
+      const resolvedSku = this.useCaseContext.getParamValue(oc.sku) as string;
+      const resolvedCountry = this.useCaseContext.getParamValueOrLiteral(oc.country) as string;
+      const resolvedCouponCode = this.useCaseContext.getParamValue(oc.couponCode) as string | null;
       const placeResult = await this.app.shop().placeOrder({
-        sku: oc.sku,
+        sku: resolvedSku,
         quantity: oc.quantity,
-        country: oc.country,
-        couponCode: oc.couponCode,
+        country: resolvedCountry,
+        couponCode: resolvedCouponCode,
       });
       if (placeResult.success) {
         oc.orderNumber = placeResult.value.orderNumber;
@@ -109,7 +123,7 @@ export class ThenCancelOrderResultStage implements PromiseLike<void> {
     } else {
       expect(result.success).toBe(false);
       if (!result.success) {
-        for (const fn of this._errorAssertions) fn(result.error);
+        for (const fn of this._errorAssertions) fn(result.error, this.useCaseContext);
       }
     }
   }
@@ -174,17 +188,18 @@ export class ThenCancelOrderFailure implements PromiseLike<void> {
   constructor(private readonly stage: ThenCancelOrderResultStage) {}
 
   errorMessage(expected: string): ThenCancelOrderFailure {
-    this.stage._addErrorAssertion((error) => {
-      expect(error.message).toBe(expected);
+    this.stage._addErrorAssertion((error, useCaseContext) => {
+      expect(error.message).toBe(useCaseContext.expandAliases(expected));
     });
     return this;
   }
 
   fieldErrorMessage(field: string, message: string): ThenCancelOrderFailure {
-    this.stage._addErrorAssertion((error) => {
+    this.stage._addErrorAssertion((error, useCaseContext) => {
+      const expandedMessage = useCaseContext.expandAliases(message);
       const fieldError = error.fieldErrors.find((fe) => fe.field === field);
       expect(fieldError).toBeDefined();
-      expect(fieldError!.message).toBe(message);
+      expect(fieldError!.message).toBe(expandedMessage);
     });
     return this;
   }

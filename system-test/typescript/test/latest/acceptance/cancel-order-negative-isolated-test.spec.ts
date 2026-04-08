@@ -29,7 +29,7 @@ describe('CancelOrder Negative Isolated Test', () => {
   });
 
   it.each(timesInsideBlackout)(
-    `cannotCancelOrderDuringBlackoutPeriod_${channel.toUpperCase()}_%s`,
+    `cannotCancelAnOrderOn31stDecBetween2200And2230_${channel.toUpperCase()}_%s`,
     async (time) => {
       const scenario = createScenario({ channel, externalSystemMode, browser });
       try {

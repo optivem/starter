@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { createScenario, Channel, ExternalSystemMode } from '../../../src/test-setup';
 
 const channel = (process.env.CHANNEL?.toLowerCase() || 'api') as Channel;
@@ -19,13 +18,13 @@ describe('BrowseCoupons Positive Test', () => {
   });
 
   it(`publishedCouponShouldAppearInList_${channel.toUpperCase()}`, async () => {
-    const couponCode = `BROWSE10-${randomUUID().slice(0, 8)}`;
+    const couponCode = 'BROWSE10';
     const scenario = createScenario({ channel, externalSystemMode });
     try {
       await scenario
         .given()
         .coupon()
-        .withCode(couponCode)
+        .withCouponCode(couponCode)
         .withDiscountRate(0.1)
         .when()
         .browseCoupons()

@@ -54,4 +54,15 @@ public class PublishCouponPositiveTest : BaseAcceptanceTest
             .HasUsageLimit(100)
             .HasUsedCount(0);
     }
+
+    [Theory]
+    [ChannelData(ChannelType.API)]
+    public async Task ShouldPublishCouponSuccessfully(Channel channel)
+    {
+        await Scenario(channel)
+            .When().PublishCoupon()
+                .WithCouponCode("SAVE10")
+                .WithDiscountRate(0.10m)
+            .Then().ShouldSucceed();
+    }
 }

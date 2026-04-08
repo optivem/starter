@@ -12,6 +12,7 @@ import {
   GetTaxResponse,
   ReturnsTaxRateRequest,
   PublishCouponRequest,
+  ViewCouponResponse,
   BrowseCouponsResponse,
 } from '../common/dtos';
 
@@ -22,6 +23,7 @@ export interface ShopDriver {
   deliverOrder(orderNumber: string): Promise<Result<void, ErrorResponse>>;
   viewOrder(orderNumber: string): Promise<Result<ViewOrderResponse, ErrorResponse>>;
   publishCoupon(request: PublishCouponRequest): Promise<Result<void, ErrorResponse>>;
+  viewCoupon(code: string): Promise<Result<ViewCouponResponse, ErrorResponse>>;
   browseCoupons(): Promise<Result<BrowseCouponsResponse, ErrorResponse>>;
   close(): Promise<void>;
 }

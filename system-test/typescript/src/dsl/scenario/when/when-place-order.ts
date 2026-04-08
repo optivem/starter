@@ -1,4 +1,5 @@
 import { DEFAULTS } from '../../defaults';
+import { UseCaseContext } from '../../use-case-context';
 import { AppContext } from '../app-context';
 import { ScenarioContext } from '../scenario-context';
 import { ThenResultStage } from '../then/then-place-order';
@@ -12,10 +13,15 @@ export class WhenPlaceOrder {
   constructor(
     private readonly app: AppContext,
     private readonly ctx: ScenarioContext,
+    private readonly useCaseContext: UseCaseContext,
   ) {}
 
-  withSku(sku: string): WhenPlaceOrder {
-    this.sku = sku;
+  withOrderNumber(_orderNumber: string): WhenPlaceOrder {
+    return this;
+  }
+
+  withSku(sku: string | null): WhenPlaceOrder {
+    this.sku = sku as string;
     return this;
   }
 
@@ -24,8 +30,8 @@ export class WhenPlaceOrder {
     return this;
   }
 
-  withCountry(country: string): WhenPlaceOrder {
-    this.country = country;
+  withCountry(country: string | null): WhenPlaceOrder {
+    this.country = country as string;
     return this;
   }
 
@@ -35,6 +41,6 @@ export class WhenPlaceOrder {
   }
 
   then(): ThenResultStage {
-    return new ThenResultStage(this.app, this.ctx, this.sku, this.quantity, this.country, this.couponCode);
+    return new ThenResultStage(this.app, this.ctx, this.useCaseContext, this.sku, this.quantity, this.country, this.couponCode);
   }
 }

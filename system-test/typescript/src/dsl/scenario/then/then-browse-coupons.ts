@@ -1,4 +1,5 @@
 import { BrowseCouponsResponse } from '../../../common/dtos';
+import { UseCaseContext } from '../../use-case-context';
 import { AppContext } from '../app-context';
 import { ScenarioContext } from '../scenario-context';
 
@@ -10,6 +11,7 @@ export class ThenBrowseCouponsResultStage implements PromiseLike<void> {
   constructor(
     private readonly app: AppContext,
     private readonly ctx: ScenarioContext,
+    private readonly useCaseContext: UseCaseContext,
   ) {}
 
   shouldSucceed(): ThenBrowseCouponsSuccess {
@@ -30,7 +32,8 @@ export class ThenBrowseCouponsResultStage implements PromiseLike<void> {
 
   private async _doExecute(): Promise<void> {
     for (const cc of this.ctx.couponConfigs) {
-      await this.app.shop().publishCoupon({ code: cc.code, discountRate: cc.discountRate });
+      const resolvedCode = this.useCaseContext.getParamValue(cc.code) as string;
+      await this.app.shop().publishCoupon({ code: resolvedCode, discountRate: cc.discountRate });
     }
 
     const result = await this.app.shop('static').browseCoupons();

@@ -1,11 +1,6 @@
-import { randomUUID } from 'node:crypto';
 import { chromium, Browser } from 'playwright';
 import { createScenario, Channel, ExternalSystemMode } from '../../../src/test-setup';
 import { OrderStatus } from '../../../src/common/dtos';
-
-function uniqueCode(prefix: string): string {
-  return `${prefix}-${randomUUID().slice(0, 8)}`;
-}
 
 const channel = (process.env.CHANNEL?.toLowerCase() || 'api') as Channel;
 const externalSystemMode = (process.env.EXTERNAL_SYSTEM_MODE?.toLowerCase() || 'stub') as ExternalSystemMode;
@@ -73,6 +68,10 @@ describe('PlaceOrder Positive Test', () => {
     const scenario = createScenario({ channel: 'api', externalSystemMode });
     try {
       await scenario
+        .given()
+        .country()
+        .withCode('DE')
+        .withTaxRate('0.19')
         .when()
         .placeOrder()
         .withCountry('DE')
@@ -90,13 +89,13 @@ describe('PlaceOrder Positive Test', () => {
 
   it(`orderTotalShouldReflectCouponDiscount_API`, async () => {
     if (channel !== 'api') return;
-    const couponCode = uniqueCode('DISC10');
+    const couponCode = 'DISC10';
     const scenario = createScenario({ channel: 'api', externalSystemMode });
     try {
       await scenario
         .given()
         .coupon()
-        .withCode(couponCode)
+        .withCouponCode(couponCode)
         .withDiscountRate(0.1)
         .when()
         .placeOrder()
@@ -108,7 +107,7 @@ describe('PlaceOrder Positive Test', () => {
         .hasSubtotalPrice(18.0)
         .hasDiscountRate(0.1)
         .hasAppliedCouponCode(couponCode)
-        .hasTotalPrice(18.0);
+        .hasTotalPrice(19.26);
     } finally {
       await scenario.close();
     }
@@ -116,14 +115,18 @@ describe('PlaceOrder Positive Test', () => {
 
   it(`orderTotalShouldApplyCouponDiscountAndTax_API`, async () => {
     if (channel !== 'api') return;
-    const comboCode = uniqueCode('COMBO10');
+    const comboCode = 'COMBO10';
     const scenario = createScenario({ channel: 'api', externalSystemMode });
     try {
       await scenario
         .given()
         .coupon()
-        .withCode(comboCode)
+        .withCouponCode(comboCode)
         .withDiscountRate(0.1)
+        .and()
+        .country()
+        .withCode('GB')
+        .withTaxRate('0.20')
         .when()
         .placeOrder()
         .withCountry('GB')
@@ -193,13 +196,13 @@ describe('PlaceOrder Positive Test', () => {
   );
 
   it(`discountRateShouldBeAppliedForCoupon_${channel.toUpperCase()}`, async () => {
-    const code = uniqueCode('SUMMER');
+    const code = 'SUMMER2025';
     const scenario = createScenario({ channel, externalSystemMode, browser });
     try {
       await scenario
         .given()
         .coupon()
-        .withCode(code)
+        .withCouponCode(code)
         .withDiscountRate(0.15)
         .when()
         .placeOrder()
@@ -234,13 +237,13 @@ describe('PlaceOrder Positive Test', () => {
   });
 
   it(`subtotalPriceShouldBeCalculatedAsTheBasePriceMinusDiscountAmountWhenWeHaveCoupon_${channel.toUpperCase()}`, async () => {
-    const code = uniqueCode('DISC15');
+    const code = 'SUMMER2025';
     const scenario = createScenario({ channel, externalSystemMode, browser });
     try {
       await scenario
         .given()
         .coupon()
-        .withCode(code)
+        .withCouponCode(code)
         .withDiscountRate(0.15)
         .and()
         .product()
@@ -285,7 +288,7 @@ describe('PlaceOrder Positive Test', () => {
 
   const taxRateCases = [
     { country: 'UK', taxRate: '0.09' },
-    { country: 'DE', taxRate: '0.20' },
+    { country: 'US', taxRate: '0.20' },
   ];
 
   it.each(taxRateCases)(
@@ -314,7 +317,7 @@ describe('PlaceOrder Positive Test', () => {
 
   const totalPriceCases = [
     { country: 'UK', taxRate: '0.09', subtotalPrice: 50, expectedTaxAmount: 4.5, expectedTotalPrice: 54.5 },
-    { country: 'DE', taxRate: '0.20', subtotalPrice: 100, expectedTaxAmount: 20, expectedTotalPrice: 120 },
+    { country: 'US', taxRate: '0.20', subtotalPrice: 100, expectedTaxAmount: 20, expectedTotalPrice: 120 },
   ];
 
   it.each(totalPriceCases)(
@@ -349,13 +352,13 @@ describe('PlaceOrder Positive Test', () => {
   );
 
   it(`couponUsageCountHasBeenIncrementedAfterItsBeenUsed_${channel.toUpperCase()}`, async () => {
-    const code = uniqueCode('USAGE');
+    const code = 'SUMMER2025';
     const scenario = createScenario({ channel, externalSystemMode, browser });
     try {
       await scenario
         .given()
         .coupon()
-        .withCode(code)
+        .withCouponCode(code)
         .withDiscountRate(0.1)
         .when()
         .placeOrder()

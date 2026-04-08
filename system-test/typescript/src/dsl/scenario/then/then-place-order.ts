@@ -1,22 +1,26 @@
 import {
   ErrorResponse,
   ViewOrderResponse,
+  ViewCouponResponse,
   GetTimeResponse,
 } from '../../../common/dtos';
 import { DEFAULTS } from '../../defaults';
+import { UseCaseContext } from '../../use-case-context';
 import { AppContext } from '../app-context';
 import { ScenarioContext } from '../scenario-context';
 
 export class ThenResultStage implements PromiseLike<void> {
   private _expectSuccess = true;
   private _orderAssertions: ((order: ViewOrderResponse) => void)[] = [];
+  private readonly _couponAssertions: { code: string; fns: ((coupon: ViewCouponResponse) => void)[] }[] = [];
   private _clockAssertions: ((time: GetTimeResponse) => void)[] = [];
-  private _errorAssertions: ((error: ErrorResponse) => void)[] = [];
+  private _errorAssertions: ((error: ErrorResponse, useCaseContext: UseCaseContext) => void)[] = [];
   private _executionPromise: Promise<void> | null = null;
 
   constructor(
     private readonly app: AppContext,
     private readonly ctx: ScenarioContext,
+    readonly useCaseContext: UseCaseContext,
     private readonly sku: string,
     private readonly quantity: string | null,
     private readonly country: string = DEFAULTS.COUNTRY,
@@ -37,11 +41,20 @@ export class ThenResultStage implements PromiseLike<void> {
     this._orderAssertions.push(fn);
   }
 
+  _addCouponAssertion(code: string, fn: (coupon: ViewCouponResponse) => void): void {
+    let entry = this._couponAssertions.find((e) => e.code === code);
+    if (!entry) {
+      entry = { code, fns: [] };
+      this._couponAssertions.push(entry);
+    }
+    entry.fns.push(fn);
+  }
+
   _addClockAssertion(fn: (time: GetTimeResponse) => void): void {
     this._clockAssertions.push(fn);
   }
 
-  _addErrorAssertion(fn: (error: ErrorResponse) => void): void {
+  _addErrorAssertion(fn: (error: ErrorResponse, useCaseContext: UseCaseContext) => void): void {
     this._errorAssertions.push(fn);
   }
 
@@ -56,8 +69,14 @@ export class ThenResultStage implements PromiseLike<void> {
       await this.app.clockDriver.returnsTime({ time: this.ctx.clockConfig.time });
     }
 
-    for (const countryConfig of this.ctx.countryConfigs) {
-      await this.app.taxDriver.returnsTaxRate({ country: countryConfig.country, taxRate: countryConfig.taxRate });
+    if (this.ctx.countryConfigs.length > 0) {
+      for (const countryConfig of this.ctx.countryConfigs) {
+        const resolvedCountry = this.useCaseContext.getParamValueOrLiteral(countryConfig.country) as string;
+        await this.app.taxDriver.returnsTaxRate({ country: resolvedCountry, taxRate: countryConfig.taxRate });
+      }
+    } else {
+      const resolvedCountry = this.useCaseContext.getParamValueOrLiteral(DEFAULTS.COUNTRY) as string;
+      await this.app.taxDriver.returnsTaxRate({ country: resolvedCountry, taxRate: DEFAULTS.TAX_RATE });
     }
 
     await this.app.erpDriver.returnsPromotion({
@@ -67,15 +86,18 @@ export class ThenResultStage implements PromiseLike<void> {
 
     if (this.ctx.hasExplicitProduct) {
       for (const pc of this.ctx.productConfigs) {
-        await this.app.erpDriver.returnsProduct({ sku: pc.sku, price: pc.price });
+        const resolvedSku = this.useCaseContext.getParamValue(pc.sku) as string;
+        await this.app.erpDriver.returnsProduct({ sku: resolvedSku, price: pc.price });
       }
     } else {
-      await this.app.erpDriver.returnsProduct({ sku: DEFAULTS.SKU, price: DEFAULTS.UNIT_PRICE });
+      const resolvedSku = this.useCaseContext.getParamValue(DEFAULTS.SKU) as string;
+      await this.app.erpDriver.returnsProduct({ sku: resolvedSku, price: DEFAULTS.UNIT_PRICE });
     }
 
     for (const cc of this.ctx.couponConfigs) {
+      const resolvedCode = this.useCaseContext.getParamValue(cc.code) as string;
       await this.app.shop().publishCoupon({
-        code: cc.code,
+        code: resolvedCode,
         discountRate: cc.discountRate,
         validFrom: cc.validFrom,
         validTo: cc.validTo,
@@ -83,11 +105,29 @@ export class ThenResultStage implements PromiseLike<void> {
       });
     }
 
+    // Execute given orders (e.g., to exhaust coupon usage limits)
+    for (const oc of this.ctx.orderConfigs) {
+      const orderSku = this.useCaseContext.getParamValue(oc.sku) as string;
+      const orderCountry = this.useCaseContext.getParamValueOrLiteral(oc.country) as string;
+      const orderCouponCode = this.useCaseContext.getParamValue(oc.couponCode) as string | null;
+      const orderResult = await this.app.shop().placeOrder({
+        sku: orderSku,
+        quantity: oc.quantity,
+        country: orderCountry,
+        couponCode: orderCouponCode,
+      });
+      expect(orderResult.success).toBe(true);
+    }
+
+    const resolvedSku = this.useCaseContext.getParamValue(this.sku) as string;
+    const resolvedCountry = this.useCaseContext.getParamValueOrLiteral(this.country) as string;
+    const resolvedCouponCode = this.useCaseContext.getParamValue(this.couponCode) as string | null;
+
     const result = await this.app.shop('dynamic').placeOrder({
-      sku: this.sku,
+      sku: resolvedSku,
       quantity: this.quantity,
-      country: this.country,
-      couponCode: this.couponCode,
+      country: resolvedCountry,
+      couponCode: resolvedCouponCode,
     });
 
     if (this._expectSuccess) {
@@ -102,6 +142,14 @@ export class ThenResultStage implements PromiseLike<void> {
         }
       }
 
+      for (const couponEntry of this._couponAssertions) {
+        const couponResult = await this.app.shop().viewCoupon(couponEntry.code);
+        expect(couponResult.success).toBe(true);
+        if (couponResult.success) {
+          for (const fn of couponEntry.fns) fn(couponResult.value);
+        }
+      }
+
       if (this._clockAssertions.length > 0) {
         const timeResult = await this.app.clockDriver.getTime();
         expect(timeResult.success).toBe(true);
@@ -112,7 +160,7 @@ export class ThenResultStage implements PromiseLike<void> {
     } else {
       expect(result.success).toBe(false);
       if (result.success) return;
-      for (const fn of this._errorAssertions) fn(result.error);
+      for (const fn of this._errorAssertions) fn(result.error, this.useCaseContext);
     }
   }
 
@@ -144,6 +192,10 @@ export class ThenSuccessAnd implements PromiseLike<void> {
 
   order(): ThenOrder {
     return new ThenOrder(this.stage);
+  }
+
+  coupon(code: string): ThenCoupon {
+    return new ThenCoupon(this.stage, code);
   }
 
   clock(): ThenClock {
@@ -205,7 +257,8 @@ export class ThenOrder implements PromiseLike<void> {
 
   hasAppliedCouponCode(code: string | null): ThenOrder {
     this.stage._addOrderAssertion((order) => {
-      expect(order.appliedCouponCode).toBe(code);
+      const resolvedCode = this.stage.useCaseContext.getParamValue(code);
+      expect(order.appliedCouponCode).toBe(resolvedCode);
     });
     return this;
   }
@@ -265,17 +318,67 @@ export class ThenFailure implements PromiseLike<void> {
   constructor(private readonly stage: ThenResultStage) {}
 
   errorMessage(expected: string): ThenFailure {
-    this.stage._addErrorAssertion((error) => {
-      expect(error.message).toBe(expected);
+    this.stage._addErrorAssertion((error, useCaseContext) => {
+      expect(error.message).toBe(useCaseContext.expandAliases(expected));
     });
     return this;
   }
 
   fieldErrorMessage(field: string, message: string): ThenFailure {
-    this.stage._addErrorAssertion((error) => {
+    this.stage._addErrorAssertion((error, useCaseContext) => {
+      const expandedMessage = useCaseContext.expandAliases(message);
       const fieldError = error.fieldErrors.find((fe) => fe.field === field);
       expect(fieldError).toBeDefined();
-      expect(fieldError!.message).toBe(message);
+      expect(fieldError!.message).toBe(expandedMessage);
+    });
+    return this;
+  }
+
+  then<TResult1 = void, TResult2 = never>(
+    onfulfilled?: ((value: void) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.stage.then(onfulfilled, onrejected);
+  }
+}
+
+export class ThenCoupon implements PromiseLike<void> {
+  constructor(
+    private readonly stage: ThenResultStage,
+    private readonly code: string,
+  ) {}
+
+  hasDiscountRate(rate: number): ThenCoupon {
+    this.stage._addCouponAssertion(this.code, (coupon) => {
+      expect(coupon.discountRate).toBe(rate);
+    });
+    return this;
+  }
+
+  isValidFrom(validFrom: string): ThenCoupon {
+    this.stage._addCouponAssertion(this.code, (coupon) => {
+      expect(coupon.validFrom).toBe(validFrom);
+    });
+    return this;
+  }
+
+  isValidTo(validTo: string): ThenCoupon {
+    this.stage._addCouponAssertion(this.code, (coupon) => {
+      expect(coupon.validTo).toBe(validTo);
+    });
+    return this;
+  }
+
+  hasUsageLimit(limit: number): ThenCoupon {
+    this.stage._addCouponAssertion(this.code, (coupon) => {
+      expect(coupon.usageLimit).toBe(limit);
+    });
+    return this;
+  }
+
+  hasUsedCount(count: number): ThenCoupon {
+    this.stage._addCouponAssertion(this.code, (coupon) => {
+      expect(coupon.usedCount).toBe(count);
     });
     return this;
   }

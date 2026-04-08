@@ -1,4 +1,5 @@
 import { GetTimeResponse, GetProductResponse, GetTaxResponse } from '../../../common/dtos';
+import { UseCaseContext } from '../../use-case-context';
 import { AppContext } from '../app-context';
 import { ScenarioContext } from '../scenario-context';
 
@@ -11,6 +12,7 @@ export class ThenContractStage implements PromiseLike<void> {
   constructor(
     private readonly app: AppContext,
     private readonly ctx: ScenarioContext,
+    readonly useCaseContext: UseCaseContext,
   ) {}
 
   clock(): ThenContractClock {
@@ -51,11 +53,13 @@ export class ThenContractStage implements PromiseLike<void> {
     }
 
     for (const pc of this.ctx.productConfigs) {
-      await this.app.erpDriver.returnsProduct({ sku: pc.sku, price: pc.price });
+      const resolvedSku = this.useCaseContext.getParamValue(pc.sku) as string;
+      await this.app.erpDriver.returnsProduct({ sku: resolvedSku, price: pc.price });
     }
 
     for (const cc of this.ctx.countryConfigs) {
-      await this.app.taxDriver.returnsTaxRate({ country: cc.country, taxRate: cc.taxRate });
+      const resolvedCountry = this.useCaseContext.getParamValueOrLiteral(cc.country) as string;
+      await this.app.taxDriver.returnsTaxRate({ country: resolvedCountry, taxRate: cc.taxRate });
     }
 
     if (this._clockAssertions.length > 0) {
@@ -67,7 +71,8 @@ export class ThenContractStage implements PromiseLike<void> {
     }
 
     for (const [sku, assertions] of this._productAssertions) {
-      const productResult = await this.app.erpDriver.getProduct(sku);
+      const resolvedSku = this.useCaseContext.getParamValue(sku) as string;
+      const productResult = await this.app.erpDriver.getProduct(resolvedSku);
       expect(productResult.success).toBe(true);
       if (productResult.success) {
         for (const fn of assertions) fn(productResult.value);
@@ -75,7 +80,8 @@ export class ThenContractStage implements PromiseLike<void> {
     }
 
     for (const [countryCode, assertions] of this._countryAssertions) {
-      const taxResult = await this.app.taxDriver.getTaxRate(countryCode);
+      const resolvedCountry = this.useCaseContext.getParamValueOrLiteral(countryCode) as string;
+      const taxResult = await this.app.taxDriver.getTaxRate(resolvedCountry);
       expect(taxResult.success).toBe(true);
       if (taxResult.success) {
         for (const fn of assertions) fn(taxResult.value);
@@ -121,7 +127,8 @@ export class ThenContractProduct implements PromiseLike<void> {
 
   hasSku(expectedSku: string): ThenContractProduct {
     this.stage._addProductAssertion(this.sku, (p) => {
-      expect(p.sku).toBe(expectedSku);
+      const resolved = this.stage.useCaseContext.getParamValue(expectedSku) as string;
+      expect(p.sku).toBe(resolved);
     });
     return this;
   }
@@ -149,7 +156,8 @@ export class ThenContractCountry implements PromiseLike<void> {
 
   hasCountry(expected: string): ThenContractCountry {
     this.stage._addCountryAssertion(this.countryCode, (t) => {
-      expect(t.country).toBe(expected);
+      const resolved = this.stage.useCaseContext.getParamValueOrLiteral(expected) as string;
+      expect(t.country).toBe(resolved);
     });
     return this;
   }

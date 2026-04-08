@@ -1,3 +1,4 @@
+import { UseCaseContext } from '../../use-case-context';
 import { AppContext } from '../app-context';
 import { ScenarioContext } from '../scenario-context';
 import { WhenPlaceOrder } from './when-place-order';
@@ -10,25 +11,26 @@ export class WhenStage {
   constructor(
     private readonly app: AppContext,
     private readonly ctx: ScenarioContext,
+    private readonly useCaseContext: UseCaseContext,
   ) {}
 
   placeOrder(): WhenPlaceOrder {
-    return new WhenPlaceOrder(this.app, this.ctx);
+    return new WhenPlaceOrder(this.app, this.ctx, this.useCaseContext);
   }
 
   cancelOrder(): WhenCancelOrder {
-    return new WhenCancelOrder(this.app, this.ctx);
+    return new WhenCancelOrder(this.app, this.ctx, this.useCaseContext);
   }
 
   viewOrder(): WhenViewOrder {
-    return new WhenViewOrder(this.app, this.ctx);
+    return new WhenViewOrder(this.app, this.ctx, this.useCaseContext);
   }
 
   publishCoupon(): WhenPublishCoupon {
-    return new WhenPublishCoupon(this.app, this.ctx);
+    return new WhenPublishCoupon(this.app, this.ctx, this.useCaseContext);
   }
 
   browseCoupons(): WhenBrowseCoupons {
-    return new WhenBrowseCoupons(this.app, this.ctx);
+    return new WhenBrowseCoupons(this.app, this.ctx, this.useCaseContext);
   }
 }

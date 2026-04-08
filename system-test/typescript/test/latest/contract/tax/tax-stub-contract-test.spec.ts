@@ -5,6 +5,22 @@ const externalSystemMode = (process.env.EXTERNAL_SYSTEM_MODE?.toLowerCase() || '
 describe('Tax Stub Contract Test', () => {
   const isStub = externalSystemMode === 'stub';
 
+  (isStub ? it : it.skip)('shouldBeAbleToGetTaxRate', async () => {
+    const scenario = createScenario({ channel: 'api', externalSystemMode: 'stub' });
+    try {
+      await scenario
+        .given()
+        .country()
+        .withCode('US')
+        .withTaxRate(0.09)
+        .then()
+        .country('US')
+        .hasTaxRateIsPositive();
+    } finally {
+      await scenario.close();
+    }
+  });
+
   (isStub ? it : it.skip)('shouldBeAbleToGetConfiguredTaxRate', async () => {
     const scenario = createScenario({ channel: 'api', externalSystemMode: 'stub' });
     try {

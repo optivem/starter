@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { chromium, Browser } from 'playwright';
 import { createScenario, Channel, ExternalSystemMode } from '../../../src/test-setup';
 
@@ -41,7 +40,7 @@ describe('PlaceOrder Negative Test', () => {
     });
   });
 
-  it(`shouldRejectOrderForNonExistentProduct_${channel.toUpperCase()}`, async () => {
+  it(`shouldRejectOrderWithNonExistentSku_${channel.toUpperCase()}`, async () => {
     const scenario = createScenario({ channel, externalSystemMode, browser });
     try {
       await scenario
@@ -158,11 +157,11 @@ describe('PlaceOrder Negative Test', () => {
         .when()
         .placeOrder()
         .withQuantity(1)
-        .withCouponCode('NON-EXISTENT-COUPON')
+        .withCouponCode('INVALIDCOUPON')
         .then()
         .shouldFail()
         .errorMessage('The request contains one or more validation errors')
-        .fieldErrorMessage('couponCode', 'Coupon code NON-EXISTENT-COUPON does not exist');
+        .fieldErrorMessage('couponCode', 'Coupon code INVALIDCOUPON does not exist');
     } finally {
       await scenario.close();
     }
@@ -171,37 +170,27 @@ describe('PlaceOrder Negative Test', () => {
   it(`cannotPlaceOrderWithCouponThatHasExceededUsageLimit_${channel.toUpperCase()}`, async () => {
     const scenario = createScenario({ channel, externalSystemMode, browser });
     try {
-      const couponCode = `LIMITED-${randomUUID().slice(0, 8)}`;
-
-      // First place an order with the coupon to exhaust usage
       await scenario
         .given()
         .coupon()
-        .withCode(couponCode)
-        .withDiscountRate(0.1)
-        .withUsageLimit(1)
+        .withCouponCode('LIMITED2024')
+        .withUsageLimit(2)
+        .and()
+        .order()
+        .withOrderNumber('ORD-1')
+        .withCouponCode('LIMITED2024')
+        .and()
+        .order()
+        .withOrderNumber('ORD-2')
+        .withCouponCode('LIMITED2024')
         .when()
         .placeOrder()
-        .withQuantity(1)
-        .withCouponCode(couponCode)
+        .withOrderNumber('ORD-3')
+        .withCouponCode('LIMITED2024')
         .then()
-        .shouldSucceed();
-
-      // Now try to use same coupon again — should fail
-      const scenario2 = createScenario({ channel: 'api', externalSystemMode });
-      try {
-        await scenario2
-          .when()
-          .placeOrder()
-          .withQuantity(1)
-          .withCouponCode(couponCode)
-          .then()
-          .shouldFail()
-          .errorMessage('The request contains one or more validation errors')
-          .fieldErrorMessage('couponCode', `Coupon code ${couponCode} has exceeded its usage limit`);
-      } finally {
-        await scenario2.close();
-      }
+        .shouldFail()
+        .errorMessage('The request contains one or more validation errors')
+        .fieldErrorMessage('couponCode', 'Coupon code LIMITED2024 has exceeded its usage limit');
     } finally {
       await scenario.close();
     }
@@ -220,6 +209,38 @@ describe('PlaceOrder Negative Test', () => {
           .shouldFail()
           .errorMessage('The request contains one or more validation errors')
           .fieldErrorMessage('quantity', 'Quantity must not be empty');
+      } finally {
+        await scenario.close();
+      }
+    });
+
+    it('shouldRejectOrderWithNullSku_API', async () => {
+      const scenario = createScenario({ channel: 'api', externalSystemMode });
+      try {
+        await scenario
+          .when()
+          .placeOrder()
+          .withSku(null)
+          .then()
+          .shouldFail()
+          .errorMessage('The request contains one or more validation errors')
+          .fieldErrorMessage('sku', 'SKU must not be empty');
+      } finally {
+        await scenario.close();
+      }
+    });
+
+    it('shouldRejectOrderWithNullCountry_API', async () => {
+      const scenario = createScenario({ channel: 'api', externalSystemMode });
+      try {
+        await scenario
+          .when()
+          .placeOrder()
+          .withCountry(null)
+          .then()
+          .shouldFail()
+          .errorMessage('The request contains one or more validation errors')
+          .fieldErrorMessage('country', 'Country must not be empty');
       } finally {
         await scenario.close();
       }

@@ -26,7 +26,7 @@ describe('CancelOrder Positive Isolated Test', () => {
   });
 
   it.each(timesOutsideBlackout)(
-    `shouldBeAbleToCancelOrderOutsideBlackoutPeriod_${channel.toUpperCase()}_%s`,
+    `shouldBeAbleToCancelOrderOutsideOfBlackoutPeriod31stDecBetween2200And2230_${channel.toUpperCase()}_%s`,
     async (time) => {
       const scenario = createScenario({ channel, externalSystemMode, browser });
       try {

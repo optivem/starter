@@ -1,4 +1,5 @@
 import { DEFAULTS } from '../../defaults';
+import { UseCaseContext } from '../../use-case-context';
 import { AppContext } from '../app-context';
 import { ScenarioContext } from '../scenario-context';
 import { ThenViewOrderResultStage } from '../then/then-view-order';
@@ -9,6 +10,7 @@ export class WhenViewOrder {
   constructor(
     private readonly app: AppContext,
     private readonly ctx: ScenarioContext,
+    private readonly useCaseContext: UseCaseContext,
   ) {}
 
   withOrderNumber(orderNumber: string): WhenViewOrder {
@@ -17,6 +19,6 @@ export class WhenViewOrder {
   }
 
   then(): ThenViewOrderResultStage {
-    return new ThenViewOrderResultStage(this.app, this.ctx, this.orderNumber);
+    return new ThenViewOrderResultStage(this.app, this.ctx, this.useCaseContext, this.orderNumber);
   }
 }

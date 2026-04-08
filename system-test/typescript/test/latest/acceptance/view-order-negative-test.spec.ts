@@ -10,7 +10,7 @@ const nonExistentOrderCases = [
 
 describe('ViewOrder Negative Test', () => {
   it.each(nonExistentOrderCases)(
-    'shouldNotBeAbleToViewNonExistentOrder_API_$orderNumber',
+    `shouldNotBeAbleToViewNonExistentOrder_API_$orderNumber`,
     async ({ orderNumber, message }) => {
       const scenario = createScenario({ channel: 'api', externalSystemMode });
       try {
