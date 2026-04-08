@@ -25,6 +25,7 @@ public class PlaceOrderPositiveTest : BaseE2eTest
             .OrderNumber(Defaults.ORDER_NUMBER)
             .Sku(Defaults.SKU)
             .Quantity(5)
+            .Country(Defaults.COUNTRY)
             .Execute())
             .ShouldSucceed()
             .OrderNumber(Defaults.ORDER_NUMBER)
