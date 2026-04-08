@@ -139,123 +139,123 @@ jobs:
 
       - name: mod02 - Run Smoke Tests
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod02/smoke
+        run: npx playwright test --project=smoke-test tests/legacy/mod02/smoke
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: real
 
       - name: mod03 - Run E2E Tests
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod03/e2e
+        run: npx playwright test --project=e2e-test tests/legacy/mod03/e2e
         env:
           ENVIRONMENT: acceptance
 
       - name: mod04 - Run Smoke Tests
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod04/smoke
+        run: npx playwright test --project=smoke-test tests/legacy/mod04/smoke
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: real
 
       - name: mod04 - Run E2E Tests
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod04/e2e
+        run: npx playwright test --project=e2e-test tests/legacy/mod04/e2e
         env:
           ENVIRONMENT: acceptance
 
       - name: mod05 - Run Smoke Tests
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod05/smoke
+        run: npx playwright test --project=smoke-test tests/legacy/mod05/smoke
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: real
 
       - name: mod05 - Run E2E Tests
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod05/e2e
+        run: npx playwright test --project=e2e-test tests/legacy/mod05/e2e
         env:
           ENVIRONMENT: acceptance
 
       - name: mod06 - Run Smoke Tests
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod06/smoke
+        run: npx playwright test --project=smoke-test tests/legacy/mod06/smoke
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: real
 
       - name: mod06 - Run E2E Tests - API Channel
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod06/e2e
+        run: npx playwright test --project=e2e-test tests/legacy/mod06/e2e
         env:
           ENVIRONMENT: acceptance
           CHANNEL: API
 
       - name: mod06 - Run E2E Tests - UI Channel
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod06/e2e
+        run: npx playwright test --project=e2e-test tests/legacy/mod06/e2e
         env:
           ENVIRONMENT: acceptance
           CHANNEL: UI
 
       - name: mod07 - Run Smoke Tests
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod07/smoke
+        run: npx playwright test --project=smoke-test tests/legacy/mod07/smoke
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: real
 
       - name: mod07 - Run E2E Tests - API Channel
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod07/e2e
+        run: npx playwright test --project=e2e-test tests/legacy/mod07/e2e
         env:
           ENVIRONMENT: acceptance
           CHANNEL: API
 
       - name: mod07 - Run E2E Tests - UI Channel
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod07/e2e
+        run: npx playwright test --project=e2e-test tests/legacy/mod07/e2e
         env:
           ENVIRONMENT: acceptance
           CHANNEL: UI
 
       - name: mod08 - Run Smoke Tests
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod08/smoke
+        run: npx playwright test --project=smoke-test tests/legacy/mod08/smoke
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: real
 
       - name: mod08 - Run E2E Tests - API Channel
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod08/e2e
+        run: npx playwright test --project=e2e-test tests/legacy/mod08/e2e
         env:
           ENVIRONMENT: acceptance
           CHANNEL: API
 
       - name: mod08 - Run E2E Tests - UI Channel
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod08/e2e
+        run: npx playwright test --project=e2e-test tests/legacy/mod08/e2e
         env:
           ENVIRONMENT: acceptance
           CHANNEL: UI
 
       - name: mod09 - Run Smoke Tests (Stub)
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod09/smoke
+        run: npx playwright test --project=smoke-test tests/legacy/mod09/smoke
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
 
       - name: mod09 - Run Smoke Tests (Real)
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod09/smoke
+        run: npx playwright test --project=smoke-test tests/legacy/mod09/smoke
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: real
 
       - name: mod10 - Run Acceptance Tests - API Channel
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod10/acceptance --testPathIgnorePatterns=isolated
+        run: npx playwright test --project=acceptance-test tests/legacy/mod10/acceptance --grep-invert "@isolated"
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
@@ -263,7 +263,7 @@ jobs:
 
       - name: mod10 - Run Acceptance Tests - UI Channel
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod10/acceptance --testPathIgnorePatterns=isolated
+        run: npx playwright test --project=acceptance-test tests/legacy/mod10/acceptance --grep-invert "@isolated"
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
@@ -271,7 +271,7 @@ jobs:
 
       - name: mod10 - Run Acceptance Tests (Isolated) - API Channel
         working-directory: system-test/typescript
-        run: npm test -- "tests/legacy/mod10/acceptance/.*isolated" --runInBand
+        run: npx playwright test --project=acceptance-test tests/legacy/mod10/acceptance --grep "@isolated" --workers=1
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
@@ -279,7 +279,7 @@ jobs:
 
       - name: mod10 - Run Acceptance Tests (Isolated) - UI Channel
         working-directory: system-test/typescript
-        run: npm test -- "tests/legacy/mod10/acceptance/.*isolated" --runInBand
+        run: npx playwright test --project=acceptance-test tests/legacy/mod10/acceptance --grep "@isolated" --workers=1
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
@@ -287,35 +287,35 @@ jobs:
 
       - name: mod11 - Run Contract Tests (Stub)
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod11/contract --testPathIgnorePatterns=isolated
+        run: npx playwright test --project=external-system-contract-test tests/legacy/mod11/contract --grep-invert "@isolated" --workers=1
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
 
       - name: mod11 - Run Contract Tests (Isolated) (Stub)
         working-directory: system-test/typescript
-        run: npm test -- "tests/legacy/mod11/contract/.*isolated" --runInBand
+        run: npx playwright test --project=external-system-contract-test tests/legacy/mod11/contract --grep "@isolated" --workers=1
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
 
       - name: mod11 - Run Contract Tests (Real)
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod11/contract
+        run: npx playwright test --project=external-system-contract-test tests/latest/contract --workers=1
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: real
 
       - name: mod11 - Run E2E Tests - API Channel
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod11/e2e
+        run: npx playwright test --project=e2e-test tests/legacy/mod11/e2e
         env:
           ENVIRONMENT: acceptance
           CHANNEL: API
 
       - name: mod11 - Run E2E Tests - UI Channel
         working-directory: system-test/typescript
-        run: npm test -- tests/legacy/mod11/e2e
+        run: npx playwright test --project=e2e-test tests/legacy/mod11/e2e
         env:
           ENVIRONMENT: acceptance
           CHANNEL: UI

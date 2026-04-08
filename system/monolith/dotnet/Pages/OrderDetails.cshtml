@@ -163,8 +163,10 @@
             document.getElementById('detailAppliedCouponCode').textContent = order.appliedCouponCode || '-';
 
             var isTerminal = order.status === 'CANCELLED' || order.status === 'DELIVERED';
-            document.getElementById('cancelOrderBtn').style.display = isTerminal ? 'none' : '';
-            document.getElementById('deliverOrderBtn').style.display = isTerminal ? 'none' : '';
+            if (isTerminal) {
+                document.getElementById('cancelOrderBtn').remove();
+                document.getElementById('deliverOrderBtn').remove();
+            }
 
             orderDetails.style.display = 'block';
         } catch (err) {
