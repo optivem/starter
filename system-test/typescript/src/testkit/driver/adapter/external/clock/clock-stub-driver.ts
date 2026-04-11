@@ -1,6 +1,6 @@
 import { Result, success, failure } from '../../../../common/result.js';
 import { ErrorResponse, GetTimeResponse, ReturnsTimeRequest } from '../../../../common/dtos.js';
-import { ClockDriver } from '../../../port/types.js';
+import { ClockDriver } from '../../../port/external/clock/clock-driver.js';
 import { JsonWireMockClient } from '../../shared/wiremock/wiremock-client.js';
 
 export class ClockStubDriver implements ClockDriver {

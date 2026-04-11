@@ -8,7 +8,7 @@ import {
   PublishCouponRequest,
   BrowseCouponsResponse,
 } from '../../../../common/dtos.js';
-import { ShopDriver } from '../../../port/types.js';
+import { ShopDriver } from '../../../port/shop/shop-driver.js';
 
 const TIMEOUT = 30_000;
 

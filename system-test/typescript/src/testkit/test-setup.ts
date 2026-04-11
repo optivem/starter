@@ -10,7 +10,9 @@ import { ClockRealDriver } from './driver/adapter/external/clock/clock-real-driv
 import { ClockStubDriver } from './driver/adapter/external/clock/clock-stub-driver.js';
 import { TaxRealDriver } from './driver/adapter/external/tax/tax-real-driver.js';
 import { TaxStubDriver } from './driver/adapter/external/tax/tax-stub-driver.js';
-import { ErpDriver, ClockDriver, TaxDriver } from './driver/port/types.js';
+import { ErpDriver } from './driver/port/external/erp/erp-driver.js';
+import { ClockDriver } from './driver/port/external/clock/clock-driver.js';
+import { TaxDriver } from './driver/port/external/tax/tax-driver.js';
 import { Browser } from 'playwright';
 
 export type Channel = 'api' | 'ui';

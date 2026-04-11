@@ -1,6 +1,6 @@
 import { Result, success, failure } from '../../../../common/result.js';
 import { ErrorResponse, GetProductResponse, ReturnsProductRequest, ReturnsPromotionRequest } from '../../../../common/dtos.js';
-import { ErpDriver } from '../../../port/types.js';
+import { ErpDriver } from '../../../port/external/erp/erp-driver.js';
 import { JsonWireMockClient } from '../../shared/wiremock/wiremock-client.js';
 
 export class ErpStubDriver implements ErpDriver {
