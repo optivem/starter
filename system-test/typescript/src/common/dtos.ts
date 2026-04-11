@@ -76,15 +76,6 @@ export interface PublishCouponRequest {
   usageLimit?: number | string;
 }
 
-export interface ViewCouponResponse {
-  code: string;
-  discountRate: number;
-  validFrom?: string;
-  validTo?: string;
-  usageLimit?: number;
-  usedCount: number;
-}
-
 export interface BrowseCouponItem {
   code: string;
   discountRate: number;

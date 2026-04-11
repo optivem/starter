@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { ErrorResponse, ViewCouponResponse } from '../../../common/dtos.js';
+import { ErrorResponse, BrowseCouponItem } from '../../../common/dtos.js';
 import { UseCaseContext } from '../../use-case-context.js';
 import { AppContext } from '../app-context.js';
 import { ScenarioContext } from '../scenario-context.js';
@@ -7,7 +7,7 @@ import { ScenarioContext } from '../scenario-context.js';
 export class ThenPublishCouponResultStage implements PromiseLike<void> {
   private _expectSuccess = true;
   private _errorAssertions: ((error: ErrorResponse, useCaseContext: UseCaseContext) => void)[] = [];
-  private readonly _couponAssertions: { code: string; fns: ((coupon: ViewCouponResponse) => void)[] }[] = [];
+  private readonly _couponAssertions: { code: string; fns: ((coupon: BrowseCouponItem) => void)[] }[] = [];
   private _executionPromise: Promise<void> | null = null;
 
   constructor(
@@ -35,7 +35,7 @@ export class ThenPublishCouponResultStage implements PromiseLike<void> {
     this._errorAssertions.push(fn);
   }
 
-  _addCouponAssertion(code: string, fn: (coupon: ViewCouponResponse) => void): void {
+  _addCouponAssertion(code: string, fn: (coupon: BrowseCouponItem) => void): void {
     let entry = this._couponAssertions.find((e) => e.code === code);
     if (!entry) {
       entry = { code, fns: [] };
@@ -77,10 +77,14 @@ export class ThenPublishCouponResultStage implements PromiseLike<void> {
 
       for (const couponEntry of this._couponAssertions) {
         const resolvedCouponCode = this.useCaseContext.getParamValue(couponEntry.code) as string;
-        const couponResult = await this.app.shop().viewCoupon(resolvedCouponCode);
-        expect(couponResult.success).toBe(true);
-        if (couponResult.success) {
-          for (const fn of couponEntry.fns) fn(couponResult.value);
+        const browseResult = await this.app.shop().browseCoupons();
+        expect(browseResult.success).toBe(true);
+        if (browseResult.success) {
+          const coupon = browseResult.value.coupons.find((c) => c.code === resolvedCouponCode);
+          expect(coupon, `Coupon '${resolvedCouponCode}' not found in browse results`).toBeDefined();
+          if (coupon) {
+            for (const fn of couponEntry.fns) fn(coupon);
+          }
         }
       }
     } else {

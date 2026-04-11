@@ -6,7 +6,6 @@ import {
   ViewOrderResponse,
   ErrorResponse,
   PublishCouponRequest,
-  ViewCouponResponse,
   BrowseCouponsResponse,
 } from '../common/dtos.js';
 import { ShopDriver } from './types.js';
@@ -476,35 +475,6 @@ export class ShopUiDriver implements ShopDriver {
       return success(undefined);
     }
     return failure(notificationResult.error);
-  }
-
-  async viewCoupon(code: string): Promise<Result<ViewCouponResponse, ErrorResponse>> {
-    if (!this.page) {
-      const goResult = await this.goToShop();
-      if (!goResult.success) return failure(goResult.error);
-    }
-
-    await this.page!.goto(this.baseUrl);
-    const homePage = new HomePage(this.page!);
-    await homePage.clickAdminCoupons();
-
-    const adminPage = new AdminCouponsPage(this.page!);
-    await adminPage.clickRefreshCouponList();
-    const rows = await adminPage.getCouponRows();
-
-    const coupon = rows.find((r) => r.code === code);
-    if (!coupon) {
-      return failure({ message: `Coupon '${code}' not found`, fieldErrors: [] });
-    }
-
-    return success({
-      code: coupon.code,
-      discountRate: coupon.discountRate,
-      validFrom: coupon.validFrom,
-      validTo: coupon.validTo,
-      usageLimit: coupon.usageLimit,
-      usedCount: coupon.usedCount,
-    });
   }
 
   async browseCoupons(): Promise<Result<BrowseCouponsResponse, ErrorResponse>> {
