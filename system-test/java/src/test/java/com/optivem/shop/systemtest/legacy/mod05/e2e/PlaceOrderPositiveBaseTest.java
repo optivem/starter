@@ -1,15 +1,15 @@
 package com.optivem.shop.systemtest.legacy.mod05.e2e;
 
-import com.optivem.shop.dsl.driver.port.external.erp.dtos.ReturnsProductRequest;
-import com.optivem.shop.dsl.driver.port.shop.dtos.OrderStatus;
-import com.optivem.shop.dsl.driver.port.shop.dtos.PlaceOrderRequest;
+import com.optivem.shop.testkit.driver.port.external.erp.dtos.ReturnsProductRequest;
+import com.optivem.shop.testkit.driver.port.shop.dtos.OrderStatus;
+import com.optivem.shop.testkit.driver.port.shop.dtos.PlaceOrderRequest;
 import com.optivem.shop.systemtest.legacy.mod05.e2e.base.BaseE2eTest;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
-import static com.optivem.shop.dsl.common.ResultAssert.assertThatResult;
+import static com.optivem.shop.testkit.common.ResultAssert.assertThatResult;
 import static com.optivem.shop.systemtest.commons.constants.Defaults.COUNTRY;
 import static com.optivem.shop.systemtest.commons.constants.Defaults.SKU;
 import static org.assertj.core.api.Assertions.assertThat;

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
 
-import static com.optivem.shop.dsl.common.ResultAssert.assertThatResult;
+import static com.optivem.shop.testkit.common.ResultAssert.assertThatResult;
 import static com.optivem.shop.systemtest.commons.constants.Defaults.*;
 import static org.assertj.core.api.Assertions.assertThat;
 

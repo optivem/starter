@@ -2,7 +2,7 @@ package com.optivem.shop.systemtest.latest.acceptance;
 
 import com.optivem.shop.systemtest.commons.providers.EmptyArgumentsProvider;
 import com.optivem.shop.systemtest.latest.acceptance.base.BaseAcceptanceTest;
-import com.optivem.shop.dsl.channel.ChannelType;
+import com.optivem.shop.testkit.channel.ChannelType;
 import com.optivem.testing.Channel;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.params.provider.ArgumentsSource;

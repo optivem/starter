@@ -1,7 +1,7 @@
 package com.optivem.shop.systemtest.legacy.mod07.e2e;
 
-import com.optivem.shop.dsl.channel.ChannelType;
-import com.optivem.shop.dsl.driver.port.shop.dtos.OrderStatus;
+import com.optivem.shop.testkit.channel.ChannelType;
+import com.optivem.shop.testkit.driver.port.shop.dtos.OrderStatus;
 import com.optivem.shop.systemtest.legacy.mod07.e2e.base.BaseE2eTest;
 import com.optivem.testing.Channel;
 import org.junit.jupiter.api.TestTemplate;

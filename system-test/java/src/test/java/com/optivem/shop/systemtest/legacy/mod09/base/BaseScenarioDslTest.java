@@ -1,10 +1,10 @@
 package com.optivem.shop.systemtest.legacy.mod09.base;
 
 import com.optivem.shop.systemtest.configuration.BaseConfigurableTest;
-import com.optivem.shop.dsl.core.usecase.UseCaseDsl;
-import com.optivem.shop.dsl.core.ScenarioDslImpl;
-import com.optivem.shop.dsl.port.ScenarioDsl;
-import com.optivem.shop.dsl.common.Closer;
+import com.optivem.shop.testkit.core.usecase.UseCaseDsl;
+import com.optivem.shop.testkit.core.ScenarioDslImpl;
+import com.optivem.shop.testkit.port.ScenarioDsl;
+import com.optivem.shop.testkit.common.Closer;
 import com.optivem.shop.systemtest.infrastructure.playwright.BrowserLifecycleExtension;
 import com.optivem.testing.extensions.ChannelExtension;
 import org.junit.jupiter.api.AfterEach;

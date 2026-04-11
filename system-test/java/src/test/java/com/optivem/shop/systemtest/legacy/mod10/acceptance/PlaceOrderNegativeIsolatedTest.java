@@ -1,7 +1,7 @@
 package com.optivem.shop.systemtest.legacy.mod10.acceptance;
 
 import com.optivem.shop.systemtest.legacy.mod10.acceptance.base.BaseAcceptanceTest;
-import com.optivem.shop.dsl.channel.ChannelType;
+import com.optivem.shop.testkit.channel.ChannelType;
 import com.optivem.testing.Channel;
 import com.optivem.testing.Isolated;
 import org.junit.jupiter.api.TestTemplate;

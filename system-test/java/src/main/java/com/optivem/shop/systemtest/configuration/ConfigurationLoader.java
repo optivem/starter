@@ -1,6 +1,6 @@
 package com.optivem.shop.systemtest.configuration;
 
-import com.optivem.shop.dsl.port.ChannelMode;
+import com.optivem.shop.testkit.port.ChannelMode;
 import org.yaml.snakeyaml.Yaml;
 
 import java.util.Map;

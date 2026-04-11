@@ -2,13 +2,13 @@ package com.optivem.shop.systemtest.legacy.mod05.base;
 
 import com.optivem.shop.systemtest.configuration.BaseConfigurableTest;
 import com.optivem.shop.systemtest.configuration.Configuration;
-import com.optivem.shop.dsl.driver.adapter.external.erp.ErpRealDriver;
-import com.optivem.shop.dsl.driver.adapter.external.tax.TaxRealDriver;
-import com.optivem.shop.dsl.driver.adapter.shop.api.ShopApiDriver;
-import com.optivem.shop.dsl.driver.port.shop.ShopDriver;
-import com.optivem.shop.dsl.driver.adapter.shop.ui.ShopUiDriver;
+import com.optivem.shop.testkit.driver.adapter.external.erp.ErpRealDriver;
+import com.optivem.shop.testkit.driver.adapter.external.tax.TaxRealDriver;
+import com.optivem.shop.testkit.driver.adapter.shop.api.ShopApiDriver;
+import com.optivem.shop.testkit.driver.port.shop.ShopDriver;
+import com.optivem.shop.testkit.driver.adapter.shop.ui.ShopUiDriver;
 import com.optivem.shop.systemtest.infrastructure.playwright.BrowserLifecycleExtension;
-import com.optivem.shop.dsl.common.Closer;
+import com.optivem.shop.testkit.common.Closer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
