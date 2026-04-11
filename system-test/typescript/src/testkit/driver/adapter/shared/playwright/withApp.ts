@@ -1,7 +1,7 @@
 import { test as base } from '@playwright/test';
 import { chromium } from 'playwright';
-import { createScenario, type Channel, type ExternalSystemMode } from '../test-setup.js';
-import type { ScenarioDsl } from '../scenario/scenario-dsl.js';
+import { createScenario, type Channel, type ExternalSystemMode } from '../../../../test-setup.js';
+import type { ScenarioDsl } from '../../../../dsl/core/scenario/scenario-dsl.js';
 
 export function withApp() {
     return base.extend<{ scenario: ScenarioDsl }>({

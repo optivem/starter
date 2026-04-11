@@ -1,4 +1,4 @@
-import { Result, success, failure } from '../common/result.js';
+import { Result, success, failure } from '../../../../common/result.js';
 import {
   PlaceOrderRequest,
   PlaceOrderResponse,
@@ -7,8 +7,8 @@ import {
   ProblemDetailResponse,
   PublishCouponRequest,
   BrowseCouponsResponse,
-} from '../common/dtos.js';
-import { ShopDriver } from './types.js';
+} from '../../../../common/dtos.js';
+import { ShopDriver } from '../../../port/types.js';
 
 function mapProblemDetail(pd: ProblemDetailResponse): ErrorResponse {
   return {

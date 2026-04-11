@@ -1,5 +1,5 @@
 import { Browser, BrowserContext, Page } from 'playwright';
-import { Result, success, failure } from '../common/result.js';
+import { Result, success, failure } from '../../../../common/result.js';
 import {
   PlaceOrderRequest,
   PlaceOrderResponse,
@@ -7,8 +7,8 @@ import {
   ErrorResponse,
   PublishCouponRequest,
   BrowseCouponsResponse,
-} from '../common/dtos.js';
-import { ShopDriver } from './types.js';
+} from '../../../../common/dtos.js';
+import { ShopDriver } from '../../../port/types.js';
 
 const TIMEOUT = 30_000;
 

@@ -1,7 +1,7 @@
-import { Result, success, failure } from '../common/result.js';
-import { ErrorResponse, GetTimeResponse, ReturnsTimeRequest } from '../common/dtos.js';
-import { ClockDriver } from './types.js';
-import { JsonWireMockClient } from '../clients/wiremock-client.js';
+import { Result, success, failure } from '../../../../common/result.js';
+import { ErrorResponse, GetTimeResponse, ReturnsTimeRequest } from '../../../../common/dtos.js';
+import { ClockDriver } from '../../../port/types.js';
+import { JsonWireMockClient } from '../../shared/wiremock/wiremock-client.js';
 
 export class ClockStubDriver implements ClockDriver {
   private wireMock: JsonWireMockClient;
