@@ -330,6 +330,7 @@ export class ShopUiDriver implements ShopDriver {
       if (!goResult.success) return failure(goResult.error);
     }
 
+    await this.page!.goto(this.baseUrl);
     const homePage = new HomePage(this.page!);
     await homePage.clickNewOrder();
 
