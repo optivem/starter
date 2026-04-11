@@ -51,6 +51,8 @@ public class PlaceOrderPositiveUiTest : BaseE2eTest
         var viewDetailsSelector = $"xpath=//tr[contains(., '{orderNumber}')]//a[contains(text(), 'View Details')]";
         await shopUiPage.Locator(viewDetailsSelector).ClickAsync();
 
+        await shopUiPage.Locator("#orderDetails").WaitForAsync(new() { State = Microsoft.Playwright.WaitForSelectorState.Visible });
+
         (await shopUiPage.Locator("[aria-label='Display Order Number']").TextContentAsync()).ShouldBe(orderNumber);
         (await shopUiPage.Locator("[aria-label='Display SKU']").TextContentAsync()).ShouldBe(sku);
         int.Parse(await shopUiPage.Locator("[aria-label='Display Quantity']").TextContentAsync() ?? "0").ShouldBe(5);
