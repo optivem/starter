@@ -144,7 +144,8 @@ export class ThenResultStage implements PromiseLike<void> {
       }
 
       for (const couponEntry of this._couponAssertions) {
-        const couponResult = await this.app.shop().viewCoupon(couponEntry.code);
+        const resolvedCouponCode = this.useCaseContext.getParamValue(couponEntry.code) as string;
+        const couponResult = await this.app.shop().viewCoupon(resolvedCouponCode);
         expect(couponResult.success).toBe(true);
         if (couponResult.success) {
           for (const fn of couponEntry.fns) fn(couponResult.value);
