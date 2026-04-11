@@ -177,13 +177,8 @@ class OrderDetailsPage {
   }
 
   async getAppliedCouponCode(): Promise<string | null> {
-    const locator = this.page.locator("[aria-label='Display Applied Coupon Code']");
-    if ((await locator.count()) === 0) {
-      const altLocator = this.page.locator("[aria-label='Display Applied Coupon']");
-      if ((await altLocator.count()) === 0) return null;
-      const text = (await altLocator.textContent({ timeout: TIMEOUT }))?.trim() || '';
-      return text === 'None' ? null : text;
-    }
+    const locator = this.page.locator("[aria-label='Display Applied Coupon']");
+    if ((await locator.count()) === 0) return null;
     const text = (await locator.textContent({ timeout: TIMEOUT }))?.trim() || '';
     return text === 'None' ? null : text;
   }

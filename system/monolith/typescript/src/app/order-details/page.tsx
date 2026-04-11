@@ -332,7 +332,7 @@ function OrderDetailsContent() {
                 {order.appliedCouponCode && (
                   <div className="col-md-6 mb-3">
                     <strong>Applied Coupon Code:</strong>
-                    <p aria-label="Display Applied Coupon Code">
+                    <p aria-label="Display Applied Coupon">
                       {order.appliedCouponCode}
                     </p>
                   </div>
