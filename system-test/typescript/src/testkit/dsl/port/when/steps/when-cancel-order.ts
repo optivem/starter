@@ -1,5 +1,6 @@
-import type { WhenStep } from './when-step.js';
+import type { ThenResultStage } from '../../then/then-result-stage.js';
 
-export interface WhenCancelOrder extends WhenStep {
-  withOrderNumber(orderNumber: string): WhenCancelOrder;
+export interface WhenCancelOrder {
+  withOrderNumber(orderNumber: string): this;
+  then(): ThenResultStage;
 }

@@ -1,9 +1,10 @@
-import type { WhenStep } from './when-step.js';
+import type { ThenResultStage } from '../../then/then-result-stage.js';
 
-export interface WhenPlaceOrder extends WhenStep {
-  withOrderNumber(orderNumber: string): WhenPlaceOrder;
-  withSku(sku: string): WhenPlaceOrder;
-  withQuantity(quantity: string | number): WhenPlaceOrder;
-  withCountry(country: string): WhenPlaceOrder;
-  withCouponCode(couponCode?: string): WhenPlaceOrder;
+export interface WhenPlaceOrder {
+  withOrderNumber(orderNumber: string): this;
+  withSku(sku: string): this;
+  withQuantity(quantity: string | number): this;
+  withCountry(country: string): this;
+  withCouponCode(couponCode?: string): this;
+  then(): ThenResultStage;
 }

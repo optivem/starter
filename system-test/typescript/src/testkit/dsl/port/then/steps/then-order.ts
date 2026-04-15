@@ -1,19 +1,18 @@
-import type { ThenStep } from './then-step.js';
-
-export interface ThenOrder extends ThenStep<ThenOrder> {
-  hasSku(expectedSku: string): ThenOrder;
-  hasQuantity(expectedQuantity: number): ThenOrder;
-  hasUnitPrice(expectedUnitPrice: number): ThenOrder;
-  hasBasePrice(expectedBasePrice: string | number): ThenOrder;
-  hasSubtotalPrice(expectedSubtotalPrice: string | number): ThenOrder;
-  hasTotalPrice(expectedTotalPrice: string | number): ThenOrder;
-  hasStatus(expectedStatus: string): ThenOrder;
-  hasTotalPriceGreaterThanZero(): ThenOrder;
-  hasOrderNumberPrefix(expectedPrefix: string): ThenOrder;
-  hasDiscountRate(expectedDiscountRate: number): ThenOrder;
-  hasDiscountAmount(expectedDiscountAmount: string | number): ThenOrder;
-  hasAppliedCouponCode(expectedCouponCode: string): ThenOrder;
-  hasAppliedCoupon(expectedCouponCode?: string): ThenOrder;
-  hasTaxRate(expectedTaxRate: string | number): ThenOrder;
-  hasTaxAmount(expectedTaxAmount: string): ThenOrder;
+export interface ThenOrder extends PromiseLike<void> {
+  and(): this;
+  hasSku(expectedSku: string): this;
+  hasQuantity(expectedQuantity: number): this;
+  hasUnitPrice(expectedUnitPrice: number): this;
+  hasBasePrice(basePrice: string | number): this;
+  hasSubtotalPrice(subtotalPrice: string | number): this;
+  hasTotalPrice(totalPrice: string | number): this;
+  hasStatus(expectedStatus: string): this;
+  hasTotalPriceGreaterThanZero(): this;
+  hasOrderNumberPrefix(expectedPrefix: string): this;
+  hasDiscountRate(expectedDiscountRate: number): this;
+  hasDiscountAmount(expectedDiscountAmount: string | number): this;
+  hasAppliedCouponCode(expectedCouponCode: string | null): this;
+  hasAppliedCoupon(expectedCouponCode?: string): this;
+  hasTaxRate(expectedTaxRate: string | number): this;
+  hasTaxAmount(expectedTaxAmount: string | number): this;
 }

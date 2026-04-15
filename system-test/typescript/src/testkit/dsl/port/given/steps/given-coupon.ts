@@ -1,9 +1,14 @@
-import type { GivenStep } from './given-step.js';
+import type { GivenStage } from '../given-stage.js';
+import type { WhenStage } from '../../when/when-stage.js';
+import type { ThenStage } from '../../then/then-stage.js';
 
-export interface GivenCoupon extends GivenStep {
-  withCouponCode(couponCode: string): GivenCoupon;
-  withDiscountRate(discountRate: string | number): GivenCoupon;
-  withValidFrom(validFrom: string): GivenCoupon;
-  withValidTo(validTo: string): GivenCoupon;
-  withUsageLimit(usageLimit: string | number): GivenCoupon;
+export interface GivenCoupon {
+  withCouponCode(couponCode: string): this;
+  withDiscountRate(discountRate: string | number): this;
+  withValidFrom(validFrom: string): this;
+  withValidTo(validTo: string): this;
+  withUsageLimit(usageLimit: string | number): this;
+  and(): GivenStage;
+  when(): WhenStage;
+  then(): ThenStage;
 }

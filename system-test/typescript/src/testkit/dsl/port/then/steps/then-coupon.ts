@@ -1,9 +1,8 @@
-import type { ThenStep } from './then-step.js';
-
-export interface ThenCoupon extends ThenStep<ThenCoupon> {
-  hasDiscountRate(discountRate: number): ThenCoupon;
-  isValidFrom(validFrom: string): ThenCoupon;
-  isValidTo(validTo: string): ThenCoupon;
-  hasUsageLimit(usageLimit: number): ThenCoupon;
-  hasUsedCount(expectedUsedCount: number): ThenCoupon;
+export interface ThenCoupon extends PromiseLike<void> {
+  and(): this;
+  hasDiscountRate(discountRate: number): this;
+  isValidFrom(validFrom: string): this;
+  isValidTo(validTo: string): this;
+  hasUsageLimit(usageLimit: number): this;
+  hasUsedCount(expectedUsedCount: number): this;
 }

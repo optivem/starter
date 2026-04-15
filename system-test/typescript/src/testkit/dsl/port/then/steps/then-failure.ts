@@ -1,6 +1,7 @@
-import type { ThenStep } from './then-step.js';
+import type { ThenFailureAnd } from './then-failure-and.js';
 
-export interface ThenFailure extends ThenStep<ThenFailure> {
-  errorMessage(expectedMessage: string): ThenFailure;
-  fieldErrorMessage(expectedField: string, expectedMessage: string): ThenFailure;
+export interface ThenFailure extends PromiseLike<void> {
+  errorMessage(expectedMessage: string): this;
+  fieldErrorMessage(expectedField: string, expectedMessage: string): this;
+  and(): ThenFailureAnd;
 }

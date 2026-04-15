@@ -1,8 +1,10 @@
 import { CouponConfig } from '../scenario-context.js';
+import { ThenContractStage } from '../then/then-contract.js';
 import { WhenStage } from '../when/when-stage.js';
 import type { GivenStage } from './given-stage.js';
+import type { GivenCoupon as IGivenCoupon } from '../../../port/given/steps/given-coupon.js';
 
-export class GivenCoupon {
+export class GivenCoupon implements IGivenCoupon {
   constructor(
     private readonly stage: GivenStage,
     private readonly config: CouponConfig,
@@ -43,5 +45,9 @@ export class GivenCoupon {
 
   when(): WhenStage {
     return this.stage.when();
+  }
+
+  then(): ThenContractStage {
+    return this.stage.then();
   }
 }

@@ -2,8 +2,9 @@ import { PromotionConfig } from '../scenario-context.js';
 import { ThenContractStage } from '../then/then-contract.js';
 import { WhenStage } from '../when/when-stage.js';
 import type { GivenStage } from './given-stage.js';
+import type { GivenPromotion as IGivenPromotion } from '../../../port/given/steps/given-promotion.js';
 
-export class GivenPromotion {
+export class GivenPromotion implements IGivenPromotion {
   constructor(
     private readonly stage: GivenStage,
     private readonly config: PromotionConfig,

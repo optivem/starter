@@ -1,10 +1,15 @@
-import type { GivenStep } from './given-step.js';
+import type { GivenStage } from '../given-stage.js';
+import type { WhenStage } from '../../when/when-stage.js';
+import type { ThenStage } from '../../then/then-stage.js';
 
-export interface GivenOrder extends GivenStep {
-  withOrderNumber(orderNumber: string): GivenOrder;
-  withSku(sku: string): GivenOrder;
-  withQuantity(quantity: string | number): GivenOrder;
-  withCountry(country: string): GivenOrder;
-  withCouponCode(couponCode: string): GivenOrder;
-  withStatus(status: string): GivenOrder;
+export interface GivenOrder {
+  withOrderNumber(orderNumber: string): this;
+  withSku(sku: string): this;
+  withQuantity(quantity: string | number): this;
+  withCountry(country: string): this;
+  withCouponCode(couponCode: string | null): this;
+  withStatus(status: string): this;
+  and(): GivenStage;
+  when(): WhenStage;
+  then(): ThenStage;
 }

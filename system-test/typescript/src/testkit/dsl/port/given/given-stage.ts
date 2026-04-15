@@ -14,6 +14,7 @@ export interface GivenStage {
   coupon(): GivenCoupon;
   country(): GivenCountry;
   order(): GivenOrder;
+  and(): GivenStage;
   when(): WhenStage;
   then(): ThenStage;
 }

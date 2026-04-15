@@ -1,6 +1,11 @@
-import type { GivenStep } from './given-step.js';
+import type { GivenStage } from '../given-stage.js';
+import type { WhenStage } from '../../when/when-stage.js';
+import type { ThenStage } from '../../then/then-stage.js';
 
-export interface GivenCountry extends GivenStep {
-  withCode(country: string): GivenCountry;
-  withTaxRate(taxRate: string | number): GivenCountry;
+export interface GivenCountry {
+  withCode(country: string): this;
+  withTaxRate(taxRate: string | number): this;
+  and(): GivenStage;
+  when(): WhenStage;
+  then(): ThenStage;
 }
