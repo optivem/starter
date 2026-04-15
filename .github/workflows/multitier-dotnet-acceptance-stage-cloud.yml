@@ -545,7 +545,7 @@ jobs:
         working-directory: system-test/dotnet
 
       - name: Run Contract Tests (Real)
-        run: dotnet test --filter "FullyQualifiedName~.Latest.ExternalSystemContractTests" --verbosity normal
+        run: dotnet test --filter "FullyQualifiedName~.Latest.ExternalSystemContractTests&FullyQualifiedName~Real" --verbosity normal
         working-directory: system-test/dotnet
         env:
           ENVIRONMENT: acceptance
