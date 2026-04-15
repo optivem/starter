@@ -1,9 +1,10 @@
-import type { WhenStep } from './when-step.js';
+import type { ThenResultStage } from '../../then/then-result-stage.js';
 
-export interface WhenPublishCoupon extends WhenStep {
-  withCouponCode(couponCode: string): WhenPublishCoupon;
-  withDiscountRate(discountRate: string | number): WhenPublishCoupon;
-  withValidFrom(validFrom: string): WhenPublishCoupon;
-  withValidTo(validTo: string): WhenPublishCoupon;
-  withUsageLimit(usageLimit: string | number): WhenPublishCoupon;
+export interface WhenPublishCoupon {
+  withCouponCode(couponCode: string): this;
+  withDiscountRate(discountRate: string | number): this;
+  withValidFrom(validFrom: string): this;
+  withValidTo(validTo: string): this;
+  withUsageLimit(usageLimit: string | number): this;
+  then(): ThenResultStage;
 }

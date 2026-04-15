@@ -1,4 +1,5 @@
-import type { WhenStep } from './when-step.js';
+import type { ThenResultStage } from '../../then/then-result-stage.js';
 
-export interface WhenBrowseCoupons extends WhenStep {
+export interface WhenBrowseCoupons {
+  then(): ThenResultStage;
 }

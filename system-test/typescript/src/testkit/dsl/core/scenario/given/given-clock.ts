@@ -3,8 +3,9 @@ import { ClockConfig } from '../scenario-context.js';
 import { ThenContractStage } from '../then/then-contract.js';
 import { WhenStage } from '../when/when-stage.js';
 import type { GivenStage } from './given-stage.js';
+import type { GivenClock as IGivenClock } from '../../../port/given/steps/given-clock.js';
 
-export class GivenClock {
+export class GivenClock implements IGivenClock {
   constructor(
     private readonly stage: GivenStage,
     private readonly config: ClockConfig,

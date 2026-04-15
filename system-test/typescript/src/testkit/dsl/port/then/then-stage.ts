@@ -1,9 +1,9 @@
-import type { ThenClock } from './steps/then-clock.js';
-import type { ThenProduct } from './steps/then-product.js';
-import type { ThenCountry } from './steps/then-country.js';
+import type { ThenGivenClock } from './steps/then-given-clock.js';
+import type { ThenGivenProduct } from './steps/then-given-product.js';
+import type { ThenGivenCountry } from './steps/then-given-country.js';
 
 export interface ThenStage {
-  clock(): ThenClock;
-  product(skuAlias: string): ThenProduct;
-  country(countryAlias: string): ThenCountry;
+  clock(): Promise<ThenGivenClock>;
+  product(skuAlias: string): Promise<ThenGivenProduct>;
+  country(countryAlias: string): Promise<ThenGivenCountry>;
 }

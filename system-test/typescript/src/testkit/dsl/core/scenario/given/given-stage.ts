@@ -10,8 +10,9 @@ import { GivenPromotion } from './given-promotion.js';
 import { GivenCoupon } from './given-coupon.js';
 import { GivenCountry } from './given-country.js';
 import { GivenOrder } from './given-order.js';
+import type { GivenStage as IGivenStage } from '../../../port/given/given-stage.js';
 
-export class GivenStage {
+export class GivenStage implements IGivenStage {
   constructor(
     private readonly app: AppContext,
     private readonly ctx: ScenarioContext,

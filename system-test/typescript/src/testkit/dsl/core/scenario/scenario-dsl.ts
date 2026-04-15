@@ -4,7 +4,6 @@ import { UseCaseContext } from '../use-case-context.js';
 import { AssumeStage } from './assume/assume-stage.js';
 import { GivenStage } from './given/given-stage.js';
 import { WhenStage } from './when/when-stage.js';
-
 export class ScenarioDsl {
   private readonly useCaseContext: UseCaseContext;
 

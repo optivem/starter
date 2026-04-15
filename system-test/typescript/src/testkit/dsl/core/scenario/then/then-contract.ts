@@ -4,7 +4,9 @@ import { UseCaseContext } from '../../use-case-context.js';
 import { AppContext } from '../app-context.js';
 import { ScenarioContext } from '../scenario-context.js';
 
-export class ThenContractStage implements PromiseLike<void> {
+import type { ThenStage as IThenStage } from '../../../port/then/then-stage.js';
+
+export class ThenContractStage implements PromiseLike<void>, IThenStage {
   private _clockAssertions: ((time: GetTimeResponse) => void)[] = [];
   private _productAssertions: Map<string, ((product: GetProductResponse) => void)[]> = new Map();
   private _countryAssertions: Map<string, ((tax: GetTaxResponse) => void)[]> = new Map();
