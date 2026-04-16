@@ -205,6 +205,9 @@ jobs:
         with:
           version: ${{ inputs.version }}
           artifact-urls: ${{ needs.check.outputs.image-urls }}
+          component-versions: |
+            multitier-backend-dotnet:system/multitier/backend-dotnet/VERSION
+            multitier-frontend-react:system/multitier/frontend-react/VERSION
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

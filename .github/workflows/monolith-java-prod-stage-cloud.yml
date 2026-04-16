@@ -166,6 +166,8 @@ jobs:
         with:
           version: ${{ inputs.version }}
           artifact-urls: ${{ needs.check.outputs.image-urls }}
+          component-versions: |
+            monolith-system-java:system/monolith/java/VERSION
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
