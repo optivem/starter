@@ -142,28 +142,28 @@ $Config = @{
 
         # === mod10: Acceptance Tests ===
         @{  Id = "mod10-acceptance-api";
-            SampleTest = "shouldBeAbleToBrowseCoupons";
+            SampleTest = "orderNumberShouldStartWithORD";
             Name = "mod10 - Acceptance (stub) - API";
             Command = "`$env:CHANNEL = 'api'; `$env:EXTERNAL_SYSTEM_MODE = 'stub'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=acceptance-test --grep-invert '@isolated' tests/legacy/mod10/acceptance";
             Path = ".";
             TestReportPath = "playwright-report\index.html";
             TestInstallCommands = $null },
         @{  Id = "mod10-acceptance-ui";
-            SampleTest = "shouldBeAbleToBrowseCoupons";
+            SampleTest = "orderNumberShouldStartWithORD";
             Name = "mod10 - Acceptance (stub) - UI";
             Command = "`$env:CHANNEL = 'ui'; `$env:EXTERNAL_SYSTEM_MODE = 'stub'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=acceptance-test --grep-invert '@isolated' tests/legacy/mod10/acceptance";
             Path = ".";
             TestReportPath = "playwright-report\index.html";
             TestInstallCommands = $null },
         @{  Id = "mod10-acceptance-isolated-api";
-            SampleTest = "shouldBeAbleToCancelOrder";
+            SampleTest = "shouldRecordPlacementTimestamp";
             Name = "mod10 - Acceptance Isolated (stub) - API";
             Command = "`$env:CHANNEL = 'api'; `$env:EXTERNAL_SYSTEM_MODE = 'stub'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=acceptance-test --workers=1 --grep '@isolated' tests/legacy/mod10/acceptance";
             Path = ".";
             TestReportPath = "playwright-report\index.html";
             TestInstallCommands = $null },
         @{  Id = "mod10-acceptance-isolated-ui";
-            SampleTest = "shouldBeAbleToCancelOrder";
+            SampleTest = "shouldRecordPlacementTimestamp";
             Name = "mod10 - Acceptance Isolated (stub) - UI";
             Command = "`$env:CHANNEL = 'ui'; `$env:EXTERNAL_SYSTEM_MODE = 'stub'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=acceptance-test --workers=1 --grep '@isolated' tests/legacy/mod10/acceptance";
             Path = ".";
