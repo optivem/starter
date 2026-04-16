@@ -3,14 +3,14 @@ import {
   PlaceOrderRequest,
   PlaceOrderResponse,
   ViewOrderResponse,
-  ErrorResponse,
+  SystemError,
   ProblemDetailResponse,
   PublishCouponRequest,
   BrowseCouponsResponse,
 } from '../../../../common/dtos.js';
 import { ShopDriver } from '../../../port/shop/shop-driver.js';
 
-function mapProblemDetail(pd: ProblemDetailResponse): ErrorResponse {
+function mapProblemDetail(pd: ProblemDetailResponse): SystemError {
   return {
     message: pd.detail || 'Unknown error',
     fieldErrors: (pd.errors || []).map((e) => ({
@@ -23,13 +23,13 @@ function mapProblemDetail(pd: ProblemDetailResponse): ErrorResponse {
 export class ShopApiDriver implements ShopDriver {
   constructor(private baseUrl: string) {}
 
-  async goToShop(): Promise<Result<void, ErrorResponse>> {
+  async goToShop(): Promise<Result<void, SystemError>> {
     const response = await fetch(`${this.baseUrl}/health`);
     if (response.ok) return success(undefined);
     return failure({ message: `Shop API not available: ${response.status}`, fieldErrors: [] });
   }
 
-  async placeOrder(request: PlaceOrderRequest): Promise<Result<PlaceOrderResponse, ErrorResponse>> {
+  async placeOrder(request: PlaceOrderRequest): Promise<Result<PlaceOrderResponse, SystemError>> {
     const response = await fetch(`${this.baseUrl}/api/orders`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -45,7 +45,7 @@ export class ShopApiDriver implements ShopDriver {
     return failure(mapProblemDetail(problemDetail));
   }
 
-  async cancelOrder(orderNumber: string): Promise<Result<void, ErrorResponse>> {
+  async cancelOrder(orderNumber: string): Promise<Result<void, SystemError>> {
     const response = await fetch(`${this.baseUrl}/api/orders/${orderNumber}/cancel`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -58,7 +58,7 @@ export class ShopApiDriver implements ShopDriver {
     return failure(mapProblemDetail(problemDetail));
   }
 
-  async deliverOrder(orderNumber: string): Promise<Result<void, ErrorResponse>> {
+  async deliverOrder(orderNumber: string): Promise<Result<void, SystemError>> {
     const response = await fetch(`${this.baseUrl}/api/orders/${orderNumber}/deliver`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -71,7 +71,7 @@ export class ShopApiDriver implements ShopDriver {
     return failure(mapProblemDetail(problemDetail));
   }
 
-  async viewOrder(orderNumber: string): Promise<Result<ViewOrderResponse, ErrorResponse>> {
+  async viewOrder(orderNumber: string): Promise<Result<ViewOrderResponse, SystemError>> {
     const response = await fetch(`${this.baseUrl}/api/orders/${orderNumber}`);
     if (response.ok) {
       const data = (await response.json()) as ViewOrderResponse;
@@ -82,7 +82,7 @@ export class ShopApiDriver implements ShopDriver {
     return failure(mapProblemDetail(problemDetail));
   }
 
-  async publishCoupon(request: PublishCouponRequest): Promise<Result<void, ErrorResponse>> {
+  async publishCoupon(request: PublishCouponRequest): Promise<Result<void, SystemError>> {
     const response = await fetch(`${this.baseUrl}/api/coupons`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -95,7 +95,7 @@ export class ShopApiDriver implements ShopDriver {
     return failure(mapProblemDetail(problemDetail));
   }
 
-  async browseCoupons(): Promise<Result<BrowseCouponsResponse, ErrorResponse>> {
+  async browseCoupons(): Promise<Result<BrowseCouponsResponse, SystemError>> {
     const response = await fetch(`${this.baseUrl}/api/coupons`);
     if (response.ok) {
       const data = (await response.json()) as BrowseCouponsResponse;

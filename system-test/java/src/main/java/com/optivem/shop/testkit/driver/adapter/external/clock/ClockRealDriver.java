@@ -5,7 +5,7 @@ import com.optivem.shop.testkit.driver.port.external.clock.ClockDriver;
 import com.optivem.shop.testkit.driver.adapter.external.clock.client.ClockRealClient;
 import com.optivem.shop.testkit.driver.port.external.clock.dtos.GetTimeResponse;
 import com.optivem.shop.testkit.driver.port.external.clock.dtos.ReturnsTimeRequest;
-import com.optivem.shop.testkit.driver.port.shared.dtos.ErrorResponse;
+import com.optivem.shop.testkit.driver.port.external.clock.dtos.error.ClockErrorResponse;
 import com.optivem.shop.testkit.common.Result;
 
 public class ClockRealDriver implements ClockDriver {
@@ -21,20 +21,20 @@ public class ClockRealDriver implements ClockDriver {
     }
 
     @Override
-    public Result<Void, ErrorResponse> goToClock() {
+    public Result<Void, ClockErrorResponse> goToClock() {
         return client.checkHealth()
-                .mapError(ext -> ErrorResponse.builder().message(ext.getMessage()).build());
+                .mapError(ext -> new ClockErrorResponse(ext.getMessage()));
     }
 
     @Override
-    public Result<GetTimeResponse, ErrorResponse> getTime() {
+    public Result<GetTimeResponse, ClockErrorResponse> getTime() {
         return client.getTime()
                 .map(ext -> GetTimeResponse.builder().time(ext.getTime()).build())
-                .mapError(ext -> ErrorResponse.builder().message(ext.getMessage()).build());
+                .mapError(ext -> new ClockErrorResponse(ext.getMessage()));
     }
 
     @Override
-    public Result<Void, ErrorResponse> returnsTime(ReturnsTimeRequest request) {
+    public Result<Void, ClockErrorResponse> returnsTime(ReturnsTimeRequest request) {
         // No-op because real clock cannot be configured
         return Result.success();
     }

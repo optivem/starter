@@ -1,6 +1,6 @@
 package com.optivem.shop.testkit.driver.adapter.shop.ui.client.pages;
 
-import com.optivem.shop.testkit.driver.port.shared.dtos.ErrorResponse;
+import com.optivem.shop.testkit.driver.port.shop.dtos.error.SystemError;
 import com.optivem.shop.testkit.common.Result;
 import com.optivem.shop.testkit.driver.adapter.shared.client.playwright.PageClient;
 
@@ -27,7 +27,7 @@ public abstract class BasePage {
         this.pageClient = pageClient;
     }
 
-    public Result<String, ErrorResponse> getResult() {
+    public Result<String, SystemError> getResult() {
         var notificationId = waitForNewNotification();
         lastNotificationId = notificationId;
 
@@ -49,7 +49,7 @@ public abstract class BasePage {
             .map(this::parseFieldError)
                 .toList();
 
-        var error = ErrorResponse.builder()
+        var error = SystemError.builder()
                 .message(generalMessage)
                 .fields(fieldErrors)
                 .build();
@@ -109,14 +109,14 @@ public abstract class BasePage {
         return pageClient.readAllTextContents(selector);
     }
 
-    private ErrorResponse.FieldError parseFieldError(String text) {
+    private SystemError.FieldError parseFieldError(String text) {
         var parts = text.split(":", 2);
 
         if (parts.length != 2) {
             throw new IllegalArgumentException("Invalid field error format: " + text);
         }
 
-        return new ErrorResponse.FieldError(
+        return new SystemError.FieldError(
                 parts[0].trim(),
                 parts[1].trim()
         );

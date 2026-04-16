@@ -6,6 +6,7 @@ import com.optivem.shop.testkit.dsl.core.usecase.external.clock.usecases.base.Ba
 import com.optivem.shop.testkit.dsl.core.shared.UseCaseResult;
 import com.optivem.shop.testkit.dsl.core.shared.UseCaseContext;
 import com.optivem.shop.testkit.dsl.core.shared.VoidVerification;
+import com.optivem.shop.testkit.driver.port.shop.dtos.error.SystemError;
 
 public class ReturnsTime extends BaseClockUseCase<Void, VoidVerification> {
     private String time;
@@ -27,6 +28,6 @@ public class ReturnsTime extends BaseClockUseCase<Void, VoidVerification> {
 
         var result = driver.returnsTime(request);
 
-        return new UseCaseResult<>(result, context, VoidVerification::new);
+        return new UseCaseResult<>(result.mapError(e -> SystemError.of(e.getMessage())), context, VoidVerification::new);
     }
 }

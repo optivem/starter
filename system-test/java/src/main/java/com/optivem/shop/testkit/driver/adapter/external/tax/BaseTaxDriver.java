@@ -4,7 +4,7 @@ import com.optivem.shop.testkit.driver.port.external.tax.TaxDriver;
 
 import com.optivem.shop.testkit.driver.adapter.external.tax.client.BaseTaxClient;
 import com.optivem.shop.testkit.driver.port.external.tax.dtos.GetTaxResponse;
-import com.optivem.shop.testkit.driver.port.shared.dtos.ErrorResponse;
+import com.optivem.shop.testkit.driver.port.external.tax.dtos.error.TaxErrorResponse;
 import com.optivem.shop.testkit.common.Closer;
 import com.optivem.shop.testkit.common.Result;
 
@@ -21,18 +21,18 @@ public abstract class BaseTaxDriver<TClient extends BaseTaxClient> implements Ta
     }
 
     @Override
-    public Result<Void, ErrorResponse> goToTax() {
+    public Result<Void, TaxErrorResponse> goToTax() {
         return client.checkHealth()
-                .mapError(ext -> ErrorResponse.builder().message(ext.getMessage()).build());
+                .mapError(ext -> new TaxErrorResponse(ext.getMessage()));
     }
 
     @Override
-    public Result<GetTaxResponse, ErrorResponse> getTaxRate(String country) {
+    public Result<GetTaxResponse, TaxErrorResponse> getTaxRate(String country) {
         return client.getCountry(country)
                 .map(taxRateResponse -> GetTaxResponse.builder()
                         .country(taxRateResponse.getId())
                         .taxRate(taxRateResponse.getTaxRate())
                         .build())
-                .mapError(ext -> ErrorResponse.builder().message(ext.getMessage()).build());
+                .mapError(ext -> new TaxErrorResponse(ext.getMessage()));
     }
 }

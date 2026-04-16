@@ -3,6 +3,7 @@ package com.optivem.shop.testkit.dsl.core.usecase.external.tax.usecases;
 import com.optivem.shop.testkit.dsl.core.shared.UseCaseContext;
 import com.optivem.shop.testkit.dsl.core.shared.UseCaseResult;
 import com.optivem.shop.testkit.dsl.core.shared.VoidVerification;
+import com.optivem.shop.testkit.driver.port.shop.dtos.error.SystemError;
 import com.optivem.shop.testkit.dsl.core.usecase.external.tax.usecases.base.BaseTaxUseCase;
 import com.optivem.shop.testkit.driver.port.external.tax.TaxDriver;
 
@@ -14,6 +15,6 @@ public class GoToTax extends BaseTaxUseCase<Void, VoidVerification> {
     @Override
     public UseCaseResult<Void, VoidVerification> execute() {
         var result = driver.goToTax();
-        return new UseCaseResult<>(result, context, VoidVerification::new);
+        return new UseCaseResult<>(result.mapError(e -> SystemError.of(e.getMessage())), context, VoidVerification::new);
     }
 }

@@ -6,6 +6,7 @@ import com.optivem.shop.testkit.driver.port.external.erp.dtos.GetProductResponse
 import com.optivem.shop.testkit.dsl.core.usecase.external.erp.usecases.base.BaseErpUseCase;
 import com.optivem.shop.testkit.dsl.core.shared.UseCaseResult;
 import com.optivem.shop.testkit.dsl.core.shared.UseCaseContext;
+import com.optivem.shop.testkit.driver.port.shop.dtos.error.SystemError;
 
 public class GetProduct extends BaseErpUseCase<GetProductResponse, GetProductVerification> {
     private String skuParamAlias;
@@ -29,6 +30,6 @@ public class GetProduct extends BaseErpUseCase<GetProductResponse, GetProductVer
 
         var result = driver.getProduct(request);
 
-        return new UseCaseResult<>(result, context, GetProductVerification::new);
+        return new UseCaseResult<>(result.mapError(e -> SystemError.of(e.getMessage())), context, GetProductVerification::new);
     }
 }

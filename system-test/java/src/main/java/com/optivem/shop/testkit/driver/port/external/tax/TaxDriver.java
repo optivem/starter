@@ -2,13 +2,13 @@ package com.optivem.shop.testkit.driver.port.external.tax;
 
 import com.optivem.shop.testkit.driver.port.external.tax.dtos.GetTaxResponse;
 import com.optivem.shop.testkit.driver.port.external.tax.dtos.ReturnsTaxRateRequest;
-import com.optivem.shop.testkit.driver.port.shared.dtos.ErrorResponse;
+import com.optivem.shop.testkit.driver.port.external.tax.dtos.error.TaxErrorResponse;
 import com.optivem.shop.testkit.common.Result;
 
 public interface TaxDriver extends AutoCloseable {
-    Result<Void, ErrorResponse> goToTax();
+    Result<Void, TaxErrorResponse> goToTax();
 
-    Result<GetTaxResponse, ErrorResponse> getTaxRate(String country);
+    Result<GetTaxResponse, TaxErrorResponse> getTaxRate(String country);
 
-    Result<Void, ErrorResponse> returnsTaxRate(ReturnsTaxRateRequest request);
+    Result<Void, TaxErrorResponse> returnsTaxRate(ReturnsTaxRateRequest request);
 }

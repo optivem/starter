@@ -2,7 +2,7 @@ package com.optivem.shop.testkit.driver.adapter.external.tax;
 
 import com.optivem.shop.testkit.driver.adapter.external.tax.client.TaxRealClient;
 import com.optivem.shop.testkit.driver.port.external.tax.dtos.ReturnsTaxRateRequest;
-import com.optivem.shop.testkit.driver.port.shared.dtos.ErrorResponse;
+import com.optivem.shop.testkit.driver.port.external.tax.dtos.error.TaxErrorResponse;
 import com.optivem.shop.testkit.common.Result;
 
 public class TaxRealDriver extends BaseTaxDriver<TaxRealClient> {
@@ -11,7 +11,7 @@ public class TaxRealDriver extends BaseTaxDriver<TaxRealClient> {
     }
 
     @Override
-    public Result<Void, ErrorResponse> returnsTaxRate(ReturnsTaxRateRequest request) {
+    public Result<Void, TaxErrorResponse> returnsTaxRate(ReturnsTaxRateRequest request) {
         return Result.success();
     }
 }

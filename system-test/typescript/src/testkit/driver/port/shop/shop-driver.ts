@@ -3,18 +3,18 @@ import {
   PlaceOrderRequest,
   PlaceOrderResponse,
   ViewOrderResponse,
-  ErrorResponse,
+  SystemError,
   PublishCouponRequest,
   BrowseCouponsResponse,
 } from '../../../common/dtos.js';
 
 export interface ShopDriver {
-  goToShop(): Promise<Result<void, ErrorResponse>>;
-  placeOrder(request: PlaceOrderRequest): Promise<Result<PlaceOrderResponse, ErrorResponse>>;
-  cancelOrder(orderNumber: string): Promise<Result<void, ErrorResponse>>;
-  deliverOrder(orderNumber: string): Promise<Result<void, ErrorResponse>>;
-  viewOrder(orderNumber: string): Promise<Result<ViewOrderResponse, ErrorResponse>>;
-  publishCoupon(request: PublishCouponRequest): Promise<Result<void, ErrorResponse>>;
-  browseCoupons(): Promise<Result<BrowseCouponsResponse, ErrorResponse>>;
+  goToShop(): Promise<Result<void, SystemError>>;
+  placeOrder(request: PlaceOrderRequest): Promise<Result<PlaceOrderResponse, SystemError>>;
+  cancelOrder(orderNumber: string): Promise<Result<void, SystemError>>;
+  deliverOrder(orderNumber: string): Promise<Result<void, SystemError>>;
+  viewOrder(orderNumber: string): Promise<Result<ViewOrderResponse, SystemError>>;
+  publishCoupon(request: PublishCouponRequest): Promise<Result<void, SystemError>>;
+  browseCoupons(): Promise<Result<BrowseCouponsResponse, SystemError>>;
   close(): Promise<void>;
 }

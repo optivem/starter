@@ -45,6 +45,14 @@ public class ThenFailureAnd<TSuccessResponse, TSuccessVerification>
 
     async Task<IThenProduct> IThenFailureAnd.Product(string skuAlias) => await Product(skuAlias);
 
+    public async Task<IThenCountry> Country(string countryAlias)
+    {
+        var verification = (await _thenClause.App.Tax().GetTaxRate().Country(countryAlias).Execute()).ShouldSucceed();
+        return new Steps.ThenCountry(_thenClause.App, verification);
+    }
+
+    async Task<IThenCountry> IThenFailureAnd.Country(string countryAlias) => await Country(countryAlias);
+
     public ThenFailureCoupon<TSuccessResponse, TSuccessVerification> Coupon(string couponCode)
     {
         return new ThenFailureCoupon<TSuccessResponse, TSuccessVerification>(

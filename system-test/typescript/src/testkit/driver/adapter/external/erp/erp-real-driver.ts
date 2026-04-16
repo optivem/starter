@@ -1,26 +1,26 @@
 import { Result, success, failure } from '../../../../common/result.js';
-import { ErrorResponse, GetProductResponse, ReturnsProductRequest, ReturnsPromotionRequest } from '../../../../common/dtos.js';
+import { ErpErrorResponse, GetProductResponse, ReturnsProductRequest, ReturnsPromotionRequest } from '../../../../common/dtos.js';
 import { ErpDriver } from '../../../port/external/erp/erp-driver.js';
 
 export class ErpRealDriver implements ErpDriver {
   constructor(private baseUrl: string) {}
 
-  async goToErp(): Promise<Result<void, ErrorResponse>> {
+  async goToErp(): Promise<Result<void, ErpErrorResponse>> {
     const response = await fetch(`${this.baseUrl}/health`);
     if (response.ok) return success(undefined);
-    return failure({ message: `ERP not available: ${response.status}`, fieldErrors: [] });
+    return failure({ message: `ERP not available: ${response.status}` });
   }
 
-  async getProduct(sku: string): Promise<Result<GetProductResponse, ErrorResponse>> {
+  async getProduct(sku: string): Promise<Result<GetProductResponse, ErpErrorResponse>> {
     const response = await fetch(`${this.baseUrl}/api/products/${sku}`);
     if (response.ok) {
       const data = (await response.json()) as { id?: string; sku?: string; price: number };
       return success({ sku: data.id || data.sku || sku, price: parseFloat(String(data.price)) });
     }
-    return failure({ message: `Product not found: ${sku}`, fieldErrors: [] });
+    return failure({ message: `Product not found: ${sku}` });
   }
 
-  async returnsProduct(request: ReturnsProductRequest): Promise<Result<void, ErrorResponse>> {
+  async returnsProduct(request: ReturnsProductRequest): Promise<Result<void, ErpErrorResponse>> {
     const response = await fetch(`${this.baseUrl}/api/products`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -34,10 +34,10 @@ export class ErpRealDriver implements ErpDriver {
       }),
     });
     if (response.ok) return success(undefined);
-    return failure({ message: `Failed to create product: ${response.status}`, fieldErrors: [] });
+    return failure({ message: `Failed to create product: ${response.status}` });
   }
 
-  async returnsPromotion(_request: ReturnsPromotionRequest): Promise<Result<void, ErrorResponse>> {
+  async returnsPromotion(_request: ReturnsPromotionRequest): Promise<Result<void, ErpErrorResponse>> {
     return success(undefined);
   }
 

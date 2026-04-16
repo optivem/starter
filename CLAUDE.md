@@ -12,6 +12,16 @@ Before committing any code changes, always verify compilation locally for the af
 
 Never commit code that does not compile. If multiple components are changed, verify each one before committing.
 
+### System Test Verification
+
+After compilation passes, run system tests with `-Sample` for each affected language before committing. From each language's `system-test/<language>/` directory:
+
+```powershell
+./Run-SystemTests.ps1 -Architecture monolith -Sample
+```
+
+This runs one sample test per suite across all test categories (smoke, acceptance, contract, e2e) to catch regressions without running the full suite. All sample tests must pass before committing.
+
 ## Fixing Failing Workflows
 
 When fixing a failing CI workflow, always follow this sequence:

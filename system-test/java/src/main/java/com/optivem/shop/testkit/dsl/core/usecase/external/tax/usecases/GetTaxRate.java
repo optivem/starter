@@ -5,6 +5,7 @@ import com.optivem.shop.testkit.dsl.core.shared.UseCaseResult;
 import com.optivem.shop.testkit.dsl.core.usecase.external.tax.usecases.base.BaseTaxUseCase;
 import com.optivem.shop.testkit.driver.port.external.tax.TaxDriver;
 import com.optivem.shop.testkit.driver.port.external.tax.dtos.GetTaxResponse;
+import com.optivem.shop.testkit.driver.port.shop.dtos.error.SystemError;
 
 public class GetTaxRate extends BaseTaxUseCase<GetTaxResponse, GetTaxVerification> {
     private String countryValueOrAlias;
@@ -24,6 +25,6 @@ public class GetTaxRate extends BaseTaxUseCase<GetTaxResponse, GetTaxVerificatio
 
         var result = driver.getTaxRate(country);
 
-        return new UseCaseResult<>(result, context, GetTaxVerification::new);
+        return new UseCaseResult<>(result.mapError(e -> SystemError.of(e.getMessage())), context, GetTaxVerification::new);
     }
 }

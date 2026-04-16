@@ -1,4 +1,4 @@
-package com.optivem.shop.testkit.driver.port.shared.dtos;
+package com.optivem.shop.testkit.driver.port.shop.dtos.error;
 
 import lombok.Builder;
 import lombok.Data;
@@ -9,25 +9,25 @@ import java.util.List;
 
 @Data
 @Builder
-public class ErrorResponse {
+public class SystemError {
     private final String message;
     private final List<FieldError> fields;
 
-    public static ErrorResponse of(String message) {
-        return ErrorResponse.builder()
+    public static SystemError of(String message) {
+        return SystemError.builder()
                 .message(message)
                 .build();
     }
 
-    public static ErrorResponse of(String message, FieldError... fieldErrors) {
-        return ErrorResponse.builder()
+    public static SystemError of(String message, FieldError... fieldErrors) {
+        return SystemError.builder()
                 .message(message)
                 .fields(Arrays.asList(fieldErrors))
                 .build();
     }
 
-    public static ErrorResponse of(String message, List<FieldError> fieldErrors) {
-        return ErrorResponse.builder()
+    public static SystemError of(String message, List<FieldError> fieldErrors) {
+        return SystemError.builder()
                 .message(message)
                 .fields(fieldErrors)
                 .build();
@@ -36,7 +36,7 @@ public class ErrorResponse {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("ErrorResponse{message='").append(message).append("'");
+        sb.append("SystemError{message='").append(message).append("'");
 
         if (fields != null && !fields.isEmpty()) {
             sb.append(", fieldErrors=[");

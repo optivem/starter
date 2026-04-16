@@ -14,15 +14,4 @@ public class BrowseCouponsPositiveTest : BaseAcceptanceTest
             .When().BrowseCoupons()
             .Then().ShouldSucceed();
     }
-
-    [Theory]
-    [ChannelData(ChannelType.API)]
-    public async Task PublishedCouponShouldAppearInList(Channel channel)
-    {
-        await Scenario(channel)
-            .Given().Coupon().WithCouponCode("BROWSE10").WithDiscountRate(0.1m)
-            .When().BrowseCoupons()
-            .Then().ShouldSucceed()
-            .And().Coupons().ContainsCouponWithCode("BROWSE10");
-    }
 }

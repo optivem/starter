@@ -17,7 +17,7 @@ export class ThenBrowseCouponsResultStage implements PromiseLike<void> {
 
   shouldSucceed(): ThenBrowseCouponsSuccess {
     this._expectSuccess = true;
-    return new ThenBrowseCouponsSuccess(this, this.useCaseContext);
+    return new ThenBrowseCouponsSuccess(this);
   }
 
   shouldFail(): ThenBrowseCouponsFailure {
@@ -60,15 +60,10 @@ export class ThenBrowseCouponsResultStage implements PromiseLike<void> {
 export class ThenBrowseCouponsSuccess implements PromiseLike<void> {
   constructor(
     private readonly stage: ThenBrowseCouponsResultStage,
-    private readonly useCaseContext: UseCaseContext,
   ) {}
 
   and(): this {
     return this;
-  }
-
-  coupons(): ThenBrowseCoupons {
-    return new ThenBrowseCoupons(this.stage, this.useCaseContext);
   }
 
   then<TResult1 = void, TResult2 = never>(
@@ -76,43 +71,6 @@ export class ThenBrowseCouponsSuccess implements PromiseLike<void> {
     onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
   ): PromiseLike<TResult1 | TResult2> {
     return this.stage.then(onfulfilled, onrejected);
-  }
-}
-
-export class ThenBrowseCoupons implements PromiseLike<void> {
-  private _assertions: ((result: BrowseCouponsResponse) => void)[] = [];
-
-  constructor(
-    private readonly stage: ThenBrowseCouponsResultStage,
-    private readonly useCaseContext: UseCaseContext,
-  ) {}
-
-  containsCouponWithCode(expectedCode: string): this {
-    this._assertions.push((result) => {
-      const resolvedCode = this.useCaseContext.getParamValue(expectedCode) as string;
-      const found = result.coupons.some((c) => c.code === resolvedCode);
-      expect(found).toBe(true);
-    });
-    return this;
-  }
-
-  couponCount(expectedCount: number): this {
-    this._assertions.push((result) => {
-      expect(result.coupons.length).toBe(expectedCount);
-    });
-    return this;
-  }
-
-  then<TResult1 = void, TResult2 = never>(
-    onfulfilled?: ((value: void) => TResult1 | PromiseLike<TResult1>) | null,
-    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
-  ): PromiseLike<TResult1 | TResult2> {
-    return this.stage
-      ._getResult()
-      .then((result) => {
-        for (const fn of this._assertions) fn(result);
-      })
-      .then(onfulfilled, onrejected);
   }
 }
 

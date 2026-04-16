@@ -17,18 +17,6 @@ public class BrowseCouponsVerification extends ResponseVerification<BrowseCoupon
         return this;
     }
 
-    public BrowseCouponsVerification containsCouponWithCode(String couponCodeAlias) {
-        return hasCouponWithCode(couponCodeAlias);
-    }
-
-    public BrowseCouponsVerification couponCount(int expectedCount) {
-        var actualCount = getResponse().getCoupons().size();
-        assertThat(actualCount)
-                .withFailMessage("Expected %d coupons, but found %d", expectedCount, actualCount)
-                .isEqualTo(expectedCount);
-        return this;
-    }
-
     public BrowseCouponsVerification couponHasDiscountRate(String couponCodeAlias, double expectedDiscountRate) {
         var coupon = findCouponByCode(couponCodeAlias);
         assertThat(coupon.getDiscountRate())

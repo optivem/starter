@@ -1,23 +1,22 @@
 package com.optivem.shop.testkit.driver.adapter.shop.api;
 
-import com.optivem.shop.testkit.driver.port.shared.dtos.ErrorResponse;
+import com.optivem.shop.testkit.driver.port.shop.dtos.error.SystemError;
 import com.optivem.shop.testkit.driver.adapter.shop.api.client.dtos.errors.ProblemDetailResponse;
 
 public class SystemErrorMapper {
     private SystemErrorMapper() {
     }
 
-    public static ErrorResponse from(ProblemDetailResponse problemDetail) {
+    public static SystemError from(ProblemDetailResponse problemDetail) {
         var message = problemDetail.getDetail() != null ? problemDetail.getDetail() : "Request failed";
 
         if (problemDetail.getErrors() != null && !problemDetail.getErrors().isEmpty()) {
             var fieldErrors = problemDetail.getErrors().stream()
-                    .map(e -> new ErrorResponse.FieldError(e.getField(), e.getMessage(), e.getCode()))
+                    .map(e -> new SystemError.FieldError(e.getField(), e.getMessage(), e.getCode()))
                     .toList();
-            return ErrorResponse.of(message, fieldErrors);
+            return SystemError.of(message, fieldErrors);
         }
 
-        return ErrorResponse.of(message);
+        return SystemError.of(message);
     }
 }
-

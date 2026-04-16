@@ -15,6 +15,4 @@ public interface IThenSuccessAnd
     IThenCoupon Coupon(string couponCode);
 
     IThenCoupon Coupon();
-
-    IThenBrowseCoupons Coupons();
 }

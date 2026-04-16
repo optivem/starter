@@ -1,6 +1,6 @@
 package com.optivem.shop.testkit.dsl.core.usecase.shop.commons;
 
-import com.optivem.shop.testkit.driver.port.shared.dtos.ErrorResponse;
+import com.optivem.shop.testkit.driver.port.shop.dtos.error.SystemError;
 import com.optivem.shop.testkit.common.Result;
 
 public final class SystemResults {
@@ -8,20 +8,19 @@ public final class SystemResults {
         // Utility class
     }
 
-    public static <T> Result<T, ErrorResponse> success(T value) {
+    public static <T> Result<T, SystemError> success(T value) {
         return Result.success(value);
     }
 
-    public static Result<Void, ErrorResponse> success() {
+    public static Result<Void, SystemError> success() {
         return Result.success();
     }
 
-    public static <T> Result<T, ErrorResponse> failure(String message) {
-        return Result.failure(ErrorResponse.of(message));
+    public static <T> Result<T, SystemError> failure(String message) {
+        return Result.failure(SystemError.of(message));
     }
 
-    public static <T> Result<T, ErrorResponse> failure(ErrorResponse error) {
+    public static <T> Result<T, SystemError> failure(SystemError error) {
         return Result.failure(error);
     }
 }
-

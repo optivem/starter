@@ -3,7 +3,7 @@
 
 $Config = @{
 
-    TestFilter = "--filter 'DisplayName~<test>'"
+    TestFilter = "&DisplayName~<test>"
 
     BuildCommands = @(
         @{  Name = "Clean Build";

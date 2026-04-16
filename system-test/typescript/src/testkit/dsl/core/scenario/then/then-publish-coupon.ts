@@ -1,12 +1,12 @@
 import { expect } from '@playwright/test';
-import { ErrorResponse, BrowseCouponItem } from '../../../../common/dtos.js';
+import { SystemError, BrowseCouponItem } from '../../../../common/dtos.js';
 import { UseCaseContext } from '../../use-case-context.js';
 import { AppContext } from '../app-context.js';
 import { ScenarioContext } from '../scenario-context.js';
 
 export class ThenPublishCouponResultStage implements PromiseLike<void> {
   private _expectSuccess = true;
-  private _errorAssertions: ((error: ErrorResponse, useCaseContext: UseCaseContext) => void)[] = [];
+  private _errorAssertions: ((error: SystemError, useCaseContext: UseCaseContext) => void)[] = [];
   private readonly _couponAssertions: { code: string; fns: ((coupon: BrowseCouponItem) => void)[] }[] = [];
   private _executionPromise: Promise<void> | null = null;
 
@@ -31,7 +31,7 @@ export class ThenPublishCouponResultStage implements PromiseLike<void> {
     return new ThenPublishCouponFailure(this);
   }
 
-  _addErrorAssertion(fn: (error: ErrorResponse, useCaseContext: UseCaseContext) => void): void {
+  _addErrorAssertion(fn: (error: SystemError, useCaseContext: UseCaseContext) => void): void {
     this._errorAssertions.push(fn);
   }
 

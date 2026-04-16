@@ -5,7 +5,7 @@ import com.optivem.shop.testkit.driver.adapter.external.erp.client.dtos.ExtGetPr
 import com.optivem.shop.testkit.driver.adapter.external.erp.client.dtos.ExtProductDetailsResponse;
 import com.optivem.shop.testkit.driver.port.external.erp.dtos.ReturnsProductRequest;
 import com.optivem.shop.testkit.driver.port.external.erp.dtos.ReturnsPromotionRequest;
-import com.optivem.shop.testkit.driver.port.shared.dtos.ErrorResponse;
+import com.optivem.shop.testkit.driver.port.external.erp.dtos.error.ErpErrorResponse;
 import com.optivem.shop.testkit.common.Converter;
 import com.optivem.shop.testkit.common.Result;
 
@@ -25,7 +25,7 @@ public class ErpStubDriver extends BaseErpDriver<ErpStubClient> {
     }
 
     @Override
-    public Result<Void, ErrorResponse> returnsProduct(ReturnsProductRequest request) {
+    public Result<Void, ErpErrorResponse> returnsProduct(ReturnsProductRequest request) {
         var extProductDetailsResponse = ExtProductDetailsResponse.builder()
                 .id(request.getSku())
                 .title("")
@@ -36,17 +36,17 @@ public class ErpStubDriver extends BaseErpDriver<ErpStubClient> {
                 .build();
 
         return client.configureGetProduct(extProductDetailsResponse)
-                .mapError(ext -> ErrorResponse.builder().message(ext.getMessage()).build());
+                .mapError(ext -> new ErpErrorResponse(ext.getMessage()));
     }
 
     @Override
-    public Result<Void, ErrorResponse> returnsPromotion(ReturnsPromotionRequest request) {
+    public Result<Void, ErpErrorResponse> returnsPromotion(ReturnsPromotionRequest request) {
         var extPromotionResponse = ExtGetPromotionResponse.builder()
                 .promotionActive(request.isPromotionActive())
                 .discount(Converter.toBigDecimal(request.getDiscount()))
                 .build();
 
         return client.configureGetPromotion(extPromotionResponse)
-                .mapError(ext -> ErrorResponse.builder().message(ext.getMessage()).build());
+                .mapError(ext -> new ErpErrorResponse(ext.getMessage()));
     }
 }

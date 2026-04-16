@@ -1,11 +1,11 @@
 package com.optivem.shop.testkit.dsl.core.shared;
 
-import com.optivem.shop.testkit.driver.port.shared.dtos.ErrorResponse;
+import com.optivem.shop.testkit.driver.port.shop.dtos.error.SystemError;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ErrorVerification extends ResponseVerification<ErrorResponse> {
-    public ErrorVerification(ErrorResponse error, UseCaseContext context) {
+public class ErrorVerification extends ResponseVerification<SystemError> {
+    public ErrorVerification(SystemError error, UseCaseContext context) {
         super(error, context);
     }
 
@@ -35,7 +35,7 @@ public class ErrorVerification extends ResponseVerification<ErrorResponse> {
                 .findFirst();
 
         var actualMessage = matchingFieldError
-                .map(ErrorResponse.FieldError::getMessage)
+                .map(SystemError.FieldError::getMessage)
                 .orElseThrow(() -> new AssertionError(
                         String.format("Expected field error for field '%s', but field was not found in errors: %s",
                                 expandedExpectedField, fields)));
@@ -47,5 +47,3 @@ public class ErrorVerification extends ResponseVerification<ErrorResponse> {
         return this;
     }
 }
-
-

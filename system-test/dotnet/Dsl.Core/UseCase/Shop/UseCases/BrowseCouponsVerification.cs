@@ -18,15 +18,6 @@ public class BrowseCouponsVerification : ResponseVerification<BrowseCouponsRespo
         return this;
     }
 
-    public BrowseCouponsVerification ContainsCouponWithCode(string expectedCodeAlias)
-    {
-        var expectedCode = Context.GetParamValue(expectedCodeAlias);
-        Response.Coupons.ShouldContain(
-            c => c.Code == expectedCode,
-            $"Expected coupon with code '{expectedCode}' to be present, but was not found");
-        return this;
-    }
-
     public BrowseCouponsVerification CouponHasDiscountRate(string couponCodeAlias, decimal expectedDiscountRate)
     {
         var coupon = FindCouponByCode(couponCodeAlias);
@@ -61,13 +52,6 @@ public class BrowseCouponsVerification : ResponseVerification<BrowseCouponsRespo
     {
         var coupon = FindCouponByCode(couponCode);
         coupon.UsedCount.ShouldBe(expectedUsedCount, $"Expected coupon '{couponCode}' to have used count {expectedUsedCount}");
-        return this;
-    }
-
-    public BrowseCouponsVerification CouponCount(int expectedCount)
-    {
-        Response.Coupons.Count.ShouldBe(expectedCount,
-            $"Expected {expectedCount} coupons, but found {Response.Coupons.Count}");
         return this;
     }
 

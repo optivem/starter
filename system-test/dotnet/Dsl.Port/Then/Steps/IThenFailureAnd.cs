@@ -10,6 +10,8 @@ public interface IThenFailureAnd
 
     Task<IThenProduct> Product(string skuAlias);
 
+    Task<IThenCountry> Country(string countryAlias);
+
     IThenCoupon Coupon(string couponCode);
 
     IThenCoupon Coupon();

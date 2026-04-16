@@ -7,6 +7,7 @@ import com.optivem.shop.testkit.common.Converter;
 import com.optivem.shop.testkit.dsl.core.shared.UseCaseResult;
 import com.optivem.shop.testkit.dsl.core.shared.UseCaseContext;
 import com.optivem.shop.testkit.dsl.core.shared.VoidVerification;
+import com.optivem.shop.testkit.driver.port.shop.dtos.error.SystemError;
 
 public class ReturnsProduct extends BaseErpUseCase<Void, VoidVerification> {
     private String skuParamAlias;
@@ -41,6 +42,6 @@ public class ReturnsProduct extends BaseErpUseCase<Void, VoidVerification> {
 
         var result = driver.returnsProduct(request);
 
-        return new UseCaseResult<>(result, context, VoidVerification::new);
+        return new UseCaseResult<>(result.mapError(e -> SystemError.of(e.getMessage())), context, VoidVerification::new);
     }
 }

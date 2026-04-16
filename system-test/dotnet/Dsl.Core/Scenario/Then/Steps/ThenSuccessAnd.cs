@@ -1,7 +1,5 @@
 using Dsl.Port.Then.Steps;
 using Dsl.Core.Shared;
-using Driver.Port.Shop.Dtos;
-using Dsl.Core.Shop.UseCases;
 
 namespace Dsl.Core.Scenario.Then;
 
@@ -70,13 +68,5 @@ public class ThenSuccessAnd<TSuccessResponse, TSuccessVerification>
     }
 
     IThenCoupon IThenSuccessAnd.Coupon() => Coupon();
-
-    public ThenBrowseCoupons Coupons()
-    {
-        var thenClause = (ThenStage<BrowseCouponsResponse, BrowseCouponsVerification>)(object)_thenClause;
-        return new ThenBrowseCoupons(thenClause);
-    }
-
-    IThenBrowseCoupons IThenSuccessAnd.Coupons() => Coupons();
 }
 

@@ -4,7 +4,7 @@ import com.optivem.shop.testkit.driver.adapter.external.erp.client.ErpRealClient
 import com.optivem.shop.testkit.driver.adapter.external.erp.client.dtos.ExtCreateProductRequest;
 import com.optivem.shop.testkit.driver.port.external.erp.dtos.ReturnsProductRequest;
 import com.optivem.shop.testkit.driver.port.external.erp.dtos.ReturnsPromotionRequest;
-import com.optivem.shop.testkit.driver.port.shared.dtos.ErrorResponse;
+import com.optivem.shop.testkit.driver.port.external.erp.dtos.error.ErpErrorResponse;
 import com.optivem.shop.testkit.common.Result;
 
 public class ErpRealDriver extends BaseErpDriver<ErpRealClient> {
@@ -18,12 +18,12 @@ public class ErpRealDriver extends BaseErpDriver<ErpRealClient> {
     }
 
     @Override
-    public Result<Void, ErrorResponse> returnsPromotion(ReturnsPromotionRequest request) {
+    public Result<Void, ErpErrorResponse> returnsPromotion(ReturnsPromotionRequest request) {
         return Result.success();
     }
 
     @Override
-    public Result<Void, ErrorResponse> returnsProduct(ReturnsProductRequest request) {
+    public Result<Void, ErpErrorResponse> returnsProduct(ReturnsProductRequest request) {
         var createProductRequest = ExtCreateProductRequest.builder()
                 .id(request.getSku())
                 .title(DEFAULT_TITLE)
@@ -34,6 +34,6 @@ public class ErpRealDriver extends BaseErpDriver<ErpRealClient> {
                 .build();
 
         return client.createProduct(createProductRequest)
-                .mapError(ext -> ErrorResponse.builder().message(ext.getMessage()).build());
+                .mapError(ext -> new ErpErrorResponse(ext.getMessage()));
     }
 }

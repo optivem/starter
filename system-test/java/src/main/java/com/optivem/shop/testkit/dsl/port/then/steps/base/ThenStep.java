@@ -1,6 +1,5 @@
 package com.optivem.shop.testkit.dsl.port.then.steps.base;
 
-import com.optivem.shop.testkit.dsl.port.then.steps.ThenBrowseCoupons;
 import com.optivem.shop.testkit.dsl.port.then.steps.ThenClock;
 import com.optivem.shop.testkit.dsl.port.then.steps.ThenCountry;
 import com.optivem.shop.testkit.dsl.port.then.steps.ThenCoupon;
@@ -23,6 +22,4 @@ public interface ThenStep<TThen> {
     ThenProduct product(String skuAlias);
 
     ThenCountry country(String countryAlias);
-
-    ThenBrowseCoupons coupons();
 }

@@ -357,6 +357,21 @@ function Execute-BuildCommands {
     Write-Host "All build commands completed successfully!" -ForegroundColor Green
 }
 
+function Append-TestFilter {
+    param(
+        [string]$Command,
+        [string]$FilterExpression
+    )
+
+    if ($FilterExpression.StartsWith("&")) {
+        # Expression fragment — inject into existing --filter
+        return $Command -replace "(--filter\s+'[^']*)", "`$1$FilterExpression"
+    } else {
+        # Full flag — append as new argument
+        return "$Command $FilterExpression"
+    }
+}
+
 function Test-System-Selected {
     param(
         [hashtable]$Test
@@ -366,11 +381,13 @@ function Test-System-Selected {
     $TestCommand = $Test.Command
 
     if ($script:Test -and $TestConfig.TestFilter) {
-        $TestCommand += " " + $TestConfig.TestFilter.Replace('<test>', $script:Test)
+        $filterExpression = $TestConfig.TestFilter.Replace('<test>', $script:Test)
+        $TestCommand = Append-TestFilter -Command $TestCommand -FilterExpression $filterExpression
     }
 
     if ($script:Sample -and $Test.SampleTest -and $TestConfig.TestFilter) {
-        $TestCommand += " " + $TestConfig.TestFilter.Replace('<test>', $Test.SampleTest)
+        $filterExpression = $TestConfig.TestFilter.Replace('<test>', $Test.SampleTest)
+        $TestCommand = Append-TestFilter -Command $TestCommand -FilterExpression $filterExpression
     }
 
     $TestPath = Join-Path $WorkingDirectory $Test.Path

@@ -34,7 +34,7 @@ test.describe('@isolated', () => {
                 .shouldSucceed()
                 .and()
                 .order()
-                .hasTotalPrice(100.0);
+                .hasTotalPrice('100.00');
         });
 
         test('shouldApplyDiscountWhenPromotionIsActive', async ({ scenario }) => {
@@ -56,7 +56,7 @@ test.describe('@isolated', () => {
                 .shouldSucceed()
                 .and()
                 .order()
-                .hasTotalPrice(50.0);
+                .hasTotalPrice('50.00');
         });
     });
 });

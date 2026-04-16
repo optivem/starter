@@ -1,13 +1,13 @@
 import { Result } from '../../../../common/result.js';
 import {
-  ErrorResponse,
+  ClockErrorResponse,
   GetTimeResponse,
   ReturnsTimeRequest,
 } from '../../../../common/dtos.js';
 
 export interface ClockDriver {
-  goToClock(): Promise<Result<void, ErrorResponse>>;
-  getTime(): Promise<Result<GetTimeResponse, ErrorResponse>>;
-  returnsTime(request: ReturnsTimeRequest): Promise<Result<void, ErrorResponse>>;
+  goToClock(): Promise<Result<void, ClockErrorResponse>>;
+  getTime(): Promise<Result<GetTimeResponse, ClockErrorResponse>>;
+  returnsTime(request: ReturnsTimeRequest): Promise<Result<void, ClockErrorResponse>>;
   close(): Promise<void>;
 }

@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 import {
-  ErrorResponse,
+  SystemError,
   ViewOrderResponse,
   BrowseCouponItem,
   GetTimeResponse,
@@ -15,7 +15,7 @@ export class ThenResultStage implements PromiseLike<void> {
   private _orderAssertions: ((order: ViewOrderResponse) => void)[] = [];
   private readonly _couponAssertions: { code: string; fns: ((coupon: BrowseCouponItem) => void)[] }[] = [];
   private _clockAssertions: ((time: GetTimeResponse) => void)[] = [];
-  private _errorAssertions: ((error: ErrorResponse, useCaseContext: UseCaseContext) => void)[] = [];
+  private _errorAssertions: ((error: SystemError, useCaseContext: UseCaseContext) => void)[] = [];
   private _executionPromise: Promise<void> | null = null;
 
   constructor(
@@ -55,7 +55,7 @@ export class ThenResultStage implements PromiseLike<void> {
     this._clockAssertions.push(fn);
   }
 
-  _addErrorAssertion(fn: (error: ErrorResponse, useCaseContext: UseCaseContext) => void): void {
+  _addErrorAssertion(fn: (error: SystemError, useCaseContext: UseCaseContext) => void): void {
     this._errorAssertions.push(fn);
   }
 

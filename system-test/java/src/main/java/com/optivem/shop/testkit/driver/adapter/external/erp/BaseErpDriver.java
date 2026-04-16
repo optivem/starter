@@ -5,7 +5,7 @@ import com.optivem.shop.testkit.driver.port.external.erp.ErpDriver;
 import com.optivem.shop.testkit.driver.adapter.external.erp.client.BaseErpClient;
 import com.optivem.shop.testkit.driver.port.external.erp.dtos.GetProductRequest;
 import com.optivem.shop.testkit.driver.port.external.erp.dtos.GetProductResponse;
-import com.optivem.shop.testkit.driver.port.shared.dtos.ErrorResponse;
+import com.optivem.shop.testkit.driver.port.external.erp.dtos.error.ErpErrorResponse;
 import com.optivem.shop.testkit.common.Closer;
 import com.optivem.shop.testkit.common.Result;
 
@@ -22,18 +22,18 @@ public abstract class BaseErpDriver<TClient extends BaseErpClient> implements Er
     }
 
     @Override
-    public Result<Void, ErrorResponse> goToErp() {
+    public Result<Void, ErpErrorResponse> goToErp() {
         return client.checkHealth()
-                .mapError(ext -> ErrorResponse.builder().message(ext.getMessage()).build());
+                .mapError(ext -> new ErpErrorResponse(ext.getMessage()));
     }
 
     @Override
-    public Result<GetProductResponse, ErrorResponse> getProduct(GetProductRequest request) {
+    public Result<GetProductResponse, ErpErrorResponse> getProduct(GetProductRequest request) {
         return client.getProduct(request.getSku())
                 .map(productDetails -> GetProductResponse.builder()
                         .sku(productDetails.getId())
                         .price(productDetails.getPrice())
                         .build())
-                .mapError(ext -> ErrorResponse.builder().message(ext.getMessage()).build());
+                .mapError(ext -> new ErpErrorResponse(ext.getMessage()));
     }
 }

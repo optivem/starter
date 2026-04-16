@@ -1,6 +1,6 @@
 package com.optivem.shop.testkit.dsl.core.shared;
 
-import com.optivem.shop.testkit.driver.port.shared.dtos.ErrorResponse;
+import com.optivem.shop.testkit.driver.port.shop.dtos.error.SystemError;
 import com.optivem.shop.testkit.common.Result;
 
 import java.util.function.BiFunction;
@@ -8,12 +8,12 @@ import java.util.function.BiFunction;
 import static com.optivem.shop.testkit.common.ResultAssert.assertThatResult;
 
 public class UseCaseResult<TSuccessResponse, TSuccessVerification> {
-    private final Result<TSuccessResponse, ErrorResponse> result;
+    private final Result<TSuccessResponse, SystemError> result;
     private final UseCaseContext context;
     private final BiFunction<TSuccessResponse, UseCaseContext, TSuccessVerification> successVerificationFactory;
 
     public UseCaseResult(
-            Result<TSuccessResponse, ErrorResponse> result,
+            Result<TSuccessResponse, SystemError> result,
             UseCaseContext context,
             BiFunction<TSuccessResponse, UseCaseContext, TSuccessVerification> successVerificationFactory) {
         this.result = result;
@@ -31,7 +31,3 @@ public class UseCaseResult<TSuccessResponse, TSuccessVerification> {
         return new ErrorVerification(result.getError(), context);
     }
 }
-
-
-
-

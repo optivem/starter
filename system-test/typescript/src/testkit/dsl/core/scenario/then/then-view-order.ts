@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { ErrorResponse, ViewOrderResponse } from '../../../../common/dtos.js';
+import { SystemError, ViewOrderResponse } from '../../../../common/dtos.js';
 import { DEFAULTS } from '../../defaults.js';
 import { UseCaseContext } from '../../use-case-context.js';
 import { AppContext } from '../app-context.js';
@@ -8,7 +8,7 @@ import { ScenarioContext } from '../scenario-context.js';
 export class ThenViewOrderResultStage implements PromiseLike<void> {
   private _expectSuccess = true;
   private _orderAssertions: ((order: ViewOrderResponse) => void)[] = [];
-  private _errorAssertions: ((error: ErrorResponse, useCaseContext: UseCaseContext) => void)[] = [];
+  private _errorAssertions: ((error: SystemError, useCaseContext: UseCaseContext) => void)[] = [];
   private _executionPromise: Promise<void> | null = null;
 
   constructor(
@@ -32,7 +32,7 @@ export class ThenViewOrderResultStage implements PromiseLike<void> {
     this._orderAssertions.push(fn);
   }
 
-  _addErrorAssertion(fn: (error: ErrorResponse, useCaseContext: UseCaseContext) => void): void {
+  _addErrorAssertion(fn: (error: SystemError, useCaseContext: UseCaseContext) => void): void {
     this._errorAssertions.push(fn);
   }
 

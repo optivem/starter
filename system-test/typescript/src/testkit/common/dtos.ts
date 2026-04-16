@@ -33,7 +33,19 @@ export enum OrderStatus {
   DELIVERED = 'DELIVERED',
 }
 
-export interface ErrorResponse {
+export interface ClockErrorResponse {
+  message: string;
+}
+
+export interface ErpErrorResponse {
+  message: string;
+}
+
+export interface TaxErrorResponse {
+  message: string;
+}
+
+export interface SystemError {
   message: string;
   fieldErrors: FieldError[];
 }

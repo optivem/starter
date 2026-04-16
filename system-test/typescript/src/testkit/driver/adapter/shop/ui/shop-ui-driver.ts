@@ -4,7 +4,7 @@ import {
   PlaceOrderRequest,
   PlaceOrderResponse,
   ViewOrderResponse,
-  ErrorResponse,
+  SystemError,
   PublishCouponRequest,
   BrowseCouponsResponse,
 } from '../../../../common/dtos.js';
@@ -264,7 +264,7 @@ function parseDisplayedDateToIso(displayed: string | undefined): string | undefi
 async function getNotification(
   page: Page,
   previousNotificationId?: string,
-): Promise<Result<string, ErrorResponse>> {
+): Promise<Result<string, SystemError>> {
   const baseSelector = previousNotificationId
     ? `[role='alert'].notification:not([data-notification-id='${previousNotificationId}'])`
     : "[role='alert'].notification";
@@ -303,7 +303,7 @@ export class ShopUiDriver implements ShopDriver {
     private browser: Browser,
   ) {}
 
-  async goToShop(): Promise<Result<void, ErrorResponse>> {
+  async goToShop(): Promise<Result<void, SystemError>> {
     try {
       this.context = await this.browser.newContext({ viewport: { width: 1920, height: 1080 } });
       this.page = await this.context.newPage();
@@ -317,7 +317,7 @@ export class ShopUiDriver implements ShopDriver {
     }
   }
 
-  async placeOrder(request: PlaceOrderRequest): Promise<Result<PlaceOrderResponse, ErrorResponse>> {
+  async placeOrder(request: PlaceOrderRequest): Promise<Result<PlaceOrderResponse, SystemError>> {
     if (!this.page) {
       const goResult = await this.goToShop();
       if (!goResult.success) return failure(goResult.error);
@@ -351,7 +351,7 @@ export class ShopUiDriver implements ShopDriver {
     return failure(notificationResult.error);
   }
 
-  async viewOrder(orderNumber: string): Promise<Result<ViewOrderResponse, ErrorResponse>> {
+  async viewOrder(orderNumber: string): Promise<Result<ViewOrderResponse, SystemError>> {
     if (!this.page) {
       const goResult = await this.goToShop();
       if (!goResult.success) return failure(goResult.error);
@@ -388,7 +388,7 @@ export class ShopUiDriver implements ShopDriver {
     });
   }
 
-  async cancelOrder(orderNumber: string): Promise<Result<void, ErrorResponse>> {
+  async cancelOrder(orderNumber: string): Promise<Result<void, SystemError>> {
     if (!this.page) {
       const goResult = await this.goToShop();
       if (!goResult.success) return failure(goResult.error);
@@ -414,7 +414,7 @@ export class ShopUiDriver implements ShopDriver {
     return failure(notificationResult.error);
   }
 
-  async deliverOrder(orderNumber: string): Promise<Result<void, ErrorResponse>> {
+  async deliverOrder(orderNumber: string): Promise<Result<void, SystemError>> {
     if (!this.page) {
       const goResult = await this.goToShop();
       if (!goResult.success) return failure(goResult.error);
@@ -440,7 +440,7 @@ export class ShopUiDriver implements ShopDriver {
     return failure(notificationResult.error);
   }
 
-  async publishCoupon(request: PublishCouponRequest): Promise<Result<void, ErrorResponse>> {
+  async publishCoupon(request: PublishCouponRequest): Promise<Result<void, SystemError>> {
     if (!this.page) {
       const goResult = await this.goToShop();
       if (!goResult.success) return failure(goResult.error);
@@ -471,7 +471,7 @@ export class ShopUiDriver implements ShopDriver {
     return failure(notificationResult.error);
   }
 
-  async browseCoupons(): Promise<Result<BrowseCouponsResponse, ErrorResponse>> {
+  async browseCoupons(): Promise<Result<BrowseCouponsResponse, SystemError>> {
     if (!this.page) {
       const goResult = await this.goToShop();
       if (!goResult.success) return failure(goResult.error);

@@ -1,15 +1,15 @@
 import { Result } from '../../../../common/result.js';
 import {
-  ErrorResponse,
+  ErpErrorResponse,
   GetProductResponse,
   ReturnsProductRequest,
   ReturnsPromotionRequest,
 } from '../../../../common/dtos.js';
 
 export interface ErpDriver {
-  goToErp(): Promise<Result<void, ErrorResponse>>;
-  getProduct(sku: string): Promise<Result<GetProductResponse, ErrorResponse>>;
-  returnsProduct(request: ReturnsProductRequest): Promise<Result<void, ErrorResponse>>;
-  returnsPromotion(request: ReturnsPromotionRequest): Promise<Result<void, ErrorResponse>>;
+  goToErp(): Promise<Result<void, ErpErrorResponse>>;
+  getProduct(sku: string): Promise<Result<GetProductResponse, ErpErrorResponse>>;
+  returnsProduct(request: ReturnsProductRequest): Promise<Result<void, ErpErrorResponse>>;
+  returnsPromotion(request: ReturnsPromotionRequest): Promise<Result<void, ErpErrorResponse>>;
   close(): Promise<void>;
 }

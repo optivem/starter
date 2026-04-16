@@ -3,7 +3,6 @@ package com.optivem.shop.testkit.dsl.core.scenario.then.steps;
 import com.optivem.shop.testkit.dsl.core.shared.ResponseVerification;
 import com.optivem.shop.testkit.dsl.core.usecase.UseCaseDsl;
 import com.optivem.shop.testkit.dsl.core.scenario.ExecutionResultContext;
-import com.optivem.shop.testkit.dsl.core.usecase.shop.usecases.BrowseCouponsVerification;
 
 public abstract class BaseThenStep<TSuccessResponse, TSuccessVerification extends ResponseVerification<TSuccessResponse>> {
     protected final UseCaseDsl app;
@@ -44,16 +43,6 @@ public abstract class BaseThenStep<TSuccessResponse, TSuccessVerification extend
     public ThenCountryImpl country(String countryAlias) {
         var verification = app.tax().getTaxRate().country(countryAlias).execute().shouldSucceed();
         return new ThenCountryImpl(app, executionResult, verification);
-    }
-
-    public ThenBrowseCouponsImpl coupons() {
-        BrowseCouponsVerification verification;
-        if (successVerification instanceof BrowseCouponsVerification browseCouponsVerification) {
-            verification = browseCouponsVerification;
-        } else {
-            verification = app.shop().browseCoupons().execute().shouldSucceed();
-        }
-        return new ThenBrowseCouponsImpl(app, executionResult, verification);
     }
 
     public ThenCouponImpl<TSuccessResponse, TSuccessVerification> coupon(String couponCode) {

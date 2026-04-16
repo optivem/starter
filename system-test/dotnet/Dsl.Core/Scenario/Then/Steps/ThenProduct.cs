@@ -38,4 +38,10 @@ public class ThenProduct : IThenProduct
         var verification = (await _app.Erp().GetProduct().Sku(skuAlias).Execute()).ShouldSucceed();
         return new ThenProduct(_app, verification);
     }
+
+    public async Task<IThenCountry> Country(string countryAlias)
+    {
+        var verification = (await _app.Tax().GetTaxRate().Country(countryAlias).Execute()).ShouldSucceed();
+        return new ThenCountry(_app, verification);
+    }
 }

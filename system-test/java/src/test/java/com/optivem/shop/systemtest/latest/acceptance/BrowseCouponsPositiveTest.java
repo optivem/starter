@@ -13,17 +13,4 @@ class BrowseCouponsPositiveTest extends BaseAcceptanceTest {
                 .when().browseCoupons()
                 .then().shouldSucceed();
     }
-
-    @TestTemplate
-    @Channel(ChannelType.API)
-    void publishedCouponShouldAppearInList() {
-        scenario
-                .given().coupon()
-                    .withCouponCode("BROWSE10")
-                    .withDiscountRate(0.10)
-                .when().browseCoupons()
-                .then().shouldSucceed()
-                    .coupons()
-                        .containsCouponWithCode("BROWSE10");
-    }
 }

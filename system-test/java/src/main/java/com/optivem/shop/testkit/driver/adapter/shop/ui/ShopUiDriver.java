@@ -13,7 +13,7 @@ import com.optivem.shop.testkit.driver.port.shop.dtos.PlaceOrderResponse;
 import com.optivem.shop.testkit.driver.port.shop.dtos.PublishCouponRequest;
 import com.optivem.shop.testkit.driver.port.shop.dtos.ViewOrderResponse;
 import com.optivem.shop.testkit.driver.port.shop.ShopDriver;
-import com.optivem.shop.testkit.driver.port.shared.dtos.ErrorResponse;
+import com.optivem.shop.testkit.driver.port.shop.dtos.error.SystemError;
 import com.optivem.shop.testkit.common.Result;
 
 import static com.optivem.shop.testkit.dsl.core.usecase.shop.commons.SystemResults.failure;
@@ -39,7 +39,7 @@ public class ShopUiDriver implements ShopDriver {
     }
 
     @Override
-    public Result<Void, ErrorResponse> goToShop() {
+    public Result<Void, SystemError> goToShop() {
         homePage = client.openHomePage();
 
         if (!client.isStatusOk() || !client.isPageLoaded()) {
@@ -51,7 +51,7 @@ public class ShopUiDriver implements ShopDriver {
     }
 
     @Override
-    public Result<PlaceOrderResponse, ErrorResponse> placeOrder(PlaceOrderRequest request) {
+    public Result<PlaceOrderResponse, SystemError> placeOrder(PlaceOrderRequest request) {
         var sku = request.getSku();
         var quantity = request.getQuantity();
         var country = request.getCountry();
@@ -79,7 +79,7 @@ public class ShopUiDriver implements ShopDriver {
     }
 
     @Override
-    public Result<Void, ErrorResponse> cancelOrder(String orderNumber) {
+    public Result<Void, SystemError> cancelOrder(String orderNumber) {
         var viewResult = viewOrder(orderNumber);
 
         if (viewResult.isFailure()) {
@@ -98,7 +98,7 @@ public class ShopUiDriver implements ShopDriver {
     }
 
     @Override
-    public Result<Void, ErrorResponse> deliverOrder(String orderNumber) {
+    public Result<Void, SystemError> deliverOrder(String orderNumber) {
         var viewResult = viewOrder(orderNumber);
 
         if (viewResult.isFailure()) {
@@ -117,7 +117,7 @@ public class ShopUiDriver implements ShopDriver {
     }
 
     @Override
-    public Result<ViewOrderResponse, ErrorResponse> viewOrder(String orderNumber) {
+    public Result<ViewOrderResponse, SystemError> viewOrder(String orderNumber) {
         var result = ensureOnOrderDetailsPage(orderNumber);
         if (result.isFailure()) {
             return failure(result.getError());
@@ -167,7 +167,7 @@ public class ShopUiDriver implements ShopDriver {
     }
 
     @Override
-    public Result<Void, ErrorResponse> publishCoupon(PublishCouponRequest request) {
+    public Result<Void, SystemError> publishCoupon(PublishCouponRequest request) {
         ensureOnCouponManagementPage();
 
         couponManagementPage.inputCouponCode(request.getCode());
@@ -181,7 +181,7 @@ public class ShopUiDriver implements ShopDriver {
     }
 
     @Override
-    public Result<BrowseCouponsResponse, ErrorResponse> browseCoupons() {
+    public Result<BrowseCouponsResponse, SystemError> browseCoupons() {
         navigateToCouponManagementPage();
 
         var coupons = couponManagementPage.readCoupons();
@@ -228,7 +228,7 @@ public class ShopUiDriver implements ShopDriver {
         }
     }
 
-    private Result<Void, ErrorResponse> ensureOnOrderDetailsPage(String orderNumber) {
+    private Result<Void, SystemError> ensureOnOrderDetailsPage(String orderNumber) {
         ensureOnOrderHistoryPage();
         orderHistoryPage.inputOrderNumber(orderNumber);
         orderHistoryPage.clickSearch();

@@ -4,6 +4,7 @@ import com.optivem.shop.testkit.common.Converter;
 import com.optivem.shop.testkit.dsl.core.shared.UseCaseContext;
 import com.optivem.shop.testkit.dsl.core.shared.UseCaseResult;
 import com.optivem.shop.testkit.dsl.core.shared.VoidVerification;
+import com.optivem.shop.testkit.driver.port.shop.dtos.error.SystemError;
 import com.optivem.shop.testkit.dsl.core.usecase.external.tax.usecases.base.BaseTaxUseCase;
 import com.optivem.shop.testkit.driver.port.external.tax.TaxDriver;
 import com.optivem.shop.testkit.driver.port.external.tax.dtos.ReturnsTaxRateRequest;
@@ -41,6 +42,6 @@ public class ReturnsTaxRate extends BaseTaxUseCase<Void, VoidVerification> {
 
         var result = driver.returnsTaxRate(request);
 
-        return new UseCaseResult<>(result, context, VoidVerification::new);
+        return new UseCaseResult<>(result.mapError(e -> SystemError.of(e.getMessage())), context, VoidVerification::new);
     }
 }
