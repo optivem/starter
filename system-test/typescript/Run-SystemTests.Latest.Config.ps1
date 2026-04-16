@@ -7,6 +7,7 @@ $Config = @{
 
         # === Smoke Tests (stub) ===
         @{  Id = "smoke-stub";
+            SampleTest = "shouldBeAbleToGoToShop";
             Name = "latest - Smoke (stub)";
             Command = "`$env:EXTERNAL_SYSTEM_MODE = 'stub'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=smoke-test tests/latest/smoke";
             Path = ".";
@@ -15,6 +16,7 @@ $Config = @{
 
         # === Smoke Tests (real) ===
         @{  Id = "smoke-real";
+            SampleTest = "shouldBeAbleToGoToShop";
             Name = "latest - Smoke (real)";
             Command = "`$env:EXTERNAL_SYSTEM_MODE = 'real'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=smoke-test tests/latest/smoke";
             Path = ".";
@@ -23,6 +25,7 @@ $Config = @{
 
         # === Acceptance Tests (stub) - API ===
         @{  Id = "acceptance-api";
+            SampleTest = "shouldBeAbleToBrowseCoupons";
             Name = "latest - Acceptance (stub) - API";
             Command = "`$env:CHANNEL = 'api'; `$env:EXTERNAL_SYSTEM_MODE = 'stub'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=acceptance-test --grep-invert '@isolated' tests/latest/acceptance";
             Path = ".";
@@ -31,6 +34,7 @@ $Config = @{
 
         # === Acceptance Tests (stub) - UI ===
         @{  Id = "acceptance-ui";
+            SampleTest = "shouldBeAbleToBrowseCoupons";
             Name = "latest - Acceptance (stub) - UI";
             Command = "`$env:CHANNEL = 'ui'; `$env:EXTERNAL_SYSTEM_MODE = 'stub'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=acceptance-test --grep-invert '@isolated' tests/latest/acceptance";
             Path = ".";
@@ -39,6 +43,7 @@ $Config = @{
 
         # === Acceptance Tests Isolated (stub) - API ===
         @{  Id = "acceptance-isolated-api";
+            SampleTest = "shouldBeAbleToCancelOrder";
             Name = "latest - Acceptance Isolated (stub) - API";
             Command = "`$env:CHANNEL = 'api'; `$env:EXTERNAL_SYSTEM_MODE = 'stub'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=acceptance-test --grep '@isolated' tests/latest/acceptance";
             Path = ".";
@@ -47,6 +52,7 @@ $Config = @{
 
         # === Acceptance Tests Isolated (stub) - UI ===
         @{  Id = "acceptance-isolated-ui";
+            SampleTest = "shouldBeAbleToCancelOrder";
             Name = "latest - Acceptance Isolated (stub) - UI";
             Command = "`$env:CHANNEL = 'ui'; `$env:EXTERNAL_SYSTEM_MODE = 'stub'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=acceptance-test --grep '@isolated' tests/latest/acceptance";
             Path = ".";
@@ -55,6 +61,7 @@ $Config = @{
 
         # === Contract Tests (stub) ===
         @{  Id = "contract-stub";
+            SampleTest = "shouldBeAbleToGetTime";
             Name = "latest - Contract (stub)";
             Command = "`$env:EXTERNAL_SYSTEM_MODE = 'stub'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=external-system-contract-test tests/latest/contract";
             Path = ".";
@@ -63,6 +70,7 @@ $Config = @{
 
         # === Contract Tests (real) ===
         @{  Id = "contract-real";
+            SampleTest = "shouldBeAbleToGetTime";
             Name = "latest - Contract (real)";
             Command = "`$env:EXTERNAL_SYSTEM_MODE = 'real'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=external-system-contract-test tests/latest/contract";
             Path = ".";
@@ -71,6 +79,7 @@ $Config = @{
 
         # === E2E Tests (real) - API ===
         @{  Id = "e2e-api";
+            SampleTest = "shouldPlaceOrder";
             Name = "latest - E2E (real) - API";
             Command = "`$env:CHANNEL = 'api'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=e2e-test tests/latest/e2e";
             Path = ".";
@@ -79,6 +88,7 @@ $Config = @{
 
         # === E2E Tests (real) - UI ===
         @{  Id = "e2e-ui";
+            SampleTest = "shouldPlaceOrder";
             Name = "latest - E2E (real) - UI";
             Command = "`$env:CHANNEL = 'ui'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=e2e-test tests/latest/e2e";
             Path = ".";

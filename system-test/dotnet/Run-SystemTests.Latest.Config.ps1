@@ -7,6 +7,7 @@ $Config = @{
 
         # === Smoke Tests (stub) ===
         @{  Id = "smoke-stub";
+            SampleTest = "ShouldBeAbleToGoToShop";
             Name = "latest - Smoke (stub)";
             Command = "dotnet test --filter 'FullyQualifiedName~.Latest.SmokeTests' -e EXTERNAL_SYSTEM_MODE=stub --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
@@ -15,6 +16,7 @@ $Config = @{
 
         # === Smoke Tests (real) ===
         @{  Id = "smoke-real";
+            SampleTest = "ShouldBeAbleToGoToShop";
             Name = "latest - Smoke (real)";
             Command = "dotnet test --filter 'FullyQualifiedName~.Latest.SmokeTests' -e EXTERNAL_SYSTEM_MODE=real --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
@@ -23,6 +25,7 @@ $Config = @{
 
         # === Acceptance Tests (stub) - API ===
         @{  Id = "acceptance-api";
+            SampleTest = "ShouldBeAbleToPlaceOrderForValidInput";
             Name = "latest - Acceptance (stub) - API";
             Command = "dotnet test --filter 'FullyQualifiedName~.Latest.AcceptanceTests&Category!=isolated' -e CHANNEL=API --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
@@ -30,6 +33,7 @@ $Config = @{
 
         # === Acceptance Tests (stub) - UI ===
         @{  Id = "acceptance-ui";
+            SampleTest = "ShouldBeAbleToPlaceOrderForValidInput";
             Name = "latest - Acceptance (stub) - UI";
             Command = "dotnet test --filter 'FullyQualifiedName~.Latest.AcceptanceTests&Category!=isolated' -e CHANNEL=UI -e CHANNEL_MODE=static --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
@@ -38,6 +42,7 @@ $Config = @{
 
         # === Acceptance Tests Isolated (stub) - API ===
         @{  Id = "acceptance-isolated-api";
+            SampleTest = "ShouldRecordPlacementTimestamp";
             Name = "latest - Acceptance Isolated (stub) - API";
             Command = "dotnet test --filter 'FullyQualifiedName~.Latest.AcceptanceTests&Category=isolated' -e CHANNEL=API --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
@@ -45,6 +50,7 @@ $Config = @{
 
         # === Acceptance Tests Isolated (stub) - UI ===
         @{  Id = "acceptance-isolated-ui";
+            SampleTest = "ShouldRecordPlacementTimestamp";
             Name = "latest - Acceptance Isolated (stub) - UI";
             Command = "dotnet test --filter 'FullyQualifiedName~.Latest.AcceptanceTests&Category=isolated' -e CHANNEL=UI -e CHANNEL_MODE=static --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
@@ -53,6 +59,7 @@ $Config = @{
 
         # === Contract Tests (stub) ===
         @{  Id = "contract-stub";
+            SampleTest = "ShouldBeAbleToGetTime";
             Name = "latest - Contract (stub)";
             Command = "dotnet test --filter 'FullyQualifiedName~.Latest.ExternalSystemContractTests&FullyQualifiedName~Stub&Category!=isolated' --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
@@ -60,6 +67,7 @@ $Config = @{
 
         # === Contract Tests Isolated (stub) ===
         @{  Id = "contract-stub-isolated";
+            SampleTest = "ShouldBeAbleToGetConfiguredTime";
             Name = "latest - Contract Isolated (stub)";
             Command = "dotnet test --filter 'FullyQualifiedName~.Latest.ExternalSystemContractTests&FullyQualifiedName~Stub&Category=isolated' --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
@@ -67,6 +75,7 @@ $Config = @{
 
         # === Contract Tests (real) ===
         @{  Id = "contract-real";
+            SampleTest = "ShouldBeAbleToGetTime";
             Name = "latest - Contract (real)";
             Command = "dotnet test --filter 'FullyQualifiedName~.Latest.ExternalSystemContractTests&FullyQualifiedName~Real' --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
@@ -74,6 +83,7 @@ $Config = @{
 
         # === E2E Tests (real) - API ===
         @{  Id = "e2e-api";
+            SampleTest = "ShouldPlaceOrder";
             Name = "latest - E2E (real) - API";
             Command = "dotnet test --filter 'FullyQualifiedName~.Latest.E2eTests' -e CHANNEL=API --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
@@ -82,6 +92,7 @@ $Config = @{
 
         # === E2E Tests (real) - UI ===
         @{  Id = "e2e-ui";
+            SampleTest = "ShouldPlaceOrder";
             Name = "latest - E2E (real) - UI";
             Command = "dotnet test --filter 'FullyQualifiedName~.Latest.E2eTests' -e CHANNEL=UI -e CHANNEL_MODE=static --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
