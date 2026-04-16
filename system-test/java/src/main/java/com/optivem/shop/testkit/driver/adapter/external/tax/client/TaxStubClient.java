@@ -1,37 +1,19 @@
 package com.optivem.shop.testkit.driver.adapter.external.tax.client;
 
-import com.optivem.shop.testkit.common.Closer;
-import com.optivem.shop.testkit.common.Result;
+import com.optivem.shop.testkit.driver.adapter.shared.client.http.HttpStatus;
 import com.optivem.shop.testkit.driver.adapter.external.tax.client.dtos.ExtGetCountryResponse;
 import com.optivem.shop.testkit.driver.adapter.external.tax.client.dtos.error.ExtTaxErrorResponse;
-import com.optivem.shop.testkit.driver.adapter.shared.client.http.HttpStatus;
-import com.optivem.shop.testkit.driver.adapter.shared.client.http.JsonHttpClient;
+import com.optivem.shop.testkit.common.Result;
 import com.optivem.shop.testkit.driver.adapter.shared.client.wiremock.JsonWireMockClient;
 
-public class TaxStubClient implements AutoCloseable {
-    private static final String HEALTH_ENDPOINT = "/health";
-    private static final String COUNTRIES_ENDPOINT = "/api/countries/";
+public class TaxStubClient extends BaseTaxClient {
     private static final String WIREMOCK_COUNTRIES_ENDPOINT = "/tax/api/countries/";
 
-    private final JsonHttpClient<ExtTaxErrorResponse> httpClient;
     private final JsonWireMockClient wireMockClient;
 
     public TaxStubClient(String baseUrl) {
-        this.httpClient = new JsonHttpClient<>(baseUrl, ExtTaxErrorResponse.class);
+        super(baseUrl);
         this.wireMockClient = new JsonWireMockClient(baseUrl);
-    }
-
-    @Override
-    public void close() {
-        Closer.close(httpClient);
-    }
-
-    public Result<Void, ExtTaxErrorResponse> checkHealth() {
-        return httpClient.get(HEALTH_ENDPOINT);
-    }
-
-    public Result<ExtGetCountryResponse, ExtTaxErrorResponse> getCountry(String country) {
-        return httpClient.get(COUNTRIES_ENDPOINT + country, ExtGetCountryResponse.class);
     }
 
     public Result<Void, ExtTaxErrorResponse> configureGetCountry(String country, ExtGetCountryResponse response) {

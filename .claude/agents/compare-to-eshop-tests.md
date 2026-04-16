@@ -17,6 +17,13 @@ You will be told which language to compare:
 
 If no language is specified, ask which language to compare.
 
+### Mode (optional)
+
+- **quick** (recommended default) — Categorize each file as "identical", "package-only diffs", or "has logic diffs". Only show full diff output for files with logic diffs. Include a themes section that groups unexpected differences into high-level themes. Much faster for large comparisons.
+- **verbatim** — Show the exact diff output for every file that has any differences (including package-only). Use this when you need to audit every single line.
+
+If no mode is specified, default to **quick**.
+
 ## Repo Locations
 
 Resolve paths dynamically:
@@ -103,9 +110,9 @@ Report:
 - Files that exist in **starter only** (missing from eshop-tests) — mark promotion files as "(expected)"
 - Files that exist in **both**
 
-### Step 2 — Verbatim Diff
+### Step 2 — Diff Files
 
-For every file that exists in both repos, run a verbatim diff:
+For every file that exists in both repos, run a diff:
 
 ```bash
 diff "$ESHOP_TESTS/<path>" "$STARTER/<path>"
@@ -113,7 +120,28 @@ diff "$ESHOP_TESTS/<path>" "$STARTER/<path>"
 
 **Expected diff lines to ignore:** Package/namespace declarations will differ due to the package mapping (e.g. `com.optivem.eshop.dsl` vs `com.optivem.shop.testkit`). Import statements will also differ for the same reason. Flag these as "(expected package difference)" and focus on **logic differences** in the report.
 
-Report the **exact diff output** for every file that has non-package-related differences. For files where the only diffs are package/namespace/import changes, report "(identical except package/namespace mapping)".
+#### Quick mode
+
+Categorize each file into one of:
+- **Identical** — no diffs at all (or only whitespace/line-ending diffs)
+- **Package/namespace only** — only package declarations and import statements differ
+- **Logic diffs** — has non-package-related differences
+
+Only show the **exact diff output** for files with logic diffs. For the other categories, just list the filenames.
+
+#### Verbatim mode
+
+Report the **exact diff output** for every file that has any differences. For files where the only diffs are package/namespace/import changes, report "(identical except package/namespace mapping)".
+
+### Step 2b — Theme Analysis
+
+After categorizing all diffs, group the unexpected differences into **high-level themes**. A theme is a recurring pattern that appears across multiple files (e.g. "ChannelMode support added", "WireMock stub cleanup added", "legacy tests reduced").
+
+For each theme, report:
+- **Theme name** — short descriptive label
+- **What changed** — one-sentence explanation
+- **Affected files** — list of files where this theme appears
+- **Expected?** — whether this is a known/expected difference
 
 ### Step 3 — Config File Diff
 
@@ -131,14 +159,15 @@ For config files, note that they will differ structurally (multi-module vs singl
 ## Workflow
 
 1. Resolve the repo root paths dynamically.
-2. Confirm the language parameter.
+2. Confirm the language and mode parameters.
 3. For the specified language:
    a. Enumerate all source files in both repos using the path mapping.
    b. Match files across repos by relative path within each layer.
    c. Report files unique to each repo (marking expected ones).
-   d. For matched files, diff them verbatim.
+   d. For matched files, diff them and categorize (quick mode) or show full output (verbatim mode).
    e. Categorize diffs as expected (package/namespace) vs unexpected (logic).
    f. Diff config files.
+   g. Group unexpected differences into themes.
 4. Produce the report.
 
 ## Report Format
@@ -175,6 +204,18 @@ UNEXPECTED DIFFERENCES:
 ## Config Diffs
 ...
 
+## Themes
+
+### <Theme name>
+What changed: <one-sentence explanation>
+Expected: <yes/no>
+Affected files:
+  - <filename>
+  - <filename>
+
+### <Theme name>
+...
+
 ## Summary
 
 Total files compared: <count>
@@ -184,4 +225,5 @@ Total files compared: <count>
   - In eshop-tests only: <count>
   - In starter only (expected): <count>
   - In starter only (unexpected): <count>
+Themes identified: <count>
 ```
