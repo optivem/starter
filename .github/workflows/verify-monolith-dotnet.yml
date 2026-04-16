@@ -8,6 +8,7 @@ on:
         required: false
         type: choice
         options:
+          - local
           - commit
           - acceptance
           - release
@@ -24,6 +25,8 @@ jobs:
     secrets: inherit
     with:
       prefix: monolith-dotnet
+      architecture: monolith
+      language: dotnet
       commit-workflows: '["monolith-dotnet-commit-stage.yml"]'
       level: ${{ inputs.level || 'release' }}
       skip-commit-stage: ${{ inputs.skip-commit-stage == true }}
