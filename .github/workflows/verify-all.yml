@@ -2,7 +2,7 @@ name: verify-all
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # Run daily at 02:00 UTC
+    - cron: '0 1 * * *'  # Run daily at 01:00 UTC
   workflow_dispatch:
     inputs:
       language:
