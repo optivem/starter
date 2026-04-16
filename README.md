@@ -157,3 +157,14 @@ The `.github/workflows/` directory contains runnable pipelines for all 6 matched
 [![multitier-java-verify](https://github.com/optivem/starter/actions/workflows/multitier-java-verify.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/multitier-java-verify.yml)
 [![multitier-dotnet-verify](https://github.com/optivem/starter/actions/workflows/multitier-dotnet-verify.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/multitier-dotnet-verify.yml)
 [![multitier-typescript-verify](https://github.com/optivem/starter/actions/workflows/multitier-typescript-verify.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/multitier-typescript-verify.yml)
+
+## Cleanup
+
+[![cleanup-prereleases](https://github.com/optivem/starter/actions/workflows/cleanup-prereleases.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/cleanup-prereleases.yml)
+
+**cleanup-prereleases** — runs nightly at midnight CET to clean up prerelease artifacts:
+
+- **Released versions**: immediately deletes prerelease GitHub releases and git tags; deletes Docker image tags after 30-day retention
+- **Superseded prereleases**: deletes older RCs past 30 days (always keeps the latest RC)
+
+Uses [`optivem/actions/cleanup-prereleases`](https://github.com/optivem/actions/tree/main/cleanup-prereleases).
