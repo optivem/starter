@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  cleanup-prerelease-versions:
+  cleanup-prereleases:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -22,6 +22,6 @@ jobs:
           echo "${{ secrets.VERIFY_TOKEN }}" | gh auth login --with-token
 
       - name: Cleanup Prerelease Versions
-        uses: optivem/actions/cleanup-prerelease-versions@v1
+        uses: optivem/actions/cleanup-prereleases@v1
         env:
           GITHUB_TOKEN: ${{ secrets.VERIFY_TOKEN }}
