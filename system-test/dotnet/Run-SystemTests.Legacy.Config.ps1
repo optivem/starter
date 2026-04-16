@@ -139,13 +139,13 @@ $Config = @{
 
         # === mod10: Acceptance ===
         @{  Id = "mod10-acceptance-api";
-            SampleTest = "ShouldBeAbleToPlaceOrderForValidInput";
+            SampleTest = "OrderNumberShouldStartWithORD";
             Name = "mod10 - Acceptance (stub) - API";
             Command = "dotnet test --filter 'FullyQualifiedName~.Legacy.Mod10.AcceptanceTests&Category!=isolated' -e CHANNEL=API --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
             TestReportPath = "SystemTests\TestResults\testResults.html" },
         @{  Id = "mod10-acceptance-ui";
-            SampleTest = "ShouldBeAbleToPlaceOrderForValidInput";
+            SampleTest = "OrderNumberShouldStartWithORD";
             Name = "mod10 - Acceptance (stub) - UI";
             Command = "dotnet test --filter 'FullyQualifiedName~.Legacy.Mod10.AcceptanceTests&Category!=isolated' -e CHANNEL=UI --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";

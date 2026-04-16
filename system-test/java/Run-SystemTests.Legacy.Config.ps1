@@ -142,14 +142,14 @@ $Config = @{
 
         # === mod10: Acceptance Tests ===
         @{  Id = "mod10-acceptance-api";
-            SampleTest = "shouldBeAbleToPlaceOrderForValidInput";
+            SampleTest = "orderNumberShouldStartWithORD";
             Name = "mod10 (acceptance) - Acceptance (stub) - API";
             Command = "& .\gradlew.bat test -Dversion=mod10 -Dtype=acceptance -DexcludeTags=isolated -Dchannel=API -Denvironment=local";
             Path = ".";
             TestReportPath = "build\reports\tests\test\index.html";
             TestInstallCommands = $null; },
         @{  Id = "mod10-acceptance-ui";
-            SampleTest = "shouldBeAbleToPlaceOrderForValidInput";
+            SampleTest = "orderNumberShouldStartWithORD";
             Name = "mod10 (acceptance) - Acceptance (stub) - UI";
             Command = "& .\gradlew.bat test -Dversion=mod10 -Dtype=acceptance -DexcludeTags=isolated -Dchannel=UI -Denvironment=local";
             Path = ".";
