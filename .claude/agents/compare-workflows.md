@@ -34,7 +34,6 @@ Pipeline stages (per architecture per language):
 
 Aggregate workflows (not language-specific):
 - `verify-all.yml`
-- `verify-acceptance-stage-all.yml`
 - `cleanup-all.yml`
 
 ## Input

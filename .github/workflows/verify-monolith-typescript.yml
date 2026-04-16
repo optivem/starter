@@ -1,8 +1,17 @@
-name: monolith-typescript-verify
+name: verify-monolith-typescript
 
 on:
   workflow_dispatch:
     inputs:
+      level:
+        description: 'Verification level'
+        required: false
+        type: choice
+        options:
+          - commit
+          - acceptance
+          - release
+        default: 'release'
       skip-commit-stage:
         description: 'Skip commit stage'
         required: false
@@ -16,4 +25,5 @@ jobs:
     with:
       prefix: monolith-typescript
       commit-workflows: '["monolith-typescript-commit-stage.yml"]'
+      level: ${{ inputs.level || 'release' }}
       skip-commit-stage: ${{ inputs.skip-commit-stage == true }}

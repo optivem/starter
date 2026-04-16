@@ -151,12 +151,12 @@ The `.github/workflows/` directory contains runnable pipelines for all 6 matched
 
 **verify-all** — runs the full pipeline on the starter repo's own templates:
 
-[![monolith-java-verify](https://github.com/optivem/starter/actions/workflows/monolith-java-verify.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/monolith-java-verify.yml)
-[![monolith-dotnet-verify](https://github.com/optivem/starter/actions/workflows/monolith-dotnet-verify.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/monolith-dotnet-verify.yml)
-[![monolith-typescript-verify](https://github.com/optivem/starter/actions/workflows/monolith-typescript-verify.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/monolith-typescript-verify.yml)
-[![multitier-java-verify](https://github.com/optivem/starter/actions/workflows/multitier-java-verify.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/multitier-java-verify.yml)
-[![multitier-dotnet-verify](https://github.com/optivem/starter/actions/workflows/multitier-dotnet-verify.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/multitier-dotnet-verify.yml)
-[![multitier-typescript-verify](https://github.com/optivem/starter/actions/workflows/multitier-typescript-verify.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/multitier-typescript-verify.yml)
+[![verify-monolith-java](https://github.com/optivem/starter/actions/workflows/verify-monolith-java.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/verify-monolith-java.yml)
+[![verify-monolith-dotnet](https://github.com/optivem/starter/actions/workflows/verify-monolith-dotnet.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/verify-monolith-dotnet.yml)
+[![verify-monolith-typescript](https://github.com/optivem/starter/actions/workflows/verify-monolith-typescript.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/verify-monolith-typescript.yml)
+[![verify-multitier-java](https://github.com/optivem/starter/actions/workflows/verify-multitier-java.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/verify-multitier-java.yml)
+[![verify-multitier-dotnet](https://github.com/optivem/starter/actions/workflows/verify-multitier-dotnet.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/verify-multitier-dotnet.yml)
+[![verify-multitier-typescript](https://github.com/optivem/starter/actions/workflows/verify-multitier-typescript.yml/badge.svg)](https://github.com/optivem/starter/actions/workflows/verify-multitier-typescript.yml)
 
 ## Cleanup
 

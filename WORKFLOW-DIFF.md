@@ -157,7 +157,7 @@ No inconsistencies. All consistent across languages.
 
 ## 7. Monolith — Verify
 
-Files: `monolith-java-verify.yml`, `monolith-dotnet-verify.yml`, `monolith-typescript-verify.yml`
+Files: `verify-monolith-java.yml`, `verify-monolith-dotnet.yml`, `verify-monolith-typescript.yml`
 
 No inconsistencies. All consistent across languages.
 

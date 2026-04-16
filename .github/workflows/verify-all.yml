@@ -5,6 +5,15 @@ on:
     - cron: '0 1 * * *'  # Run daily at 01:00 UTC
   workflow_dispatch:
     inputs:
+      level:
+        description: 'Verification level'
+        required: false
+        type: choice
+        options:
+          - commit
+          - acceptance
+          - release
+        default: 'release'
       language:
         description: 'Language to verify (java, dotnet, typescript). Leave empty to run all.'
         required: false
@@ -86,60 +95,60 @@ jobs:
   # Phase 2: Run verify pipelines sequentially (to avoid RC version race conditions)
   monolith-java:
     needs: [commit-monolith-java, commit-monolith-dotnet, commit-monolith-typescript, commit-multitier-backend-java, commit-multitier-backend-dotnet, commit-multitier-backend-typescript, commit-multitier-frontend-react]
-    if: ${{ always() && !failure() && (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
+    if: ${{ always() && !failure() && (inputs.level || 'release') != 'commit' && (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
-          workflow: monolith-java-verify.yml
-          inputs: '{"skip-commit-stage": "true"}'
+          workflow: verify-monolith-java.yml
+          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-commit-stage": "true"}'
 
   monolith-dotnet:
     needs: monolith-java
-    if: ${{ always() && !failure() && (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
+    if: ${{ always() && !failure() && (inputs.level || 'release') != 'commit' && (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
-          workflow: monolith-dotnet-verify.yml
-          inputs: '{"skip-commit-stage": "true"}'
+          workflow: verify-monolith-dotnet.yml
+          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-commit-stage": "true"}'
 
   monolith-typescript:
     needs: monolith-dotnet
-    if: ${{ always() && !failure() && (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
+    if: ${{ always() && !failure() && (inputs.level || 'release') != 'commit' && (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
-          workflow: monolith-typescript-verify.yml
-          inputs: '{"skip-commit-stage": "true"}'
+          workflow: verify-monolith-typescript.yml
+          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-commit-stage": "true"}'
 
   multitier-java:
     needs: monolith-typescript
-    if: ${{ always() && !failure() && (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
+    if: ${{ always() && !failure() && (inputs.level || 'release') != 'commit' && (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
-          workflow: multitier-java-verify.yml
-          inputs: '{"skip-commit-stage": "true"}'
+          workflow: verify-multitier-java.yml
+          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-commit-stage": "true"}'
 
   multitier-dotnet:
     needs: multitier-java
-    if: ${{ always() && !failure() && (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
+    if: ${{ always() && !failure() && (inputs.level || 'release') != 'commit' && (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
-          workflow: multitier-dotnet-verify.yml
-          inputs: '{"skip-commit-stage": "true"}'
+          workflow: verify-multitier-dotnet.yml
+          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-commit-stage": "true"}'
 
   multitier-typescript:
     needs: multitier-dotnet
-    if: ${{ always() && !failure() && (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
+    if: ${{ always() && !failure() && (inputs.level || 'release') != 'commit' && (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
-          workflow: multitier-typescript-verify.yml
-          inputs: '{"skip-commit-stage": "true"}'
+          workflow: verify-multitier-typescript.yml
+          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-commit-stage": "true"}'

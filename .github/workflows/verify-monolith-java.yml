@@ -1,8 +1,17 @@
-name: monolith-java-verify
+name: verify-monolith-java
 
 on:
   workflow_dispatch:
     inputs:
+      level:
+        description: 'Verification level'
+        required: false
+        type: choice
+        options:
+          - commit
+          - acceptance
+          - release
+        default: 'release'
       skip-commit-stage:
         description: 'Skip commit stage'
         required: false
@@ -16,4 +25,5 @@ jobs:
     with:
       prefix: monolith-java
       commit-workflows: '["monolith-java-commit-stage.yml"]'
+      level: ${{ inputs.level || 'release' }}
       skip-commit-stage: ${{ inputs.skip-commit-stage == true }}
