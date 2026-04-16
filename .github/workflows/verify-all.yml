@@ -34,11 +34,6 @@ on:
           - ''
           - monolith
           - multitier
-      skip-commit-stage:
-        description: 'Skip commit stage (Phase 1)'
-        required: false
-        type: boolean
-        default: false
 
 jobs:
   print-inputs:
@@ -50,71 +45,12 @@ jobs:
           echo "Level: ${{ inputs.level || 'release (default)' }}"
           echo "Language: ${{ inputs.language || 'all (default)' }}"
           echo "Architecture: ${{ inputs.architecture || 'all (default)' }}"
-          echo "Skip commit stage: ${{ inputs.skip-commit-stage || false }}"
           echo "Triggered by: ${{ github.event_name }}"
 
-  # Phase 1: Run all commit stages in parallel (deduplicated)
-  # Skipped when level is 'local' (no commit stages needed)
-  commit-monolith-java:
-    if: ${{ !inputs.skip-commit-stage && (inputs.level || 'release') != 'local' && (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: optivem/actions/trigger-and-wait@main
-        with:
-          workflow: monolith-java-commit-stage.yml
-
-  commit-monolith-dotnet:
-    if: ${{ !inputs.skip-commit-stage && (inputs.level || 'release') != 'local' && (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: optivem/actions/trigger-and-wait@main
-        with:
-          workflow: monolith-dotnet-commit-stage.yml
-
-  commit-monolith-typescript:
-    if: ${{ !inputs.skip-commit-stage && (inputs.level || 'release') != 'local' && (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: optivem/actions/trigger-and-wait@main
-        with:
-          workflow: monolith-typescript-commit-stage.yml
-
-  commit-multitier-backend-java:
-    if: ${{ !inputs.skip-commit-stage && (inputs.level || 'release') != 'local' && (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: optivem/actions/trigger-and-wait@main
-        with:
-          workflow: multitier-backend-java-commit-stage.yml
-
-  commit-multitier-backend-dotnet:
-    if: ${{ !inputs.skip-commit-stage && (inputs.level || 'release') != 'local' && (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: optivem/actions/trigger-and-wait@main
-        with:
-          workflow: multitier-backend-dotnet-commit-stage.yml
-
-  commit-multitier-backend-typescript:
-    if: ${{ !inputs.skip-commit-stage && (inputs.level || 'release') != 'local' && (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: optivem/actions/trigger-and-wait@main
-        with:
-          workflow: multitier-backend-typescript-commit-stage.yml
-
-  commit-multitier-frontend-react:
-    if: ${{ !inputs.skip-commit-stage && (inputs.level || 'release') != 'local' && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: optivem/actions/trigger-and-wait@main
-        with:
-          workflow: multitier-frontend-react-commit-stage.yml
-
-  # Phase 2a: Run verify pipelines in PARALLEL (local level only — no RC version conflicts)
+  # Phase 0: Run all local stages in parallel
   local-monolith-java:
     needs: print-inputs
-    if: ${{ (inputs.level || 'release') == 'local' && (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
+    if: ${{ (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -124,7 +60,7 @@ jobs:
 
   local-monolith-dotnet:
     needs: print-inputs
-    if: ${{ (inputs.level || 'release') == 'local' && (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
+    if: ${{ (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -134,7 +70,7 @@ jobs:
 
   local-monolith-typescript:
     needs: print-inputs
-    if: ${{ (inputs.level || 'release') == 'local' && (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
+    if: ${{ (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -144,7 +80,7 @@ jobs:
 
   local-multitier-java:
     needs: print-inputs
-    if: ${{ (inputs.level || 'release') == 'local' && (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
+    if: ${{ (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -154,7 +90,7 @@ jobs:
 
   local-multitier-dotnet:
     needs: print-inputs
-    if: ${{ (inputs.level || 'release') == 'local' && (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
+    if: ${{ (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -164,7 +100,7 @@ jobs:
 
   local-multitier-typescript:
     needs: print-inputs
-    if: ${{ (inputs.level || 'release') == 'local' && (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
+    if: ${{ (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -172,7 +108,71 @@ jobs:
           workflow: verify-multitier-typescript.yml
           inputs: '{"level": "local", "skip-commit-stage": "true"}'
 
-  # Phase 2b: Run verify pipelines SEQUENTIALLY (commit/acceptance/release — avoids RC version race conditions)
+  # Phase 1: Run all commit stages in parallel (deduplicated)
+  commit-monolith-java:
+    needs: [local-monolith-java, local-monolith-dotnet, local-monolith-typescript, local-multitier-java, local-multitier-dotnet, local-multitier-typescript]
+    if: ${{ always() && !failure() && (inputs.level || 'release') != 'local' && (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: optivem/actions/trigger-and-wait@main
+        with:
+          workflow: monolith-java-commit-stage.yml
+
+  commit-monolith-dotnet:
+    needs: [local-monolith-java, local-monolith-dotnet, local-monolith-typescript, local-multitier-java, local-multitier-dotnet, local-multitier-typescript]
+    if: ${{ always() && !failure() && (inputs.level || 'release') != 'local' && (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: optivem/actions/trigger-and-wait@main
+        with:
+          workflow: monolith-dotnet-commit-stage.yml
+
+  commit-monolith-typescript:
+    needs: [local-monolith-java, local-monolith-dotnet, local-monolith-typescript, local-multitier-java, local-multitier-dotnet, local-multitier-typescript]
+    if: ${{ always() && !failure() && (inputs.level || 'release') != 'local' && (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: optivem/actions/trigger-and-wait@main
+        with:
+          workflow: monolith-typescript-commit-stage.yml
+
+  commit-multitier-backend-java:
+    needs: [local-monolith-java, local-monolith-dotnet, local-monolith-typescript, local-multitier-java, local-multitier-dotnet, local-multitier-typescript]
+    if: ${{ always() && !failure() && (inputs.level || 'release') != 'local' && (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: optivem/actions/trigger-and-wait@main
+        with:
+          workflow: multitier-backend-java-commit-stage.yml
+
+  commit-multitier-backend-dotnet:
+    needs: [local-monolith-java, local-monolith-dotnet, local-monolith-typescript, local-multitier-java, local-multitier-dotnet, local-multitier-typescript]
+    if: ${{ always() && !failure() && (inputs.level || 'release') != 'local' && (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: optivem/actions/trigger-and-wait@main
+        with:
+          workflow: multitier-backend-dotnet-commit-stage.yml
+
+  commit-multitier-backend-typescript:
+    needs: [local-monolith-java, local-monolith-dotnet, local-monolith-typescript, local-multitier-java, local-multitier-dotnet, local-multitier-typescript]
+    if: ${{ always() && !failure() && (inputs.level || 'release') != 'local' && (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: optivem/actions/trigger-and-wait@main
+        with:
+          workflow: multitier-backend-typescript-commit-stage.yml
+
+  commit-multitier-frontend-react:
+    needs: [local-monolith-java, local-monolith-dotnet, local-monolith-typescript, local-multitier-java, local-multitier-dotnet, local-multitier-typescript]
+    if: ${{ always() && !failure() && (inputs.level || 'release') != 'local' && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: optivem/actions/trigger-and-wait@main
+        with:
+          workflow: multitier-frontend-react-commit-stage.yml
+
+  # Phase 2: Run verify pipelines sequentially (to avoid RC version race conditions)
   monolith-java:
     needs: [commit-monolith-java, commit-monolith-dotnet, commit-monolith-typescript, commit-multitier-backend-java, commit-multitier-backend-dotnet, commit-multitier-backend-typescript, commit-multitier-frontend-react]
     if: ${{ always() && !failure() && (inputs.level || 'release') != 'local' && (inputs.level || 'release') != 'commit' && (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
@@ -181,7 +181,7 @@ jobs:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: verify-monolith-java.yml
-          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-commit-stage": "true"}'
+          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-local-stage": "true", "skip-commit-stage": "true"}'
 
   monolith-dotnet:
     needs: monolith-java
@@ -191,7 +191,7 @@ jobs:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: verify-monolith-dotnet.yml
-          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-commit-stage": "true"}'
+          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-local-stage": "true", "skip-commit-stage": "true"}'
 
   monolith-typescript:
     needs: monolith-dotnet
@@ -201,7 +201,7 @@ jobs:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: verify-monolith-typescript.yml
-          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-commit-stage": "true"}'
+          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-local-stage": "true", "skip-commit-stage": "true"}'
 
   multitier-java:
     needs: monolith-typescript
@@ -211,7 +211,7 @@ jobs:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: verify-multitier-java.yml
-          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-commit-stage": "true"}'
+          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-local-stage": "true", "skip-commit-stage": "true"}'
 
   multitier-dotnet:
     needs: multitier-java
@@ -221,7 +221,7 @@ jobs:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: verify-multitier-dotnet.yml
-          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-commit-stage": "true"}'
+          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-local-stage": "true", "skip-commit-stage": "true"}'
 
   multitier-typescript:
     needs: multitier-dotnet
@@ -231,4 +231,4 @@ jobs:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: verify-multitier-typescript.yml
-          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-commit-stage": "true"}'
+          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-local-stage": "true", "skip-commit-stage": "true"}'
