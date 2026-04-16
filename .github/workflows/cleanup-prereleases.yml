@@ -1,4 +1,4 @@
-name: cleanup-all
+name: cleanup-prereleases
 
 on:
   schedule:
@@ -21,7 +21,7 @@ jobs:
         run: |
           echo "${{ secrets.VERIFY_TOKEN }}" | gh auth login --with-token
 
-      - name: Cleanup Prerelease Versions
+      - name: Cleanup Prereleases
         uses: optivem/actions/cleanup-prereleases@v1
         env:
           GITHUB_TOKEN: ${{ secrets.VERIFY_TOKEN }}
