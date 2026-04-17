@@ -9,7 +9,7 @@ test('shouldPlaceOrder', async ({ shopApiClient, erpClient }) => {
     expect(productResult.success).toBe(true);
 
     // When: place order via API client
-    const result = await shopApiClient.placeOrder({ sku, quantity: '5', country: 'US' });
+    const result = await shopApiClient.orders().placeOrder({ sku, quantity: '5', country: 'US' });
 
     // Then
     expect(result.success).toBe(true);

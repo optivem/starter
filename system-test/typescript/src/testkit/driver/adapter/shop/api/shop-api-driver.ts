@@ -16,31 +16,31 @@ export class ShopApiDriver implements ShopDriver {
   }
 
   async goToShop(): Promise<Result<void, SystemError>> {
-    return this.client.health();
+    return this.client.health().checkHealth();
   }
 
   async placeOrder(request: PlaceOrderRequest): Promise<Result<PlaceOrderResponse, SystemError>> {
-    return this.client.placeOrder(request);
+    return this.client.orders().placeOrder(request);
   }
 
   async cancelOrder(orderNumber: string): Promise<Result<void, SystemError>> {
-    return this.client.cancelOrder(orderNumber);
+    return this.client.orders().cancelOrder(orderNumber);
   }
 
   async deliverOrder(orderNumber: string): Promise<Result<void, SystemError>> {
-    return this.client.deliverOrder(orderNumber);
+    return this.client.orders().deliverOrder(orderNumber);
   }
 
   async viewOrder(orderNumber: string): Promise<Result<ViewOrderResponse, SystemError>> {
-    return this.client.viewOrder(orderNumber);
+    return this.client.orders().viewOrder(orderNumber);
   }
 
   async publishCoupon(request: PublishCouponRequest): Promise<Result<void, SystemError>> {
-    return this.client.publishCoupon(request);
+    return this.client.coupons().publishCoupon(request);
   }
 
   async browseCoupons(): Promise<Result<BrowseCouponsResponse, SystemError>> {
-    return this.client.browseCoupons();
+    return this.client.coupons().browseCoupons();
   }
 
   async close(): Promise<void> {}

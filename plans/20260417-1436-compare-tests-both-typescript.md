@@ -172,10 +172,8 @@ No changes required (aligned across all three languages).
 
 ## G. Architecture Layers — Common
 
-### G1. TypeScript — add `Closer` utility
-- File (new): `system-test/typescript/src/testkit/common/closer.ts`.
-- Reference: Java `Closer.java`. Provides a disposal helper. (JS has native dispose semantics now; consider whether this is still needed or replace with pattern.)
-- **Source:** ✅ Port from eshop-tests — `eshop-tests/typescript/common/src/Closer.ts` exists (also `Closeable.ts`, `AsyncCloseable.ts`).
+### G1. TypeScript — add `Closer` utility — ❌ EXCEPTION (TS-specific)
+- **Decision:** Not ported. Java wraps `AutoCloseable`; TS has no equivalent abstraction. Only `ErpStubClient`/`TaxStubClient` have a `close()` method and callers invoke it directly — no utility needed. The plan itself acknowledged: "JS has native dispose semantics now; consider whether this is still needed."
 
 ### G2. TypeScript — add `Converter`
 - File (new): `system-test/typescript/src/testkit/common/converter.ts`.

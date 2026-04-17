@@ -1,6 +1,4 @@
-import { uiTest as test, expect } from '../fixtures.js';
+import { uiTest as test } from '../fixtures.js';
+import { runShopBaseSmokeTest } from './ShopBaseSmokeTest.js';
 
-test('shouldBeAbleToGoToShop', async ({ shopDriver }) => {
-    const result = await shopDriver.goToShop();
-    expect(result.success).toBe(true);
-});
+runShopBaseSmokeTest(test);

@@ -9,7 +9,7 @@ export { OrderStatus } from '../driver/port/shop/dtos/OrderStatus.js';
 export type { PublishCouponRequest } from '../driver/port/shop/dtos/PublishCouponRequest.js';
 export type { BrowseCouponItem, BrowseCouponsResponse } from '../driver/port/shop/dtos/BrowseCouponsResponse.js';
 export type { SystemError, FieldError } from '../driver/port/shop/dtos/SystemError.js';
-export type { ProblemDetailResponse } from '../driver/port/shop/dtos/ProblemDetailResponse.js';
+export type { ProblemDetailResponse } from '../driver/adapter/shop/api/client/dtos/errors/ProblemDetailResponse.js';
 
 // Clock
 export type { GetTimeResponse } from '../driver/port/external/clock/dtos/GetTimeResponse.js';

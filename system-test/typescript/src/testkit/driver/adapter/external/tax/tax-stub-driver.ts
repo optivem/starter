@@ -1,23 +1,12 @@
 import type { Result } from '../../../../common/result.js';
 import type { TaxErrorResponse } from '../../../port/external/tax/dtos/TaxErrorResponse.js';
-import type { GetTaxResponse } from '../../../port/external/tax/dtos/GetTaxResponse.js';
 import type { ReturnsTaxRateRequest } from '../../../port/external/tax/dtos/ReturnsTaxRateRequest.js';
-import type { TaxDriver } from '../../../port/external/tax/tax-driver.js';
+import { BaseTaxDriver } from './BaseTaxDriver.js';
 import { TaxStubClient } from './client/TaxStubClient.js';
 
-export class TaxStubDriver implements TaxDriver {
-  private readonly client: TaxStubClient;
-
+export class TaxStubDriver extends BaseTaxDriver<TaxStubClient> {
   constructor(baseUrl: string) {
-    this.client = new TaxStubClient(baseUrl);
-  }
-
-  async goToTax(): Promise<Result<void, TaxErrorResponse>> {
-    return this.client.checkHealth();
-  }
-
-  async getTaxRate(country: string): Promise<Result<GetTaxResponse, TaxErrorResponse>> {
-    return this.client.getTaxRate(country);
+    super(new TaxStubClient(baseUrl));
   }
 
   async returnsTaxRate(request: ReturnsTaxRateRequest): Promise<Result<void, TaxErrorResponse>> {

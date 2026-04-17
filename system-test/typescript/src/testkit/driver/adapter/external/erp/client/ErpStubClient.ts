@@ -1,30 +1,16 @@
-import { Result, success, failure } from '../../../../../common/result.js';
+import { Result, success } from '../../../../../common/result.js';
 import type { ErpErrorResponse } from '../../../../port/external/erp/dtos/ErpErrorResponse.js';
-import type { GetProductResponse } from '../../../../port/external/erp/dtos/GetProductResponse.js';
 import type { ReturnsProductRequest } from '../../../../port/external/erp/dtos/ReturnsProductRequest.js';
 import type { ReturnsPromotionRequest } from '../../../../port/external/erp/dtos/ReturnsPromotionRequest.js';
 import { JsonWireMockClient } from '../../../shared/wiremock/wiremock-client.js';
+import { BaseErpClient } from './BaseErpClient.js';
 
-export class ErpStubClient {
-  private wireMock: JsonWireMockClient;
+export class ErpStubClient extends BaseErpClient {
+  private readonly wireMock: JsonWireMockClient;
 
-  constructor(private baseUrl: string) {
+  constructor(baseUrl: string) {
+    super(baseUrl);
     this.wireMock = new JsonWireMockClient(baseUrl);
-  }
-
-  async checkHealth(): Promise<Result<void, ErpErrorResponse>> {
-    const response = await fetch(`${this.baseUrl}/health`);
-    if (response.ok) return success(undefined);
-    return failure({ message: `ERP stub not available: ${response.status}` });
-  }
-
-  async getProduct(sku: string): Promise<Result<GetProductResponse, ErpErrorResponse>> {
-    const response = await fetch(`${this.baseUrl}/api/products/${sku}`);
-    if (response.ok) {
-      const data = (await response.json()) as { id?: string; sku?: string; price: number };
-      return success({ sku: data.id || data.sku || sku, price: parseFloat(String(data.price)) });
-    }
-    return failure({ message: `Product not found: ${sku}` });
   }
 
   async configureProduct(request: ReturnsProductRequest): Promise<Result<void, ErpErrorResponse>> {

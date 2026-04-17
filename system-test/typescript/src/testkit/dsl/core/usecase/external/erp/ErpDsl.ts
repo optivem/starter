@@ -13,7 +13,7 @@ export class ErpDsl {
   }
 
   async getProduct(sku: string): Promise<Result<GetProductResponse, ErpErrorResponse>> {
-    return this.driver.getProduct(sku);
+    return this.driver.getProduct({ sku });
   }
 
   async returnsProduct(request: ReturnsProductRequest): Promise<Result<void, ErpErrorResponse>> {

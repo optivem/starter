@@ -77,7 +77,7 @@ export class ThenContractStage implements PromiseLike<void>, IThenStage {
 
     for (const [sku, assertions] of this._productAssertions) {
       const resolvedSku = this.useCaseContext.getParamValue(sku) as string;
-      const productResult = await this.app.erpDriver.getProduct(resolvedSku);
+      const productResult = await this.app.erpDriver.getProduct({ sku: resolvedSku });
       expect(productResult.success).toBe(true);
       if (productResult.success) {
         for (const fn of assertions) fn(productResult.value);

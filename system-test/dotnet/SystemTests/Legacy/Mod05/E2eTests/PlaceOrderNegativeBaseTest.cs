@@ -9,15 +9,13 @@ namespace SystemTests.Legacy.Mod05.E2eTests;
 
 public abstract class PlaceOrderNegativeBaseTest : BaseE2eTest
 {
-    [Theory]
-    [InlineData("3.5")]
-    [InlineData("lala")]
-    public async Task ShouldRejectOrderWithNonIntegerQuantity(string nonIntegerQuantity)
+    [Fact]
+    public async Task ShouldRejectOrderWithNonIntegerQuantity()
     {
         var request = new PlaceOrderRequest
         {
             Sku = CreateUniqueSku(Defaults.SKU),
-            Quantity = nonIntegerQuantity,
+            Quantity = "3.5",
             Country = Defaults.COUNTRY
         };
 

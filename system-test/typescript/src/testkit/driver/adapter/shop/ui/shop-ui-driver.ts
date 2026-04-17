@@ -1,331 +1,35 @@
-import { Browser, BrowserContext, Page } from 'playwright';
-import { Result, success, failure } from '../../../../common/result.js';
-import { PlaceOrderRequest } from '../../../port/shop/dtos/PlaceOrderRequest.js';
-import { PlaceOrderResponse } from '../../../port/shop/dtos/PlaceOrderResponse.js';
-import { ViewOrderResponse } from '../../../port/shop/dtos/ViewOrderResponse.js';
-import { SystemError } from '../../../port/shop/dtos/SystemError.js';
-import { PublishCouponRequest } from '../../../port/shop/dtos/PublishCouponRequest.js';
-import { BrowseCouponsResponse } from '../../../port/shop/dtos/BrowseCouponsResponse.js';
-import { ShopDriver } from '../../../port/shop/shop-driver.js';
-
-const TIMEOUT = 30_000;
-
-// --- Page Objects ---
-
-class HomePage {
-  constructor(private page: Page) {}
-
-  async clickNewOrder(): Promise<void> {
-    await this.page.locator("a[href='/new-order']").click({ timeout: TIMEOUT });
-  }
-
-  async clickOrderHistory(): Promise<void> {
-    await this.page.locator("a[href='/order-history']").click({ timeout: TIMEOUT });
-  }
-
-  async clickAdminCoupons(): Promise<void> {
-    await this.page.locator("a[href='/admin-coupons']").click({ timeout: TIMEOUT });
-  }
-}
-
-class NewOrderPage {
-  constructor(private page: Page) {}
-
-  async fillSku(sku: string): Promise<void> {
-    await this.page.locator('[aria-label="SKU"]').fill(sku, { timeout: TIMEOUT });
-  }
-
-  async fillQuantity(quantity: string): Promise<void> {
-    await this.page.locator('[aria-label="Quantity"]').fill(quantity, { timeout: TIMEOUT });
-  }
-
-  async fillCountry(country: string): Promise<void> {
-    await this.page.locator('[aria-label="Country"]').fill(country, { timeout: TIMEOUT });
-  }
-
-  async fillCouponCode(couponCode: string): Promise<void> {
-    await this.page.locator('[aria-label="Coupon Code"]').fill(couponCode, { timeout: TIMEOUT });
-  }
-
-  async clickPlaceOrder(): Promise<void> {
-    await this.page.locator('[aria-label="Place Order"]').click({ timeout: TIMEOUT });
-  }
-
-  static getOrderNumber(successMessage: string): string | null {
-    const match = successMessage.match(/Order has been created with Order Number ([\w-]+)/);
-    return match ? match[1] : null;
-  }
-}
-
-class OrderHistoryPage {
-  constructor(private page: Page) {}
-
-  async fillOrderNumber(orderNumber: string): Promise<void> {
-    await this.page.locator("[aria-label='Order Number']").fill(orderNumber, { timeout: TIMEOUT });
-  }
-
-  async clickSearch(): Promise<void> {
-    await this.page.locator("[aria-label='Refresh Order List']").click({ timeout: TIMEOUT });
-  }
-
-  async clickViewOrderDetails(orderNumber: string): Promise<void> {
-    const row = this.page.locator(`//tr[contains(., '${orderNumber}')]`);
-    await row.locator("//a[contains(text(), 'View Details')]").click({ timeout: TIMEOUT });
-  }
-}
-
-class OrderDetailsPage {
-  constructor(private page: Page) {}
-
-  async waitForLoad(): Promise<void> {
-    await this.page
-      .locator("[aria-label='Display Order Number']")
-      .waitFor({ state: 'visible', timeout: TIMEOUT });
-  }
-
-  async clickCancelOrder(): Promise<void> {
-    const cancelButton = this.page.locator('[aria-label="Cancel Order"]');
-    await cancelButton.waitFor({ state: 'visible', timeout: TIMEOUT });
-    await cancelButton.click({ timeout: TIMEOUT });
-  }
-
-  async clickDeliverOrder(): Promise<void> {
-    const deliverButton = this.page.locator('[aria-label="Deliver Order"]');
-    await deliverButton.waitFor({ state: 'visible', timeout: TIMEOUT });
-    await deliverButton.click({ timeout: TIMEOUT });
-  }
-
-  async getOrderNumber(): Promise<string> {
-    return (
-      (await this.page.locator("[aria-label='Display Order Number']").textContent({ timeout: TIMEOUT }))?.trim() || ''
-    );
-  }
-
-  async getOrderTimestamp(): Promise<string> {
-    return (
-      (await this.page.locator("[aria-label='Display Order Timestamp']").textContent({ timeout: TIMEOUT }))?.trim() ||
-      ''
-    );
-  }
-
-  async getSku(): Promise<string> {
-    return (
-      (await this.page.locator("[aria-label='Display SKU']").textContent({ timeout: TIMEOUT }))?.trim() || ''
-    );
-  }
-
-  async getQuantity(): Promise<number> {
-    const text =
-      (await this.page.locator("[aria-label='Display Quantity']").textContent({ timeout: TIMEOUT }))?.trim() || '0';
-    return parseInt(text, 10);
-  }
-
-  async getUnitPrice(): Promise<number> {
-    const text =
-      (await this.page.locator("[aria-label='Display Unit Price']").textContent({ timeout: TIMEOUT }))?.trim() || '0';
-    return parseFloat(text.replace('$', ''));
-  }
-
-  async getBasePrice(): Promise<number> {
-    const text =
-      (await this.page.locator("[aria-label='Display Base Price']").textContent({ timeout: TIMEOUT }))?.trim() || '0';
-    return parseFloat(text.replace('$', ''));
-  }
-
-  async getDiscountRate(): Promise<number> {
-    const text =
-      (await this.page.locator("[aria-label='Display Discount Rate']").textContent({ timeout: TIMEOUT }))?.trim() || '0';
-    return parseFloat(text.replace('%', '')) / 100;
-  }
-
-  async getDiscountAmount(): Promise<number> {
-    const text =
-      (await this.page.locator("[aria-label='Display Discount Amount']").textContent({ timeout: TIMEOUT }))?.trim() || '0';
-    return parseFloat(text.replace('$', ''));
-  }
-
-  async getSubtotalPrice(): Promise<number> {
-    const text =
-      (await this.page.locator("[aria-label='Display Subtotal Price']").textContent({ timeout: TIMEOUT }))?.trim() || '0';
-    return parseFloat(text.replace('$', ''));
-  }
-
-  async getTaxRate(): Promise<number> {
-    const text =
-      (await this.page.locator("[aria-label='Display Tax Rate']").textContent({ timeout: TIMEOUT }))?.trim() || '0';
-    return parseFloat(text.replace('%', '')) / 100;
-  }
-
-  async getTaxAmount(): Promise<number> {
-    const text =
-      (await this.page.locator("[aria-label='Display Tax Amount']").textContent({ timeout: TIMEOUT }))?.trim() || '0';
-    return parseFloat(text.replace('$', ''));
-  }
-
-  async getTotalPrice(): Promise<number> {
-    const text =
-      (await this.page.locator("[aria-label='Display Total Price']").textContent({ timeout: TIMEOUT }))?.trim() || '0';
-    return parseFloat(text.replace('$', ''));
-  }
-
-  async getCountry(): Promise<string> {
-    return (
-      (await this.page.locator("[aria-label='Display Country']").textContent({ timeout: TIMEOUT }))?.trim() || ''
-    );
-  }
-
-  async getAppliedCouponCode(): Promise<string | null> {
-    const text = (await this.page.locator("[aria-label='Display Applied Coupon']").textContent({ timeout: TIMEOUT }))?.trim() || '';
-    return text === 'None' ? null : text;
-  }
-
-  async getStatus(): Promise<string> {
-    return (
-      (await this.page.locator("[aria-label='Display Status']").textContent({ timeout: TIMEOUT }))?.trim() || ''
-    );
-  }
-}
-
-class AdminCouponsPage {
-  constructor(private page: Page) {}
-
-  async fillCouponCode(code: string): Promise<void> {
-    await this.page.locator('[aria-label="Coupon Code"]').fill(code, { timeout: TIMEOUT });
-  }
-
-  async fillDiscountRate(rate: number): Promise<void> {
-    await this.page.locator('[aria-label="Discount Rate"]').fill(rate.toString(), { timeout: TIMEOUT });
-  }
-
-  async fillValidFrom(dateStr: string): Promise<void> {
-    const localValue = dateStr.replace('Z', '').replace('T', 'T').slice(0, 16);
-    await this.page.locator('[aria-label="Valid From"]').fill(localValue, { timeout: TIMEOUT });
-  }
-
-  async fillValidTo(dateStr: string): Promise<void> {
-    const localValue = dateStr.replace('Z', '').replace('T', 'T').slice(0, 16);
-    await this.page.locator('[aria-label="Valid To"]').fill(localValue, { timeout: TIMEOUT });
-  }
-
-  async fillUsageLimit(limit: number): Promise<void> {
-    await this.page.locator('[aria-label="Usage Limit"]').fill(limit.toString(), { timeout: TIMEOUT });
-  }
-
-  async clickCreateCoupon(): Promise<void> {
-    await this.page.locator('[aria-label="Create Coupon"]').click({ timeout: TIMEOUT });
-  }
-
-  async clickRefreshCouponList(): Promise<void> {
-    await this.page.locator('[aria-label="Refresh Coupon List"]').click({ timeout: TIMEOUT });
-  }
-
-  async getCouponRows(): Promise<Array<{ code: string; discountRate: number; validFrom?: string; validTo?: string; usageLimit?: number; usedCount: number }>> {
-    const table = this.page.locator("[aria-label='Coupons Table']");
-    await table.waitFor({ state: 'visible', timeout: TIMEOUT });
-    const rows = table.locator('tbody tr');
-    const count = await rows.count();
-    const result: Array<{ code: string; discountRate: number; validFrom?: string; validTo?: string; usageLimit?: number; usedCount: number }> = [];
-    for (let i = 0; i < count; i++) {
-      const cells = rows.nth(i).locator('td');
-      const code = (await cells.nth(0).textContent())?.trim() || '';
-      const rateText = (await cells.nth(1).textContent())?.trim() || '0';
-      const discountRate = Number.parseFloat(rateText.replace('%', '')) / 100;
-      const validFrom = parseDisplayedDateToIso((await cells.nth(2).textContent()) ?? undefined);
-      const validTo = parseDisplayedDateToIso((await cells.nth(3).textContent()) ?? undefined);
-      const usageLimitText = (await cells.nth(4).textContent())?.trim() ?? '';
-      const usageLimit = usageLimitText === 'Unlimited' || usageLimitText === '' ? undefined : Number.parseInt(usageLimitText, 10);
-      const usedCountText = (await cells.nth(5).textContent())?.trim() ?? '0';
-      const usedCount = Number.parseInt(usedCountText, 10) || 0;
-      result.push({ code, discountRate, validFrom, validTo, usageLimit, usedCount });
-    }
-    return result;
-  }
-}
-
-// --- Date Parsing ---
-
-function parseDisplayedDateToIso(displayed: string | undefined): string | undefined {
-  if (!displayed || displayed.trim() === '') return undefined;
-  const parsed = new Date(displayed.trim());
-  if (isNaN(parsed.getTime())) return displayed.trim();
-  // The frontend displays UTC values in locale format. Parse the components
-  // and reconstruct as UTC to avoid local-timezone shifts.
-  const utcMs = Date.UTC(
-    parsed.getFullYear(), parsed.getMonth(), parsed.getDate(),
-    parsed.getHours(), parsed.getMinutes(), parsed.getSeconds(),
-  );
-  return new Date(utcMs).toISOString().replace('.000Z', 'Z');
-}
-
-// --- Notification Parsing ---
-
-async function getNotification(
-  page: Page,
-  previousNotificationId?: string,
-): Promise<Result<string, SystemError>> {
-  const baseSelector = previousNotificationId
-    ? `[role='alert'].notification:not([data-notification-id='${previousNotificationId}'])`
-    : "[role='alert'].notification";
-
-  await page.locator(baseSelector).waitFor({ state: 'visible', timeout: TIMEOUT });
-
-  const successNotification = page.locator(`[role='alert'].notification.success`);
-  if ((await successNotification.count()) > 0) {
-    const text = (await successNotification.textContent({ timeout: TIMEOUT }))?.trim() || '';
-    return success(text);
-  }
-
-  const errorNotification = page.locator(`[role='alert'].notification.error`);
-  const errorMessage =
-    (await errorNotification.locator('.error-message').textContent({ timeout: TIMEOUT }))?.trim() || '';
-  const fieldErrorTexts = await errorNotification.locator('.field-error').allTextContents();
-  const fieldErrors = fieldErrorTexts.map((text) => {
-    const colonIndex = text.indexOf(':');
-    if (colonIndex >= 0) {
-      return { field: text.substring(0, colonIndex).trim(), message: text.substring(colonIndex + 1).trim() };
-    }
-    return { field: '', message: text.trim() };
-  });
-
-  return failure({ message: errorMessage, fieldErrors });
-}
-
-// --- Shop UI Driver ---
+import type { Browser } from 'playwright';
+import type { Result } from '../../../../common/result.js';
+import { success, failure } from '../../../../common/result.js';
+import type { PlaceOrderRequest } from '../../../port/shop/dtos/PlaceOrderRequest.js';
+import type { PlaceOrderResponse } from '../../../port/shop/dtos/PlaceOrderResponse.js';
+import type { ViewOrderResponse } from '../../../port/shop/dtos/ViewOrderResponse.js';
+import type { SystemError } from '../../../port/shop/dtos/SystemError.js';
+import type { PublishCouponRequest } from '../../../port/shop/dtos/PublishCouponRequest.js';
+import type { BrowseCouponsResponse } from '../../../port/shop/dtos/BrowseCouponsResponse.js';
+import type { ShopDriver } from '../../../port/shop/shop-driver.js';
+import { ShopUiClient } from './client/ShopUiClient.js';
+import { NewOrderPage } from './client/pages/NewOrderPage.js';
 
 export class ShopUiDriver implements ShopDriver {
-  private context: BrowserContext | null = null;
-  private page: Page | null = null;
+  private readonly client: ShopUiClient;
 
-  constructor(
-    private baseUrl: string,
-    private browser: Browser,
-  ) {}
+  constructor(baseUrl: string, browser: Browser) {
+    this.client = new ShopUiClient(baseUrl, browser);
+  }
 
   async goToShop(): Promise<Result<void, SystemError>> {
-    try {
-      this.context = await this.browser.newContext({ viewport: { width: 1920, height: 1080 } });
-      this.page = await this.context.newPage();
-      const response = await this.page.goto(this.baseUrl);
-      if (response && response.status() === 200) {
-        return success(undefined);
-      }
-      return failure({ message: `Shop UI not available: ${response?.status()}`, fieldErrors: [] });
-    } catch (e) {
-      return failure({ message: `Shop UI not available: ${e}`, fieldErrors: [] });
-    }
+    const result = await this.client.openHomePage();
+    if (result.success) return success(undefined);
+    return failure(result.error);
   }
 
   async placeOrder(request: PlaceOrderRequest): Promise<Result<PlaceOrderResponse, SystemError>> {
-    if (!this.page) {
-      const goResult = await this.goToShop();
-      if (!goResult.success) return failure(goResult.error);
-    }
+    const homeResult = await this.client.openHomePage();
+    if (!homeResult.success) return failure(homeResult.error);
+    await homeResult.value.clickNewOrder();
 
-    await this.page!.goto(this.baseUrl);
-    const homePage = new HomePage(this.page!);
-    await homePage.clickNewOrder();
-
-    const newOrderPage = new NewOrderPage(this.page!);
+    const newOrderPage = this.client.newOrderPage();
     await newOrderPage.fillSku(request.sku);
     if (request.quantity !== null) {
       await newOrderPage.fillQuantity(request.quantity);
@@ -338,7 +42,7 @@ export class ShopUiDriver implements ShopDriver {
     }
     await newOrderPage.clickPlaceOrder();
 
-    const notificationResult = await getNotification(this.page!);
+    const notificationResult = await newOrderPage.getResult();
     if (notificationResult.success) {
       const orderNumber = NewOrderPage.getOrderNumber(notificationResult.value);
       if (orderNumber) {
@@ -350,21 +54,16 @@ export class ShopUiDriver implements ShopDriver {
   }
 
   async viewOrder(orderNumber: string): Promise<Result<ViewOrderResponse, SystemError>> {
-    if (!this.page) {
-      const goResult = await this.goToShop();
-      if (!goResult.success) return failure(goResult.error);
-    }
+    const homeResult = await this.client.openHomePage();
+    if (!homeResult.success) return failure(homeResult.error);
+    await homeResult.value.clickOrderHistory();
 
-    await this.page!.goto(this.baseUrl);
-    const homePage = new HomePage(this.page!);
-    await homePage.clickOrderHistory();
-
-    const orderHistoryPage = new OrderHistoryPage(this.page!);
+    const orderHistoryPage = this.client.orderHistoryPage();
     await orderHistoryPage.fillOrderNumber(orderNumber);
     await orderHistoryPage.clickSearch();
     await orderHistoryPage.clickViewOrderDetails(orderNumber);
 
-    const detailsPage = new OrderDetailsPage(this.page!);
+    const detailsPage = this.client.orderDetailsPage();
     await detailsPage.waitForLoad();
 
     return success({
@@ -387,113 +86,80 @@ export class ShopUiDriver implements ShopDriver {
   }
 
   async cancelOrder(orderNumber: string): Promise<Result<void, SystemError>> {
-    if (!this.page) {
-      const goResult = await this.goToShop();
-      if (!goResult.success) return failure(goResult.error);
-    }
+    const homeResult = await this.client.openHomePage();
+    if (!homeResult.success) return failure(homeResult.error);
+    await homeResult.value.clickOrderHistory();
 
-    await this.page!.goto(this.baseUrl);
-    const homePage = new HomePage(this.page!);
-    await homePage.clickOrderHistory();
-
-    const orderHistoryPage = new OrderHistoryPage(this.page!);
+    const orderHistoryPage = this.client.orderHistoryPage();
     await orderHistoryPage.fillOrderNumber(orderNumber);
     await orderHistoryPage.clickSearch();
     await orderHistoryPage.clickViewOrderDetails(orderNumber);
 
-    const detailsPage = new OrderDetailsPage(this.page!);
+    const detailsPage = this.client.orderDetailsPage();
     await detailsPage.waitForLoad();
     await detailsPage.clickCancelOrder();
 
-    const notificationResult = await getNotification(this.page!);
-    if (notificationResult.success) {
-      return success(undefined);
-    }
+    const notificationResult = await detailsPage.getResult();
+    if (notificationResult.success) return success(undefined);
     return failure(notificationResult.error);
   }
 
   async deliverOrder(orderNumber: string): Promise<Result<void, SystemError>> {
-    if (!this.page) {
-      const goResult = await this.goToShop();
-      if (!goResult.success) return failure(goResult.error);
-    }
+    const homeResult = await this.client.openHomePage();
+    if (!homeResult.success) return failure(homeResult.error);
+    await homeResult.value.clickOrderHistory();
 
-    await this.page!.goto(this.baseUrl);
-    const homePage = new HomePage(this.page!);
-    await homePage.clickOrderHistory();
-
-    const orderHistoryPage = new OrderHistoryPage(this.page!);
+    const orderHistoryPage = this.client.orderHistoryPage();
     await orderHistoryPage.fillOrderNumber(orderNumber);
     await orderHistoryPage.clickSearch();
     await orderHistoryPage.clickViewOrderDetails(orderNumber);
 
-    const detailsPage = new OrderDetailsPage(this.page!);
+    const detailsPage = this.client.orderDetailsPage();
     await detailsPage.waitForLoad();
     await detailsPage.clickDeliverOrder();
 
-    const notificationResult = await getNotification(this.page!);
-    if (notificationResult.success) {
-      return success(undefined);
-    }
+    const notificationResult = await detailsPage.getResult();
+    if (notificationResult.success) return success(undefined);
     return failure(notificationResult.error);
   }
 
   async publishCoupon(request: PublishCouponRequest): Promise<Result<void, SystemError>> {
-    if (!this.page) {
-      const goResult = await this.goToShop();
-      if (!goResult.success) return failure(goResult.error);
-    }
+    const homeResult = await this.client.openHomePage();
+    if (!homeResult.success) return failure(homeResult.error);
+    await homeResult.value.clickAdminCoupons();
 
-    await this.page!.goto(this.baseUrl);
-    const homePage = new HomePage(this.page!);
-    await homePage.clickAdminCoupons();
-
-    const adminPage = new AdminCouponsPage(this.page!);
-    await adminPage.fillCouponCode(request.code);
-    await adminPage.fillDiscountRate(request.discountRate);
+    const couponPage = this.client.couponManagementPage();
+    await couponPage.fillCouponCode(request.code);
+    await couponPage.fillDiscountRate(request.discountRate);
     if (request.validFrom) {
-      await adminPage.fillValidFrom(request.validFrom);
+      await couponPage.fillValidFrom(request.validFrom);
     }
     if (request.validTo) {
-      await adminPage.fillValidTo(request.validTo);
+      await couponPage.fillValidTo(request.validTo);
     }
     if (request.usageLimit !== undefined && request.usageLimit !== null) {
-      await adminPage.fillUsageLimit(Number(request.usageLimit));
+      await couponPage.fillUsageLimit(Number(request.usageLimit));
     }
-    await adminPage.clickCreateCoupon();
+    await couponPage.clickCreateCoupon();
 
-    const notificationResult = await getNotification(this.page!);
-    if (notificationResult.success) {
-      return success(undefined);
-    }
+    const notificationResult = await couponPage.getResult();
+    if (notificationResult.success) return success(undefined);
     return failure(notificationResult.error);
   }
 
   async browseCoupons(): Promise<Result<BrowseCouponsResponse, SystemError>> {
-    if (!this.page) {
-      const goResult = await this.goToShop();
-      if (!goResult.success) return failure(goResult.error);
-    }
+    const homeResult = await this.client.openHomePage();
+    if (!homeResult.success) return failure(homeResult.error);
+    await homeResult.value.clickAdminCoupons();
 
-    await this.page!.goto(this.baseUrl);
-    const homePage = new HomePage(this.page!);
-    await homePage.clickAdminCoupons();
-
-    const adminPage = new AdminCouponsPage(this.page!);
-    await adminPage.clickRefreshCouponList();
-    const rows = await adminPage.getCouponRows();
+    const couponPage = this.client.couponManagementPage();
+    await couponPage.clickRefreshCouponList();
+    const rows = await couponPage.getCouponRows();
 
     return success({ coupons: rows });
   }
 
   async close(): Promise<void> {
-    if (this.page) {
-      await this.page.close().catch(() => {});
-      this.page = null;
-    }
-    if (this.context) {
-      await this.context.close().catch(() => {});
-      this.context = null;
-    }
+    await this.client.close();
   }
 }
