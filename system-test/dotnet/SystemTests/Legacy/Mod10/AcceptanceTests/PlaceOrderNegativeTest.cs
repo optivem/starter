@@ -52,21 +52,6 @@ public class PlaceOrderNegativeTest : BaseAcceptanceTest
 
     [Theory]
     [ChannelData(ChannelType.API, AlsoForFirstRow = new[] { ChannelType.UI })]
-    [ChannelInlineData("-10")]
-    [ChannelInlineData("-1")]
-    [ChannelInlineData("0")]
-    public async Task ShouldRejectOrderWithNonPositiveQuantity(Channel channel, string quantity)
-    {
-        await Scenario(channel)
-            .When().PlaceOrder()
-                .WithQuantity(quantity)
-            .Then().ShouldFail()
-                .ErrorMessage("The request contains one or more validation errors")
-                .FieldErrorMessage("quantity", "Quantity must be positive");
-    }
-
-    [Theory]
-    [ChannelData(ChannelType.API, AlsoForFirstRow = new[] { ChannelType.UI })]
     [ChannelClassData(typeof(EmptyArgumentsProvider))]
     public async Task ShouldRejectOrderWithEmptyQuantity(Channel channel, string quantity)
     {

@@ -95,14 +95,14 @@ Reference implementation: **Java**. Tasks below are ordered so prerequisites com
 
 ### E. Architecture — Scenario DSL
 
-19. **DIFF-ARCH-4 — Verify `WhenGoToShop` step** *(Low)*
-    - Step exists in .NET's `When` folder but not Java/TS. Decide whether to remove or propagate to Java.
+19. ~~**DIFF-ARCH-4 — Verify `WhenGoToShop` step** *(Low)*~~
+    - **Resolved:** `GoToShop` exists in both Java and .NET (drivers, use-case DSL, scenario DSL, smoke tests). Report was incorrect — no action needed.
 
 ### F. Tests — Acceptance
 
 20. **DIFF-NET-1 — Remove `ShouldRejectOrderWithNonPositiveQuantity` from `PlaceOrderNegativeTest.cs`** *(Low)*
     - Redundant with existing `ShouldRejectOrderWithNegativeQuantity` and `ShouldRejectOrderWithZeroQuantity`.
-
+VJ: approved
 ---
 
 ## Java

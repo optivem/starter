@@ -323,7 +323,35 @@ function Start-System {
         Execute-Command -Command "docker compose -f $ComposeFile build"
     }
 
-    Execute-Command -Command "docker compose -f $ComposeFile up -d"
+    $maxRetries = 3
+    $retryDelay = 10
+    $composeCmd = "docker compose -f $ComposeFile up -d"
+
+    for ($attempt = 1; $attempt -le $maxRetries; $attempt++) {
+        Write-Host "Executing: $composeCmd" -ForegroundColor Cyan
+        $output = Invoke-Expression "$composeCmd 2>&1" | Out-String
+        Write-Host $output
+        $exitCode = $LASTEXITCODE
+
+        if ($exitCode -eq 0 -or $null -eq $exitCode) {
+            break
+        }
+
+        $isTransient = $output -match 'ECONNRESET|ETIMEDOUT|ECONNREFUSED|EAI_AGAIN|ENOTFOUND'
+
+        if ($isTransient -and $attempt -lt $maxRetries) {
+            Write-Host ""
+            Write-Host "Transient network error on attempt $attempt of $maxRetries." -ForegroundColor Yellow
+            Write-Host "Retrying in $retryDelay seconds..." -ForegroundColor Yellow
+            Start-Sleep -Seconds $retryDelay
+        } else {
+            Write-Host ""
+            Write-Host "Working directory: $(Get-Location)" -ForegroundColor Red
+            Write-Host "Command: $composeCmd" -ForegroundColor Red
+            Write-Host "Command failed with exit code: $exitCode" -ForegroundColor Red
+            throw "Failed to execute command: $composeCmd (Exit Code: $exitCode)"
+        }
+    }
 
     Write-Host ""
     Write-Host "System Components:" -ForegroundColor Cyan
