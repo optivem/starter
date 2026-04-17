@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { insertCoupon, findAllCoupons, findCouponByCode } from '@/lib/db';
 import { validationErrorResponse, internalErrorResponse } from '@/lib/errors';
 import { validatePublishCouponRequest } from '@/lib/validation';
+import { jsonResponseWithDecimals } from '@/lib/decimal-format';
 
 export async function POST(request: NextRequest) {
   try {
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   try {
     const coupons = await findAllCoupons();
-    return NextResponse.json({
+    return jsonResponseWithDecimals({
       coupons: coupons.map((c) => ({
         code: c.code,
         discountRate: Number.parseFloat(c.discount_rate),

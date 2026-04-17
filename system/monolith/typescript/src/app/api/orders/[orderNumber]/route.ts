@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { findByOrderNumber } from '@/lib/db';
 import { notFoundResponse, internalErrorResponse } from '@/lib/errors';
+import { jsonResponseWithDecimals } from '@/lib/decimal-format';
 
 export async function GET(
   _request: NextRequest,
@@ -14,7 +15,7 @@ export async function GET(
       return notFoundResponse(`Order ${orderNumber} does not exist.`);
     }
 
-    return NextResponse.json({
+    return jsonResponseWithDecimals({
       orderNumber: order.order_number,
       orderTimestamp: order.order_timestamp.toISOString(),
       country: order.country,

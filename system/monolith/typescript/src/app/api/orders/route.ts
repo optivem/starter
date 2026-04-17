@@ -5,6 +5,7 @@ import { insertOrder, findAllOrders, findCouponByCode, incrementCouponUsage } fr
 import { getCurrentTime, getProductDetails, getPromotionDetails, getTaxDetails } from '@/lib/external';
 import { validatePlaceOrderRequest } from '@/lib/validation';
 import { validationErrorResponse, generalValidationErrorResponse, internalErrorResponse } from '@/lib/errors';
+import { jsonResponseWithDecimals } from '@/lib/decimal-format';
 
 export async function POST(request: NextRequest) {
   try {
@@ -144,7 +145,7 @@ export async function GET(request: NextRequest) {
     const orderNumberFilter = request.nextUrl.searchParams.get('orderNumber') || undefined;
     const orders = await findAllOrders(orderNumberFilter);
 
-    return NextResponse.json({
+    return jsonResponseWithDecimals({
       orders: orders.map((o) => ({
         orderNumber: o.order_number,
         orderTimestamp: o.order_timestamp.toISOString(),

@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { findCouponByCode } from '@/lib/db';
 import { notFoundResponse, internalErrorResponse } from '@/lib/errors';
+import { jsonResponseWithDecimals } from '@/lib/decimal-format';
 
 function formatTimestamp(date: Date): string {
   return date.toISOString().replace('.000Z', 'Z');
@@ -18,7 +19,7 @@ export async function GET(
       return notFoundResponse(`Coupon ${code} does not exist.`);
     }
 
-    return NextResponse.json({
+    return jsonResponseWithDecimals({
       code: coupon.code,
       discountRate: Number.parseFloat(coupon.discount_rate),
       validFrom: coupon.valid_from ? formatTimestamp(coupon.valid_from) : null,
