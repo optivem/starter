@@ -15,13 +15,6 @@ Ordering: architectural mismatches first, then architecture layers (clients → 
 
 ## A. Architectural Mismatches (Legacy) — Highest Priority
 
-### A1. TypeScript — mod04 UI: introduce a `ShopUiClient` page-object client
-- Files: `system-test/typescript/src/testkit/driver/adapter/shop/ui/` — create `client/ShopUiClient.ts` + page objects `HomePage.ts`, `NewOrderPage.ts`, `OrderHistoryPage.ts`, `OrderDetailsPage.ts`, `CouponManagementPage.ts`, `BasePage.ts`.
-- Rewrite `system-test/typescript/tests/legacy/mod04/e2e/place-order-positive-ui-test.spec.ts` and `place-order-negative-ui-test.spec.ts` to use the new UI client.
-- Update `system-test/typescript/tests/legacy/mod04/e2e/fixtures.ts` to provide a `shopUiClient` fixture, replacing the raw `shopPage` usage for mod04.
-- Reference: `system-test/java/src/main/java/com/optivem/shop/testkit/driver/adapter/shop/ui/client/ShopUiClient.java` and page classes.
-- **Source:** 🟡 Partial — ShopUiClient + all page objects (`BasePage`, `HomePage`, `NewOrderPage`, `OrderHistoryPage`, `OrderDetailsPage`, `CouponManagementPage`) already exist at `eshop-tests/typescript/driver-adapter/shop/ui/client/` and `.../client/pages/` (✅ port the client + pages); mod04 `place-order-positive-ui-test.spec.ts` / `place-order-negative-ui-test.spec.ts` rewrites and `fixtures.ts` update are starter-specific (✏️ net-new).
-
 ### A2. ✅ DONE (commit e2b660e): TypeScript — mod04 External systems: switch to `ErpRealClient` / `TaxRealClient`
 - mod04 e2e fixtures now use `ErpRealClient` (tax client dropped — mod04 positive spec no longer configures tax, matching Java/.NET).
 - mod04 smoke fixtures use `ErpRealClient` + `TaxRealClient`.
@@ -45,15 +38,7 @@ Ordering: architectural mismatches first, then architecture layers (clients → 
 
 ## B. Architecture Layers — Clients
 
-### B4. TypeScript — expose external client DTOs
-- Files (new): `system-test/typescript/src/testkit/driver/adapter/external/erp/client/dtos/ExtCreateProductRequest.ts`, `ExtProductDetailsResponse.ts`, `ExtGetPromotionResponse.ts`, `error/ExtErpErrorResponse.ts`; `.../clock/client/dtos/ExtGetTimeResponse.ts`, `error/ExtClockErrorResponse.ts`; `.../tax/client/dtos/ExtGetCountryResponse.ts`, `error/ExtTaxErrorResponse.ts`.
-- Replace anonymous inline types in the client code with these explicit DTO types.
-- **Source:** 🟡 Partial — `ExtCreateProductRequest.ts`, `ExtProductDetailsResponse.ts`, `ExtErpErrorResponse.ts`, `ExtGetTimeResponse.ts`, `ExtClockErrorResponse.ts`, `ExtTaxErrorResponse.ts` all exist at `eshop-tests/typescript/driver-adapter/external/{erp,clock,tax}/client/dtos/...` (✅ port); `ExtGetPromotionResponse.ts` is missing (✏️ net-new) and tax has `ExtCountryDetailsResponse.ts` instead of `ExtGetCountryResponse.ts` (rename + adapt).
-
-### B7. TypeScript — add `SystemErrorMapper`
-- File (new): `system-test/typescript/src/testkit/driver/adapter/shop/api/SystemErrorMapper.ts`.
-- Reference: Java `SystemErrorMapper.java`.
-- **Source:** ✏️ Net-new — `SystemErrorMapper` not present anywhere in `eshop-tests/typescript/` (grep finds zero hits).
+(All B items completed across Phases 1/3b.)
 
 ---
 
@@ -91,14 +76,7 @@ No changes required (aligned across all three languages).
 - Decision on the TS per-use-case files (`then-place-order.ts`, `then-cancel-order.ts`, `then-publish-coupon.ts`, `then-view-order.ts`, `then-browse-coupons.ts`, `then-contract.ts`): align with Java by removing the per-use-case decomposition and relying on entity-level Then steps.
 - **Source:** ✏️ Net-new — eshop-tests' `dsl-core/scenario/then/` has `ThenGivenClock.ts`, `ThenGivenCountry.ts`, `ThenGivenProduct.ts` (the same "wrong" given-prefixed naming as starter, not the target entity-only naming) plus `ThenFailure*`/`ThenSuccess*` variants that the plan wants removed. No `ThenClock.ts`, `ThenCountry.ts`, `ThenProduct.ts` exist there; eshop-tests' port layer also lacks `ThenStep` bases.
 
-### F5. TypeScript — add `WhenStep` port base and `GivenStep`/`ThenStep` bases
-- Files: `system-test/typescript/src/testkit/dsl/port/when/steps/base/when-step.ts`, `.../given/steps/base/given-step.ts`, `.../then/steps/base/then-step.ts`.
-- **Source:** ✏️ Net-new — eshop-tests' `dsl-port/scenario/` has only `*StagePort`/`*ResultPort` files; no `WhenStep`/`GivenStep`/`ThenStep` port bases.
-
-### F7. TypeScript — add shared DSL verification classes
-- Files (new): `system-test/typescript/src/testkit/dsl/core/shared/base-use-case.ts`, `use-case-result.ts`, `error-verification.ts`, `response-verification.ts`, `void-verification.ts`.
-- Reference: Java `BaseUseCase.java`, `UseCaseResult.java`, `ErrorVerification.java`, `ResponseVerification.java`, `VoidVerification.java`.
-- **Source:** 🟡 Partial — `eshop-tests/typescript/dsl-core/shared/` has `BaseUseCase.ts`, `UseCaseResult.ts`, `ResponseVerification.ts`, `VoidVerification.ts` (✅ port). Missing: `error-verification.ts` — eshop-tests instead has per-system error verifications (`ClockErrorVerification.ts`, `ErpErrorVerification.ts`, `TaxErrorVerification.ts`) under each `*/usecases/base/` (✏️ consolidate into a shared one).
+(F5, F7 completed in Phase 3b.)
 
 ---
 
@@ -111,32 +89,13 @@ No changes required (aligned across all three languages).
 
 ## H. Architecture Layers — Driver Ports
 
-### H3. TypeScript — add `GetCountryRequest`
-- File (new): `system-test/typescript/src/testkit/driver/port/external/tax/dtos/GetCountryRequest.ts`.
-- **Source:** ✏️ Net-new — `GetCountryRequest` not present in `eshop-tests/typescript/driver-port/external/tax/dtos/` (only `GetTaxResponse.ts`, `ReturnsTaxRateRequest.ts`).
-
-### H5. TypeScript — add `SystemResults`
-- File (new): `system-test/typescript/src/testkit/dsl/core/usecase/shop/commons/system-results.ts` (matching Java placement).
-- Reference: Java `SystemResults.java`.
-- **Source:** 🟡 Partial — `SystemResults.ts` exists in eshop-tests under `driver-adapter/shop/commons/SystemResults.ts` (adapter-layer, not dsl/core commons). Content can be ported; needs relocation to match Java placement.
+(All H items completed across Phases 1/3b.)
 
 ---
 
 ## I. Latest Tests — Acceptance
 
-### I2. TypeScript — add `@TimeDependent`/`[Time]` equivalent marker
-- Files: `system-test/typescript/tests/latest/acceptance/place-order-negative-isolated-test.spec.ts` (for `cannotPlaceOrderWithExpiredCoupon`), `cancel-order-positive-isolated-test.spec.ts`, `cancel-order-negative-isolated-test.spec.ts`.
-- Add a TypeScript-idiomatic equivalent (a tag or hook) and document the mapping in the TS testing helpers package (`@optivem/optivem-testing`).
-- **Source:** ✏️ Net-new — no `TimeDependent`/`[Time]` marker equivalent exists in `eshop-tests/typescript/` (grep finds zero hits).
-
-### I3. TypeScript — ensure ViewOrderNegativeTest exercises UI for first row
-- File: `system-test/typescript/tests/latest/acceptance/view-order-negative-test.spec.ts`.
-- Change from `forChannels(ChannelType.API)` to `test.eachAlsoFirstRow(nonExistentOrderCases)` or equivalent Channel helper so the first row also runs via UI, matching Java `alsoForFirstRow = ChannelType.UI` and .NET `AlsoForFirstRow = new[] { ChannelType.UI }`.
-- **Source:** ✏️ Net-new — `alsoForFirstRow`/`eachAlsoFirstRow` pattern does not exist anywhere in `eshop-tests/typescript/` (grep finds zero hits); requires extending the TS channel helper.
-
-### I4. TypeScript/Java/.NET — align PublishCouponNegativeTest discount-rate value types — ⏳ Deferred
-- Java/.NET pass strings (`"0.0"`, `"-0.01"`); TS passes numbers.
-- **Deferred to Phase 3c:** the core `WhenPublishCoupon.withDiscountRate` signature is `number` (and the `PublishCouponRequest.discountRate` DTO is `number`). Aligning requires extending the DSL + DTO to accept `number | string` and parsing at the serialization boundary — bundled with other DSL work in Phase 3c.
+(All I items completed in Phase 3b.)
 
 ---
 
@@ -172,17 +131,7 @@ All tasks resolved (N1, N2, N3 rem, N4 in Phase 3a; N5 covered by A7).
 
 ## O. Legacy Tests — mod04 (TypeScript)
 
-### O2. TypeScript — restore API positive full assertions via viewOrder
-- File: `place-order-positive-api-test.spec.ts`.
-- After `shopApiClient.placeOrder(...)`, call `shopApiClient.orders().viewOrder(orderNumber)` (post-B1 refactor), assert orderNumber/sku/quantity=5/unitPrice=20.00/totalPrice>0/status=PLACED.
-- **Source:** ✏️ Net-new — starter-specific legacy-mod04 test-body restoration (depends on B1 port).
-
-### O3. TypeScript — restore UI positive full flow via ShopUiClient
-- File: `place-order-positive-ui-test.spec.ts`.
-- After A1 (ShopUiClient added), rewrite to use `shopUiClient.openHomePage().clickNewOrder().inputSku(sku).inputQuantity("5").inputCountry("US").clickPlaceOrder().getResult()`, then `openHomePage().clickOrderHistory().inputOrderNumber().clickSearch().clickViewOrderDetails(orderNumber)` and assert each field.
-- **Source:** ✏️ Net-new — starter-specific legacy-mod04 UI test rewrite (depends on A1/B2 ShopUiClient port).
-
-(O1, O4 completed in Phase 3a.)
+All tasks resolved (O1, O4 in Phase 3a; O2, O3 in Phase 3b).
 
 ---
 
@@ -326,9 +275,23 @@ Four TypeScript commits landed after this plan was generated. Their impact on pl
   - **Q1 rem:** mod06 e2e positive spec now also asserts `sku`, `quantity`, `unitPrice`, `totalPrice`.
   - Local verification: full latest + full legacy suite on monolith, both green.
 
+- **0f88bcc** — "Align TS testkit with Java/.NET: DTOs, verification classes, UI driver not-found handling (Phase 3b)"
+  - **H3:** `GetCountryRequest` DTO; `TaxDriver.getTaxRate` now accepts request object.
+  - **H5:** `SystemResults` utility (`success`/`failure` factories for `Result<T, SystemError>`).
+  - **B7:** `SystemErrorMapper.from(problemDetail)` replaces `problem-detail-mapper.ts`; all controllers use it.
+  - **F5:** port-layer `WhenStep`/`GivenStep`/`ThenStep` marker base types for structural parity with Java.
+  - **F7:** shared DSL verification classes at `dsl/core/shared/`: `BaseUseCase`, `UseCaseResult`, `ErrorVerification`, `ResponseVerification`, `VoidVerification`, `UseCaseContext` (re-export).
+  - **B4:** 8 external-client DTOs (`Ext*`) under `driver/adapter/external/{erp,clock,tax}/client/dtos/` replace the anonymous inline types in the clients.
+  - **O2:** mod04 api positive spec now asserts full `viewOrder` details (orderNumber/sku/quantity=5/unitPrice=20/totalPrice>0/status=PLACED).
+  - **A1, O3:** mod04 UI positive + negative specs rewritten to use `ShopUiClient` page objects via a new `shopUiClient` fixture; page method names renamed `fill*` → `input*` and `clickCreateCoupon` → `clickPublishCoupon` (matching Java).
+  - **I4:** `WhenPublishCoupon.withDiscountRate` and `PublishCouponRequest.discountRate` now accept `number | string`; publish-coupon-negative test values switched to strings (`'0.0'`, `'-0.01'`, `'-0.15'`, `'1.01'`, `'2.00'`) matching Java.
+  - **U2:** mod10 `shouldApplyFullPriceOnWeekday` now includes `.and().clock().withWeekday()` before `.when().placeOrder(...)`.
+  - **I2:** `@time-dependent` tag appended to test titles in `place-order-negative-isolated`, `cancel-order-positive-isolated`, `cancel-order-negative-isolated` (Playwright-idiomatic equivalent of Java's `@TimeDependent`).
+  - **I3:** `OrderHistoryPage.isOrderListed(orderNumber)` (30 s `waitFor` matching Java/.NET `PageClient.isVisible`); `shop-ui-driver` `viewOrder`/`cancelOrder`/`deliverOrder` now return `failure('Order X does not exist.')` when the row never appears; `view-order-negative` switched to `eachAlsoFirstRow` (first row now runs via UI too).
+  - Local verification: full latest + full legacy suite on monolith, both green.
+
 **Net result so far:**
-- ✅ DONE: **A2** (e2b660e), **A3 A5 A6 A8 J1 V1** (dc85f61), **A7** (d57c5b3), **B1 B2 B3 B5 B6 B9 C1 F4 G2 G3 H1 P3** (a14a51b), **I1 J2 N1 N2 N3 N4 O1 O4 P2 Q1** (c8229de).
-- ❌ EXCEPTION: **G1** (a14a51b — not ported; TS-specific).
-- ⏳ DEFERRED: **I4** (DSL signature change needed), **U2** (GivenClock `withWeekday` step needed).
-- 🟡 PARTIAL: **A4** (42ced1d), **R1** (42ced1d).
-- ⏸ NOT STARTED: **A1, B4, B7, E1, E2, E3, F3, F5, F7, H3, H4, H5, I2, I3, O2, O3.**
+- ✅ DONE: **A1 A2 A3 A5 A6 A7 A8** (section A), **B1 B2 B3 B4 B5 B6 B7 B9** (section B), **C1** (section C), **F4 F5 F7** (section F), **G2 G3** (section G), **H1 H3 H5** (section H), **I1 I2 I3 I4** (section I), **J1 J2** (section J), **N1 N2 N3 N4** (section N), **O1 O2 O3 O4** (section O), **P2 P3** (section P), **Q1** (section Q), **U2** (section U), **V1** (section V).
+- ❌ EXCEPTION: **G1** (TS has no `AutoCloseable` equivalent).
+- 🟡 PARTIAL — still pending: **A4** + **R1** (mod07 fluent builder DSL + positive test full assertions).
+- ⏸ NOT STARTED: **E1, E2, E3** (use-case DSL decomposition), **F3** (Then* entity-level rename). All intertwined with A4/R1 — bundle into Phase 3c.
