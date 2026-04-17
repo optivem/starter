@@ -11,8 +11,9 @@ const timesOutsideBlackout = [
 test.describe('@isolated', () => {
     test.describe.configure({ mode: 'serial' });
     forChannels('ui', 'api')(() => {
-        timesOutsideBlackout.forEach((time) => {
-            test(`shouldBeAbleToCancelOrderOutsideOfBlackoutPeriod31stDecBetween2200And2230_${time}`, async ({ scenario }) => {
+        test.eachAlsoFirstRow(timesOutsideBlackout)(
+            'shouldBeAbleToCancelOrderOutsideOfBlackoutPeriod31stDecBetween2200And2230_$time',
+            async ({ scenario, time }) => {
                 await scenario
                     .given()
                     .clock()
@@ -24,7 +25,7 @@ test.describe('@isolated', () => {
                     .cancelOrder()
                     .then()
                     .shouldSucceed();
-            });
-        });
+            },
+        );
     });
 });

@@ -30,17 +30,17 @@ export class WhenPublishCoupon {
     return this;
   }
 
-  withValidFrom(validFrom: string | undefined): WhenPublishCoupon {
+  withValidFrom(validFrom: string | null | undefined): WhenPublishCoupon {
     this.validFrom = validFrom;
     return this;
   }
 
-  withValidTo(validTo: string | undefined): WhenPublishCoupon {
+  withValidTo(validTo: string | null | undefined): WhenPublishCoupon {
     this.validTo = validTo;
     return this;
   }
 
-  withUsageLimit(usageLimit: number | string | undefined): WhenPublishCoupon {
+  withUsageLimit(usageLimit: number | string | null | undefined): WhenPublishCoupon {
     this.usageLimit = usageLimit;
     return this;
   }

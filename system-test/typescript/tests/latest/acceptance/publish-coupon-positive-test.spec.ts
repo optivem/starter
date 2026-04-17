@@ -20,9 +20,9 @@ forChannels('ui', 'api')(() => {
             .publishCoupon()
             .withCouponCode('SUMMER2025')
             .withDiscountRate(0.15)
-            .withValidFrom(undefined)
-            .withValidTo(undefined)
-            .withUsageLimit(undefined)
+            .withValidFrom(null)
+            .withValidTo(null)
+            .withUsageLimit(null)
             .then()
             .shouldSucceed();
     });

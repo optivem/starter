@@ -1,10 +1,9 @@
 import { test, forChannels } from './base/fixtures.js';
 
 forChannels('ui', 'api')(() => {
-    const nonPositiveDiscountRates = [0.0, -0.01, -0.15];
-
-    nonPositiveDiscountRates.forEach((discountRate) => {
-        test(`cannotPublishCouponWithZeroOrNegativeDiscount_${discountRate}`, async ({ scenario }) => {
+    test.eachAlsoFirstRow([0, -0.01, -0.15])(
+        'cannotPublishCouponWithZeroOrNegativeDiscount_$discountRate',
+        async ({ scenario, discountRate }) => {
             await scenario
                 .when()
                 .publishCoupon()
@@ -14,13 +13,12 @@ forChannels('ui', 'api')(() => {
                 .shouldFail()
                 .errorMessage('The request contains one or more validation errors')
                 .fieldErrorMessage('discountRate', 'Discount rate must be greater than 0.00');
-        });
-    });
+        },
+    );
 
-    const aboveOneDiscountRates = [1.01, 2.0];
-
-    aboveOneDiscountRates.forEach((discountRate) => {
-        test(`cannotPublishCouponWithDiscountGreaterThan100percent_${discountRate}`, async ({ scenario }) => {
+    test.eachAlsoFirstRow([1.01, 2])(
+        'cannotPublishCouponWithDiscountGreaterThan100percent_$discountRate',
+        async ({ scenario, discountRate }) => {
             await scenario
                 .when()
                 .publishCoupon()
@@ -30,8 +28,8 @@ forChannels('ui', 'api')(() => {
                 .shouldFail()
                 .errorMessage('The request contains one or more validation errors')
                 .fieldErrorMessage('discountRate', 'Discount rate must be at most 1.00');
-        });
-    });
+        },
+    );
 
     test('cannotPublishCouponWithDuplicateCouponCode', async ({ scenario }) => {
         const dupCode = 'EXISTING-COUPON';
@@ -50,10 +48,9 @@ forChannels('ui', 'api')(() => {
             .fieldErrorMessage('couponCode', `Coupon code ${dupCode} already exists`);
     });
 
-    const nonPositiveUsageLimits = [0, -1, -100];
-
-    nonPositiveUsageLimits.forEach((usageLimit) => {
-        test(`cannotPublishCouponWithZeroOrNegativeUsageLimit_${usageLimit}`, async ({ scenario }) => {
+    test.eachAlsoFirstRow([0, -1, -100])(
+        'cannotPublishCouponWithZeroOrNegativeUsageLimit_$usageLimit',
+        async ({ scenario, usageLimit }) => {
             await scenario
                 .when()
                 .publishCoupon()
@@ -64,8 +61,8 @@ forChannels('ui', 'api')(() => {
                 .shouldFail()
                 .errorMessage('The request contains one or more validation errors')
                 .fieldErrorMessage('usageLimit', 'Usage limit must be positive');
-        });
-    });
+        },
+    );
 });
 
 forChannels('api')(() => {

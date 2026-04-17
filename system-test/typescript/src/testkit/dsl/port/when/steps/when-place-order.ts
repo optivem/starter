@@ -5,6 +5,6 @@ export interface WhenPlaceOrder {
   withSku(sku: string): this;
   withQuantity(quantity: string | number): this;
   withCountry(country: string): this;
-  withCouponCode(couponCode?: string): this;
+  withCouponCode(couponCode?: string | null): this;
   then(): ThenResultStage;
 }

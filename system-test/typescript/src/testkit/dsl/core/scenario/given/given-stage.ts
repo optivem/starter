@@ -37,7 +37,7 @@ export class GivenStage implements IGivenStage {
   }
 
   coupon(): GivenCoupon {
-    const config: CouponConfig = { code: '', discountRate: 0.10 };
+    const config: CouponConfig = { code: DEFAULTS.COUPON_CODE, discountRate: 0.1 };
     this.ctx.couponConfigs.push(config);
     return new GivenCoupon(this, config);
   }

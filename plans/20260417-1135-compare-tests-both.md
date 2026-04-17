@@ -67,6 +67,7 @@ Reference implementation: **Java**. Tasks below are ordered so prerequisites com
    - First data row runs on both UI+API, remaining rows API only.
 
 10. **DIFF-TS-8 — Add `alsoForFirstRow=UI` to `ViewOrderNegativeTest.shouldNotBeAbleToViewNonExistentOrder`** *(Medium, blocked by #9)*
+    - **Deferred:** TS UI driver can't view non-existent orders (times out clicking in table). Needs UI driver fix first.
 
 11. **DIFF-TS-4 — Remove extra `.withQuantity(1)` calls in `place-order-negative-test.spec.ts`** *(Low)*
     - Tests: `shouldRejectOrderWithNonExistentSku`, `shouldRejectOrderWithEmptySku`, `shouldRejectOrderWithEmptyCountry`, `shouldRejectOrderWithInvalidCountry`, `cannotPlaceOrderWithNonExistentCoupon`.

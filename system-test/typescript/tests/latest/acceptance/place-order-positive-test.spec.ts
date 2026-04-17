@@ -65,7 +65,7 @@ forChannels('ui', 'api')(() => {
         { unitPrice: '99.99', quantity: '1', basePrice: '99.99' },
     ];
 
-    test.each(basePriceCases)(
+    test.eachAlsoFirstRow(basePriceCases)(
         'shouldPlaceOrderWithCorrectBasePriceParameterized_unitPrice=$unitPrice_quantity=$quantity',
         async ({ scenario, unitPrice, quantity, basePrice }) => {
             await scenario
@@ -105,6 +105,7 @@ forChannels('ui', 'api')(() => {
         await scenario
             .when()
             .placeOrder()
+            .withCouponCode(null)
             .then()
             .shouldSucceed()
             .and()
@@ -115,24 +116,22 @@ forChannels('ui', 'api')(() => {
     });
 
     test('subtotalPriceShouldBeCalculatedAsTheBasePriceMinusDiscountAmountWhenWeHaveCoupon', async ({ scenario }) => {
-        const code = 'SUMMER2025';
         await scenario
             .given()
             .coupon()
-            .withCouponCode(code)
             .withDiscountRate(0.15)
             .and()
             .product()
             .withUnitPrice(20)
             .when()
             .placeOrder()
+            .withCouponCode()
             .withQuantity(5)
-            .withCouponCode(code)
             .then()
             .shouldSucceed()
             .and()
             .order()
-            .hasAppliedCoupon(code)
+            .hasAppliedCoupon()
             .hasDiscountRate(0.15)
             .hasBasePrice('100.00')
             .hasDiscountAmount('15.00')
@@ -161,7 +160,7 @@ forChannels('ui', 'api')(() => {
         { country: 'US', taxRate: '0.20' },
     ];
 
-    test.each(taxRateCases)(
+    test.eachAlsoFirstRow(taxRateCases)(
         'correctTaxRateShouldBeUsedBasedOnCountry_country=$country',
         async ({ scenario, country, taxRate }) => {
             await scenario
@@ -185,7 +184,7 @@ forChannels('ui', 'api')(() => {
         { country: 'US', taxRate: '0.20', unitPrice: '100.00', subtotalPrice: '100.00', expectedTaxAmount: '20.00', expectedTotalPrice: '120.00' },
     ];
 
-    test.each(totalPriceCases)(
+    test.eachAlsoFirstRow(totalPriceCases)(
         'totalPriceShouldBeSubtotalPricePlusTaxAmount_country=$country',
         async ({ scenario, country, taxRate, unitPrice, subtotalPrice, expectedTaxAmount, expectedTotalPrice }) => {
             await scenario

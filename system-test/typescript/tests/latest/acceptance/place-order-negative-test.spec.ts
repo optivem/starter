@@ -12,10 +12,9 @@ forChannels('ui', 'api')(() => {
             .fieldErrorMessage('quantity', 'Quantity must be an integer');
     });
 
-    const nonIntegerQuantities = ['3.5', 'lala'];
-
-    nonIntegerQuantities.forEach((qty) => {
-        test(`shouldRejectOrderWithNonIntegerQuantity_${qty}`, async ({ scenario }) => {
+    test.eachAlsoFirstRow(['3.5', 'lala'])(
+        'shouldRejectOrderWithNonIntegerQuantity_$qty',
+        async ({ scenario, qty }) => {
             await scenario
                 .when()
                 .placeOrder()
@@ -24,36 +23,33 @@ forChannels('ui', 'api')(() => {
                 .shouldFail()
                 .errorMessage('The request contains one or more validation errors')
                 .fieldErrorMessage('quantity', 'Quantity must be an integer');
-        });
-    });
+        },
+    );
 
     test('shouldRejectOrderWithNonExistentSku', async ({ scenario }) => {
         await scenario
             .when()
             .placeOrder()
             .withSku('NON-EXISTENT-SKU-12345')
-            .withQuantity(1)
             .then()
             .shouldFail()
             .errorMessage('The request contains one or more validation errors')
             .fieldErrorMessage('sku', 'Product does not exist for SKU: NON-EXISTENT-SKU-12345');
     });
 
-    const emptySkus = ['', '   '];
-
-    emptySkus.forEach((sku) => {
-        test(`shouldRejectOrderWithEmptySku_"${sku}"`, async ({ scenario }) => {
+    test.eachAlsoFirstRow(['', '   '])(
+        'shouldRejectOrderWithEmptySku_"$sku"',
+        async ({ scenario, sku }) => {
             await scenario
                 .when()
                 .placeOrder()
                 .withSku(sku)
-                .withQuantity(1)
                 .then()
                 .shouldFail()
                 .errorMessage('The request contains one or more validation errors')
                 .fieldErrorMessage('sku', 'SKU must not be empty');
-        });
-    });
+        },
+    );
 
     const nonPositiveQuantities = ['-10', '-1', '0'];
 
@@ -70,42 +66,38 @@ forChannels('ui', 'api')(() => {
         });
     });
 
-    const emptyQuantities = ['', '   '];
-
-    emptyQuantities.forEach((qty) => {
-        test(`shouldRejectOrderWithEmptyQuantity_"${qty}"`, async ({ scenario }) => {
+    test.eachAlsoFirstRow(['', '   '])(
+        'shouldRejectOrderWithEmptyQuantity_"$emptyQuantity"',
+        async ({ scenario, emptyQuantity }) => {
             await scenario
                 .when()
                 .placeOrder()
-                .withQuantity(qty)
+                .withQuantity(emptyQuantity)
                 .then()
                 .shouldFail()
                 .errorMessage('The request contains one or more validation errors')
                 .fieldErrorMessage('quantity', 'Quantity must not be empty');
-        });
-    });
+        },
+    );
 
-    const emptyCountries = ['', '   '];
-
-    emptyCountries.forEach((country) => {
-        test(`shouldRejectOrderWithEmptyCountry_"${country}"`, async ({ scenario }) => {
+    test.eachAlsoFirstRow(['', '   '])(
+        'shouldRejectOrderWithEmptyCountry_"$emptyCountry"',
+        async ({ scenario, emptyCountry }) => {
             await scenario
                 .when()
                 .placeOrder()
-                .withQuantity(1)
-                .withCountry(country)
+                .withCountry(emptyCountry)
                 .then()
                 .shouldFail()
                 .errorMessage('The request contains one or more validation errors')
                 .fieldErrorMessage('country', 'Country must not be empty');
-        });
-    });
+        },
+    );
 
     test('shouldRejectOrderWithInvalidCountry', async ({ scenario }) => {
         await scenario
             .when()
             .placeOrder()
-            .withQuantity(1)
             .withCountry('XX')
             .then()
             .shouldFail()
@@ -117,7 +109,6 @@ forChannels('ui', 'api')(() => {
         await scenario
             .when()
             .placeOrder()
-            .withQuantity(1)
             .withCouponCode('INVALIDCOUPON')
             .then()
             .shouldFail()

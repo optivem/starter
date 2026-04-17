@@ -4,7 +4,10 @@ import { bindChannels, bindTestEach } from '@optivem/optivem-testing';
 import { withApp } from '../../../../src/testkit/driver/adapter/shared/playwright/withApp.js';
 
 const _test = withApp();
-const test = Object.assign(_test, { each: bindTestEach(_test) });
+const test = Object.assign(_test, {
+    each: bindTestEach(_test),
+    eachAlsoFirstRow: bindTestEach(_test, ['api'], ['ui']),
+});
 const { forChannels } = bindChannels(test);
 export { test, forChannels };
 export { expect } from '@playwright/test';

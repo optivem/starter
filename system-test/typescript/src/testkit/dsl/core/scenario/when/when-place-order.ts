@@ -35,8 +35,8 @@ export class WhenPlaceOrder {
     return this;
   }
 
-  withCouponCode(couponCode: string): WhenPlaceOrder {
-    this.couponCode = couponCode;
+  withCouponCode(couponCode?: string | null): WhenPlaceOrder {
+    this.couponCode = couponCode === undefined ? DEFAULTS.COUPON_CODE : couponCode;
     return this;
   }
 
