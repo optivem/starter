@@ -72,20 +72,17 @@ APPROVED
 
 ## G. Architecture Layers — Common
 
-### G4. .NET — keep `ResultTaskExtensions.cs` and `VoidValue.cs` (idiomatic, do not add to Java/TS)
+### G4. .NET — keep `ResultTaskExtensions.cs` and `VoidValue.cs` (language-specific; registered as exceptions in the compare-tests agent)
 - Files: `system-test/dotnet/Common/ResultTaskExtensions.cs`, `VoidValue.cs`.
-- Investigation:
-  - `VoidValue` fills C#'s generic gap — `Result<T, E>` cannot take `void` as `T`, so `Result<VoidValue, E>` is the idiomatic stand-in. 20+ references across driver adapters.
-  - `ResultTaskExtensions` provides `MapAsync` / `MapErrorAsync` / `MapVoidAsync` for composing async `Task<Result<...>>` chains — required because C# async composition isn't fluent by default. Java composes synchronously and doesn't need the extensions.
-- Decision: **keep in .NET, do not port to Java or TS**.
-- Action: add a one-line XML-doc comment on each class noting they are language-specific helpers for `Task<Result<T, E>>` composition.
+- Both are idiomatic .NET helpers (`VoidValue` fills the `Result<T, E>` generic gap for void; `ResultTaskExtensions` enables async composition over `Task<Result<T, E>>`).
+- No code change in the .NET source.
+- Action: **registered as exceptions in `.claude/agents/compare-tests.md` → Known Language-Specific Divergences → .NET-only.** Future compare-tests runs will not propose porting them to Java/TS.
 RESOLVED
-VJ: Don't add those comments in the classes, instead mark it as Exceptions in the compare-tests agent
 
-### G5. No .NET action (Java-only utility; .NET already uses `IDisposable`/`using`)
-- `Closer.java` is a Java-side helper that wraps `AutoCloseable.close()` and converts checked exceptions to unchecked. Referenced by nearly every Java base test.
-- .NET already uses the language-native `IDisposable` + `Dispose(bool)` + `using` pattern (e.g. `BaseTaxClient.cs:20-33`). No equivalent utility class is needed.
-- Action: **none for .NET**. This item belongs in a Java plan, if anywhere.
+### G5. No .NET action (Java-only utility; registered as an exception in the compare-tests agent)
+- `Closer.java` is a Java-side helper for `AutoCloseable.close()` with checked-exception wrapping. .NET uses native `IDisposable` + `using`; no equivalent needed.
+- No code change in any language.
+- Action: **registered as an exception in `.claude/agents/compare-tests.md` → Known Language-Specific Divergences → Java-only.** Future compare-tests runs will not propose porting `Closer` to .NET or TS.
 RESOLVED
 
 ---
