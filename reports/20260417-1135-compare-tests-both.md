@@ -1,6 +1,7 @@
 # System Tests & Architecture Comparison Report
 
-Reference implementation: **Java**. All differences should be aligned to Java unless noted otherwise.
+Mode: **both** (latest + legacy)
+Reference implementation: **Java**. Findings below describe what differs between languages; no prescriptions — see the matching plan file for ordered action items.
 
 ---
 
@@ -49,12 +50,10 @@ Reference implementation: **Java**. All differences should be aligned to Java un
 **DIFF-TS-1: TS `clock-stub-contract-test.spec.ts` has extra test `shouldBeAbleToGetConfiguredTime`**
 - Java `ClockStubContractTest` only inherits `shouldBeAbleToGetTime` from the base class. It does NOT have `shouldBeAbleToGetConfiguredTime`.
 - TS adds `shouldBeAbleToGetConfiguredTime` in the non-isolated stub contract test file.
-- **Action:** Remove `shouldBeAbleToGetConfiguredTime` from TS `clock-stub-contract-test.spec.ts` to match Java.
 
 **DIFF-TS-2: TS `clock-stub-contract-isolated-test.spec.ts` has extra test `shouldBeAbleToGetTime`**
 - Java `ClockStubContractIsolatedTest` only has `shouldBeAbleToGetConfiguredTime`.
 - TS adds `shouldBeAbleToGetTime` in the isolated stub contract test.
-- **Action:** Remove `shouldBeAbleToGetTime` from TS `clock-stub-contract-isolated-test.spec.ts` to match Java.
 
 ---
 
@@ -76,7 +75,6 @@ Reference implementation: **Java**. All differences should be aligned to Java un
 - Java uses `@Channel(value = {ChannelType.API}, alsoForFirstRow = ChannelType.UI)` meaning first data row runs on both UI+API, remaining rows only API.
 - .NET matches Java with `AlsoForFirstRow = new[] { ChannelType.UI }`.
 - TS uses `forChannels('ui', 'api')` which runs ALL data rows on BOTH channels. This over-tests compared to Java.
-- **Action:** TS should implement `alsoForFirstRow` pattern to match Java behavior.
 
 #### 1.4.3 CancelOrderNegativeTest
 
@@ -128,13 +126,11 @@ Reference implementation: **Java**. All differences should be aligned to Java un
 **DIFF-TS-4: TS tests add `.withQuantity(1)` that Java does not have**
 - Multiple TS tests add an explicit `.withQuantity(1)` call that is not present in Java.
 - This may be necessary to avoid default quantity being invalid, but it diverges from Java's test logic.
-- **Action:** Remove `.withQuantity(1)` from TS tests to match Java, or verify if it's needed for TS-specific reasons.
 
 **DIFF-NET-1: .NET has extra test `ShouldRejectOrderWithNonPositiveQuantity`**
 - Java has `shouldRejectOrderWithNegativeQuantity` (with `withQuantity(-10)`) and `shouldRejectOrderWithZeroQuantity` (with `withQuantity(0)`) as separate tests.
 - .NET has those same two tests PLUS an additional `ShouldRejectOrderWithNonPositiveQuantity` with 3 data rows ("-10", "-1", "0"). This is partially redundant.
 - TS replaces the individual negative/zero tests with a single `shouldRejectOrderWithNonPositiveQuantity` loop (matching .NET's extra test).
-- **Action:** Remove `ShouldRejectOrderWithNonPositiveQuantity` from .NET. TS should add back `shouldRejectOrderWithNegativeQuantity` and `shouldRejectOrderWithZeroQuantity` as separate tests and remove the `nonPositiveQuantities` loop.
 
 #### 1.4.8 PlaceOrderPositiveIsolatedTest
 
@@ -167,13 +163,11 @@ Reference implementation: **Java**. All differences should be aligned to Java un
 **DIFF-TS-5: TS `discountRateShouldBeNotAppliedWhenThereIsNoCoupon` omits `.withCouponCode(null)`**
 - Java explicitly calls `.withCouponCode(null)` in the when clause.
 - TS just calls `.placeOrder()` without specifying the coupon code.
-- **Action:** Add `.withCouponCode(null)` call to TS test.
 
 **DIFF-TS-6: TS `subtotalPriceShouldBeCalculated...` uses explicit coupon code instead of default**
 - Java calls `.withCouponCode()` (no argument) which uses the default coupon code from the given clause.
 - TS explicitly passes the coupon code variable instead.
-- This is a minor stylistic difference but should be aligned.
-- **Action:** Align TS to use `.withCouponCode()` (no arg) to match Java.
+- This is a minor stylistic difference.
 
 #### 1.4.10 PublishCouponNegativeTest
 
@@ -197,8 +191,6 @@ Reference implementation: **Java**. All differences should be aligned to Java un
 **DIFF-TS-7: TS uses `undefined` instead of `null` for optional fields**
 - Java and .NET explicitly pass `null` for optional fields (validFrom, validTo, usageLimit).
 - TS uses `undefined`.
-- This is a TS idiom (undefined vs null) and may be functionally equivalent, but should be verified.
-- **Action:** Verify if `undefined` and `null` are handled identically by the TS DSL. If not, use `null`.
 
 #### 1.4.12 ViewOrderNegativeTest
 
@@ -209,7 +201,6 @@ Reference implementation: **Java**. All differences should be aligned to Java un
 **DIFF-TS-8: TS ViewOrderNegativeTest uses `forChannels('api')` only, missing `alsoForFirstRow=UI`**
 - Java runs first row on both UI and API.
 - TS only runs on API.
-- **Action:** Align TS to match Java's `alsoForFirstRow` behavior.
 
 #### 1.4.13 ViewOrderPositiveTest
 
@@ -241,7 +232,6 @@ Reference implementation: **Java**. All differences should be aligned to Java un
 - Java and .NET properly implement incremental abstraction layers per module.
 - TS skips all intermediate layers and jumps straight to Scenario DSL.
 - This defeats the pedagogical purpose of showing the progression of abstraction layers.
-- **Action:** TS mod03-mod07 need to be rewritten to use the correct abstraction layers matching Java.
 
 ### 2.2 File Structure Differences
 
@@ -269,8 +259,7 @@ Reference implementation: **Java**. All differences should be aligned to Java un
 - Java and .NET have separate test files for API vs UI (e.g., `PlaceOrderPositiveApiTest` + `PlaceOrderPositiveUiTest`).
 - TS uses channel parameterization (`forChannels('ui', 'api')`) in a single file.
 - For mod03-mod05 (Raw/Client/Driver layers), the Java/NET approach uses separate files because the raw implementation code differs significantly between API and UI.
-- TS can't replicate this because it uses Scenario DSL which abstracts away the API/UI difference.
-- **Action:** This is a consequence of DIFF-LEGACY-1. Once TS implements proper abstraction layers, separate API/UI test files will be needed for mod03-mod05.
+- TS can't replicate this because it uses Scenario DSL which abstracts away the API/UI difference. Consequence of DIFF-LEGACY-1.
 
 #### mod04-mod05: Smoke Tests
 
@@ -324,12 +313,10 @@ Reference implementation: **Java**. All differences should be aligned to Java un
 **DIFF-LEGACY-4: TS mod11 `clock-stub-contract-test.spec.ts` has wrong test**
 - Java inherits `shouldBeAbleToGetTime` from `BaseClockContractTest`.
 - TS has `shouldBeAbleToGetConfiguredTime` instead.
-- **Action:** TS should have `shouldBeAbleToGetTime` (not `shouldBeAbleToGetConfiguredTime`).
 
 **DIFF-LEGACY-5: TS mod11 `clock-stub-contract-isolated-test.spec.ts` has extra test**
 - Java only has `shouldBeAbleToGetConfiguredTime`.
 - TS has both `shouldBeAbleToGetTime` and `shouldBeAbleToGetConfiguredTime`.
-- **Action:** Remove `shouldBeAbleToGetTime` from the isolated test.
 
 ---
 
@@ -354,7 +341,6 @@ Reference implementation: **Java**. All differences should be aligned to Java un
 **DIFF-ARCH-1: TS does not have a separate Clients layer**
 - Java and .NET have a clear separation between Clients (HTTP wrappers) and Drivers (business logic wrappers).
 - TS merges the client and driver functionality into single driver files.
-- **Action:** TS should be refactored to have separate client classes matching Java's structure.
 
 ### 3.2 Driver Ports Layer
 
@@ -369,7 +355,6 @@ Reference implementation: **Java**. All differences should be aligned to Java un
 **DIFF-ARCH-2: TS DTOs are not fully separated**
 - Java and .NET have DTOs organized by domain (shop/dtos, clock/dtos, erp/dtos, tax/dtos).
 - TS has a single `common/dtos.ts` file for some DTOs.
-- **Action:** Verify completeness and consider splitting into domain-specific DTO files.
 
 ### 3.3 Use Case DSL Layer
 
@@ -384,7 +369,6 @@ Reference implementation: **Java**. All differences should be aligned to Java un
 **DIFF-ARCH-3: TS does not have separate Use-Case DSL classes per domain**
 - Java and .NET have explicit `ShopDsl`, `ClockDsl`, `ErpDsl`, `TaxDsl` classes.
 - TS embeds this logic within the scenario DSL layer.
-- **Action:** Consider extracting separate use-case DSL classes to match Java's architecture.
 
 ### 3.4 Scenario DSL Layer
 
@@ -397,12 +381,11 @@ Reference implementation: **Java**. All differences should be aligned to Java un
 | Then steps (Clock, Country, Coupon, Failure, Order, Product, Success) | YES (7) | YES (many more with Failure/SuccessAnd, FailureCoupon, etc.) | YES (matching Java) | **DIFF-ARCH-5** |
 
 **DIFF-ARCH-4: .NET has extra `WhenGoToShop` step not in Java or TS**
-- **Action:** Remove `WhenGoToShop` from .NET or add it to Java (depends on whether it's used).
 
 **DIFF-ARCH-5: .NET has additional Then step classes**
 - .NET has `ThenFailureAnd`, `ThenSuccessAnd`, `ThenFailureCoupon`, `ThenFailureOrder`, `ThenSuccessCoupon`, `ThenSuccessOrder`, `BaseThenResultCoupon`, `BaseThenResultOrder` which Java doesn't have.
 - These are due to .NET's different fluent API chaining approach (needed because C# doesn't support the same return-type covariance as Java).
-- **Action:** This is an acceptable language-specific implementation detail, not a functional difference.
+- Likely an acceptable language-specific implementation detail, not a functional difference.
 
 ### 3.5 Common Layer
 
@@ -416,7 +399,6 @@ Reference implementation: **Java**. All differences should be aligned to Java un
 | ResultTaskExtensions | N/A | YES | N/A | Language-specific |
 
 **DIFF-ARCH-6: TS missing Converter class**
-- **Action:** Verify if TS needs a Converter class equivalent.
 
 ### 3.6 Channel Layer
 
@@ -427,45 +409,34 @@ Reference implementation: **Java**. All differences should be aligned to Java un
 **DIFF-ARCH-7: TS uses string literals instead of ChannelType enum**
 - Java and .NET define `ChannelType` as an enum with `UI` and `API` values.
 - TS uses string literals ('ui', 'api') throughout.
-- **Action:** Consider defining a ChannelType enum/constant in TS to match Java.
 
 ---
 
-## 4. SUMMARY OF REQUIRED CHANGES
+## 4. SUMMARY COUNTS
 
-### By Language
+Total differences found: **23**
 
-#### TypeScript Changes Required: 14
+### By language
 
-| # | ID | Description | Severity |
-|---|-----|-------------|----------|
-| 1 | DIFF-TS-1 | Remove extra `shouldBeAbleToGetConfiguredTime` from latest `clock-stub-contract-test.spec.ts` | Medium |
-| 2 | DIFF-TS-2 | Remove extra `shouldBeAbleToGetTime` from latest `clock-stub-contract-isolated-test.spec.ts` | Medium |
-| 3 | DIFF-TS-3 | Implement `alsoForFirstRow` pattern instead of running all data rows on all channels (affects ~12 test methods) | High |
-| 4 | DIFF-TS-4 | Remove extra `.withQuantity(1)` calls from 5 tests in `place-order-negative-test.spec.ts` | Low |
-| 5 | DIFF-TS-5 | Add `.withCouponCode(null)` to `discountRateShouldBeNotAppliedWhenThereIsNoCoupon` | Low |
-| 6 | DIFF-TS-6 | Change `.withCouponCode(code)` to `.withCouponCode()` (no arg) in subtotal test | Low |
-| 7 | DIFF-TS-7 | Verify `undefined` vs `null` behavior for optional fields in publish coupon test | Low |
-| 8 | DIFF-TS-8 | Add `alsoForFirstRow=UI` behavior to `ViewOrderNegativeTest` | Medium |
-| 9 | DIFF-LEGACY-1 | Rewrite TS legacy mod03-mod07 to use correct abstraction layers (Raw/Client/Driver/ChannelDriver/UseCaseDsl) | **Critical** |
-| 10 | DIFF-LEGACY-2 | Split TS mod03-mod05 e2e tests into separate API/UI test files | High |
-| 11 | DIFF-LEGACY-3 | Split TS mod04-mod05 smoke tests into separate API/UI files | High |
-| 12 | DIFF-LEGACY-4 | Fix TS mod11 `clock-stub-contract-test.spec.ts` to have `shouldBeAbleToGetTime` | Medium |
-| 13 | DIFF-LEGACY-5 | Remove extra `shouldBeAbleToGetTime` from TS mod11 `clock-stub-contract-isolated-test.spec.ts` | Medium |
-| 14 | DIFF-ARCH-1 to DIFF-ARCH-7 | Architecture layer restructuring (separate clients, DTOs, channel types, etc.) | Medium |
+| Language | Count |
+|----------|-------|
+| TypeScript | 20 |
+| .NET | 3 |
+| Java (reference) | 0 |
 
-#### .NET Changes Required: 2
+### By area
 
-| # | ID | Description | Severity |
-|---|-----|-------------|----------|
-| 1 | DIFF-NET-1 | Remove extra `ShouldRejectOrderWithNonPositiveQuantity` test from latest `PlaceOrderNegativeTest.cs` | Low |
-| 2 | DIFF-ARCH-4 | Verify/remove `WhenGoToShop` if not present in Java | Low |
-
-### Totals
-
-| Language | Critical | High | Medium | Low | Total |
-|----------|----------|------|--------|-----|-------|
-| TypeScript | 1 | 3 | 5 | 5 | 14 |
-| .NET | 0 | 0 | 0 | 2 | 2 |
-| Java (reference) | 0 | 0 | 0 | 0 | 0 |
-| **Overall** | **1** | **3** | **5** | **7** | **16** |
+| Area | Count |
+|------|-------|
+| Architectural mismatches (legacy) | 1 (DIFF-LEGACY-1, affecting mod03-mod07) |
+| Test — Acceptance | 6 (DIFF-TS-3..8, DIFF-NET-1) |
+| Test — Contract | 4 (DIFF-TS-1, DIFF-TS-2, DIFF-LEGACY-4, DIFF-LEGACY-5) |
+| Test — E2E | 0 (aligned) |
+| Test — Smoke | 0 (aligned) |
+| Legacy file structure | 2 (DIFF-LEGACY-2, DIFF-LEGACY-3) |
+| Architecture — Clients | 1 (DIFF-ARCH-1) |
+| Architecture — Drivers / Ports | 1 (DIFF-ARCH-2) |
+| Architecture — Channels | 1 (DIFF-ARCH-7) |
+| Architecture — Use Case DSL | 1 (DIFF-ARCH-3) |
+| Architecture — Scenario DSL | 2 (DIFF-ARCH-4, DIFF-ARCH-5) |
+| Architecture — Common | 1 (DIFF-ARCH-6) |

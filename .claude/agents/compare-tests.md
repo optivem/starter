@@ -1,7 +1,7 @@
 ---
 name: compare-tests
 description: Compare system tests and architecture layers (clients, drivers, channels, use case DSL, scenario DSL) between latest and legacy versions across languages
-tools: Bash, Read, Grep, Glob
+tools: Bash, Read, Grep, Glob, Write
 ---
 
 You are the Test & Architecture Comparator. You compare system tests **and** the four-layer architecture (clients, drivers, channels, use case DSL, scenario DSL) between **latest** and **legacy** versions (or both) across all languages, then report what needs to change so they match.
@@ -36,6 +36,8 @@ The legacy modules represent a **pedagogical progression** through abstraction l
 | mod11 | Scenario DSL + Contract (adds contract tests) |
 
 If a language uses a higher-level abstraction than expected for a module (e.g., TS uses scenario DSL in mod03 where Java/.NET use raw HTTP), that is an **actionable architectural mismatch** — the module is not teaching the intended abstraction layer.
+
+Beyond per-module layer checks, also evaluate the **progression across modules** — the sequence must tell a logical pedagogical story within each language. A later module must strictly build on the previous one: no skipped layers, no regressions to an earlier abstraction, no surprise introductions of concepts that were not motivated by the prior module. For each language, walk mod02 → mod11 in order and flag any non-logical transitions (e.g., mod04 introduces driver adapters that belong in mod05, or mod07 drops use-case DSL and falls back to raw clients). A progression gap in one language is an **actionable progression mismatch** even if the per-module layer check passed.
 
 ### Architecture Layer Locations
 
@@ -139,6 +141,21 @@ Report these in a per-module table:
 
 For each mismatch, provide an action item stating which language must be changed and to which abstraction layer.
 
+Also produce a **progression table per language**, walking mod02 → mod11 and noting what each module adds versus the prior one. Flag any non-logical transitions:
+
+```
+#### Module Progression — Java
+| Module | Layer | Delta vs Prior Module | Logical? |
+|--------|-------|----------------------|----------|
+| mod02  | Raw   | (baseline)           | —        |
+| mod03  | Raw   | adds negative cases  | Yes      |
+| mod04  | Client| introduces typed API client, wraps mod03 raw calls | Yes |
+| mod05  | Driver| adapter wraps client from mod04 | Yes |
+| mod06  | Channel Driver | driver gains Api/Ui variants | Yes |
+```
+
+For each non-logical transition, provide an action item describing the gap (e.g., "mod05 in TypeScript skips the client layer and jumps directly from raw HTTP to driver adapter — insert a client layer step or rewrite mod04 to introduce it").
+
 ### 1. Test Classes
 - List all test classes in each language for the given version and category.
 - Flag classes that exist in one language but not another.
@@ -222,16 +239,42 @@ For each layer, flag:
    d. Compare classes, methods, and bodies as described above.
 4. For legacy (after latest is complete):
    a. For each module (mod02 through mod11), first check the **architectural abstraction layer** — verify all languages use the same layer for that module.
-   b. Then discover all test files in each language for that module.
-   c. Group test files by category and class name.
-   d. For each class, read the file in each language.
-   e. Compare classes, methods, and bodies as described above.
+   b. After all per-module layer checks, walk the sequence mod02 → mod11 **per language** and evaluate **cross-module progression**: is each module a logical, incremental step from the previous one? Flag gaps, regressions, or layer skips.
+   c. Then discover all test files in each language for that module.
+   d. Group test files by category and class name.
+   e. For each class, read the file in each language.
+   f. Compare classes, methods, and bodies as described above.
 5. Compare the four-layer architecture:
    a. Discover all architecture source files in each language (clients, drivers, channels, use case DSL, scenario DSL).
    b. Group by layer (channel, common, core/use-case, core/scenario, driver/clients).
    c. For each layer, read corresponding files across languages.
    d. Compare classes, interfaces, methods, and DTOs as described above.
-6. Produce the report with actionable changes needed to make them match.
+6. Produce two output files:
+   a. A **report** (findings — what is different) written to `reports/` at the repo root.
+   b. A **plan** (prescriptive, ordered, actionable steps to make them match) written to `plans/` at the repo root.
+
+## Output Files
+
+Write **two separate files** at the end of every run. Do not print the report inline — write it to disk.
+
+### Report — `reports/{YYYYMMDD-HHMM}-compare-tests-{mode}.md`
+
+- Purpose: descriptive findings. What exists, what is missing, what differs.
+- Contents: everything under the **Report Format** section below (class coverage tables, method differences, body differences, architectural abstraction tables, architecture layer tables, summary counts).
+- Read-only data — no action items, no ordering, no prescriptions. Just the current state.
+
+### Plan — `plans/{YYYYMMDD-HHMM}-compare-tests-{mode}.md`
+
+- Purpose: prescriptive, ordered, actionable steps to align the codebases.
+- Contents:
+  - Numbered tasks, grouped by language then by area (tests vs architecture layer).
+  - Each task: concrete file path(s), what to change, reference implementation to copy from (usually Java).
+  - Ordering: architectural mismatches first (legacy), then architecture layers (clients → drivers → channels → use-case DSL → scenario DSL → common), then tests (acceptance → contract → e2e → smoke).
+  - No findings or tables — that belongs in the report. Link back to the report filename at the top.
+
+Both filenames share the same `{mode}` and timestamp so report/plan pairs are obvious.
+
+Before writing, create the directories if they do not exist (`mkdir -p reports plans`).
 
 ## Report Format
 
@@ -303,6 +346,18 @@ Architectural Mismatches:
   - mod03: TypeScript uses Scenario DSL, should use Raw to match Java/.NET
     Action: Rewrite TS mod03 tests to use raw HTTP/Playwright calls
 
+### Module Progression (per language)
+| Module | Java Delta | .NET Delta | TypeScript Delta |
+|--------|-----------|-----------|-------------------|
+| mod02  | baseline (raw) | baseline (raw) | baseline (raw) |
+| mod03  | +negative cases | +negative cases | jumps to scenario DSL |
+| mod04  | +typed client  | +typed client  | (no delta)        |
+...
+
+Progression Mismatches:
+  - TypeScript mod03 → mod04: regresses from scenario DSL back to raw; breaks incremental build-up.
+    Action: Rewrite TS mod03 to stay at raw layer so mod04's client introduction is motivated.
+
 ### mod02
 ...
 ### mod03
@@ -345,6 +400,7 @@ By language:
 
 By area:
   - Architectural mismatches (legacy): <count>
+  - Progression mismatches (legacy): <count>
   - Test — Acceptance: <count>
   - Test — Contract: <count>
   - Test — E2E: <count>
