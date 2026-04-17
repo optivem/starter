@@ -68,55 +68,15 @@ Ordering: architectural mismatches first, then architecture layers (clients → 
 
 ## B. Architecture Layers — Clients
 
-### B1. TypeScript — split `ShopApiClient` into per-domain controllers
-- Files: `system-test/typescript/src/testkit/driver/adapter/shop/api/client/ShopApiClient.ts` (refactor) + new `controllers/OrderController.ts`, `controllers/CouponController.ts`, `controllers/HealthController.ts`.
-- Update callers to use `shopApiClient.orders().placeOrder(...)`, `.coupons().publishCoupon(...)`, `.health().check(...)` as in Java/.NET.
-- **Source:** ✅ Port from eshop-tests — `eshop-tests/typescript/driver-adapter/shop/api/client/ShopApiClient.ts` + `.../controllers/{OrderController.ts, CouponController.ts, HealthController.ts}` all exist with the target layout.
-
-### B2. TypeScript — add explicit ShopUiClient and page objects
-- Files: `system-test/typescript/src/testkit/driver/adapter/shop/ui/client/ShopUiClient.ts`, `client/pages/BasePage.ts`, `HomePage.ts`, `NewOrderPage.ts`, `OrderHistoryPage.ts`, `OrderDetailsPage.ts`, `CouponManagementPage.ts`.
-- Reference: Java `shop/ui/client/ShopUiClient.java` + `pages/*.java`.
-- **Source:** ✅ Port from eshop-tests — `eshop-tests/typescript/driver-adapter/shop/ui/client/ShopUiClient.ts` + `.../pages/{BasePage, HomePage, NewOrderPage, OrderHistoryPage, OrderDetailsPage, CouponManagementPage}.ts` all exist.
-
-### B3. TypeScript — add `BaseErpClient` and `BaseTaxClient` abstract/shared classes
-- Files: `system-test/typescript/src/testkit/driver/adapter/external/erp/client/BaseErpClient.ts`, `.../tax/client/BaseTaxClient.ts`.
-- Refactor `ErpRealClient.ts`, `ErpStubClient.ts`, `TaxRealClient.ts`, `TaxStubClient.ts` to extend the base.
-- **Source:** ✅ Port from eshop-tests — `eshop-tests/typescript/driver-adapter/external/erp/client/BaseErpClient.ts` and `.../tax/client/BaseTaxClient.ts` both exist; `ErpRealClient`, `ErpStubClient`, `TaxRealClient`, `TaxStubClient` already extend the base there.
-
 ### B4. TypeScript — expose external client DTOs
 - Files (new): `system-test/typescript/src/testkit/driver/adapter/external/erp/client/dtos/ExtCreateProductRequest.ts`, `ExtProductDetailsResponse.ts`, `ExtGetPromotionResponse.ts`, `error/ExtErpErrorResponse.ts`; `.../clock/client/dtos/ExtGetTimeResponse.ts`, `error/ExtClockErrorResponse.ts`; `.../tax/client/dtos/ExtGetCountryResponse.ts`, `error/ExtTaxErrorResponse.ts`.
 - Replace anonymous inline types in the client code with these explicit DTO types.
 - **Source:** 🟡 Partial — `ExtCreateProductRequest.ts`, `ExtProductDetailsResponse.ts`, `ExtErpErrorResponse.ts`, `ExtGetTimeResponse.ts`, `ExtClockErrorResponse.ts`, `ExtTaxErrorResponse.ts` all exist at `eshop-tests/typescript/driver-adapter/external/{erp,clock,tax}/client/dtos/...` (✅ port); `ExtGetPromotionResponse.ts` is missing (✏️ net-new) and tax has `ExtCountryDetailsResponse.ts` instead of `ExtGetCountryResponse.ts` (rename + adapt).
 
-### B5. TypeScript — add HttpStatus constants
-- File (new): `system-test/typescript/src/testkit/driver/adapter/shared/http/HttpStatus.ts`.
-- Reference: Java `HttpStatus.java`, .NET `HttpStatus.cs`.
-- **Source:** ✅ Port from eshop-tests — `eshop-tests/typescript/driver-adapter/shared/client/http/HttpStatus.ts` exists (note: eshop-tests path is `shared/client/http/` rather than `shared/http/` — adjust or keep closer to eshop-tests layout).
-
-### B6. TypeScript — add PageClient wrapper
-- File (new): `system-test/typescript/src/testkit/driver/adapter/shared/playwright/PageClient.ts`.
-- Reference: Java `PageClient.java`. Keep `withApp.ts` if it's genuinely better; otherwise converge to a common approach. (**Recommended**: consolidate on `PageClient` to match Java/.NET; revisit whether `withApp` helper stays as a test-only fixture.)
-- **Source:** ✅ Port from eshop-tests — `eshop-tests/typescript/driver-adapter/shared/client/playwright/PageClient.ts` exists (eshop-tests path is `shared/client/playwright/`; `withApp.ts` also still present in eshop-tests under `system-test/src/playwright/`).
-
 ### B7. TypeScript — add `SystemErrorMapper`
 - File (new): `system-test/typescript/src/testkit/driver/adapter/shop/api/SystemErrorMapper.ts`.
 - Reference: Java `SystemErrorMapper.java`.
 - **Source:** ✏️ Net-new — `SystemErrorMapper` not present anywhere in `eshop-tests/typescript/` (grep finds zero hits).
-
-### B9. TypeScript — move `ProblemDetailResponse` from port to adapter
-- Current: `system-test/typescript/src/testkit/driver/port/shop/dtos/ProblemDetailResponse.ts`.
-- Move to: `system-test/typescript/src/testkit/driver/adapter/shop/api/client/dtos/errors/ProblemDetailResponse.ts` to match Java/.NET placement.
-- **Source:** ✅ Port from eshop-tests — `eshop-tests/typescript/driver-adapter/shop/api/client/dtos/errors/ProblemDetailResponse.ts` exists at the target location.
-
----
-
-## C. Architecture Layers — Drivers
-
-### C1. TypeScript — add `BaseErpDriver` and `BaseTaxDriver`
-- Files (new): `system-test/typescript/src/testkit/driver/adapter/external/erp/BaseErpDriver.ts`, `.../tax/BaseTaxDriver.ts`.
-- Refactor `ErpRealDriver`/`ErpStubDriver` and `TaxRealDriver`/`TaxStubDriver` to extend the base classes.
-- Reference: Java `BaseErpDriver.java`, `BaseTaxDriver.java`.
-- **Source:** ✅ Port from eshop-tests — `eshop-tests/typescript/driver-adapter/external/erp/BaseErpDriver.ts` and `.../tax/BaseTaxDriver.ts` both exist, and `ErpRealDriver`/`ErpStubDriver`/`TaxRealDriver`/`TaxStubDriver` already extend them.
 
 ---
 
@@ -154,11 +114,6 @@ No changes required (aligned across all three languages).
 - Decision on the TS per-use-case files (`then-place-order.ts`, `then-cancel-order.ts`, `then-publish-coupon.ts`, `then-view-order.ts`, `then-browse-coupons.ts`, `then-contract.ts`): align with Java by removing the per-use-case decomposition and relying on entity-level Then steps.
 - **Source:** ✏️ Net-new — eshop-tests' `dsl-core/scenario/then/` has `ThenGivenClock.ts`, `ThenGivenCountry.ts`, `ThenGivenProduct.ts` (the same "wrong" given-prefixed naming as starter, not the target entity-only naming) plus `ThenFailure*`/`ThenSuccess*` variants that the plan wants removed. No `ThenClock.ts`, `ThenCountry.ts`, `ThenProduct.ts` exist there; eshop-tests' port layer also lacks `ThenStep` bases.
 
-### F4. TypeScript — add `ExecutionResult`, `ExecutionResultBuilder`
-- Files (new): `system-test/typescript/src/testkit/dsl/core/scenario/execution-result.ts`, `execution-result-builder.ts`. Keep `scenario-context.ts` as the ExecutionResultContext analogue.
-- Reference: Java `ExecutionResult.java`, `ExecutionResultBuilder.java`.
-- **Source:** ✅ Port from eshop-tests — `eshop-tests/typescript/dsl-core/scenario/ExecutionResult.ts`, `ExecutionResultBuilder.ts`, `ExecutionResultContext.ts` all exist (note PascalCase filenames in eshop-tests vs kebab-case in starter plan — either convention works; eshop-tests is the more recent reference).
-
 ### F5. TypeScript — add `WhenStep` port base and `GivenStep`/`ThenStep` bases
 - Files: `system-test/typescript/src/testkit/dsl/port/when/steps/base/when-step.ts`, `.../given/steps/base/given-step.ts`, `.../then/steps/base/then-step.ts`.
 - **Source:** ✏️ Net-new — eshop-tests' `dsl-port/scenario/` has only `*StagePort`/`*ResultPort` files; no `WhenStep`/`GivenStep`/`ThenStep` port bases.
@@ -175,23 +130,9 @@ No changes required (aligned across all three languages).
 ### G1. TypeScript — add `Closer` utility — ❌ EXCEPTION (TS-specific)
 - **Decision:** Not ported. Java wraps `AutoCloseable`; TS has no equivalent abstraction. Only `ErpStubClient`/`TaxStubClient` have a `close()` method and callers invoke it directly — no utility needed. The plan itself acknowledged: "JS has native dispose semantics now; consider whether this is still needed."
 
-### G2. TypeScript — add `Converter`
-- File (new): `system-test/typescript/src/testkit/common/converter.ts`.
-- **Source:** ✅ Port from eshop-tests — `eshop-tests/typescript/common/src/Converter.ts` exists.
-
-### G3. TypeScript — add `ResultAssert` / `ResultAssertExtensions`
-- File (new): `system-test/typescript/src/testkit/common/result-assert.ts`.
-- Reference: Java `ResultAssert.java`, .NET `ResultAssertExtensions.cs`.
-- **Source:** ✅ Port from eshop-tests — `eshop-tests/typescript/common/src/ResultAssert.ts` exists (also `ResultPromiseExtensions.ts` for Promise-returning results).
-
 ---
 
 ## H. Architecture Layers — Driver Ports
-
-### H1. TypeScript — add `GetProductRequest`
-- File (new): `system-test/typescript/src/testkit/driver/port/external/erp/dtos/GetProductRequest.ts`.
-- Reference: Java `GetProductRequest.java`.
-- **Source:** ✅ Port from eshop-tests — `eshop-tests/typescript/driver-port/external/erp/dtos/GetProductRequest.ts` exists.
 
 ### H3. TypeScript — add `GetCountryRequest`
 - File (new): `system-test/typescript/src/testkit/driver/port/external/tax/dtos/GetCountryRequest.ts`.
@@ -324,10 +265,6 @@ Covered under A5.
 - Files: `system-test/typescript/tests/legacy/mod05/e2e/place-order-positive-api-test.spec.ts`, `place-order-positive-ui-test.spec.ts`.
 - **Source:** ✏️ Net-new — starter-specific legacy-mod05 test-body restoration.
 
-### P3. TypeScript — add `ShopBaseSmokeTest` abstraction (optional)
-- Currently TS mod05 duplicates the smoke body across api/ui spec files. Consider extracting a helper. **Recommended** lower priority; only after core mismatches are fixed.
-- **Source:** ✅ Port from eshop-tests — `eshop-tests/typescript/system-test/tests/legacy/mod05/smoke/system/ShopBaseSmokeTest.ts` exists and is already used by `shop-api-smoke.spec.ts` / `shop-ui-smoke.spec.ts` there.
-
 ---
 
 ## Q. Legacy Tests — mod06
@@ -447,6 +384,13 @@ Four TypeScript commits landed after this plan was generated. Their impact on pl
   - **Partially resolves Q1** (mod06 e2e positive spec has `orderNumber~/^ORD-/` + `status='PLACED'` via viewOrder; still missing `sku`/`quantity`/`unitPrice`/`totalPrice` assertions and the tax step removal).
   - **O2, O3, O4** unchanged — mod04 api still lacks viewOrder assertions; mod04 UI still uses raw `shopPage.locator(...)` (no `ShopUiClient`); mod04 negative specs not touched.
 
+- **a14a51b** — "Port architecture layers from eshop-tests to TS system-test (Phase 1)"
+  - Structural alignment of TypeScript testkit to Java reference, keeping starter's idioms (raw fetch, functional `Result<T,E>`, no axios/class-Result/decimal.js stack from eshop-tests).
+  - **Fully resolves B1, B2, B3, B5, B6, B9, C1, F4, G2, G3, H1, P3** (all ✅ entries from section X).
+  - **G1 marked as EXCEPTION** — TS has no `AutoCloseable` equivalent; only stub clients have `close()` and callers invoke directly.
+  - Local verification: full latest + full legacy suite run on monolith, both green.
+
 **Net result so far:**
-- ✅ DONE: **A2** (commit e2b660e), **A7** (commit d57c5b3).
+- ✅ DONE: **A2** (e2b660e), **A7** (d57c5b3), **B1 B2 B3 B5 B6 B9 C1 F4 G2 G3 H1 P3** (a14a51b).
+- ❌ EXCEPTION: **G1** (a14a51b — not ported; TS-specific).
 - 🟡 PARTIAL: **A3** (e2b660e), **A4** (42ced1d), **N3** (d57c5b3), **P2** (e2b660e), **Q1** (e2b660e), **R1** (42ced1d).
