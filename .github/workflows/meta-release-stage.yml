@@ -24,7 +24,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  resolve:
+  check:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -134,61 +134,61 @@ jobs:
           done
 
   promote-monolith-java:
-    needs: resolve
+    needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: monolith-java-prod-stage.yml
-          inputs: '{"version": "${{ needs.resolve.outputs.monolith-java-rc }}"}'
+          inputs: '{"version": "${{ needs.check.outputs.monolith-java-rc }}"}'
 
   promote-monolith-dotnet:
-    needs: resolve
+    needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: monolith-dotnet-prod-stage.yml
-          inputs: '{"version": "${{ needs.resolve.outputs.monolith-dotnet-rc }}"}'
+          inputs: '{"version": "${{ needs.check.outputs.monolith-dotnet-rc }}"}'
 
   promote-monolith-typescript:
-    needs: resolve
+    needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: monolith-typescript-prod-stage.yml
-          inputs: '{"version": "${{ needs.resolve.outputs.monolith-typescript-rc }}"}'
+          inputs: '{"version": "${{ needs.check.outputs.monolith-typescript-rc }}"}'
 
   promote-multitier-java:
-    needs: resolve
+    needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: multitier-java-prod-stage.yml
-          inputs: '{"version": "${{ needs.resolve.outputs.multitier-java-rc }}"}'
+          inputs: '{"version": "${{ needs.check.outputs.multitier-java-rc }}"}'
 
   promote-multitier-dotnet:
-    needs: resolve
+    needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: multitier-dotnet-prod-stage.yml
-          inputs: '{"version": "${{ needs.resolve.outputs.multitier-dotnet-rc }}"}'
+          inputs: '{"version": "${{ needs.check.outputs.multitier-dotnet-rc }}"}'
 
   promote-multitier-typescript:
-    needs: resolve
+    needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: multitier-typescript-prod-stage.yml
-          inputs: '{"version": "${{ needs.resolve.outputs.multitier-typescript-rc }}"}'
+          inputs: '{"version": "${{ needs.check.outputs.multitier-typescript-rc }}"}'
 
   tag-meta-release:
-    needs: [resolve, promote-monolith-java, promote-monolith-dotnet, promote-monolith-typescript, promote-multitier-java, promote-multitier-dotnet, promote-multitier-typescript]
+    needs: [check, promote-monolith-java, promote-monolith-dotnet, promote-monolith-typescript, promote-multitier-java, promote-multitier-dotnet, promote-multitier-typescript]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -196,8 +196,8 @@ jobs:
       - name: Create meta release tag
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ needs.resolve.outputs.release_tag }}
-          SHA: ${{ needs.resolve.outputs.sha }}
+          RELEASE_TAG: ${{ needs.check.outputs.release_tag }}
+          SHA: ${{ needs.check.outputs.sha }}
         run: |
           set -euo pipefail
           gh api \
@@ -209,9 +209,9 @@ jobs:
 
       - name: Summary
         env:
-          RC_TAG: ${{ needs.resolve.outputs.meta_rc_tag }}
-          RELEASE_TAG: ${{ needs.resolve.outputs.release_tag }}
-          SHA: ${{ needs.resolve.outputs.sha }}
+          RC_TAG: ${{ needs.check.outputs.meta_rc_tag }}
+          RELEASE_TAG: ${{ needs.check.outputs.release_tag }}
+          SHA: ${{ needs.check.outputs.sha }}
         run: |
           {
             echo "## Meta release promoted"
@@ -225,12 +225,12 @@ jobs:
             echo "### Flavor RCs promoted"
             echo "| Flavor | RC version |"
             echo "|---|---|"
-            echo "| monolith-java | \`${{ needs.resolve.outputs.monolith-java-rc }}\` |"
-            echo "| monolith-dotnet | \`${{ needs.resolve.outputs.monolith-dotnet-rc }}\` |"
-            echo "| monolith-typescript | \`${{ needs.resolve.outputs.monolith-typescript-rc }}\` |"
-            echo "| multitier-java | \`${{ needs.resolve.outputs.multitier-java-rc }}\` |"
-            echo "| multitier-dotnet | \`${{ needs.resolve.outputs.multitier-dotnet-rc }}\` |"
-            echo "| multitier-typescript | \`${{ needs.resolve.outputs.multitier-typescript-rc }}\` |"
+            echo "| monolith-java | \`${{ needs.check.outputs.monolith-java-rc }}\` |"
+            echo "| monolith-dotnet | \`${{ needs.check.outputs.monolith-dotnet-rc }}\` |"
+            echo "| monolith-typescript | \`${{ needs.check.outputs.monolith-typescript-rc }}\` |"
+            echo "| multitier-java | \`${{ needs.check.outputs.multitier-java-rc }}\` |"
+            echo "| multitier-dotnet | \`${{ needs.check.outputs.multitier-dotnet-rc }}\` |"
+            echo "| multitier-typescript | \`${{ needs.check.outputs.multitier-typescript-rc }}\` |"
           } >> "$GITHUB_STEP_SUMMARY"
 
   auto-bump-patch:
