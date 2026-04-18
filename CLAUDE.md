@@ -22,6 +22,8 @@ After compilation passes, run system tests with `-Sample` for each affected lang
 
 This runs one sample test per suite across all test categories (smoke, acceptance, contract, e2e) to catch regressions without running the full suite. All sample tests must pass before committing.
 
+For full-suite runs across all three languages (latest + legacy), use `./Run-AllSystemTests.ps1` from the repo root — see [docs/running-system-tests.md](docs/running-system-tests.md).
+
 ## Fixing Failing Workflows
 
 When fixing a failing CI workflow, always follow this sequence:
