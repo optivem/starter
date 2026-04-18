@@ -1,4 +1,4 @@
-name: verify-multitier-typescript
+name: pipeline-monolith-java
 
 on:
   workflow_dispatch:
@@ -26,13 +26,13 @@ on:
 
 jobs:
   verify:
-    uses: ./.github/workflows/_verify-pipeline.yml
+    uses: ./.github/workflows/_pipeline.yml
     secrets: inherit
     with:
-      prefix: multitier-typescript
-      architecture: multitier
-      language: typescript
-      commit-workflows: '["multitier-backend-typescript-commit-stage.yml", "multitier-frontend-react-commit-stage.yml"]'
+      prefix: monolith-java
+      architecture: monolith
+      language: java
+      commit-workflows: '["monolith-java-commit-stage.yml"]'
       level: ${{ inputs.level || 'release' }}
       skip-local-stage: ${{ inputs.skip-local-stage == true }}
       skip-commit-stage: ${{ inputs.skip-commit-stage == true }}

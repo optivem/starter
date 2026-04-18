@@ -1,4 +1,4 @@
-name: verify-multitier-java
+name: pipeline-multitier-java
 
 on:
   workflow_dispatch:
@@ -26,7 +26,7 @@ on:
 
 jobs:
   verify:
-    uses: ./.github/workflows/_verify-pipeline.yml
+    uses: ./.github/workflows/_pipeline.yml
     secrets: inherit
     with:
       prefix: multitier-java

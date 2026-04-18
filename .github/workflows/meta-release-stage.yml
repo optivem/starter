@@ -1,0 +1,165 @@
+name: meta-release-stage
+
+on:
+  workflow_dispatch:
+    inputs:
+      meta_rc_tag:
+        description: 'Meta-rc tag to promote (e.g. meta-v1.0.14-rc.47). Leave empty to promote latest meta-rc for current VERSION.'
+        required: false
+        default: ''
+        type: string
+      bump:
+        description: 'VERSION bump after promotion'
+        required: false
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: patch
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Resolve meta-rc tag
+        id: rc
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_TAG: ${{ inputs.meta_rc_tag }}
+        run: |
+          set -euo pipefail
+          if [[ -n "${INPUT_TAG}" ]]; then
+            RC_TAG="${INPUT_TAG}"
+            echo "Using provided rc tag: ${RC_TAG}"
+          else
+            VERSION=$(tr -d '[:space:]' < VERSION)
+            echo "VERSION on main: ${VERSION}"
+            # List matching rc tags, pick the one with the highest numeric suffix
+            RC_TAG=$(git tag --list "meta-v${VERSION}-rc.*" \
+              | awk -F'-rc\\.' '{print $2 " " $0}' \
+              | sort -k1,1 -n \
+              | tail -n 1 \
+              | awk '{print $2}')
+            if [[ -z "${RC_TAG}" ]]; then
+              echo "::error::No meta-rc tags found for VERSION ${VERSION}"
+              exit 1
+            fi
+            echo "Resolved latest rc tag: ${RC_TAG}"
+          fi
+          if [[ ! "${RC_TAG}" =~ ^meta-v[0-9]+\.[0-9]+\.[0-9]+-rc\.[0-9]+$ ]]; then
+            echo "::error::Tag ${RC_TAG} does not match pattern meta-v<X.Y.Z>-rc.<N>"
+            exit 1
+          fi
+          echo "rc_tag=${RC_TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Resolve SHA and version
+        id: resolve
+        env:
+          RC_TAG: ${{ steps.rc.outputs.rc_tag }}
+        run: |
+          set -euo pipefail
+          # Ensure tag is fetched
+          git fetch origin "refs/tags/${RC_TAG}:refs/tags/${RC_TAG}" || true
+          SHA=$(git rev-list -n 1 "${RC_TAG}")
+          if [[ -z "${SHA}" ]]; then
+            echo "::error::Could not resolve SHA for tag ${RC_TAG}"
+            exit 1
+          fi
+          # Read VERSION at that SHA (not current main)
+          TAG_VERSION=$(git show "${SHA}:VERSION" | tr -d '[:space:]')
+          # Extract version embedded in the tag name
+          EMBEDDED_VERSION=$(echo "${RC_TAG}" | sed -E 's/^meta-v([0-9]+\.[0-9]+\.[0-9]+)-rc\.[0-9]+$/\1/')
+          if [[ "${TAG_VERSION}" != "${EMBEDDED_VERSION}" ]]; then
+            echo "::error::VERSION at tag SHA (${TAG_VERSION}) does not match version embedded in tag name (${EMBEDDED_VERSION})"
+            exit 1
+          fi
+          RELEASE_TAG="meta-v${TAG_VERSION}"
+          echo "sha=${SHA}" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "release_tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify release tag does not already exist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.resolve.outputs.release_tag }}
+        run: |
+          set -euo pipefail
+          if gh api "repos/${{ github.repository }}/git/refs/tags/${RELEASE_TAG}" >/dev/null 2>&1; then
+            echo "::error::Release tag ${RELEASE_TAG} already exists — cannot overwrite"
+            exit 1
+          fi
+          echo "Release tag ${RELEASE_TAG} is available"
+
+      - name: Create release tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.resolve.outputs.release_tag }}
+          SHA: ${{ steps.resolve.outputs.sha }}
+        run: |
+          set -euo pipefail
+          gh api \
+            --method POST \
+            "repos/${{ github.repository }}/git/refs" \
+            -f ref="refs/tags/${RELEASE_TAG}" \
+            -f sha="${SHA}"
+          echo "Created tag ${RELEASE_TAG} on ${SHA}"
+
+      - name: Bump VERSION on main
+        id: bump
+        env:
+          BUMP: ${{ inputs.bump }}
+        run: |
+          set -euo pipefail
+          # Read current VERSION on main (not at the rc SHA)
+          CURRENT=$(tr -d '[:space:]' < VERSION)
+          IFS='.' read -r MAJOR MINOR PATCH <<< "${CURRENT}"
+          case "${BUMP}" in
+            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+            patch) PATCH=$((PATCH + 1)) ;;
+            *) echo "::error::Invalid bump: ${BUMP}"; exit 1 ;;
+          esac
+          NEW="${MAJOR}.${MINOR}.${PATCH}"
+          echo "${NEW}" > VERSION
+          echo "current=${CURRENT}" >> "$GITHUB_OUTPUT"
+          echo "new=${NEW}" >> "$GITHUB_OUTPUT"
+          echo "Bumped VERSION ${CURRENT} -> ${NEW} (${BUMP})"
+
+      - name: Commit VERSION bump
+        env:
+          NEW: ${{ steps.bump.outputs.new }}
+          CURRENT: ${{ steps.bump.outputs.current }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add VERSION
+          git commit -m "chore: bump VERSION ${CURRENT} -> ${NEW} [skip ci]"
+          git push origin HEAD:main
+
+      - name: Summary
+        env:
+          RC_TAG: ${{ steps.rc.outputs.rc_tag }}
+          RELEASE_TAG: ${{ steps.resolve.outputs.release_tag }}
+          SHA: ${{ steps.resolve.outputs.sha }}
+          OLD: ${{ steps.bump.outputs.current }}
+          NEW: ${{ steps.bump.outputs.new }}
+        run: |
+          {
+            echo "## Meta release promoted"
+            echo ""
+            echo "| Field | Value |"
+            echo "|---|---|"
+            echo "| RC tag | \`${RC_TAG}\` |"
+            echo "| Release tag | \`${RELEASE_TAG}\` |"
+            echo "| SHA | \`${SHA}\` |"
+            echo "| VERSION on main | \`${OLD}\` -> \`${NEW}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
