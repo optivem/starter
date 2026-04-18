@@ -19,6 +19,8 @@ Rationale:
 
 Do not add a matching `then-success-and.ts`. TypeScript's current one-step `.and()` pattern is closer to Java's `ThenStep<TThen>.and()` and is preferred.
 
+VJ: how about in .NET?
+
 ## 2. Architecture — Driver Port / Shop: relocate `SystemError.ts`
 
 Target file:
@@ -37,6 +39,10 @@ Changes:
    - `src/testkit/driver/port/shop/shop-driver.ts`
    - `src/testkit/dsl/core/usecase/shop/ShopDsl.ts`
    - Any other files importing `SystemError` from `dtos/`.
+
+VJ: Yes I agree... 
+VJ: another idea - I'm also thinkign shoult it be called ShopError, maybe create a ticket regarding that rneaming
+
 
 ## 3. Architecture — Use Case DSL: add missing Shop usecases
 
@@ -62,6 +68,8 @@ After adding the files, extend `src/testkit/dsl/core/usecase/shop/ShopDsl.ts` to
 
 Follow the existing TS idioms — functional `Result<T, E>`, `fetch`-based clients — rather than class-based `Result`. Only port the *structure* (usecase names, builder methods, verification API). Reuse existing `ShopDriver` instead of adding a new one.
 
+VJ: Approved
+
 ## 4. Architecture — Use Case DSL: add missing Clock usecases
 
 Target directory: `system-test/typescript/src/testkit/dsl/core/usecase/external/clock/usecases/`
@@ -76,6 +84,9 @@ Add the following 4 files, ported from Java:
 | `GoToClock.ts`           | `.../dsl/core/usecase/external/clock/usecases/GoToClock.java`                                    |
 
 Wire them into `src/testkit/dsl/core/usecase/external/clock/ClockDsl.ts` so consumers can call `app.clock().returnsTime(...)`, `app.clock().getTime()`, `app.clock().goToClock()`.
+
+
+VJ: Approved
 
 ## 5. Architecture — Use Case DSL: add missing ERP usecases
 
@@ -92,6 +103,8 @@ Add the following 4 files, ported from Java:
 
 Wire them into `src/testkit/dsl/core/usecase/external/erp/ErpDsl.ts`. Keep the existing `ReturnsProduct.ts` (already present and aligned).
 
+VJ: Approved
+
 ## 6. Architecture — Use Case DSL: add missing Tax usecases
 
 Target directory: `system-test/typescript/src/testkit/dsl/core/usecase/external/tax/usecases/`
@@ -106,6 +119,7 @@ Add the following 4 files, ported from Java:
 | `GoToTax.ts`            | `.../dsl/core/usecase/external/tax/usecases/GoToTax.java`                                     |
 
 Wire them into `src/testkit/dsl/core/usecase/external/tax/TaxDsl.ts`.
+VJ: Approved
 
 ## 7. Architecture — UseCaseDsl: rename entry-point `useCase` → `app`
 
@@ -119,6 +133,9 @@ Targets:
   Rename `{ useCase }` → `{ app }` and `useCase.shop()...` → `app.shop()...`. Do a repo-wide grep for `{ useCase }` to catch any other consumers.
 
 Java reference: `.../systemtest/legacy/mod07/e2e/PlaceOrderPositiveTest.java` uses `app.erp().returnsProduct()...execute()`.
+
+VJ: Approved
+VJ: also creat e ticket regaridng naming app vs usecase
 
 ## 8. Tests — Latest Acceptance: remove `@time-dependent` tag from `shouldRejectOrderPlacedAtYearEnd`
 
@@ -135,6 +152,8 @@ test('shouldRejectOrderPlacedAtYearEnd', ...)
 ```
 
 Rationale: Java (`PlaceOrderNegativeIsolatedTest.java`) does **not** mark this test `@TimeDependent`; .NET (`PlaceOrderNegativeIsolatedTest.cs`) does **not** mark it `[Time]`. Java is the reference.
+
+VJ: Actually I think in all langauges it should be marked as @TimeDependent/// thoughts?
 
 ## 9. Legacy Tests — mod11 Tax contract trio
 
@@ -171,6 +190,8 @@ Shape:
 - `tax-stub-contract-test.spec.ts`: same but with `'stub'`.
 
 Confirm that `tests/legacy/mod11/contract/base/fixtures.ts` exists and exports a `test` compatible with the `register*ContractTests` function signature. If the mod11 legacy `contract/base/` directory does not yet exist, copy `tests/legacy/mod11/contract/fixtures.ts` (already listed in the tree) or create a `base/` subdirectory mirroring the Java/latest structure.
+
+VJ: This way of handlign base with register, could we do it elsehwere where there were supoosed to be base test clases
 
 ---
 
