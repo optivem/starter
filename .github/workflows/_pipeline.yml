@@ -1,4 +1,4 @@
-name: _verify-pipeline
+name: _pipeline
 
 on:
   workflow_call:

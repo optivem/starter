@@ -1,4 +1,4 @@
-name: verify-multitier-dotnet
+name: pipeline-monolith-dotnet
 
 on:
   workflow_dispatch:
@@ -26,13 +26,13 @@ on:
 
 jobs:
   verify:
-    uses: ./.github/workflows/_verify-pipeline.yml
+    uses: ./.github/workflows/_pipeline.yml
     secrets: inherit
     with:
-      prefix: multitier-dotnet
-      architecture: multitier
+      prefix: monolith-dotnet
+      architecture: monolith
       language: dotnet
-      commit-workflows: '["multitier-backend-dotnet-commit-stage.yml", "multitier-frontend-react-commit-stage.yml"]'
+      commit-workflows: '["monolith-dotnet-commit-stage.yml"]'
       level: ${{ inputs.level || 'release' }}
       skip-local-stage: ${{ inputs.skip-local-stage == true }}
       skip-commit-stage: ${{ inputs.skip-commit-stage == true }}

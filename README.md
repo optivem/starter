@@ -4,20 +4,26 @@ A catalog of project templates organized by two independent dimensions: **system
 
 ## Verification
 
-[![verify-all](https://github.com/optivem/shop/actions/workflows/verify-all.yml/badge.svg)](https://github.com/optivem/shop/actions/workflows/verify-all.yml)
+[![meta-acceptance-stage](https://github.com/optivem/shop/actions/workflows/meta-acceptance-stage.yml/badge.svg)](https://github.com/optivem/shop/actions/workflows/meta-acceptance-stage.yml)
+[![meta-release-stage](https://github.com/optivem/shop/actions/workflows/meta-release-stage.yml/badge.svg)](https://github.com/optivem/shop/actions/workflows/meta-release-stage.yml)
 
-**verify-all** — runs the full pipeline on the shop repo's own templates:
+**meta-acceptance-stage** — runs the full pipeline across all languages and architectures; tags the SHA as `meta-v<VERSION>-rc.<N>` on success.
+**meta-release-stage** — promotes a meta-rc tag to `meta-v<VERSION>` and bumps `VERSION`.
 
-[![verify-monolith-java](https://github.com/optivem/shop/actions/workflows/verify-monolith-java.yml/badge.svg)](https://github.com/optivem/shop/actions/workflows/verify-monolith-java.yml)
-[![verify-monolith-dotnet](https://github.com/optivem/shop/actions/workflows/verify-monolith-dotnet.yml/badge.svg)](https://github.com/optivem/shop/actions/workflows/verify-monolith-dotnet.yml)
-[![verify-monolith-typescript](https://github.com/optivem/shop/actions/workflows/verify-monolith-typescript.yml/badge.svg)](https://github.com/optivem/shop/actions/workflows/verify-monolith-typescript.yml)
-[![verify-multitier-java](https://github.com/optivem/shop/actions/workflows/verify-multitier-java.yml/badge.svg)](https://github.com/optivem/shop/actions/workflows/verify-multitier-java.yml)
-[![verify-multitier-dotnet](https://github.com/optivem/shop/actions/workflows/verify-multitier-dotnet.yml/badge.svg)](https://github.com/optivem/shop/actions/workflows/verify-multitier-dotnet.yml)
-[![verify-multitier-typescript](https://github.com/optivem/shop/actions/workflows/verify-multitier-typescript.yml/badge.svg)](https://github.com/optivem/shop/actions/workflows/verify-multitier-typescript.yml)
+Per-language pipeline drivers (ad-hoc single-language runs):
+
+[![pipeline-monolith-java](https://github.com/optivem/shop/actions/workflows/pipeline-monolith-java.yml/badge.svg)](https://github.com/optivem/shop/actions/workflows/pipeline-monolith-java.yml)
+[![pipeline-monolith-dotnet](https://github.com/optivem/shop/actions/workflows/pipeline-monolith-dotnet.yml/badge.svg)](https://github.com/optivem/shop/actions/workflows/pipeline-monolith-dotnet.yml)
+[![pipeline-monolith-typescript](https://github.com/optivem/shop/actions/workflows/pipeline-monolith-typescript.yml/badge.svg)](https://github.com/optivem/shop/actions/workflows/pipeline-monolith-typescript.yml)
+[![pipeline-multitier-java](https://github.com/optivem/shop/actions/workflows/pipeline-multitier-java.yml/badge.svg)](https://github.com/optivem/shop/actions/workflows/pipeline-multitier-java.yml)
+[![pipeline-multitier-dotnet](https://github.com/optivem/shop/actions/workflows/pipeline-multitier-dotnet.yml/badge.svg)](https://github.com/optivem/shop/actions/workflows/pipeline-multitier-dotnet.yml)
+[![pipeline-multitier-typescript](https://github.com/optivem/shop/actions/workflows/pipeline-multitier-typescript.yml/badge.svg)](https://github.com/optivem/shop/actions/workflows/pipeline-multitier-typescript.yml)
 
 ## Cleanup
 
-[![cleanup-prereleases](https://github.com/optivem/shop/actions/workflows/cleanup-prereleases.yml/badge.svg)](https://github.com/optivem/shop/actions/workflows/cleanup-prereleases.yml)
+[![cleanup](https://github.com/optivem/shop/actions/workflows/cleanup.yml/badge.svg)](https://github.com/optivem/shop/actions/workflows/cleanup.yml)
+
+Daily cleanup (23:00 UTC) of superseded deployments, prerelease git tags, GitHub releases, and Docker image tags.
 
 ## Architecture
 

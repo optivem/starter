@@ -1,4 +1,4 @@
-name: verify-monolith-java
+name: pipeline-monolith-typescript
 
 on:
   workflow_dispatch:
@@ -26,13 +26,13 @@ on:
 
 jobs:
   verify:
-    uses: ./.github/workflows/_verify-pipeline.yml
+    uses: ./.github/workflows/_pipeline.yml
     secrets: inherit
     with:
-      prefix: monolith-java
+      prefix: monolith-typescript
       architecture: monolith
-      language: java
-      commit-workflows: '["monolith-java-commit-stage.yml"]'
+      language: typescript
+      commit-workflows: '["monolith-typescript-commit-stage.yml"]'
       level: ${{ inputs.level || 'release' }}
       skip-local-stage: ${{ inputs.skip-local-stage == true }}
       skip-commit-stage: ${{ inputs.skip-commit-stage == true }}
