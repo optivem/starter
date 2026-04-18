@@ -30,10 +30,11 @@ jobs:
           echo "Level: ${{ inputs.level || 'qa' }}"
           echo "Triggered by: ${{ github.event_name }} ${{ github.event.schedule }}"
 
-  # Fail fast if VERSION has already been used as a final release by meta
-  # or by any of the six pipelines. Catches the case where VERSION wasn't
-  # bumped after the previous release — otherwise we'd only discover it
-  # deep into the downstream pipeline acceptance stages.
+  # Fail fast if any VERSION file's version has already been used as a final
+  # release by meta, any pipeline, or any per-stack artifact. Mirrors the
+  # VERSION → prefix mapping in bump-versions.yml so every tag that auto-bump
+  # would touch is checked — otherwise we'd only discover it deep into the
+  # downstream pipeline acceptance stages.
   check-version:
     needs: print-inputs
     runs-on: ubuntu-latest
@@ -43,28 +44,39 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - name: Check version not already released
+      - name: Check versions not already released
         shell: bash
         run: |
           set -euo pipefail
-          VERSION=$(tr -d '[:space:]' < VERSION)
 
-          TAGS_TO_CHECK=(
-            "v${VERSION}"
-            "meta-v${VERSION}"
-            "monolith-java-v${VERSION}"
-            "monolith-dotnet-v${VERSION}"
-            "monolith-typescript-v${VERSION}"
-            "multitier-java-v${VERSION}"
-            "multitier-dotnet-v${VERSION}"
-            "multitier-typescript-v${VERSION}"
+          # "<file> <prefix> [<prefix>...]" — matches bump-versions.yml mapping.
+          # Prefixes include their trailing "v" (e.g. "meta-v" → tag "meta-v1.0.21").
+          mapping=(
+            "VERSION v meta-v monolith-java-v monolith-dotnet-v monolith-typescript-v multitier-java-v multitier-dotnet-v multitier-typescript-v"
+            "system/monolith/dotnet/VERSION monolith-dotnet-v meta-v"
+            "system/monolith/java/VERSION monolith-java-v meta-v"
+            "system/monolith/typescript/VERSION monolith-typescript-v meta-v"
+            "system/multitier/backend-dotnet/VERSION multitier-backend-dotnet-v multitier-dotnet-v meta-v"
+            "system/multitier/backend-java/VERSION multitier-backend-java-v multitier-java-v meta-v"
+            "system/multitier/backend-typescript/VERSION multitier-backend-typescript-v multitier-typescript-v meta-v"
+            "system/multitier/frontend-react/VERSION multitier-frontend-react-v multitier-java-v multitier-dotnet-v multitier-typescript-v meta-v"
           )
 
+          declare -A SEEN
           FOUND=()
-          for tag in "${TAGS_TO_CHECK[@]}"; do
-            if git tag -l "$tag" | grep -qx "$tag"; then
-              FOUND+=("$tag")
-            fi
+          for entry in "${mapping[@]}"; do
+            read -ra parts <<< "$entry"
+            file="${parts[0]}"
+            version=$(tr -d '[:space:]' < "$file")
+            for ((i=1; i<${#parts[@]}; i++)); do
+              prefix="${parts[$i]}"
+              tag="${prefix}${version}"
+              [[ -n "${SEEN[$tag]:-}" ]] && continue
+              SEEN[$tag]=1
+              if git tag -l "$tag" | grep -qx "$tag"; then
+                FOUND+=("$tag (from $file)")
+              fi
+            done
           done
 
           if [[ ${#FOUND[@]} -gt 0 ]]; then
@@ -72,14 +84,16 @@ jobs:
             {
               echo "## Version already released"
               echo ""
-              echo "Version \`${VERSION}\` is already used as a final release by: ${FOUND[*]}."
+              echo "The following tags already exist as final releases:"
               echo ""
-              echo "Run the [auto-bump-patch workflow](${BUMP_URL}) to bump VERSION, then re-run this workflow."
+              for item in "${FOUND[@]}"; do echo "- \`${item}\`"; done
+              echo ""
+              echo "Run the [auto-bump-patch workflow](${BUMP_URL}) to bump VERSION files, then re-run this workflow."
             } >> "$GITHUB_STEP_SUMMARY"
-            echo "::error::Version ${VERSION} is already used as a final release by: ${FOUND[*]}. Run the auto-bump-patch workflow to bump VERSION, then re-run this workflow: ${BUMP_URL}"
+            echo "::error::Version already released: ${FOUND[*]}. Run the auto-bump-patch workflow to bump VERSION files, then re-run this workflow: ${BUMP_URL}"
             exit 1
           fi
-          echo "Version ${VERSION} is available across meta and all pipelines. OK to proceed."
+          echo "All version tags available across meta and all pipelines. OK to proceed."
 
   # Phase 0: Run all local stages in parallel
   local-monolith-java:

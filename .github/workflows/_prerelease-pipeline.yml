@@ -37,8 +37,28 @@ on:
         default: 'qa'
 
 jobs:
+  # Early fail-fast: catch the case where <prefix>-v<VERSION> has been tagged
+  # since the meta check-version ran (TOCTOU), or when this pipeline is
+  # triggered directly outside of meta. Without this, a released version
+  # only gets detected ~20 min later at acceptance-stage.
+  check-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Check Version Unreleased
+        uses: optivem/actions/check-version-unreleased@v1
+        with:
+          prefix: ${{ inputs.prefix }}
+
   local:
-    if: ${{ !inputs.skip-local-stage }}
+    needs: check-version
+    if: ${{ !inputs.skip-local-stage && needs.check-version.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -129,8 +149,8 @@ jobs:
         working-directory: system-test/${{ inputs.language }}
 
   commit-stage:
-    needs: local
-    if: ${{ always() && inputs.level != 'local' && !inputs.skip-commit-stage && (inputs.skip-local-stage || needs.local.result == 'success') }}
+    needs: [check-version, local]
+    if: ${{ always() && inputs.level != 'local' && !inputs.skip-commit-stage && needs.check-version.result == 'success' && (inputs.skip-local-stage || needs.local.result == 'success') }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -142,8 +162,8 @@ jobs:
           workflow: ${{ matrix.workflow }}
 
   acceptance-stage:
-    needs: [local, commit-stage]
-    if: ${{ always() && inputs.level != 'local' && inputs.level != 'commit' && (inputs.skip-local-stage || needs.local.result == 'success') && (inputs.skip-commit-stage || needs.commit-stage.result == 'success') }}
+    needs: [check-version, local, commit-stage]
+    if: ${{ always() && inputs.level != 'local' && inputs.level != 'commit' && needs.check-version.result == 'success' && (inputs.skip-local-stage || needs.local.result == 'success') && (inputs.skip-commit-stage || needs.commit-stage.result == 'success') }}
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get-version.outputs.tag }}
