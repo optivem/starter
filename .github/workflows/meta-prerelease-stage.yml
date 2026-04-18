@@ -2,7 +2,7 @@ name: meta-prerelease-stage
 
 on:
   schedule:
-    - cron: '0 1 * * *'  # Nightly at 01:00 UTC
+    - cron: '0 */6 * * *'  # Every 6 hours
   workflow_dispatch:
     inputs:
       level:
@@ -266,18 +266,15 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Tag meta-rc
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           VERSION=$(tr -d '[:space:]' < VERSION)
           TAG="meta-v${VERSION}-rc.${{ github.run_number }}"
           echo "Creating tag ${TAG} on ${{ github.sha }}"
-          gh api \
-            --method POST \
-            "repos/${{ github.repository }}/git/refs" \
-            -f ref="refs/tags/${TAG}" \
-            -f sha="${{ github.sha }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "$TAG" "${{ github.sha }}"
+          git push origin "$TAG"
           echo "Tagged ${{ github.sha }} as ${TAG}"
