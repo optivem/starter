@@ -104,7 +104,7 @@ jobs:
           RELEASE_TAG: ${{ steps.resolve.outputs.release_tag }}
         run: |
           set -euo pipefail
-          if gh api "repos/${{ github.repository }}/git/refs/tags/${RELEASE_TAG}" >/dev/null 2>&1; then
+          if gh api "repos/${{ github.repository }}/git/ref/tags/${RELEASE_TAG}" >/dev/null 2>&1; then
             echo "::error::Release tag ${RELEASE_TAG} already exists — cannot overwrite"
             exit 1
           fi
