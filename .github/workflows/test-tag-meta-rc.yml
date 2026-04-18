@@ -1,0 +1,33 @@
+name: test-tag-meta-rc
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-tag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create and push test tag (git push approach)
+        run: |
+          set -euo pipefail
+          TAG="test-tag-meta-rc-${{ github.run_number }}-$(date +%s)"
+          echo "Creating tag ${TAG} on ${{ github.sha }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "$TAG" "${{ github.sha }}"
+          git push origin "$TAG"
+          echo "Tagged ${{ github.sha }} as ${TAG}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+        id: git-push-tag
+
+      - name: Delete test tag (cleanup)
+        if: always() && steps.git-push-tag.outputs.tag != ''
+        run: |
+          set -euo pipefail
+          TAG="${{ steps.git-push-tag.outputs.tag }}"
+          git push origin ":refs/tags/${TAG}"
+          echo "Deleted ${TAG}"
