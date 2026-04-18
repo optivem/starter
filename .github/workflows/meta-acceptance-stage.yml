@@ -5,25 +5,16 @@ on:
     - cron: '0 1 * * *'  # Nightly at 01:00 UTC
   workflow_dispatch:
     inputs:
-      language:
-        description: 'Language to verify (java, dotnet, typescript). Leave empty to run all.'
+      level:
+        description: 'Verification level'
         required: false
-        default: ''
         type: choice
         options:
-          - ''
-          - java
-          - dotnet
-          - typescript
-      architecture:
-        description: 'Architecture to verify (monolith, multitier). Leave empty to run all.'
-        required: false
-        default: ''
-        type: choice
-        options:
-          - ''
-          - monolith
-          - multitier
+          - local
+          - commit
+          - acceptance
+          - release
+        default: 'release'
 
 jobs:
   print-inputs:
@@ -32,14 +23,12 @@ jobs:
       - name: Print input parameters
         run: |
           echo "=== Workflow Inputs ==="
-          echo "Language: ${{ inputs.language || 'all (default)' }}"
-          echo "Architecture: ${{ inputs.architecture || 'all (default)' }}"
+          echo "Level: ${{ inputs.level || 'release' }}"
           echo "Triggered by: ${{ github.event_name }} ${{ github.event.schedule }}"
 
   # Phase 0: Run all local stages in parallel
   local-monolith-java:
     needs: print-inputs
-    if: ${{ (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -49,7 +38,6 @@ jobs:
 
   local-monolith-dotnet:
     needs: print-inputs
-    if: ${{ (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -59,7 +47,6 @@ jobs:
 
   local-monolith-typescript:
     needs: print-inputs
-    if: ${{ (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -69,7 +56,6 @@ jobs:
 
   local-multitier-java:
     needs: print-inputs
-    if: ${{ (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -79,7 +65,6 @@ jobs:
 
   local-multitier-dotnet:
     needs: print-inputs
-    if: ${{ (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -89,7 +74,6 @@ jobs:
 
   local-multitier-typescript:
     needs: print-inputs
-    if: ${{ (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -100,7 +84,7 @@ jobs:
   # Phase 1: Run all commit stages in parallel (deduplicated)
   commit-monolith-java:
     needs: [local-monolith-java, local-monolith-dotnet, local-monolith-typescript, local-multitier-java, local-multitier-dotnet, local-multitier-typescript]
-    if: ${{ always() && !failure() && (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
+    if: ${{ contains(fromJSON('["commit","acceptance","release"]'), inputs.level || 'release') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -109,7 +93,7 @@ jobs:
 
   commit-monolith-dotnet:
     needs: [local-monolith-java, local-monolith-dotnet, local-monolith-typescript, local-multitier-java, local-multitier-dotnet, local-multitier-typescript]
-    if: ${{ always() && !failure() && (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
+    if: ${{ contains(fromJSON('["commit","acceptance","release"]'), inputs.level || 'release') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -118,7 +102,7 @@ jobs:
 
   commit-monolith-typescript:
     needs: [local-monolith-java, local-monolith-dotnet, local-monolith-typescript, local-multitier-java, local-multitier-dotnet, local-multitier-typescript]
-    if: ${{ always() && !failure() && (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
+    if: ${{ contains(fromJSON('["commit","acceptance","release"]'), inputs.level || 'release') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -127,7 +111,7 @@ jobs:
 
   commit-multitier-backend-java:
     needs: [local-monolith-java, local-monolith-dotnet, local-monolith-typescript, local-multitier-java, local-multitier-dotnet, local-multitier-typescript]
-    if: ${{ always() && !failure() && (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
+    if: ${{ contains(fromJSON('["commit","acceptance","release"]'), inputs.level || 'release') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -136,7 +120,7 @@ jobs:
 
   commit-multitier-backend-dotnet:
     needs: [local-monolith-java, local-monolith-dotnet, local-monolith-typescript, local-multitier-java, local-multitier-dotnet, local-multitier-typescript]
-    if: ${{ always() && !failure() && (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
+    if: ${{ contains(fromJSON('["commit","acceptance","release"]'), inputs.level || 'release') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -145,7 +129,7 @@ jobs:
 
   commit-multitier-backend-typescript:
     needs: [local-monolith-java, local-monolith-dotnet, local-monolith-typescript, local-multitier-java, local-multitier-dotnet, local-multitier-typescript]
-    if: ${{ always() && !failure() && (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
+    if: ${{ contains(fromJSON('["commit","acceptance","release"]'), inputs.level || 'release') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -154,79 +138,78 @@ jobs:
 
   commit-multitier-frontend-react:
     needs: [local-monolith-java, local-monolith-dotnet, local-monolith-typescript, local-multitier-java, local-multitier-dotnet, local-multitier-typescript]
-    if: ${{ always() && !failure() && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
+    if: ${{ contains(fromJSON('["commit","acceptance","release"]'), inputs.level || 'release') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: multitier-frontend-react-commit-stage.yml
 
-  # Phase 2: Run pipelines through release sequentially (to avoid RC version race conditions)
+  # Phase 2: Run pipelines through the requested level sequentially (to avoid RC version race conditions)
   monolith-java:
     needs: [commit-monolith-java, commit-monolith-dotnet, commit-monolith-typescript, commit-multitier-backend-java, commit-multitier-backend-dotnet, commit-multitier-backend-typescript, commit-multitier-frontend-react]
-    if: ${{ always() && !failure() && (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
+    if: ${{ always() && !failure() && !cancelled() && contains(fromJSON('["acceptance","release"]'), inputs.level || 'release') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: pipeline-monolith-java.yml
-          inputs: '{"level": "release", "skip-local-stage": "true", "skip-commit-stage": "true"}'
+          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-local-stage": "true", "skip-commit-stage": "true"}'
 
   monolith-dotnet:
     needs: [monolith-java]
-    if: ${{ always() && !failure() && (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
+    if: ${{ always() && !failure() && !cancelled() && contains(fromJSON('["acceptance","release"]'), inputs.level || 'release') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: pipeline-monolith-dotnet.yml
-          inputs: '{"level": "release", "skip-local-stage": "true", "skip-commit-stage": "true"}'
+          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-local-stage": "true", "skip-commit-stage": "true"}'
 
   monolith-typescript:
     needs: [monolith-dotnet]
-    if: ${{ always() && !failure() && (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'monolith') }}
+    if: ${{ always() && !failure() && !cancelled() && contains(fromJSON('["acceptance","release"]'), inputs.level || 'release') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: pipeline-monolith-typescript.yml
-          inputs: '{"level": "release", "skip-local-stage": "true", "skip-commit-stage": "true"}'
+          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-local-stage": "true", "skip-commit-stage": "true"}'
 
   multitier-java:
     needs: [monolith-typescript]
-    if: ${{ always() && !failure() && (inputs.language == '' || inputs.language == 'java') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
+    if: ${{ always() && !failure() && !cancelled() && contains(fromJSON('["acceptance","release"]'), inputs.level || 'release') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: pipeline-multitier-java.yml
-          inputs: '{"level": "release", "skip-local-stage": "true", "skip-commit-stage": "true"}'
+          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-local-stage": "true", "skip-commit-stage": "true"}'
 
   multitier-dotnet:
     needs: [multitier-java]
-    if: ${{ always() && !failure() && (inputs.language == '' || inputs.language == 'dotnet') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
+    if: ${{ always() && !failure() && !cancelled() && contains(fromJSON('["acceptance","release"]'), inputs.level || 'release') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: pipeline-multitier-dotnet.yml
-          inputs: '{"level": "release", "skip-local-stage": "true", "skip-commit-stage": "true"}'
+          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-local-stage": "true", "skip-commit-stage": "true"}'
 
   multitier-typescript:
     needs: [multitier-dotnet]
-    if: ${{ always() && !failure() && (inputs.language == '' || inputs.language == 'typescript') && (inputs.architecture == '' || inputs.architecture == 'multitier') }}
+    if: ${{ always() && !failure() && !cancelled() && contains(fromJSON('["acceptance","release"]'), inputs.level || 'release') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: pipeline-multitier-typescript.yml
-          inputs: '{"level": "release", "skip-local-stage": "true", "skip-commit-stage": "true"}'
+          inputs: '{"level": "${{ inputs.level || ''release'' }}", "skip-local-stage": "true", "skip-commit-stage": "true"}'
 
-  # Final: tag SHA as meta-rc only when all 6 language×architecture combos passed
-  # Skipped when language or architecture is filtered (partial run)
+  # Final: tag SHA as meta-rc — only when level is release and all 6 language×architecture combos passed
   tag-meta-rc:
     needs: [monolith-java, monolith-dotnet, monolith-typescript, multitier-java, multitier-dotnet, multitier-typescript]
-    if: ${{ success() && inputs.language == '' && inputs.architecture == '' }}
+    if: ${{ success() && (inputs.level || 'release') == 'release' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
