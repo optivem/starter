@@ -52,6 +52,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Generate Release Version
+        id: release-version
+        uses: optivem/actions/generate-release-version@v1
+        with:
+          prerelease-version: ${{ inputs.version }}
+
+      - name: Verify Release Does Not Exist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_VERSION: ${{ steps.release-version.outputs.version }}
+        shell: bash
+        run: |
+          if gh release view "$RELEASE_VERSION" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "::error::Release $RELEASE_VERSION already exists — cannot release again. Bump the VERSION file and create a new RC."
+            exit 1
+          fi
+          echo "Release $RELEASE_VERSION does not exist — OK to proceed"
+
       - name: Resolve Artifacts
         id: resolve-images
         uses: optivem/actions/resolve-docker-images@v1

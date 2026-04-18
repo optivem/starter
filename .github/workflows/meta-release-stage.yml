@@ -194,6 +194,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - name: Create meta release tag
         env:
           RELEASE_TAG: ${{ needs.check.outputs.release_tag }}

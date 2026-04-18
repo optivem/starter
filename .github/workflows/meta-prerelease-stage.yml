@@ -282,3 +282,10 @@ jobs:
           git tag "$TAG" "${{ github.sha }}"
           git push origin "$TAG"
           echo "Tagged ${{ github.sha }} as ${TAG}"
+          TAG_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
+          {
+            echo "## Meta RC tagged"
+            echo ""
+            echo "- Tag: [\`${TAG}\`](${TAG_URL})"
+            echo "- Commit: [\`${GITHUB_SHA::7}\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA})"
+          } >> "$GITHUB_STEP_SUMMARY"
