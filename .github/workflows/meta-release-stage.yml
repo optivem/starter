@@ -64,7 +64,15 @@ jobs:
               | tail -n 1 \
               | awk '{print $2}')
             if [[ -z "${RC_TAG}" ]]; then
-              echo "::error::No meta-rc tags found for VERSION ${VERSION}"
+              PRERELEASE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/workflows/meta-prerelease-stage.yml"
+              {
+                echo "## No meta-rc to promote"
+                echo ""
+                echo "VERSION on main is \`${VERSION}\` but no \`meta-v${VERSION}-rc.*\` tags exist yet."
+                echo ""
+                echo "Run the [meta-prerelease-stage workflow](${PRERELEASE_URL}) to build an RC for this version, then re-run this workflow."
+              } >> "$GITHUB_STEP_SUMMARY"
+              echo "::error::No meta-rc tags found for VERSION ${VERSION}. Run meta-prerelease-stage first to build an RC: ${PRERELEASE_URL}"
               exit 1
             fi
             echo "Resolved latest rc tag: ${RC_TAG}"
