@@ -26,9 +26,52 @@ jobs:
           echo "Level: ${{ inputs.level || 'release' }}"
           echo "Triggered by: ${{ github.event_name }} ${{ github.event.schedule }}"
 
+  # Fail fast if VERSION has already been used as a final release by meta
+  # or by any of the six pipelines. Catches the case where VERSION wasn't
+  # bumped after the previous release — otherwise we'd only discover it
+  # deep into the downstream pipeline acceptance stages.
+  check-version:
+    needs: print-inputs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Check version not already released
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(tr -d '[:space:]' < VERSION)
+
+          TAGS_TO_CHECK=(
+            "v${VERSION}"
+            "meta-v${VERSION}"
+            "monolith-java-v${VERSION}"
+            "monolith-dotnet-v${VERSION}"
+            "monolith-typescript-v${VERSION}"
+            "multitier-java-v${VERSION}"
+            "multitier-dotnet-v${VERSION}"
+            "multitier-typescript-v${VERSION}"
+          )
+
+          FOUND=()
+          for tag in "${TAGS_TO_CHECK[@]}"; do
+            if git tag -l "$tag" | grep -qx "$tag"; then
+              FOUND+=("$tag")
+            fi
+          done
+
+          if [[ ${#FOUND[@]} -gt 0 ]]; then
+            echo "::error::Version ${VERSION} is already used as a final release by: ${FOUND[*]}. Bump VERSION before re-running."
+            exit 1
+          fi
+          echo "Version ${VERSION} is available across meta and all pipelines. OK to proceed."
+
   # Phase 0: Run all local stages in parallel
   local-monolith-java:
-    needs: print-inputs
+    needs: check-version
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -37,7 +80,7 @@ jobs:
           inputs: '{"level": "local", "skip-commit-stage": "true"}'
 
   local-monolith-dotnet:
-    needs: print-inputs
+    needs: check-version
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -46,7 +89,7 @@ jobs:
           inputs: '{"level": "local", "skip-commit-stage": "true"}'
 
   local-monolith-typescript:
-    needs: print-inputs
+    needs: check-version
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -55,7 +98,7 @@ jobs:
           inputs: '{"level": "local", "skip-commit-stage": "true"}'
 
   local-multitier-java:
-    needs: print-inputs
+    needs: check-version
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -64,7 +107,7 @@ jobs:
           inputs: '{"level": "local", "skip-commit-stage": "true"}'
 
   local-multitier-dotnet:
-    needs: print-inputs
+    needs: check-version
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
@@ -73,7 +116,7 @@ jobs:
           inputs: '{"level": "local", "skip-commit-stage": "true"}'
 
   local-multitier-typescript:
-    needs: print-inputs
+    needs: check-version
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
