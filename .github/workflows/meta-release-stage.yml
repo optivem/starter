@@ -196,6 +196,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          token: ${{ secrets.VERIFY_TOKEN }}
       - name: Create meta release tag
         env:
           RELEASE_TAG: ${{ needs.check.outputs.release_tag }}
@@ -214,25 +215,33 @@ jobs:
           RC_TAG: ${{ needs.check.outputs.meta_rc_tag }}
           RELEASE_TAG: ${{ needs.check.outputs.release_tag }}
           SHA: ${{ needs.check.outputs.sha }}
+          MONOLITH_JAVA_RC: ${{ needs.check.outputs.monolith-java-rc }}
+          MONOLITH_DOTNET_RC: ${{ needs.check.outputs.monolith-dotnet-rc }}
+          MONOLITH_TYPESCRIPT_RC: ${{ needs.check.outputs.monolith-typescript-rc }}
+          MULTITIER_JAVA_RC: ${{ needs.check.outputs.multitier-java-rc }}
+          MULTITIER_DOTNET_RC: ${{ needs.check.outputs.multitier-dotnet-rc }}
+          MULTITIER_TYPESCRIPT_RC: ${{ needs.check.outputs.multitier-typescript-rc }}
         run: |
+          BASE="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
+          tag_link() { echo "[\`$1\`](${BASE}/releases/tag/$1)"; }
           {
             echo "## Meta release promoted"
             echo ""
             echo "| Field | Value |"
             echo "|---|---|"
-            echo "| RC tag | \`${RC_TAG}\` |"
-            echo "| Release tag | \`${RELEASE_TAG}\` |"
-            echo "| SHA | \`${SHA}\` |"
+            echo "| RC tag | $(tag_link "${RC_TAG}") |"
+            echo "| Release tag | $(tag_link "${RELEASE_TAG}") |"
+            echo "| Commit | [\`${SHA::7}\`](${BASE}/commit/${SHA}) |"
             echo ""
             echo "### Flavor RCs promoted"
             echo "| Flavor | RC version |"
             echo "|---|---|"
-            echo "| monolith-java | \`${{ needs.check.outputs.monolith-java-rc }}\` |"
-            echo "| monolith-dotnet | \`${{ needs.check.outputs.monolith-dotnet-rc }}\` |"
-            echo "| monolith-typescript | \`${{ needs.check.outputs.monolith-typescript-rc }}\` |"
-            echo "| multitier-java | \`${{ needs.check.outputs.multitier-java-rc }}\` |"
-            echo "| multitier-dotnet | \`${{ needs.check.outputs.multitier-dotnet-rc }}\` |"
-            echo "| multitier-typescript | \`${{ needs.check.outputs.multitier-typescript-rc }}\` |"
+            echo "| monolith-java | $(tag_link "${MONOLITH_JAVA_RC}") |"
+            echo "| monolith-dotnet | $(tag_link "${MONOLITH_DOTNET_RC}") |"
+            echo "| monolith-typescript | $(tag_link "${MONOLITH_TYPESCRIPT_RC}") |"
+            echo "| multitier-java | $(tag_link "${MULTITIER_JAVA_RC}") |"
+            echo "| multitier-dotnet | $(tag_link "${MULTITIER_DOTNET_RC}") |"
+            echo "| multitier-typescript | $(tag_link "${MULTITIER_TYPESCRIPT_RC}") |"
           } >> "$GITHUB_STEP_SUMMARY"
 
   auto-bump-patch:

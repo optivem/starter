@@ -271,6 +271,8 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.VERIFY_TOKEN }}
       - name: Tag meta-rc
         run: |
           set -euo pipefail
