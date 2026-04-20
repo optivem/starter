@@ -1,5 +1,7 @@
 # Shop
 
+[![Latest release](https://img.shields.io/github/v/release/optivem/shop?label=release)](https://github.com/optivem/shop/releases/latest)
+
 A catalog of project templates organized by two independent dimensions: **system** (the application) and **system-test** (the test harness). Each template is self-contained and copy-paste-ready.
 
 ## Verification
