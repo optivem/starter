@@ -19,8 +19,12 @@ on:
         default: ''
         type: string
 
+concurrency:
+  group: meta-release-stage
+  cancel-in-progress: false
+
 jobs:
-  resolve:
+  check:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -60,7 +64,15 @@ jobs:
               | tail -n 1 \
               | awk '{print $2}')
             if [[ -z "${RC_TAG}" ]]; then
-              echo "::error::No meta-rc tags found for VERSION ${VERSION}"
+              PRERELEASE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/workflows/meta-prerelease-stage.yml"
+              {
+                echo "## No meta-rc to promote"
+                echo ""
+                echo "VERSION on main is \`${VERSION}\` but no \`meta-v${VERSION}-rc.*\` tags exist yet."
+                echo ""
+                echo "Run the [meta-prerelease-stage workflow](${PRERELEASE_URL}) to build an RC for this version, then re-run this workflow."
+              } >> "$GITHUB_STEP_SUMMARY"
+              echo "::error::No meta-rc tags found for VERSION ${VERSION}. Run meta-prerelease-stage first to build an RC: ${PRERELEASE_URL}"
               exit 1
             fi
             echo "Resolved latest rc tag: ${RC_TAG}"
@@ -100,7 +112,7 @@ jobs:
           RELEASE_TAG: ${{ steps.resolve.outputs.release_tag }}
         run: |
           set -euo pipefail
-          if gh api "repos/${{ github.repository }}/git/refs/tags/${RELEASE_TAG}" >/dev/null 2>&1; then
+          if gh api "repos/${{ github.repository }}/git/ref/tags/${RELEASE_TAG}" >/dev/null 2>&1; then
             echo "::error::Release tag ${RELEASE_TAG} already exists — cannot overwrite"
             exit 1
           fi
@@ -130,103 +142,121 @@ jobs:
           done
 
   promote-monolith-java:
-    needs: resolve
+    needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: monolith-java-prod-stage.yml
-          inputs: '{"version": "${{ needs.resolve.outputs.monolith-java-rc }}"}'
+          inputs: '{"version": "${{ needs.check.outputs.monolith-java-rc }}"}'
 
   promote-monolith-dotnet:
-    needs: resolve
+    needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: monolith-dotnet-prod-stage.yml
-          inputs: '{"version": "${{ needs.resolve.outputs.monolith-dotnet-rc }}"}'
+          inputs: '{"version": "${{ needs.check.outputs.monolith-dotnet-rc }}"}'
 
   promote-monolith-typescript:
-    needs: resolve
+    needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: monolith-typescript-prod-stage.yml
-          inputs: '{"version": "${{ needs.resolve.outputs.monolith-typescript-rc }}"}'
+          inputs: '{"version": "${{ needs.check.outputs.monolith-typescript-rc }}"}'
 
   promote-multitier-java:
-    needs: resolve
+    needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: multitier-java-prod-stage.yml
-          inputs: '{"version": "${{ needs.resolve.outputs.multitier-java-rc }}"}'
+          inputs: '{"version": "${{ needs.check.outputs.multitier-java-rc }}"}'
 
   promote-multitier-dotnet:
-    needs: resolve
+    needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: multitier-dotnet-prod-stage.yml
-          inputs: '{"version": "${{ needs.resolve.outputs.multitier-dotnet-rc }}"}'
+          inputs: '{"version": "${{ needs.check.outputs.multitier-dotnet-rc }}"}'
 
   promote-multitier-typescript:
-    needs: resolve
+    needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait@main
         with:
           workflow: multitier-typescript-prod-stage.yml
-          inputs: '{"version": "${{ needs.resolve.outputs.multitier-typescript-rc }}"}'
+          inputs: '{"version": "${{ needs.check.outputs.multitier-typescript-rc }}"}'
 
   tag-meta-release:
-    needs: [resolve, promote-monolith-java, promote-monolith-dotnet, promote-monolith-typescript, promote-multitier-java, promote-multitier-dotnet, promote-multitier-typescript]
+    needs: [check, promote-monolith-java, promote-monolith-dotnet, promote-monolith-typescript, promote-multitier-java, promote-multitier-dotnet, promote-multitier-typescript]
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - name: Create meta release tag
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.VERIFY_TOKEN }}
+      - name: Create meta release tag and GitHub release
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ needs.resolve.outputs.release_tag }}
-          SHA: ${{ needs.resolve.outputs.sha }}
+          GH_TOKEN: ${{ secrets.VERIFY_TOKEN }}
+          RELEASE_TAG: ${{ needs.check.outputs.release_tag }}
+          SHA: ${{ needs.check.outputs.sha }}
         run: |
           set -euo pipefail
-          gh api \
-            --method POST \
-            "repos/${{ github.repository }}/git/refs" \
-            -f ref="refs/tags/${RELEASE_TAG}" \
-            -f sha="${SHA}"
-          echo "Created tag ${RELEASE_TAG} on ${SHA}"
+          echo "Creating tag ${RELEASE_TAG} on ${SHA}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "$RELEASE_TAG" "$SHA"
+          git push origin "$RELEASE_TAG"
+          echo "Creating GitHub release ${RELEASE_TAG}"
+          gh release create "$RELEASE_TAG" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --target "$SHA" \
+            --title "$RELEASE_TAG" \
+            --notes "Meta release aggregating all flavor releases at this version."
+          echo "Created tag and release ${RELEASE_TAG}"
 
       - name: Summary
         env:
-          RC_TAG: ${{ needs.resolve.outputs.meta_rc_tag }}
-          RELEASE_TAG: ${{ needs.resolve.outputs.release_tag }}
-          SHA: ${{ needs.resolve.outputs.sha }}
+          RC_TAG: ${{ needs.check.outputs.meta_rc_tag }}
+          RELEASE_TAG: ${{ needs.check.outputs.release_tag }}
+          SHA: ${{ needs.check.outputs.sha }}
+          MONOLITH_JAVA_RC: ${{ needs.check.outputs.monolith-java-rc }}
+          MONOLITH_DOTNET_RC: ${{ needs.check.outputs.monolith-dotnet-rc }}
+          MONOLITH_TYPESCRIPT_RC: ${{ needs.check.outputs.monolith-typescript-rc }}
+          MULTITIER_JAVA_RC: ${{ needs.check.outputs.multitier-java-rc }}
+          MULTITIER_DOTNET_RC: ${{ needs.check.outputs.multitier-dotnet-rc }}
+          MULTITIER_TYPESCRIPT_RC: ${{ needs.check.outputs.multitier-typescript-rc }}
         run: |
+          BASE="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
+          tag_link() { echo "[\`$1\`](${BASE}/releases/tag/$1)"; }
           {
             echo "## Meta release promoted"
             echo ""
             echo "| Field | Value |"
             echo "|---|---|"
-            echo "| RC tag | \`${RC_TAG}\` |"
-            echo "| Release tag | \`${RELEASE_TAG}\` |"
-            echo "| SHA | \`${SHA}\` |"
+            echo "| RC tag | $(tag_link "${RC_TAG}") |"
+            echo "| Release tag | $(tag_link "${RELEASE_TAG}") |"
+            echo "| Commit | [\`${SHA::7}\`](${BASE}/commit/${SHA}) |"
             echo ""
             echo "### Flavor RCs promoted"
             echo "| Flavor | RC version |"
             echo "|---|---|"
-            echo "| monolith-java | \`${{ needs.resolve.outputs.monolith-java-rc }}\` |"
-            echo "| monolith-dotnet | \`${{ needs.resolve.outputs.monolith-dotnet-rc }}\` |"
-            echo "| monolith-typescript | \`${{ needs.resolve.outputs.monolith-typescript-rc }}\` |"
-            echo "| multitier-java | \`${{ needs.resolve.outputs.multitier-java-rc }}\` |"
-            echo "| multitier-dotnet | \`${{ needs.resolve.outputs.multitier-dotnet-rc }}\` |"
-            echo "| multitier-typescript | \`${{ needs.resolve.outputs.multitier-typescript-rc }}\` |"
+            echo "| monolith-java | $(tag_link "${MONOLITH_JAVA_RC}") |"
+            echo "| monolith-dotnet | $(tag_link "${MONOLITH_DOTNET_RC}") |"
+            echo "| monolith-typescript | $(tag_link "${MONOLITH_TYPESCRIPT_RC}") |"
+            echo "| multitier-java | $(tag_link "${MULTITIER_JAVA_RC}") |"
+            echo "| multitier-dotnet | $(tag_link "${MULTITIER_DOTNET_RC}") |"
+            echo "| multitier-typescript | $(tag_link "${MULTITIER_TYPESCRIPT_RC}") |"
           } >> "$GITHUB_STEP_SUMMARY"
 
   auto-bump-patch:

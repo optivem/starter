@@ -15,6 +15,7 @@ jobs:
           fetch-depth: 0
 
       - name: Bump Patch Versions
+        id: bump
         uses: optivem/actions/bump-patch-versions@v1
         with:
           version-files: |
@@ -26,3 +27,21 @@ jobs:
             system/multitier/backend-java/VERSION:multitier-backend-java-v,multitier-java-v,meta-v
             system/multitier/backend-typescript/VERSION:multitier-backend-typescript-v,multitier-typescript-v,meta-v
             system/multitier/frontend-react/VERSION:multitier-frontend-react-v,multitier-java-v,multitier-dotnet-v,multitier-typescript-v,meta-v
+
+      - name: Write summary
+        shell: bash
+        env:
+          BUMPED: ${{ steps.bump.outputs.bumped }}
+          BUMP_SUMMARY: ${{ steps.bump.outputs.summary }}
+        run: |
+          if [[ "$BUMPED" == "true" ]]; then
+            {
+              echo "## Versions bumped"
+              echo ""
+              echo '```'
+              printf '%s\n' "$BUMP_SUMMARY"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "## No versions bumped" >> "$GITHUB_STEP_SUMMARY"
+          fi
