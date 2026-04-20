@@ -27,7 +27,7 @@ jobs:
     permissions:
       contents: read
     outputs:
-      should-run: ${{ steps.should-run.outputs.should-run }}
+      should-run: ${{ steps.should-run.outputs.changed }}
       image-digest-urls: ${{ steps.find-latest.outputs.image-digest-urls }}
     steps:
       - name: Validate Config
@@ -64,12 +64,10 @@ jobs:
 
       - name: Check Run Conditions
         id: should-run
-        uses: optivem/actions/should-run-acceptance-stage@v1
+        uses: optivem/actions/has-new-docker-image-versions-since-run@main
         with:
-          latest-image-timestamp: ${{ steps.find-latest.outputs.latest-image-timestamp }}
+          image-timestamp: ${{ steps.find-latest.outputs.latest-image-timestamp }}
           workflow-name: ${{ github.workflow }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   run:
     needs: check
