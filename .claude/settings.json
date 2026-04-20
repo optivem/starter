@@ -1,7 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "Bash(*)",
+      "Bash(git push origin v1 --force)",
       "Read(*)",
       "Edit(*)",
       "Write(*)",
