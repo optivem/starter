@@ -1,0 +1,6 @@
+# Terraform state files (generated, should not commit)
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+tfplan

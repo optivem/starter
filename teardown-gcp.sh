@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Tear down Google Cloud Run deployment infrastructure
+# Tear down Google Cloud infrastructure using Terraform
 # Deletes the GCP project and removes GitHub repo variables/secrets
 
 echo "========================================="
-echo " Cloud Run Deployment Teardown"
+echo " GCP Infrastructure Teardown"
 echo "========================================="
 echo ""
 
 # Check prerequisites
-if ! command -v gcloud &> /dev/null; then
-  echo "❌ gcloud CLI not found."
+if ! command -v terraform &> /dev/null; then
+  echo "❌ terraform CLI not found."
   exit 1
 fi
 
@@ -49,11 +49,19 @@ fi
 
 echo ""
 
-# Delete GCP project
-echo "Step 1/3: Deleting GCP project..."
-gcloud projects delete "$PROJECT_ID" --quiet 2>/dev/null && \
-  echo "  ✅ Project '$PROJECT_ID' scheduled for deletion" || \
-  echo "  ⚠️  Could not delete project (may already be deleted)"
+# Get GitHub repo and billing account (needed for terraform destroy)
+REPO=$(gh repo view --json nameWithOwner -q '.nameWithOwner')
+BILLING_ACCOUNT=$(gcloud billing accounts list --format="value(name)" --limit=1 2>/dev/null || true)
+
+# Terraform destroy
+echo "Step 1/3: Destroying infrastructure with Terraform..."
+cd "$(dirname "$0")/terraform"
+terraform destroy \
+  -var="github_repo=$REPO" \
+  -var="billing_account_id=$BILLING_ACCOUNT" \
+  -auto-approve
+
+echo "  ✅ GCP infrastructure destroyed"
 echo ""
 
 # Remove GitHub variables and secrets
@@ -68,6 +76,7 @@ echo ""
 
 # Remove local config
 echo "Step 3/3: Removing local config..."
+cd - > /dev/null
 rm -f deploy-config.yml
 echo "  ✅ deploy-config.yml removed"
 echo ""
@@ -76,6 +85,6 @@ echo "========================================="
 echo " Teardown Complete!"
 echo "========================================="
 echo ""
-echo "  All Cloud Run resources have been removed."
+echo "  All GCP resources have been removed."
 echo "  Your GitHub Actions will fall back to Docker deployment."
 echo ""
