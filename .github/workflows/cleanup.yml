@@ -8,7 +8,7 @@ on:
       retention-days:
         description: 'Delete items older than N days (cutoff = now - N days)'
         required: false
-        default: '30'
+        default: '10'
       dry-run:
         description: 'Log what would be deleted without deleting'
         type: boolean
@@ -33,7 +33,7 @@ jobs:
       - name: Cleanup Deployments
         uses: optivem/actions/cleanup-deployments@v1
         with:
-          retention-days: ${{ inputs.retention-days || '30' }}
+          retention-days: ${{ inputs.retention-days || '10' }}
           dry-run: ${{ inputs.dry-run || false }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -41,7 +41,7 @@ jobs:
       - name: Cleanup Prereleases
         uses: optivem/actions/cleanup-prereleases@v1
         with:
-          retention-days: ${{ inputs.retention-days || '30' }}
+          retention-days: ${{ inputs.retention-days || '10' }}
           dry-run: ${{ inputs.dry-run || false }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
