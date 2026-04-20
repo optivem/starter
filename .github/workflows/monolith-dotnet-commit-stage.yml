@@ -52,7 +52,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup .NET
         uses: optivem/actions/setup-dotnet@v1
         with:
           dotnet-version: 8.0.x

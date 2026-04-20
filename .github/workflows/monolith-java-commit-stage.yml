@@ -52,7 +52,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup Java and Gradle
         uses: optivem/actions/setup-java-gradle@v1
         with:
           java-version: 21

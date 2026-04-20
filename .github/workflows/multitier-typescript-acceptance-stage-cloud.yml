@@ -238,7 +238,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup Node
         uses: optivem/actions/setup-node@v1
         with:
           node-version: 22.x
@@ -276,7 +276,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup Node
         uses: optivem/actions/setup-node@v1
         with:
           node-version: 22.x
@@ -314,7 +314,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup Node
         uses: optivem/actions/setup-node@v1
         with:
           node-version: 22.x
@@ -337,7 +337,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup Node
         uses: optivem/actions/setup-node@v1
         with:
           node-version: 22.x
@@ -377,7 +377,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup Node
         uses: optivem/actions/setup-node@v1
         with:
           node-version: 22.x
@@ -400,7 +400,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup Node
         uses: optivem/actions/setup-node@v1
         with:
           node-version: 22.x
@@ -440,7 +440,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup Node
         uses: optivem/actions/setup-node@v1
         with:
           node-version: 22.x
@@ -462,7 +462,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup Node
         uses: optivem/actions/setup-node@v1
         with:
           node-version: 22.x
@@ -484,7 +484,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup Node
         uses: optivem/actions/setup-node@v1
         with:
           node-version: 22.x
@@ -506,7 +506,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup Node
         uses: optivem/actions/setup-node@v1
         with:
           node-version: 22.x
@@ -528,7 +528,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup Node
         uses: optivem/actions/setup-node@v1
         with:
           node-version: 22.x

@@ -118,7 +118,7 @@ jobs:
             ]
           working-directory: system-test/dotnet
 
-      - name: Setup Runtime
+      - name: Setup .NET
         uses: optivem/actions/setup-dotnet@v1
         with:
           dotnet-version: 8.0.x
