@@ -61,7 +61,7 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-frontend-react:latest
             ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-backend-java:latest
 
-      - name: Check Run Conditions
+      - name: Check for Docker Image Updates Since Last Run
         id: should-run
         uses: optivem/actions/has-update-since-last-github-workflow-run@v1
         with:
@@ -86,7 +86,7 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Deploy System (Real External Systems)
+      - name: Simulate Deployment (Real External Systems)
         uses: optivem/actions/run-docker-compose@v1
         with:
           environment: acceptance
@@ -102,7 +102,7 @@ jobs:
             ]
           working-directory: system-test/java
 
-      - name: Deploy System (Stub External Systems)
+      - name: Simulate Deployment (Stub External Systems)
         uses: optivem/actions/run-docker-compose@v1
         with:
           environment: acceptance
@@ -118,7 +118,7 @@ jobs:
             ]
           working-directory: system-test/java
 
-      - name: Setup Runtime
+      - name: Setup Java and Gradle
         uses: optivem/actions/setup-java-gradle@v1
         with:
           java-version: 21

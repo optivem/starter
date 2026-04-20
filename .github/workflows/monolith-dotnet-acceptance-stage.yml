@@ -69,7 +69,7 @@ jobs:
           image-urls: |
             ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/monolith-system-dotnet:latest
 
-      - name: Check Run Conditions
+      - name: Check for Docker Image Updates Since Last Run
         id: should-run
         uses: optivem/actions/has-update-since-last-github-workflow-run@v1
         with:
@@ -99,7 +99,7 @@ jobs:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Deploy System (Real External Systems)
+      - name: Simulate Deployment (Real External Systems)
         uses: optivem/actions/run-docker-compose@v1
         with:
           environment: acceptance
@@ -115,7 +115,7 @@ jobs:
             ]
           working-directory: system-test/dotnet
 
-      - name: Deploy System (Stub External Systems)
+      - name: Simulate Deployment (Stub External Systems)
         uses: optivem/actions/run-docker-compose@v1
         with:
           environment: acceptance
@@ -131,7 +131,7 @@ jobs:
             ]
           working-directory: system-test/dotnet
 
-      - name: Setup Runtime
+      - name: Setup .NET
         uses: optivem/actions/setup-dotnet@v1
         with:
           dotnet-version: 8.0.x

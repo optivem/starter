@@ -59,7 +59,7 @@ jobs:
         with:
           file: system/multitier/backend-java/VERSION
 
-      - name: Setup Runtime
+      - name: Setup Java and Gradle
         uses: optivem/actions/setup-java-gradle@v1
         with:
           java-version: 21

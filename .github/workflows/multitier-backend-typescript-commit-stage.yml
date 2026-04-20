@@ -59,7 +59,7 @@ jobs:
         with:
           file: system/multitier/backend-typescript/VERSION
 
-      - name: Setup Runtime
+      - name: Setup Node
         uses: optivem/actions/setup-node@v1
         with:
           node-version: 22.x

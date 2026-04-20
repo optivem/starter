@@ -66,7 +66,7 @@ jobs:
           image-urls: |
             ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/monolith-system-dotnet:latest
 
-      - name: Check Run Conditions
+      - name: Check for Docker Image Updates Since Last Run
         id: should-run
         uses: optivem/actions/has-update-since-last-github-workflow-run@v1
         with:
@@ -199,7 +199,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup .NET
         uses: optivem/actions/setup-dotnet@v1
         with:
           dotnet-version: 8.0.x
@@ -231,7 +231,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup .NET
         uses: optivem/actions/setup-dotnet@v1
         with:
           dotnet-version: 8.0.x
@@ -263,7 +263,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup .NET
         uses: optivem/actions/setup-dotnet@v1
         with:
           dotnet-version: 8.0.x
@@ -296,7 +296,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup .NET
         uses: optivem/actions/setup-dotnet@v1
         with:
           dotnet-version: 8.0.x
@@ -346,7 +346,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup .NET
         uses: optivem/actions/setup-dotnet@v1
         with:
           dotnet-version: 8.0.x
@@ -379,7 +379,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup .NET
         uses: optivem/actions/setup-dotnet@v1
         with:
           dotnet-version: 8.0.x
@@ -429,7 +429,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup .NET
         uses: optivem/actions/setup-dotnet@v1
         with:
           dotnet-version: 8.0.x
@@ -461,7 +461,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup .NET
         uses: optivem/actions/setup-dotnet@v1
         with:
           dotnet-version: 8.0.x
@@ -493,7 +493,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup .NET
         uses: optivem/actions/setup-dotnet@v1
         with:
           dotnet-version: 8.0.x
@@ -525,7 +525,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup .NET
         uses: optivem/actions/setup-dotnet@v1
         with:
           dotnet-version: 8.0.x
@@ -557,7 +557,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Setup Runtime
+      - name: Setup .NET
         uses: optivem/actions/setup-dotnet@v1
         with:
           dotnet-version: 8.0.x
