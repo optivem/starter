@@ -63,7 +63,7 @@ jobs:
 
       - name: Check Run Conditions
         id: should-run
-        uses: optivem/actions/has-new-docker-image-versions-since-run@main
+        uses: optivem/actions/has-new-docker-image-versions-since-run@v1
         with:
           image-timestamp: ${{ steps.find-latest.outputs.latest-image-timestamp }}
           workflow-name: ${{ github.workflow }}
