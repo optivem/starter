@@ -39,14 +39,14 @@ jobs:
 
       - name: Check RC Exists
         id: check-release
-        uses: optivem/actions/check-release-exists@v1
+        uses: optivem/actions/ensure-release-exists@v1
         with:
           version: ${{ inputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check QA Approved
-        uses: optivem/actions/check-release-exists@v1
+        uses: optivem/actions/ensure-release-exists@v1
         with:
           version: ${{ inputs.version }}-qa-approved
         env:
@@ -180,7 +180,7 @@ jobs:
 
       - name: Promote RC (Production Deployed)
         id: promote
-        uses: optivem/actions/promote-rc-to-prod@v1
+        uses: optivem/actions/create-release@v1
         with:
           version: ${{ inputs.version }}
           artifact-urls: ${{ needs.check.outputs.image-urls }}

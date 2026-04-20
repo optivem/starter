@@ -25,7 +25,7 @@ jobs:
       contents: read
     steps:
       - name: Check RC Exists
-        uses: optivem/actions/check-release-exists@v1
+        uses: optivem/actions/ensure-release-exists@v1
         with:
           version: ${{ inputs.version }}
         env:
@@ -38,7 +38,7 @@ jobs:
     permissions:
       contents: write
     outputs:
-      version: ${{ steps.promote-approved.outputs.version || steps.promote-rejected.outputs.version }}
+      version: ${{ steps.promote.outputs.version }}
       stage-result: ${{ steps.determine-result.outputs.stage-result }}
     steps:
       - name: Checkout Repository
@@ -54,21 +54,13 @@ jobs:
           fi
         shell: bash
 
-      - name: Promote RC (QA Approved)
-        id: promote-approved
-        if: inputs.result == 'approved'
-        uses: optivem/actions/approve-rc-in-qa@v1
+      - name: Promote Prerelease (QA Signoff)
+        id: promote
+        uses: optivem/actions/promote-prerelease@v1
         with:
           version: ${{ inputs.version }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Promote RC (QA Rejected)
-        id: promote-rejected
-        if: inputs.result == 'rejected'
-        uses: optivem/actions/reject-rc-in-qa@v1
-        with:
-          version: ${{ inputs.version }}
+          environment: qa
+          status: ${{ inputs.result }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

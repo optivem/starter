@@ -32,11 +32,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Check Target Version Exists
-        uses: optivem/actions/check-target-version-exists@v1
-        with:
-          file: system/monolith/typescript/VERSION
-
       - name: Log in to Docker Hub
         uses: docker/login-action@v4
         with:
@@ -126,7 +121,6 @@ jobs:
           image-sha-tag: ${{ steps.build.outputs.image-sha-tag }}
           image-latest-url: ${{ steps.build.outputs.image-latest-url }}
           image-version-tag: ${{ steps.build.outputs.image-version-tag }}
-          registry-username: ${{ github.actor }}
         env:
           REGISTRY_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
 

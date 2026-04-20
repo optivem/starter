@@ -47,9 +47,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check Target Version Exists
-        uses: optivem/actions/check-target-version-exists@v1
-
       - name: Check Version Unreleased
         uses: optivem/actions/check-version-unreleased@v1
         with:
@@ -99,7 +96,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Deploy System (Real External Systems)
-        uses: optivem/actions/simulate-deployment@v1
+        uses: optivem/actions/run-docker-compose@v1
         with:
           environment: acceptance
           version: latest
@@ -115,7 +112,7 @@ jobs:
           working-directory: system-test/dotnet
 
       - name: Deploy System (Stub External Systems)
-        uses: optivem/actions/simulate-deployment@v1
+        uses: optivem/actions/run-docker-compose@v1
         with:
           environment: acceptance
           version: latest
@@ -252,7 +249,7 @@ jobs:
 
       - name: Promote to RC
         id: promote-to-rc
-        uses: optivem/actions/promote-to-rc@v1
+        uses: optivem/actions/create-prerelease@v1
         with:
           target-version: ${{ steps.read-version.outputs.target-version }}
           prefix: monolith-dotnet

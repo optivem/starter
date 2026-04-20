@@ -53,9 +53,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check Target Version Exists
-        uses: optivem/actions/check-target-version-exists@v1
-
       - name: Log in to Docker Hub
         uses: docker/login-action@v4
         with:
@@ -662,7 +659,7 @@ jobs:
 
       - name: Promote to RC
         id: promote-to-rc
-        uses: optivem/actions/promote-to-rc@v1
+        uses: optivem/actions/create-prerelease@v1
         with:
           target-version: ${{ steps.read-version.outputs.target-version }}
           prefix: multitier-dotnet-cloud

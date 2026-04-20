@@ -157,7 +157,7 @@ jobs:
       matrix:
         workflow: ${{ fromJSON(inputs.commit-workflows) }}
     steps:
-      - uses: optivem/actions/trigger-and-wait@main
+      - uses: optivem/actions/trigger-and-wait@v1
         with:
           workflow: ${{ matrix.workflow }}
 
@@ -169,13 +169,13 @@ jobs:
       version: ${{ steps.get-version.outputs.tag }}
     steps:
       - id: trigger
-        uses: optivem/actions/trigger-and-wait@main
+        uses: optivem/actions/trigger-and-wait@v1
         with:
           workflow: ${{ inputs.prefix }}-acceptance-stage.yml
           poll-interval: '300'
 
       - id: get-version
-        uses: optivem/actions/find-release-by-run@main
+        uses: optivem/actions/find-release-by-run@v1
         with:
           run-id: ${{ steps.trigger.outputs.run-id }}
 
@@ -184,7 +184,7 @@ jobs:
     if: ${{ always() && inputs.level != 'commit' && needs.acceptance-stage.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: optivem/actions/trigger-and-wait@main
+      - uses: optivem/actions/trigger-and-wait@v1
         with:
           workflow: ${{ inputs.prefix }}-acceptance-stage-legacy.yml
           poll-interval: '300'
@@ -194,7 +194,7 @@ jobs:
     if: ${{ always() && inputs.level == 'qa' && needs.acceptance-stage-legacy.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: optivem/actions/trigger-and-wait@main
+      - uses: optivem/actions/trigger-and-wait@v1
         with:
           workflow: ${{ inputs.prefix }}-qa-stage.yml
           inputs: '{"version": "${{ needs.acceptance-stage.outputs.version }}"}'
@@ -204,7 +204,7 @@ jobs:
     if: ${{ always() && inputs.level == 'qa' && needs.qa-stage.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: optivem/actions/trigger-and-wait@main
+      - uses: optivem/actions/trigger-and-wait@v1
         with:
           workflow: ${{ inputs.prefix }}-qa-signoff.yml
           inputs: '{"version": "${{ needs.acceptance-stage.outputs.version }}", "result": "approved"}'

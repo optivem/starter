@@ -31,7 +31,7 @@ jobs:
 
       - name: Check RC Exists
         id: check-release
-        uses: optivem/actions/check-release-exists@v1
+        uses: optivem/actions/ensure-release-exists@v1
         with:
           version: ${{ inputs.version }}
         env:
@@ -67,7 +67,7 @@ jobs:
 
       - name: Deploy System (QA Environment)
         id: deploy
-        uses: optivem/actions/simulate-deployment@v1
+        uses: optivem/actions/run-docker-compose@v1
         with:
           environment: qa
           version: ${{ inputs.version }}
@@ -82,11 +82,13 @@ jobs:
             ]
           working-directory: system-test/java
 
-      - name: Promote RC (QA Deployed)
+      - name: Promote Prerelease (QA Deployed)
         id: promote
-        uses: optivem/actions/promote-rc-to-qa@v1
+        uses: optivem/actions/promote-prerelease@v1
         with:
           version: ${{ inputs.version }}
+          environment: qa
+          status: deployed
           artifact-urls: ${{ needs.check.outputs.image-urls }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
