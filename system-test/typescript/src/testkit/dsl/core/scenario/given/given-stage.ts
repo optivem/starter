@@ -54,7 +54,7 @@ export class GivenStage implements IGivenStage {
       quantity: DEFAULTS.QUANTITY,
       country: DEFAULTS.COUNTRY,
       couponCode: null,
-      status: DEFAULTS.STATUS,
+      status: DEFAULTS.ORDER_STATUS,
     };
     this.ctx.orderConfigs.push(config);
     return new GivenOrder(this, config);
