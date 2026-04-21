@@ -60,6 +60,8 @@ Java uses `WhenBrowseCoupons`, `WhenCancelOrder`, `WhenPlaceOrder`, `WhenPublish
 - Update all implementations and usages in `Dsl.Core/Scenario/When/Steps/*.cs` and any `using Dsl.Port.When.Steps;` consumers.
 - Reference: `system-test/java/src/main/java/com/optivem/shop/testkit/dsl/port/when/steps/{WhenBrowseCoupons,WhenCancelOrder,WhenPlaceOrder,WhenPublishCoupon,WhenViewOrder}.java`.
 
+APPROVED
+
 ---
 
 ## Local verification & commit
