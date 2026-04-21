@@ -201,8 +201,7 @@ jobs:
       - id: get-version
         uses: optivem/actions/resolve-latest-tag-from-sha@v1
         with:
-          repo: ${{ github.repository }}
-          sha: ${{ inputs.sha || github.sha }}
+          commit-sha: ${{ inputs.sha || github.sha }}
           pattern: ${{ inputs.prefix }}-v${{ needs.check-version.outputs.target-version }}-rc.*
 
       - name: Fail If No RC Tag On SHA

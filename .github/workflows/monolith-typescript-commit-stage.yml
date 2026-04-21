@@ -66,7 +66,7 @@ jobs:
         id: verify-main
         uses: optivem/actions/check-sha-on-branch@v1
         with:
-          sha: ${{ inputs.sha || github.sha }}
+          commit-sha: ${{ inputs.sha || github.sha }}
 
       - name: Setup Node
         uses: optivem/actions/setup-node@v1
@@ -150,10 +150,10 @@ jobs:
       - name: Push Artifact
         if: steps.verify-main.outputs.on-branch == 'true'
         id: push
-        uses: optivem/actions/push-docker-images@v1
+        uses: optivem/actions/push-docker-image@v1
         with:
           image-sha-tag: ${{ fromJSON(steps.tag.outputs.image-urls)[0] }}
-          image-latest-url: ${{ fromJSON(steps.tag.outputs.image-urls)[1] }}
+          image-latest-tag: ${{ fromJSON(steps.tag.outputs.image-urls)[1] }}
           image-version-tag: ${{ fromJSON(steps.tag.outputs.image-urls)[2] }}
 
   summary:
@@ -162,7 +162,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Summarize Stage
-      uses: optivem/actions/compose-commit-stage-summary@v1
+      uses: optivem/actions/render-commit-stage-summary@v1
       with:
         stage-result: ${{ needs.run.result }}
         success-artifact-url: ${{ needs.run.outputs.image-digest-url }}

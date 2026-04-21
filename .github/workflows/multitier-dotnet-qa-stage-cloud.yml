@@ -242,7 +242,7 @@ jobs:
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Summarize Stage
-      uses: optivem/actions/compose-system-stage-summary@v1
+      uses: optivem/actions/render-system-stage-summary@v1
       with:
         stage-name: 'QA Stage (Cloud Run)'
         environment: qa

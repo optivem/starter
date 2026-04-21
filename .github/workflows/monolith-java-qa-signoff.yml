@@ -86,7 +86,7 @@ jobs:
       uses: actions/checkout@v5
 
     - name: Summarize Stage
-      uses: optivem/actions/compose-system-stage-summary@v1
+      uses: optivem/actions/render-system-stage-summary@v1
       with:
         stage-name: 'QA Signoff'
         environment: qa

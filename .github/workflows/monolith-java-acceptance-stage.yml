@@ -36,7 +36,7 @@ jobs:
       should-run: ${{ steps.should-run.outputs.changed }}
       skip-reason: ${{ steps.should-run.outputs.changed != 'true' && 'No new artifacts since the last successful run.' || '' }}
       image-digest-urls: ${{ steps.find-latest.outputs.image-digest-urls }}
-      latest-image-timestamp: ${{ steps.find-latest.outputs.latest-image-timestamp }}
+      latest-updated-at: ${{ steps.find-latest.outputs.latest-updated-at }}
       last-run-at: ${{ steps.should-run.outputs.last-run-at }}
     steps:
       - name: Ensure Environment Variables Defined
@@ -81,7 +81,7 @@ jobs:
         id: should-run
         uses: optivem/actions/check-update-since-last-github-workflow-run@v1
         with:
-          last-updated-at: ${{ steps.find-latest.outputs.latest-image-timestamp }}
+          last-updated-at: ${{ steps.find-latest.outputs.latest-updated-at }}
           workflow-name: ${{ github.workflow }}
 
   run:
@@ -267,7 +267,7 @@ jobs:
       actions: write
     steps:
     - name: Summarize Stage
-      uses: optivem/actions/compose-system-stage-summary@v1
+      uses: optivem/actions/render-system-stage-summary@v1
       with:
         stage-name: 'Acceptance Stage'
         environment: acceptance
@@ -276,5 +276,5 @@ jobs:
         success-artifact-ids: ${{ needs.run.outputs.image-urls }}
         skipped-reason: ${{ needs.preflight.outputs.skip-reason || needs.check.outputs.skip-reason }}
         latest-artifact-ids: ${{ needs.check.outputs.image-digest-urls }}
-        latest-updated-at: ${{ needs.check.outputs.latest-image-timestamp }}
+        latest-updated-at: ${{ needs.check.outputs.latest-updated-at }}
         last-run-at: ${{ needs.check.outputs.last-run-at }}
