@@ -133,7 +133,7 @@ jobs:
           source: ${{ steps.build.outputs.local-image-ref }}
           image-name: monolith-system-dotnet
           tags: |
-            ${{ github.sha }}
+            ${{ inputs.ref || github.sha }}
             latest
             ${{ steps.dev-version.outputs.version }}
 

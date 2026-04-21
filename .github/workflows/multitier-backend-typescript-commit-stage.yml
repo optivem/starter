@@ -136,7 +136,7 @@ jobs:
           source: ${{ steps.build.outputs.local-image-ref }}
           image-name: multitier-backend-typescript
           tags: |
-            ${{ github.sha }}
+            ${{ inputs.ref || github.sha }}
             latest
             ${{ steps.dev-version.outputs.version }}
 
