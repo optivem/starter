@@ -44,7 +44,7 @@ jobs:
 
       - name: Determine Stage Result
         id: determine-result
-        uses: optivem/actions/map-signoff-result@v1
+        uses: optivem/actions/map-signoff-to-stage-result@v1
         with:
           result: ${{ inputs.result }}
 
