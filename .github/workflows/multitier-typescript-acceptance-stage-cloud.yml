@@ -577,7 +577,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Read System Target Version
+      - name: Read Target System Version
         id: read-version
         uses: optivem/actions/read-target-version@v1
 

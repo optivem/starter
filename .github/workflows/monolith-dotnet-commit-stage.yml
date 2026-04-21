@@ -106,7 +106,7 @@ jobs:
           dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
         working-directory: system/monolith/dotnet
 
-      - name: Read Component Target Version
+      - name: Read Target Component Version
         if: steps.verify-main.outputs.on-branch == 'true'
         id: read-version
         uses: optivem/actions/read-target-version@v1

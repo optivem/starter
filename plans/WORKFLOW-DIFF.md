@@ -182,29 +182,13 @@ Files: `multitier-backend-java-commit-stage.yml`, `multitier-backend-dotnet-comm
 | Run Linter                    | `./gradlew checkstyleMain`    | `dotnet format ... --verify`  | `npm run lint`                | OK     |
 | Run Code Analysis             | `./gradlew build sonar`       | `dotnet sonarscanner`         | `SonarSource/sonarcloud@v5`   | OK     |
 | Build Artifact                | present                       | present                       | present                       | OK     |
-| Push Artifact                 | present                       | present                       | present                       | **DIFF** |
+| Push Artifact                 | present                       | present                       | present                       | OK     |
 
 #### DIFF-6: Unit tests implemented only in TypeScript
 
 - **TypeScript** `multitier-backend-typescript-commit-stage.yml:77-79` — `npm test` (real implementation)
 - **Java** `multitier-backend-java-commit-stage.yml:79` — `echo "TODO - not yet implemented"`
 - **.NET** `multitier-backend-dotnet-commit-stage.yml:78` — `echo "TODO - not yet implemented"`
-
-#### DIFF-7: Push Artifact parameter order differs in TypeScript
-
-- **Java** `multitier-backend-java-commit-stage.yml:122-125`:
-  ```yaml
-  image-sha-tag, image-latest-url, image-version-tag
-  ```
-- **.NET** `multitier-backend-dotnet-commit-stage.yml:123-125`:
-  ```yaml
-  image-sha-tag, image-latest-url, image-version-tag
-  ```
-- **TypeScript** `multitier-backend-typescript-commit-stage.yml:126-128`:
-  ```yaml
-  image-sha-tag, image-version-tag, image-latest-url
-  ```
-  `image-version-tag` and `image-latest-url` are swapped. Functionally identical but inconsistent formatting.
 
 ---
 
@@ -272,8 +256,7 @@ All consistent across languages. No inconsistencies.
 | DIFF-4 | All acceptance stages          | Test build step: Java="Compile System Tests", .NET="Build Test Project", TypeScript=missing | 4 files |
 | DIFF-5 | All acceptance-stage-legacy    | .NET mod11 contract tests filter by name instead of using EXTERNAL_SYSTEM_MODE env var | 2 files |
 | DIFF-6 | Multitier backend commit-stage | Unit tests implemented in TypeScript only; Java and .NET are TODO     | 3 files |
-| DIFF-7 | Multitier backend commit-stage | Push Artifact parameter order swapped in TypeScript                    | 1 file |
 | DIFF-8 | Cross-architecture             | Monolith outputs `image-digest-url`; multitier outputs `image-version-tag` | 6 files |
 | DIFF-9 | Cross-architecture             | Version reading step placement and conditionality differ               | 6 files |
 
-**Total: 9 distinct inconsistencies**
+**Total: 8 distinct inconsistencies**

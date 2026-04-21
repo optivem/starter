@@ -69,7 +69,7 @@ jobs:
         with:
           sha: ${{ inputs.sha || github.sha }}
 
-      - name: Read Component Target Version
+      - name: Read Target Component Version
         id: read-version
         uses: optivem/actions/read-target-version@v1
         with:

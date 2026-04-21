@@ -109,7 +109,7 @@ jobs:
             -Dsonar.organization=optivem
             -Dsonar.sources=src
 
-      - name: Read Component Target Version
+      - name: Read Target Component Version
         if: steps.verify-main.outputs.on-branch == 'true'
         id: read-version
         uses: optivem/actions/read-target-version@v1

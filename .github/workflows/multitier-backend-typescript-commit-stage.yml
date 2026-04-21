@@ -69,7 +69,7 @@ jobs:
         with:
           sha: ${{ inputs.sha || github.sha }}
 
-      - name: Read Component Target Version
+      - name: Read Target Component Version
         id: read-version
         uses: optivem/actions/read-target-version@v1
         with:
@@ -153,8 +153,8 @@ jobs:
         uses: optivem/actions/push-docker-images@v1
         with:
           image-sha-tag: ${{ fromJSON(steps.tag.outputs.image-urls)[0] }}
-          image-version-tag: ${{ fromJSON(steps.tag.outputs.image-urls)[2] }}
           image-latest-url: ${{ fromJSON(steps.tag.outputs.image-urls)[1] }}
+          image-version-tag: ${{ fromJSON(steps.tag.outputs.image-urls)[2] }}
 
   summary:
     needs: [check, run]
