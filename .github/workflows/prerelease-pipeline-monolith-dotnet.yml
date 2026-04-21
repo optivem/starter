@@ -23,6 +23,11 @@ on:
         required: false
         type: boolean
         default: false
+      skip-acceptance-legacy:
+        description: 'Skip the legacy sample in the local stage and the acceptance-stage-legacy job'
+        required: false
+        type: boolean
+        default: false
       ref:
         description: 'Git SHA to pin (leave empty for HEAD)'
         required: false
@@ -40,4 +45,5 @@ jobs:
       level: ${{ inputs.level || 'qa' }}
       skip-local-stage: ${{ inputs.skip-local-stage == true }}
       skip-commit-stage: ${{ inputs.skip-commit-stage == true }}
+      skip-acceptance-legacy: ${{ inputs.skip-acceptance-legacy == true }}
       ref: ${{ inputs.ref }}

@@ -30,6 +30,11 @@ on:
         required: false
         type: boolean
         default: false
+      skip-acceptance-legacy:
+        description: 'Skip the legacy sample in the local stage and the acceptance-stage-legacy job'
+        required: false
+        type: boolean
+        default: false
       level:
         description: 'Verification level: local, commit, acceptance, or qa'
         required: false
@@ -159,6 +164,7 @@ jobs:
 
       # Run system tests (sample) — legacy
       - name: Run System Tests - Legacy (Sample)
+        if: ${{ !inputs.skip-acceptance-legacy }}
         run: pwsh -NonInteractive -Command "./Run-SystemTests.ps1 -Architecture ${{ inputs.architecture }} -Legacy -Sample"
         working-directory: system-test/${{ inputs.language }}
 
@@ -205,7 +211,7 @@ jobs:
 
   acceptance-stage-legacy:
     needs: acceptance-stage
-    if: ${{ always() && inputs.level != 'commit' && needs.acceptance-stage.result == 'success' }}
+    if: ${{ always() && inputs.level != 'commit' && !inputs.skip-acceptance-legacy && needs.acceptance-stage.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-github-workflow@v1
@@ -216,7 +222,7 @@ jobs:
 
   qa-stage:
     needs: [acceptance-stage, acceptance-stage-legacy]
-    if: ${{ always() && inputs.level == 'qa' && needs.acceptance-stage-legacy.result == 'success' }}
+    if: ${{ always() && inputs.level == 'qa' && needs.acceptance-stage.result == 'success' && contains(fromJSON('["success","skipped"]'), needs.acceptance-stage-legacy.result) }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-github-workflow@v1

@@ -1,7 +1,7 @@
 name: meta-prerelease-dry-run
 
 run-name: >-
-  meta-prerelease-dry-run${{ inputs.variant != 'all' && format(' [variant:{0}]', inputs.variant) || '' }}${{ inputs.skip-local && ' [skip-local]' || '' }}
+  meta-prerelease-dry-run${{ inputs.variant != 'all' && format(' [variant:{0}]', inputs.variant) || '' }}${{ inputs.skip-local && ' [skip-local]' || '' }}${{ inputs.skip-acceptance-legacy && ' [skip-acceptance-legacy]' || '' }}
 
 on:
   workflow_dispatch:
@@ -34,6 +34,11 @@ on:
         required: false
         type: boolean
         default: false
+      skip-acceptance-legacy:
+        description: 'Skip the legacy sample in local stages and the acceptance-stage-legacy job in Phase 2 (prevents meta-rc tagging)'
+        required: false
+        type: boolean
+        default: false
 
 # Shared concurrency group with meta-prerelease-stage so dry-runs and whole runs
 # serialize rather than stepping on each other.
@@ -49,3 +54,4 @@ jobs:
       level: ${{ inputs.level }}
       variant: ${{ inputs.variant }}
       skip-local: ${{ inputs.skip-local }}
+      skip-acceptance-legacy: ${{ inputs.skip-acceptance-legacy }}
