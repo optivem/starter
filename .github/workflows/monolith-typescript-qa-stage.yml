@@ -65,12 +65,17 @@ jobs:
 
       - name: Simulate Deployment (QA Environment)
         id: deploy
-        uses: optivem/actions/run-docker-compose@v1
+        uses: optivem/actions/start-docker-compose@v1
         with:
           environment: qa
           version: ${{ inputs.version }}
           image-urls: ${{ needs.check.outputs.image-urls }}
           compose-file: docker-compose.pipeline.monolith.real.yml
+          working-directory: system-test/typescript
+
+      - name: Wait for Systems (Simulate Deployment (QA Environment))
+        uses: optivem/actions/wait-for-urls@v1
+        with:
           systems: |
             [
               { "name": "Shop UI", "url": "http://localhost:3311/" },
@@ -78,6 +83,7 @@ jobs:
               { "name": "ERP", "url": "http://localhost:9311/erp/health" },
               { "name": "Clock", "url": "http://localhost:9311/clock/health" }
             ]
+          compose-file: docker-compose.pipeline.monolith.real.yml
           working-directory: system-test/typescript
 
       - name: Generate QA Deployed Tag
