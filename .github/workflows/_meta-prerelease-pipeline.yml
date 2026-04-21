@@ -1,0 +1,250 @@
+name: _meta-prerelease-pipeline
+
+on:
+  workflow_call:
+    inputs:
+      level:
+        description: 'Verification level: local, commit, acceptance, or qa'
+        required: false
+        type: string
+        default: 'qa'
+      variant:
+        description: 'Variant to run (all = full matrix; any single variant = dry-run; dry-runs do NOT produce a meta-rc tag)'
+        required: false
+        type: string
+        default: 'all'
+      skip-local:
+        description: 'Skip Phase 0 (local stages) for debugging — Phase 1 and Phase 2 still run if level permits'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  # Single gate before any downstream jobs:
+  #   1. Print inputs for visibility.
+  #   2. On scheduled runs, skip the pipeline if nothing meaningful has changed since
+  #      the last build — comparing HEAD against the latest meta-rc at this VERSION
+  #      (falling back to the latest meta-v release). Only changes under
+  #      .github/workflows/, system/, or system-test/ count as meaningful; VERSION
+  #      bumps, docs, plans, and reports do not. workflow_dispatch always proceeds.
+  #   3. Fail fast if any VERSION file's version has already been used as a final
+  #      release by meta, any pipeline, or any per-stack artifact. Mirrors the
+  #      VERSION → prefix mapping in bump-versions.yml so every tag that auto-bump
+  #      would touch is checked — otherwise we'd only discover it deep into the
+  #      downstream pipeline acceptance stages.
+  check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      should_run: ${{ steps.decide.outputs.should_run }}
+    steps:
+      - name: Print input parameters
+        run: |
+          echo "=== Workflow Inputs ==="
+          echo "Level: ${{ inputs.level }}"
+          echo "Variant: ${{ inputs.variant }}"
+          echo "Skip local: ${{ inputs.skip-local }}"
+          echo "Triggered by: ${{ github.event_name }} ${{ github.event.schedule }}"
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Read VERSION
+        id: version
+        shell: bash
+        run: echo "value=$(tr -d '[:space:]' < VERSION)" >> "$GITHUB_OUTPUT"
+      - name: Detect meaningful changes since last build
+        id: changes
+        uses: optivem/actions/has-changes-since-tag@v1
+        with:
+          tag-patterns: |
+            meta-v${{ steps.version.outputs.value }}-rc.*
+            meta-v[0-9]*.[0-9]*.[0-9]*
+          paths: |
+            .github/workflows/
+            system/
+            system-test/
+      - name: Decide whether to run
+        id: decide
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          CHANGED: ${{ steps.changes.outputs.changed }}
+          BASELINE_TAG: ${{ steps.changes.outputs.baseline-tag }}
+          CHANGED_FILES: ${{ steps.changes.outputs.changed-files }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" != "schedule" ]]; then
+            echo "Triggered by $EVENT_NAME — always run."
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [[ "$CHANGED" == "true" ]]; then
+            echo "Meaningful changes detected — running pipeline."
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            TAG_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${BASELINE_TAG}"
+            {
+              echo "## Skipped — no meaningful changes"
+              echo ""
+              echo "No changes in \`.github/workflows/\`, \`system/\`, or \`system-test/\` since [\`${BASELINE_TAG}\`](${TAG_URL})."
+              echo ""
+              echo "Runs again on next schedule tick, or trigger manually via workflow_dispatch to force a rebuild."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "No meaningful changes — skipping run."
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Check versions not already released
+        if: ${{ steps.decide.outputs.should_run == 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # "<file> <prefix> [<prefix>...]" — matches bump-versions.yml mapping.
+          # Prefixes include their trailing "v" (e.g. "meta-v" → tag "meta-v1.0.21").
+          mapping=(
+            "VERSION v meta-v monolith-java-v monolith-dotnet-v monolith-typescript-v multitier-java-v multitier-dotnet-v multitier-typescript-v"
+            "system/monolith/dotnet/VERSION monolith-dotnet-v meta-v"
+            "system/monolith/java/VERSION monolith-java-v meta-v"
+            "system/monolith/typescript/VERSION monolith-typescript-v meta-v"
+            "system/multitier/backend-dotnet/VERSION multitier-backend-dotnet-v multitier-dotnet-v meta-v"
+            "system/multitier/backend-java/VERSION multitier-backend-java-v multitier-java-v meta-v"
+            "system/multitier/backend-typescript/VERSION multitier-backend-typescript-v multitier-typescript-v meta-v"
+            "system/multitier/frontend-react/VERSION multitier-frontend-react-v multitier-java-v multitier-dotnet-v multitier-typescript-v meta-v"
+          )
+
+          declare -A SEEN
+          FOUND=()
+          for entry in "${mapping[@]}"; do
+            read -ra parts <<< "$entry"
+            file="${parts[0]}"
+            version=$(tr -d '[:space:]' < "$file")
+            for ((i=1; i<${#parts[@]}; i++)); do
+              prefix="${parts[$i]}"
+              tag="${prefix}${version}"
+              [[ -n "${SEEN[$tag]:-}" ]] && continue
+              SEEN[$tag]=1
+              if git tag -l "$tag" | grep -qx "$tag"; then
+                FOUND+=("$tag (from $file)")
+              fi
+            done
+          done
+
+          if [[ ${#FOUND[@]} -gt 0 ]]; then
+            BUMP_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/workflows/auto-bump-patch.yml"
+            {
+              echo "## Version already released"
+              echo ""
+              echo "The following tags already exist as final releases:"
+              echo ""
+              for item in "${FOUND[@]}"; do echo "- \`${item}\`"; done
+              echo ""
+              echo "Run the [auto-bump-patch workflow](${BUMP_URL}) to bump VERSION files, then re-run this workflow."
+            } >> "$GITHUB_STEP_SUMMARY"
+            echo "::error::Version already released: ${FOUND[*]}. Run the auto-bump-patch workflow to bump VERSION files, then re-run this workflow: ${BUMP_URL}"
+            exit 1
+          fi
+          echo "All version tags available across meta and all pipelines. OK to proceed."
+
+  # Phase 0: Run all local stages in parallel. fail-fast cancels siblings on first failure.
+  local:
+    needs: check
+    if: ${{ needs.check.outputs.should_run == 'true' && !inputs.skip-local }}
+    strategy:
+      fail-fast: true
+      matrix:
+        variant: [monolith-java, monolith-dotnet, monolith-typescript, multitier-java, multitier-dotnet, multitier-typescript]
+    runs-on: ubuntu-latest
+    steps:
+      - if: ${{ inputs.variant == 'all' || inputs.variant == matrix.variant }}
+        uses: optivem/actions/trigger-and-wait-for-github-workflow@v1
+        with:
+          workflow: prerelease-pipeline-${{ matrix.variant }}.yml
+          inputs: '{"level": "local", "skip-commit-stage": "true"}'
+
+  # Phase 1: Run all commit stages in parallel (deduplicated — frontend-react is shared
+  # across multitier variants). fail-fast cancels siblings on first failure.
+  commit:
+    needs: local
+    if: ${{ always() && !failure() && !cancelled() && contains(fromJSON('["commit","acceptance","qa"]'), inputs.level) }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - stage: monolith-java
+            workflow: monolith-java-commit-stage.yml
+            variants: '["all","monolith-java"]'
+          - stage: monolith-dotnet
+            workflow: monolith-dotnet-commit-stage.yml
+            variants: '["all","monolith-dotnet"]'
+          - stage: monolith-typescript
+            workflow: monolith-typescript-commit-stage.yml
+            variants: '["all","monolith-typescript"]'
+          - stage: multitier-backend-java
+            workflow: multitier-backend-java-commit-stage.yml
+            variants: '["all","multitier-java"]'
+          - stage: multitier-backend-dotnet
+            workflow: multitier-backend-dotnet-commit-stage.yml
+            variants: '["all","multitier-dotnet"]'
+          - stage: multitier-backend-typescript
+            workflow: multitier-backend-typescript-commit-stage.yml
+            variants: '["all","multitier-typescript"]'
+          - stage: multitier-frontend-react
+            workflow: multitier-frontend-react-commit-stage.yml
+            variants: '["all","multitier-java","multitier-dotnet","multitier-typescript"]'
+    runs-on: ubuntu-latest
+    steps:
+      - if: ${{ contains(fromJSON(matrix.variants), inputs.variant) }}
+        uses: optivem/actions/trigger-and-wait-for-github-workflow@v1
+        with:
+          workflow: ${{ matrix.workflow }}
+
+  # Phase 2: Run all pipelines in parallel. Each pipeline produces RC tags namespaced
+  # by its prefix (e.g. monolith-java-v1.0.0-rc.N), so there are no shared-counter collisions.
+  # fail-fast cancels siblings on first failure.
+  pipeline:
+    needs: commit
+    if: ${{ always() && !failure() && !cancelled() && contains(fromJSON('["acceptance","qa"]'), inputs.level) }}
+    strategy:
+      fail-fast: true
+      matrix:
+        variant: [monolith-java, monolith-dotnet, monolith-typescript, multitier-java, multitier-dotnet, multitier-typescript]
+    runs-on: ubuntu-latest
+    steps:
+      - if: ${{ inputs.variant == 'all' || inputs.variant == matrix.variant }}
+        uses: optivem/actions/trigger-and-wait-for-github-workflow@v1
+        with:
+          workflow: prerelease-pipeline-${{ matrix.variant }}.yml
+          inputs: '{"level": "${{ inputs.level }}", "skip-local-stage": "true", "skip-commit-stage": "true"}'
+
+  # Final: tag SHA as meta-rc — only when level is qa, variant is all, and all 6 language×architecture combos passed.
+  # Dry-runs (variant != 'all') never produce a tag regardless of level.
+  tag-meta-rc:
+    needs: pipeline
+    if: ${{ success() && inputs.level == 'qa' && inputs.variant == 'all' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.VERIFY_TOKEN }}
+      - name: Tag meta-rc
+        run: |
+          set -euo pipefail
+          VERSION=$(tr -d '[:space:]' < VERSION)
+          TAG="meta-v${VERSION}-rc.${{ github.run_number }}"
+          echo "Creating tag ${TAG} on ${{ github.sha }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "$TAG" "${{ github.sha }}"
+          git push origin "$TAG"
+          echo "Tagged ${{ github.sha }} as ${TAG}"
+          TAG_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
+          {
+            echo "## Meta RC tagged"
+            echo ""
+            echo "- Tag: [\`${TAG}\`](${TAG_URL})"
+            echo "- Commit: [\`${GITHUB_SHA::7}\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA})"
+          } >> "$GITHUB_STEP_SUMMARY"
