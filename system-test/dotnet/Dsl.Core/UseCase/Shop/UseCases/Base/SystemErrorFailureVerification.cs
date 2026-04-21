@@ -4,22 +4,16 @@ using Driver.Port.Shop.Dtos.Error;
 
 namespace Dsl.Core.Shop.UseCases.Base;
 
-public class SystemErrorFailureVerification : ResponseVerification<SystemError>
+public class SystemErrorFailureVerification : ErrorVerification<SystemError>
 {
     public SystemErrorFailureVerification(SystemError error, UseCaseContext context)
-        : base(error, context)
+        : base(error, context, e => e.Message)
     {
     }
 
-    public SystemErrorFailureVerification ErrorMessage(string expectedMessage)
+    public new SystemErrorFailureVerification ErrorMessage(string expectedMessage)
     {
-        var expandedExpectedMessage = Context.ExpandAliases(expectedMessage);
-        var error = Response;
-        var errorMessage = error.Message;
-
-        errorMessage.ShouldBe(expandedExpectedMessage,
-            $"Expected error message: '{expandedExpectedMessage}', but got: '{errorMessage}'");
-
+        base.ErrorMessage(expectedMessage);
         return this;
     }
 
@@ -45,6 +39,3 @@ public class SystemErrorFailureVerification : ResponseVerification<SystemError>
         return this;
     }
 }
-
-
-
