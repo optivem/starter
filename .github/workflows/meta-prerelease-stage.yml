@@ -1,5 +1,8 @@
 name: meta-prerelease-stage
 
+run-name: >-
+  meta-prerelease-stage${{ (inputs.variant || 'all') != 'all' && format(' [variant:{0}]', inputs.variant) || '' }}${{ inputs.skip-local && ' [skip-local]' || '' }}
+
 on:
   schedule:
     - cron: '0 */6 * * *'  # Every 6 hours
