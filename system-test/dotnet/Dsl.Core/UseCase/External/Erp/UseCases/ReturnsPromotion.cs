@@ -7,7 +7,7 @@ using Dsl.Core.Shared;
 
 namespace Dsl.Core.External.Erp.UseCases;
 
-public class ReturnsPromotion : BaseErpCommand<VoidValue, VoidVerification>
+public class ReturnsPromotion : BaseErpUseCase<VoidValue, VoidVerification>
 {
     private bool _promotionActive;
     private string? _discount;

@@ -6,7 +6,7 @@ using Dsl.Core.Shared;
 
 namespace Dsl.Core.External.Tax.UseCases;
 
-public class GetTaxRate : BaseTaxCommand<GetTaxResponse, GetTaxVerification>
+public class GetTaxRate : BaseTaxUseCase<GetTaxResponse, GetTaxVerification>
 {
     private string? country;
 

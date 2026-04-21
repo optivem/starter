@@ -1,12 +1,12 @@
 using Driver.Port.Shop.Dtos;
 
-namespace Dsl.Core.Gherkin;
+namespace Dsl.Core.Scenario;
 
 /// <summary>
-/// Default values for Gherkin test builders.
+/// Default values for scenario test builders.
 /// These defaults are used when test data is not explicitly specified.
 /// </summary>
-public static class GherkinDefaults
+public static class ScenarioDefaults
 {
     // Product defaults
     public const string DefaultSku = "DEFAULT-SKU";

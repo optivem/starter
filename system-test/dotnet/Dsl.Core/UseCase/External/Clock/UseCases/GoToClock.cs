@@ -6,7 +6,7 @@ using Dsl.Core.Shared;
 
 namespace Dsl.Core.External.Clock.UseCases;
 
-public class GoToClock : BaseClockCommand<VoidValue, VoidVerification>
+public class GoToClock : BaseClockUseCase<VoidValue, VoidVerification>
 {
     public GoToClock(IClockDriver driver, UseCaseContext context)
         : base(driver, context)

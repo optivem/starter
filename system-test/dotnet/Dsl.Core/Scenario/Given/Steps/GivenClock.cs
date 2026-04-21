@@ -1,7 +1,6 @@
 using Dsl.Port.Given.Steps;
 using Driver.Adapter;
-using Dsl.Core.Gherkin;
-using static Dsl.Core.Gherkin.GherkinDefaults;
+using static Dsl.Core.Scenario.ScenarioDefaults;
 
 namespace Dsl.Core.Scenario.Given;
 

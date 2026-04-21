@@ -5,7 +5,7 @@ using Dsl.Core.Shared;
 
 namespace Dsl.Core.External.Clock.UseCases;
 
-public class GetTime : BaseClockCommand<GetTimeResponse, GetTimeVerification>
+public class GetTime : BaseClockUseCase<GetTimeResponse, GetTimeVerification>
 {
     public GetTime(IClockDriver driver, UseCaseContext context)
         : base(driver, context)

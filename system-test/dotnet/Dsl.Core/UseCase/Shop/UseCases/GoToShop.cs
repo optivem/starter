@@ -6,7 +6,7 @@ using Dsl.Core.Shared;
 
 namespace Dsl.Core.Shop.UseCases;
 
-public class GoToShop : BaseShopCommand<VoidValue, VoidVerification>
+public class GoToShop : BaseShopUseCase<VoidValue, VoidVerification>
 {
     public GoToShop(IShopDriver driver, UseCaseContext context)
         : base(driver, context)

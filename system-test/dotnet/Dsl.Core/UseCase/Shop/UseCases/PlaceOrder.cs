@@ -6,7 +6,7 @@ using Dsl.Core.Shared;
 
 namespace Dsl.Core.Shop.UseCases;
 
-public class PlaceOrder : BaseShopCommand<PlaceOrderResponse, PlaceOrderVerification>
+public class PlaceOrder : BaseShopUseCase<PlaceOrderResponse, PlaceOrderVerification>
 {
     private string? _orderNumberResultAlias;
     private string? _skuParamAlias;

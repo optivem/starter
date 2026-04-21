@@ -7,7 +7,7 @@ using Dsl.Core.Shared;
 
 namespace Dsl.Core.External.Erp.UseCases;
 
-public class ReturnsProduct : BaseErpCommand<VoidValue, VoidVerification>
+public class ReturnsProduct : BaseErpUseCase<VoidValue, VoidVerification>
 {
     private string? _skuParamAlias;
     private string? _unitPrice;

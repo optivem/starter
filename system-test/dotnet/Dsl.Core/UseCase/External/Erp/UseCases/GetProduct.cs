@@ -6,7 +6,7 @@ using Dsl.Core.Shared;
 
 namespace Dsl.Core.External.Erp.UseCases;
 
-public class GetProduct : BaseErpCommand<GetProductResponse, GetProductVerification>
+public class GetProduct : BaseErpUseCase<GetProductResponse, GetProductVerification>
 {
     private string? _skuParamAlias;
 

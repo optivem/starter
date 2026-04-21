@@ -6,7 +6,7 @@ using Dsl.Core.Shop.UseCases.Base;
 
 namespace Dsl.Core.Shop.UseCases;
 
-public class BrowseCoupons : BaseShopCommand<BrowseCouponsResponse, BrowseCouponsVerification>
+public class BrowseCoupons : BaseShopUseCase<BrowseCouponsResponse, BrowseCouponsVerification>
 {
     public BrowseCoupons(IShopDriver driver, UseCaseContext context)
         : base(driver, context)

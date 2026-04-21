@@ -4,13 +4,13 @@ using Driver.Port.Shop.Dtos.Error;
 
 namespace Dsl.Core.Shop.UseCases.Base;
 
-public abstract class BaseShopCommand<TResponse, TVerification>
+public abstract class BaseShopUseCase<TResponse, TVerification>
     where TVerification : ResponseVerification<TResponse>
 {
     protected readonly IShopDriver _driver;
     protected readonly UseCaseContext _context;
 
-    protected BaseShopCommand(IShopDriver driver, UseCaseContext context)
+    protected BaseShopUseCase(IShopDriver driver, UseCaseContext context)
     {
         _driver = driver;
         _context = context;

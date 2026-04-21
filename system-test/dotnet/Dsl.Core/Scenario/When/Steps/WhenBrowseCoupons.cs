@@ -8,7 +8,7 @@ using Dsl.Core.Shop.UseCases;
 
 namespace Dsl.Core.Scenario.When.Steps;
 
-public class WhenBrowseCoupons : BaseWhen<BrowseCouponsResponse, BrowseCouponsVerification>, IBrowseCoupons
+public class WhenBrowseCoupons : BaseWhen<BrowseCouponsResponse, BrowseCouponsVerification>, IWhenBrowseCoupons
 {
     public WhenBrowseCoupons(UseCaseDsl app, ScenarioDsl scenario, Func<Task> ensureGiven)
         : base(app, scenario, ensureGiven)

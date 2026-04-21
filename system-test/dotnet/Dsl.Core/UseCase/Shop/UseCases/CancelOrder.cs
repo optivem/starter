@@ -6,7 +6,7 @@ using Dsl.Core.Shared;
 
 namespace Dsl.Core.Shop.UseCases;
 
-public class CancelOrder : BaseShopCommand<VoidValue, VoidVerification>
+public class CancelOrder : BaseShopUseCase<VoidValue, VoidVerification>
 {
     private string? _orderNumberResultAlias;
 

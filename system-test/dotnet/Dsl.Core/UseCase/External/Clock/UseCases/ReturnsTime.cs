@@ -6,7 +6,7 @@ using Dsl.Core.Shared;
 
 namespace Dsl.Core.External.Clock.UseCases;
 
-public class ReturnsTime : BaseClockCommand<VoidValue, VoidVerification>
+public class ReturnsTime : BaseClockUseCase<VoidValue, VoidVerification>
 {
     private string? _time;
 

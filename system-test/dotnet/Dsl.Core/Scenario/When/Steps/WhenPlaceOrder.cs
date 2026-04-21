@@ -6,11 +6,11 @@ using Driver.Adapter;
 using Driver.Port.Shop.Dtos;
 using Dsl.Core.Shop.UseCases;
 using Optivem.Testing;
-using static Dsl.Core.Gherkin.GherkinDefaults;
+using static Dsl.Core.Scenario.ScenarioDefaults;
 
 namespace Dsl.Core.Scenario.When.Steps;
 
-public class PlaceOrder : BaseWhen<PlaceOrderResponse, PlaceOrderVerification>, IPlaceOrder
+public class PlaceOrder : BaseWhen<PlaceOrderResponse, PlaceOrderVerification>, IWhenPlaceOrder
 {
     private string? _orderNumber;
     private string? _sku;
@@ -33,7 +33,7 @@ public class PlaceOrder : BaseWhen<PlaceOrderResponse, PlaceOrderVerification>, 
         return this;
     }
 
-    IPlaceOrder IPlaceOrder.WithOrderNumber(string? orderNumber) => WithOrderNumber(orderNumber);
+    IWhenPlaceOrder IWhenPlaceOrder.WithOrderNumber(string? orderNumber) => WithOrderNumber(orderNumber);
 
     public PlaceOrder WithSku(string? sku)
     {
@@ -41,7 +41,7 @@ public class PlaceOrder : BaseWhen<PlaceOrderResponse, PlaceOrderVerification>, 
         return this;
     }
 
-    IPlaceOrder IPlaceOrder.WithSku(string? sku) => WithSku(sku);
+    IWhenPlaceOrder IWhenPlaceOrder.WithSku(string? sku) => WithSku(sku);
 
     public PlaceOrder WithQuantity(string? quantity)
     {
@@ -49,14 +49,14 @@ public class PlaceOrder : BaseWhen<PlaceOrderResponse, PlaceOrderVerification>, 
         return this;
     }
 
-    IPlaceOrder IPlaceOrder.WithQuantity(string? quantity) => WithQuantity(quantity);
+    IWhenPlaceOrder IWhenPlaceOrder.WithQuantity(string? quantity) => WithQuantity(quantity);
 
     public PlaceOrder WithQuantity(int quantity)
     {
         return WithQuantity(Converter.FromInteger(quantity));
     }
 
-    IPlaceOrder IPlaceOrder.WithQuantity(int quantity) => WithQuantity(quantity);
+    IWhenPlaceOrder IWhenPlaceOrder.WithQuantity(int quantity) => WithQuantity(quantity);
 
     public PlaceOrder WithCountry(string? country)
     {
@@ -64,7 +64,7 @@ public class PlaceOrder : BaseWhen<PlaceOrderResponse, PlaceOrderVerification>, 
         return this;
     }
 
-    IPlaceOrder IPlaceOrder.WithCountry(string? country) => WithCountry(country);
+    IWhenPlaceOrder IWhenPlaceOrder.WithCountry(string? country) => WithCountry(country);
 
     public PlaceOrder WithCouponCode(string? couponCode)
     {
@@ -72,14 +72,14 @@ public class PlaceOrder : BaseWhen<PlaceOrderResponse, PlaceOrderVerification>, 
         return this;
     }
 
-    IPlaceOrder IPlaceOrder.WithCouponCode(string? couponCode) => WithCouponCode(couponCode);
+    IWhenPlaceOrder IWhenPlaceOrder.WithCouponCode(string? couponCode) => WithCouponCode(couponCode);
 
     public PlaceOrder WithCouponCode()
     {
         return WithCouponCode(DefaultCouponCode);
     }
 
-    IPlaceOrder IPlaceOrder.WithCouponCode() => WithCouponCode();
+    IWhenPlaceOrder IWhenPlaceOrder.WithCouponCode() => WithCouponCode();
 
     protected override async Task<ExecutionResult<PlaceOrderResponse, PlaceOrderVerification>> Execute(UseCaseDsl app)
     {

@@ -1,9 +1,9 @@
 using Common;
 using Dsl.Port.Given.Steps;
 using Dsl.Core.Scenario.Given;
-using static Dsl.Core.Gherkin.GherkinDefaults;
+using static Dsl.Core.Scenario.ScenarioDefaults;
 
-namespace Dsl.Core.Gherkin.Given;
+namespace Dsl.Core.Scenario.Given;
 
 public class GivenCoupon : BaseGiven, IGivenCoupon
 {

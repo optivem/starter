@@ -6,11 +6,11 @@ using Common;
 using Driver.Port.Shop.Dtos;
 using Dsl.Core.Shop.UseCases;
 using Optivem.Testing;
-using static Dsl.Core.Gherkin.GherkinDefaults;
+using static Dsl.Core.Scenario.ScenarioDefaults;
 
 namespace Dsl.Core.Scenario.When.Steps;
 
-public class WhenPublishCoupon : BaseWhen<VoidValue, VoidVerification>, IPublishCoupon
+public class WhenPublishCoupon : BaseWhen<VoidValue, VoidVerification>, IWhenPublishCoupon
 {
     private string? _couponCode;
     private string? _discountRate;
@@ -30,7 +30,7 @@ public class WhenPublishCoupon : BaseWhen<VoidValue, VoidVerification>, IPublish
         return this;
     }
 
-    IPublishCoupon IPublishCoupon.WithCouponCode(string? couponCode) => WithCouponCode(couponCode);
+    IWhenPublishCoupon IWhenPublishCoupon.WithCouponCode(string? couponCode) => WithCouponCode(couponCode);
 
     public WhenPublishCoupon WithDiscountRate(string? discountRate)
     {
@@ -38,7 +38,7 @@ public class WhenPublishCoupon : BaseWhen<VoidValue, VoidVerification>, IPublish
         return this;
     }
 
-    IPublishCoupon IPublishCoupon.WithDiscountRate(string? discountRate) => WithDiscountRate(discountRate);
+    IWhenPublishCoupon IWhenPublishCoupon.WithDiscountRate(string? discountRate) => WithDiscountRate(discountRate);
 
     public WhenPublishCoupon WithDiscountRate(decimal discountRate)
     {
@@ -46,7 +46,7 @@ public class WhenPublishCoupon : BaseWhen<VoidValue, VoidVerification>, IPublish
         return this;
     }
 
-    IPublishCoupon IPublishCoupon.WithDiscountRate(decimal discountRate) => WithDiscountRate(discountRate);
+    IWhenPublishCoupon IWhenPublishCoupon.WithDiscountRate(decimal discountRate) => WithDiscountRate(discountRate);
 
     public WhenPublishCoupon WithValidFrom(string? validFrom)
     {
@@ -54,7 +54,7 @@ public class WhenPublishCoupon : BaseWhen<VoidValue, VoidVerification>, IPublish
         return this;
     }
 
-    IPublishCoupon IPublishCoupon.WithValidFrom(string? validFrom) => WithValidFrom(validFrom);
+    IWhenPublishCoupon IWhenPublishCoupon.WithValidFrom(string? validFrom) => WithValidFrom(validFrom);
 
     public WhenPublishCoupon WithValidTo(string? validTo)
     {
@@ -62,7 +62,7 @@ public class WhenPublishCoupon : BaseWhen<VoidValue, VoidVerification>, IPublish
         return this;
     }
 
-    IPublishCoupon IPublishCoupon.WithValidTo(string? validTo) => WithValidTo(validTo);
+    IWhenPublishCoupon IWhenPublishCoupon.WithValidTo(string? validTo) => WithValidTo(validTo);
 
     public WhenPublishCoupon WithUsageLimit(string? usageLimit)
     {
@@ -70,7 +70,7 @@ public class WhenPublishCoupon : BaseWhen<VoidValue, VoidVerification>, IPublish
         return this;
     }
 
-    IPublishCoupon IPublishCoupon.WithUsageLimit(string? usageLimit) => WithUsageLimit(usageLimit);
+    IWhenPublishCoupon IWhenPublishCoupon.WithUsageLimit(string? usageLimit) => WithUsageLimit(usageLimit);
 
     public WhenPublishCoupon WithUsageLimit(int usageLimit)
     {
@@ -78,7 +78,7 @@ public class WhenPublishCoupon : BaseWhen<VoidValue, VoidVerification>, IPublish
         return this;
     }
 
-    IPublishCoupon IPublishCoupon.WithUsageLimit(int usageLimit) => WithUsageLimit(usageLimit);
+    IWhenPublishCoupon IWhenPublishCoupon.WithUsageLimit(int usageLimit) => WithUsageLimit(usageLimit);
 
     protected override async Task<ExecutionResult<VoidValue, VoidVerification>> Execute(UseCaseDsl app)
     {

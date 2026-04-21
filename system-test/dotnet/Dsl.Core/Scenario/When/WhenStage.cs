@@ -3,7 +3,7 @@ using Dsl.Port.When;
 using Dsl.Port.When.Steps;
 using Optivem.Testing;
 using Driver.Adapter;
-using static Dsl.Core.Gherkin.GherkinDefaults;
+using static Dsl.Core.Scenario.ScenarioDefaults;
 
 namespace Dsl.Core.Scenario.When
 {
@@ -75,34 +75,34 @@ namespace Dsl.Core.Scenario.When
             return new PlaceOrder(_app, _scenario, () => EnsureGiven());
         }
 
-        IPlaceOrder IWhenStage.PlaceOrder() => PlaceOrder();
+        IWhenPlaceOrder IWhenStage.PlaceOrder() => PlaceOrder();
 
         public CancelOrder CancelOrder()
         {
             return new CancelOrder(_app, _scenario, () => EnsureGiven());
         }
 
-        ICancelOrder IWhenStage.CancelOrder() => CancelOrder();
+        IWhenCancelOrder IWhenStage.CancelOrder() => CancelOrder();
 
         public ViewOrder ViewOrder()
         {
             return new ViewOrder(_app, _scenario, () => EnsureGiven());
         }
 
-        IViewOrder IWhenStage.ViewOrder() => ViewOrder();
+        IWhenViewOrder IWhenStage.ViewOrder() => ViewOrder();
 
         public WhenPublishCoupon PublishCoupon()
         {
             return new WhenPublishCoupon(_app, _scenario, () => EnsureGiven());
         }
 
-        IPublishCoupon IWhenStage.PublishCoupon() => PublishCoupon();
+        IWhenPublishCoupon IWhenStage.PublishCoupon() => PublishCoupon();
 
         public WhenBrowseCoupons BrowseCoupons()
         {
             return new WhenBrowseCoupons(_app, _scenario, () => EnsureGiven());
         }
 
-        IBrowseCoupons IWhenStage.BrowseCoupons() => BrowseCoupons();
+        IWhenBrowseCoupons IWhenStage.BrowseCoupons() => BrowseCoupons();
     }
 }

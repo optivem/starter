@@ -3,7 +3,6 @@ using Dsl.Port.Then.Steps;
 using Dsl.Core.Shared;
 using Dsl.Core.Scenario;
 using Driver.Adapter;
-using Dsl.Core.Gherkin;
 using Driver.Port.Shop.Dtos;
 using Dsl.Core.Shop.UseCases;
 
@@ -144,7 +143,7 @@ public abstract class BaseThenResultOrder<TSuccessResponse, TSuccessVerification
 
     public TDerived HasAppliedCoupon()
     {
-        _verifications.Add(v => v.AppliedCouponCode(GherkinDefaults.DefaultCouponCode));
+        _verifications.Add(v => v.AppliedCouponCode(ScenarioDefaults.DefaultCouponCode));
         return Self;
     }
 

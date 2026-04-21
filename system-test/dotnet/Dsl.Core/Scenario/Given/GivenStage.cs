@@ -5,7 +5,7 @@ using Dsl.Port.Given.Steps;
 using Dsl.Port.Then;
 using Dsl.Port.When;
 using Driver.Adapter;
-using Dsl.Core.Gherkin.Given;
+using Dsl.Core.Scenario.Given;
 using Optivem.Testing;
 
 namespace Dsl.Core.Scenario.Given

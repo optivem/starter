@@ -6,7 +6,7 @@ using Dsl.Core.Shared;
 
 namespace Dsl.Core.Shop.UseCases;
 
-public class DeliverOrder : BaseShopCommand<VoidValue, VoidVerification>
+public class DeliverOrder : BaseShopUseCase<VoidValue, VoidVerification>
 {
     private string? _orderNumberResultAlias;
 

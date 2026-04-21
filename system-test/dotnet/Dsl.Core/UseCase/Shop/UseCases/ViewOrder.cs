@@ -6,7 +6,7 @@ using Driver.Port.Shop.Dtos.Error;
 
 namespace Dsl.Core.Shop.UseCases;
 
-public class ViewOrder : BaseShopCommand<ViewOrderResponse, ViewOrderVerification>
+public class ViewOrder : BaseShopUseCase<ViewOrderResponse, ViewOrderVerification>
 {
     private string? _orderNumberResultAlias;
 

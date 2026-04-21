@@ -4,13 +4,13 @@ namespace Dsl.Port.When;
 
 public interface IWhenStage
 {
-    IPlaceOrder PlaceOrder();
+    IWhenPlaceOrder PlaceOrder();
 
-    ICancelOrder CancelOrder();
+    IWhenCancelOrder CancelOrder();
 
-    IViewOrder ViewOrder();
+    IWhenViewOrder ViewOrder();
 
-    IPublishCoupon PublishCoupon();
+    IWhenPublishCoupon PublishCoupon();
 
-    IBrowseCoupons BrowseCoupons();
+    IWhenBrowseCoupons BrowseCoupons();
 }

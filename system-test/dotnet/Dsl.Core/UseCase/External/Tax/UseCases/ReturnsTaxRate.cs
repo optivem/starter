@@ -7,7 +7,7 @@ using Dsl.Core.Shared;
 
 namespace Dsl.Core.External.Tax.UseCases;
 
-public class ReturnsTaxRate : BaseTaxCommand<VoidValue, VoidVerification>
+public class ReturnsTaxRate : BaseTaxUseCase<VoidValue, VoidVerification>
 {
     private string? countryAlias;
     private string? taxRate;

@@ -6,7 +6,7 @@ using Dsl.Core.Shared;
 
 namespace Dsl.Core.External.Tax.UseCases;
 
-public class GoToTax : BaseTaxCommand<VoidValue, VoidVerification>
+public class GoToTax : BaseTaxUseCase<VoidValue, VoidVerification>
 {
     public GoToTax(ITaxDriver driver, UseCaseContext context)
         : base(driver, context)

@@ -1,9 +1,9 @@
 using Dsl.Core.Scenario.Given;
 using Dsl.Port.Given.Steps;
 using Driver.Adapter;
-using static Dsl.Core.Gherkin.GherkinDefaults;
+using static Dsl.Core.Scenario.ScenarioDefaults;
 
-namespace Dsl.Core.Gherkin.Given;
+namespace Dsl.Core.Scenario.Given;
 
 public class GivenPromotion : BaseGiven, IGivenPromotion
 {

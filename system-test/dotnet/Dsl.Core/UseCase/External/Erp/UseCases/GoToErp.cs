@@ -6,7 +6,7 @@ using Dsl.Core.Shared;
 
 namespace Dsl.Core.External.Erp.UseCases;
 
-public class GoToErp : BaseErpCommand<VoidValue, VoidVerification>
+public class GoToErp : BaseErpUseCase<VoidValue, VoidVerification>
 {
     public GoToErp(IErpDriver driver, UseCaseContext context)
         : base(driver, context)

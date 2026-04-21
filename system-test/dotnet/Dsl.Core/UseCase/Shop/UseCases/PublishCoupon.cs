@@ -7,7 +7,7 @@ using Common;
 
 namespace Dsl.Core.Shop.UseCases;
 
-public class PublishCoupon : BaseShopCommand<VoidValue, VoidVerification>
+public class PublishCoupon : BaseShopUseCase<VoidValue, VoidVerification>
 {
     private string? _couponCodeParamAlias;
     private string? _discountRate;

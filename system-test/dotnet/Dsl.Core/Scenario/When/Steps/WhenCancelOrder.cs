@@ -6,11 +6,11 @@ using Driver.Adapter;
 using Driver.Port.Shop.Dtos;
 using Dsl.Core.Shop.UseCases;
 using Optivem.Testing;
-using static Dsl.Core.Gherkin.GherkinDefaults;
+using static Dsl.Core.Scenario.ScenarioDefaults;
 
 namespace Dsl.Core.Scenario.When.Steps;
 
-public class CancelOrder : BaseWhen<VoidValue, VoidVerification>, ICancelOrder
+public class CancelOrder : BaseWhen<VoidValue, VoidVerification>, IWhenCancelOrder
 {
     private string? _orderNumber;
 
@@ -25,7 +25,7 @@ public class CancelOrder : BaseWhen<VoidValue, VoidVerification>, ICancelOrder
         return this;
     }
 
-    ICancelOrder ICancelOrder.WithOrderNumber(string? orderNumber) => WithOrderNumber(orderNumber);
+    IWhenCancelOrder IWhenCancelOrder.WithOrderNumber(string? orderNumber) => WithOrderNumber(orderNumber);
 
     protected override async Task<ExecutionResult<VoidValue, VoidVerification>> Execute(UseCaseDsl app)
     {
