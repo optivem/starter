@@ -85,7 +85,7 @@ jobs:
 
       - name: Simulate Deployment (Production Environment)
         id: deploy
-        uses: optivem/actions/start-docker-compose@v1
+        uses: optivem/actions/deploy-docker-compose@v1
         with:
           environment: production
           version: ${{ inputs.version }}

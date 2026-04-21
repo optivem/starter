@@ -109,7 +109,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Simulate Deployment (Real External Systems)
-        uses: optivem/actions/start-docker-compose@v1
+        uses: optivem/actions/deploy-docker-compose@v1
         with:
           environment: acceptance
           version: latest
@@ -131,7 +131,7 @@ jobs:
           working-directory: system-test/dotnet
 
       - name: Simulate Deployment (Stub External Systems)
-        uses: optivem/actions/start-docker-compose@v1
+        uses: optivem/actions/deploy-docker-compose@v1
         with:
           environment: acceptance
           version: latest

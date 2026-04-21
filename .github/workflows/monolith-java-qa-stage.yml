@@ -67,7 +67,7 @@ jobs:
 
       - name: Simulate Deployment (QA Environment)
         id: deploy
-        uses: optivem/actions/start-docker-compose@v1
+        uses: optivem/actions/deploy-docker-compose@v1
         with:
           environment: qa
           version: ${{ inputs.version }}
