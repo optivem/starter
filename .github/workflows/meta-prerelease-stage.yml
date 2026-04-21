@@ -28,6 +28,11 @@ on:
           - multitier-dotnet
           - multitier-typescript
         default: 'all'
+      skip-local:
+        description: 'Skip Phase 0 (local stages) for debugging — Phase 1 and Phase 2 still run if level permits'
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: meta-prerelease-stage
@@ -58,6 +63,7 @@ jobs:
           echo "=== Workflow Inputs ==="
           echo "Level: ${{ inputs.level || 'qa' }}"
           echo "Variant: ${{ inputs.variant || 'all' }}"
+          echo "Skip local: ${{ inputs.skip-local || false }}"
           echo "Triggered by: ${{ github.event_name }} ${{ github.event.schedule }}"
       - uses: actions/checkout@v5
         with:
@@ -163,7 +169,7 @@ jobs:
   # Phase 0: Run all local stages in parallel
   local-monolith-java:
     needs: check
-    if: ${{ needs.check.outputs.should_run == 'true' && contains(fromJSON('["all","monolith-java"]'), inputs.variant || 'all') }}
+    if: ${{ needs.check.outputs.should_run == 'true' && !inputs.skip-local && contains(fromJSON('["all","monolith-java"]'), inputs.variant || 'all') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-github-workflow@v1
@@ -173,7 +179,7 @@ jobs:
 
   local-monolith-dotnet:
     needs: check
-    if: ${{ needs.check.outputs.should_run == 'true' && contains(fromJSON('["all","monolith-dotnet"]'), inputs.variant || 'all') }}
+    if: ${{ needs.check.outputs.should_run == 'true' && !inputs.skip-local && contains(fromJSON('["all","monolith-dotnet"]'), inputs.variant || 'all') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-github-workflow@v1
@@ -183,7 +189,7 @@ jobs:
 
   local-monolith-typescript:
     needs: check
-    if: ${{ needs.check.outputs.should_run == 'true' && contains(fromJSON('["all","monolith-typescript"]'), inputs.variant || 'all') }}
+    if: ${{ needs.check.outputs.should_run == 'true' && !inputs.skip-local && contains(fromJSON('["all","monolith-typescript"]'), inputs.variant || 'all') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-github-workflow@v1
@@ -193,7 +199,7 @@ jobs:
 
   local-multitier-java:
     needs: check
-    if: ${{ needs.check.outputs.should_run == 'true' && contains(fromJSON('["all","multitier-java"]'), inputs.variant || 'all') }}
+    if: ${{ needs.check.outputs.should_run == 'true' && !inputs.skip-local && contains(fromJSON('["all","multitier-java"]'), inputs.variant || 'all') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-github-workflow@v1
@@ -203,7 +209,7 @@ jobs:
 
   local-multitier-dotnet:
     needs: check
-    if: ${{ needs.check.outputs.should_run == 'true' && contains(fromJSON('["all","multitier-dotnet"]'), inputs.variant || 'all') }}
+    if: ${{ needs.check.outputs.should_run == 'true' && !inputs.skip-local && contains(fromJSON('["all","multitier-dotnet"]'), inputs.variant || 'all') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-github-workflow@v1
@@ -213,7 +219,7 @@ jobs:
 
   local-multitier-typescript:
     needs: check
-    if: ${{ needs.check.outputs.should_run == 'true' && contains(fromJSON('["all","multitier-typescript"]'), inputs.variant || 'all') }}
+    if: ${{ needs.check.outputs.should_run == 'true' && !inputs.skip-local && contains(fromJSON('["all","multitier-typescript"]'), inputs.variant || 'all') }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-github-workflow@v1
