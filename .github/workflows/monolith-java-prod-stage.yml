@@ -113,7 +113,7 @@ jobs:
 
       - name: Tag Docker Images
         id: tag-images
-        uses: optivem/actions/tag-docker-images@v1
+        uses: optivem/actions/promote-docker-images@v1
         with:
           image-urls: ${{ needs.check.outputs.image-urls }}
           tag: ${{ steps.promote.outputs.version }}

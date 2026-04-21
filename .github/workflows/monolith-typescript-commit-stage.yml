@@ -138,7 +138,7 @@ jobs:
       - name: Tag Docker Image
         if: steps.verify-main.outputs.on-branch == 'true'
         id: tag
-        uses: optivem/actions/tag-docker-image-local@v1
+        uses: optivem/actions/tag-docker-image@v1
         with:
           source: ${{ steps.build.outputs.local-image-ref }}
           image-name: monolith-system-typescript
