@@ -40,7 +40,7 @@ on:
         required: false
         type: string
         default: 'qa'
-      ref:
+      sha:
         description: 'Git SHA to pin the pipeline to (leave empty for HEAD)'
         required: false
         type: string
@@ -62,7 +62,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-          ref: ${{ inputs.ref || github.sha }}
+          ref: ${{ inputs.sha || github.sha }}
 
       - name: Read Target Version
         id: read-target-version
@@ -81,7 +81,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
         with:
-          ref: ${{ inputs.ref || github.sha }}
+          ref: ${{ inputs.sha || github.sha }}
 
       # Setup runtimes
       - name: Setup Node.js
@@ -180,34 +180,40 @@ jobs:
       - uses: optivem/actions/trigger-and-wait-for-github-workflow@v1
         with:
           workflow: ${{ matrix.workflow }}
-          inputs: '{"ref": "${{ inputs.ref }}"}'
+          inputs: '{"sha": "${{ inputs.sha }}"}'
 
   acceptance-stage:
     needs: [check-version, local, commit-stage]
     if: ${{ always() && inputs.level != 'local' && inputs.level != 'commit' && needs.check-version.result == 'success' && (inputs.skip-local-stage || needs.local.result == 'success') && (inputs.skip-commit-stage || needs.commit-stage.result == 'success') }}
     runs-on: ubuntu-latest
     outputs:
-      version: ${{ steps.get-version.outputs.version }}
+      version: ${{ steps.get-version.outputs.tag }}
     steps:
-      - id: trigger
-        uses: optivem/actions/trigger-and-wait-for-github-workflow@v1
+      - uses: optivem/actions/trigger-and-wait-for-github-workflow@v1
         with:
           workflow: ${{ inputs.prefix }}-acceptance-stage.yml
           poll-interval: '300'
-          inputs: '{"ref": "${{ inputs.ref }}"}'
+          inputs: '{"sha": "${{ inputs.sha }}"}'
 
-      - id: get-run-number
-        uses: optivem/actions/read-workflow-run-number@v1
-        with:
-          run-id: ${{ steps.trigger.outputs.run-id }}
-
+      # Resolve the rc tag that actually points at the tested SHA — whether our
+      # dispatched run created it or a concurrent scheduled run did. This makes
+      # the meta-pipeline race-tolerant with the hourly cron on acceptance-stage.
       - id: get-version
-        uses: optivem/actions/compose-prerelease-version@v1
+        uses: optivem/actions/resolve-latest-tag-from-sha@v1
         with:
-          target-version: ${{ needs.check-version.outputs.target-version }}
-          suffix: rc
-          number: ${{ steps.get-run-number.outputs.run-number }}
-          prefix: ${{ inputs.prefix }}
+          repo: ${{ github.repository }}
+          sha: ${{ inputs.sha || github.sha }}
+          pattern: ${{ inputs.prefix }}-v${{ needs.check-version.outputs.target-version }}-rc.*
+
+      - name: Fail If No RC Tag On SHA
+        if: steps.get-version.outputs.tag == ''
+        shell: bash
+        env:
+          PATTERN: ${{ inputs.prefix }}-v${{ needs.check-version.outputs.target-version }}-rc.*
+          SHA: ${{ inputs.sha || github.sha }}
+        run: |
+          echo "::error::No rc tag matching '$PATTERN' found on $SHA — acceptance-stage produced no tag and none was pre-existing."
+          exit 1
 
   acceptance-stage-legacy:
     needs: acceptance-stage
@@ -218,7 +224,7 @@ jobs:
         with:
           workflow: ${{ inputs.prefix }}-acceptance-stage-legacy.yml
           poll-interval: '300'
-          inputs: '{"ref": "${{ inputs.ref }}"}'
+          inputs: '{"sha": "${{ inputs.sha }}"}'
 
   qa-stage:
     needs: [acceptance-stage, acceptance-stage-legacy]

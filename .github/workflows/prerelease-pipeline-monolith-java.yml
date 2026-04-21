@@ -28,7 +28,7 @@ on:
         required: false
         type: boolean
         default: false
-      ref:
+      sha:
         description: 'Git SHA to pin (leave empty for HEAD)'
         required: false
         type: string
@@ -46,4 +46,4 @@ jobs:
       skip-local-stage: ${{ inputs.skip-local-stage == true }}
       skip-commit-stage: ${{ inputs.skip-commit-stage == true }}
       skip-acceptance-legacy: ${{ inputs.skip-acceptance-legacy == true }}
-      ref: ${{ inputs.ref }}
+      sha: ${{ inputs.sha }}
