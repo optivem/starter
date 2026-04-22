@@ -183,11 +183,13 @@ jobs:
           key: playwright-${{ runner.os }}-${{ hashFiles('system-test/typescript/package-lock.json') }}
 
       - name: Install Playwright Browsers
+        timeout-minutes: 5
         if: steps.cache-playwright.outputs.cache-hit != 'true'
         working-directory: system-test/typescript
         run: npx playwright install chromium
 
       - name: Install Playwright System Dependencies
+        timeout-minutes: 5
         working-directory: system-test/typescript
         run: npx playwright install-deps chromium
 

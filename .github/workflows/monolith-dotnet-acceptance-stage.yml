@@ -188,11 +188,13 @@ jobs:
           key: playwright-${{ runner.os }}-${{ hashFiles('system-test/dotnet/**/*.csproj') }}
 
       - name: Install Playwright Browsers
+        timeout-minutes: 5
         if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: pwsh SystemTests/bin/Debug/net8.0/playwright.ps1 install chromium
         working-directory: system-test/dotnet
 
       - name: Install Playwright System Dependencies
+        timeout-minutes: 5
         run: pwsh SystemTests/bin/Debug/net8.0/playwright.ps1 install-deps chromium
         working-directory: system-test/dotnet
 

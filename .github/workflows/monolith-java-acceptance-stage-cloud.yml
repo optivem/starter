@@ -295,11 +295,13 @@ jobs:
           key: playwright-${{ runner.os }}-${{ hashFiles('system-test/java/build.gradle') }}
 
       - name: Install Playwright Browsers
+        timeout-minutes: 5
         if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: npx playwright install chromium
         working-directory: system-test/java
 
       - name: Install Playwright System Dependencies
+        timeout-minutes: 5
         run: npx playwright install-deps chromium
         working-directory: system-test/java
 
@@ -351,11 +353,13 @@ jobs:
           key: playwright-${{ runner.os }}-${{ hashFiles('system-test/java/build.gradle') }}
 
       - name: Install Playwright Browsers
+        timeout-minutes: 5
         if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: npx playwright install chromium
         working-directory: system-test/java
 
       - name: Install Playwright System Dependencies
+        timeout-minutes: 5
         run: npx playwright install-deps chromium
         working-directory: system-test/java
 
@@ -467,11 +471,13 @@ jobs:
           key: playwright-${{ runner.os }}-${{ hashFiles('system-test/java/build.gradle') }}
 
       - name: Install Playwright Browsers
+        timeout-minutes: 5
         if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: npx playwright install chromium
         working-directory: system-test/java
 
       - name: Install Playwright System Dependencies
+        timeout-minutes: 5
         run: npx playwright install-deps chromium
         working-directory: system-test/java
 
