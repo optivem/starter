@@ -79,10 +79,15 @@ jobs:
           file: system/multitier/backend-typescript/VERSION
 
       - name: Setup Node
-        uses: optivem/actions/setup-node@v1
+        uses: actions/setup-node@v5
         with:
           node-version: 22.x
-          working-directory: system/multitier/backend-typescript
+          cache: 'npm'
+          cache-dependency-path: system/multitier/backend-typescript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: system/multitier/backend-typescript
 
       - name: Compile Code
         run: npm run build

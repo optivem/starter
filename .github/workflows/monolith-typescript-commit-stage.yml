@@ -72,10 +72,15 @@ jobs:
           commit-sha: ${{ env.COMMIT_SHA }}
 
       - name: Setup Node
-        uses: optivem/actions/setup-node@v1
+        uses: actions/setup-node@v5
         with:
           node-version: 22.x
-          working-directory: system/monolith/typescript
+          cache: 'npm'
+          cache-dependency-path: system/monolith/typescript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: system/monolith/typescript
 
       - name: Compile Code
         run: npm run build

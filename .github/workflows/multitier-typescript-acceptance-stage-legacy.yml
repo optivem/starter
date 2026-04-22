@@ -143,10 +143,15 @@ jobs:
           working-directory: system-test/typescript
 
       - name: Setup Node
-        uses: optivem/actions/setup-node@v1
+        uses: actions/setup-node@v5
         with:
           node-version: 22.x
-          working-directory: system-test/typescript
+          cache: 'npm'
+          cache-dependency-path: system-test/typescript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: system-test/typescript
 
       - name: Cache Playwright Browsers
         id: cache-playwright

@@ -143,7 +143,7 @@ jobs:
           working-directory: system-test/dotnet
 
       - name: Setup .NET
-        uses: optivem/actions/setup-dotnet@v1
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 8.0.x
 

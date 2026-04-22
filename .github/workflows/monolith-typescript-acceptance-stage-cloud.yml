@@ -207,10 +207,15 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: optivem/actions/setup-node@v1
+        uses: actions/setup-node@v5
         with:
           node-version: 22.x
-          working-directory: system-test/typescript
+          cache: 'npm'
+          cache-dependency-path: system-test/typescript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: system-test/typescript
 
       - name: Cache Playwright Browsers
         id: cache-playwright
@@ -245,10 +250,15 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: optivem/actions/setup-node@v1
+        uses: actions/setup-node@v5
         with:
           node-version: 22.x
-          working-directory: system-test/typescript
+          cache: 'npm'
+          cache-dependency-path: system-test/typescript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: system-test/typescript
 
       - name: Cache Playwright Browsers
         id: cache-playwright
@@ -283,10 +293,15 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: optivem/actions/setup-node@v1
+        uses: actions/setup-node@v5
         with:
           node-version: 22.x
-          working-directory: system-test/typescript
+          cache: 'npm'
+          cache-dependency-path: system-test/typescript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: system-test/typescript
 
       - name: Run Acceptance Tests - API Channel
         working-directory: system-test/typescript
@@ -306,10 +321,15 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: optivem/actions/setup-node@v1
+        uses: actions/setup-node@v5
         with:
           node-version: 22.x
-          working-directory: system-test/typescript
+          cache: 'npm'
+          cache-dependency-path: system-test/typescript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: system-test/typescript
 
       - name: Cache Playwright Browsers
         id: cache-playwright
@@ -346,10 +366,15 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: optivem/actions/setup-node@v1
+        uses: actions/setup-node@v5
         with:
           node-version: 22.x
-          working-directory: system-test/typescript
+          cache: 'npm'
+          cache-dependency-path: system-test/typescript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: system-test/typescript
 
       - name: Run Acceptance Tests (Isolated) - API Channel
         working-directory: system-test/typescript
@@ -369,10 +394,15 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: optivem/actions/setup-node@v1
+        uses: actions/setup-node@v5
         with:
           node-version: 22.x
-          working-directory: system-test/typescript
+          cache: 'npm'
+          cache-dependency-path: system-test/typescript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: system-test/typescript
 
       - name: Cache Playwright Browsers
         id: cache-playwright
@@ -409,10 +439,15 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: optivem/actions/setup-node@v1
+        uses: actions/setup-node@v5
         with:
           node-version: 22.x
-          working-directory: system-test/typescript
+          cache: 'npm'
+          cache-dependency-path: system-test/typescript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: system-test/typescript
 
       - name: Run Contract Tests (Stub)
         working-directory: system-test/typescript
@@ -431,10 +466,15 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: optivem/actions/setup-node@v1
+        uses: actions/setup-node@v5
         with:
           node-version: 22.x
-          working-directory: system-test/typescript
+          cache: 'npm'
+          cache-dependency-path: system-test/typescript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: system-test/typescript
 
       - name: Run Contract Tests (Isolated) (Stub)
         working-directory: system-test/typescript
@@ -453,10 +493,15 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: optivem/actions/setup-node@v1
+        uses: actions/setup-node@v5
         with:
           node-version: 22.x
-          working-directory: system-test/typescript
+          cache: 'npm'
+          cache-dependency-path: system-test/typescript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: system-test/typescript
 
       - name: Run Contract Tests (Real)
         working-directory: system-test/typescript
@@ -475,10 +520,15 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: optivem/actions/setup-node@v1
+        uses: actions/setup-node@v5
         with:
           node-version: 22.x
-          working-directory: system-test/typescript
+          cache: 'npm'
+          cache-dependency-path: system-test/typescript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: system-test/typescript
 
       - name: Run E2E Tests - API Channel
         working-directory: system-test/typescript
@@ -497,10 +547,15 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: optivem/actions/setup-node@v1
+        uses: actions/setup-node@v5
         with:
           node-version: 22.x
-          working-directory: system-test/typescript
+          cache: 'npm'
+          cache-dependency-path: system-test/typescript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: system-test/typescript
 
       - name: Cache Playwright Browsers
         id: cache-playwright
@@ -535,7 +590,7 @@ jobs:
       contents: read
       packages: write
     outputs:
-      version: ${{ steps.generate-version.outputs.version }}
+      version: ${{ steps.rc-version.outputs.version }}
       image-urls: ${{ steps.tag-images.outputs.image-urls }}
     steps:
       - name: Checkout Repository
@@ -547,8 +602,8 @@ jobs:
         id: read-version
         uses: optivem/actions/read-base-version@v1
 
-      - name: Generate Prerelease Version
-        id: generate-version
+      - name: Compose Prerelease Version
+        id: rc-version
         uses: optivem/actions/compose-prerelease-version@v1
         with:
           base-version: ${{ steps.read-version.outputs.base-version }}
@@ -561,7 +616,7 @@ jobs:
         uses: optivem/actions/promote-docker-images@v1
         with:
           image-urls: ${{ needs.check.outputs.image-digest-urls }}
-          tag: ${{ steps.generate-version.outputs.version }}
+          tag: ${{ steps.rc-version.outputs.version }}
 
   publish-tag:
     needs: promote

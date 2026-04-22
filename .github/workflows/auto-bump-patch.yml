@@ -58,6 +58,7 @@ jobs:
         uses: optivem/actions/commit-files@v1
         with:
           files: ${{ steps.payload.outputs.files }}
+          branch: main
           token: ${{ secrets.GITHUB_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -79,10 +79,15 @@ jobs:
           file: system/multitier/frontend-react/VERSION
 
       - name: Setup Node
-        uses: optivem/actions/setup-node@v1
+        uses: actions/setup-node@v5
         with:
           node-version: 22.x
-          working-directory: system/multitier/frontend-react
+          cache: 'npm'
+          cache-dependency-path: system/multitier/frontend-react/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: system/multitier/frontend-react
 
       - name: Compile Code
         run: npm run build
