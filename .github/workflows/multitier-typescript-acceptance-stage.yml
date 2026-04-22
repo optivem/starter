@@ -177,35 +177,6 @@ jobs:
         working-directory: system-test/typescript
         run: npx playwright install-deps chromium
 
-      # TODO(debug-smoke-0-tests): temporary diagnostic scaffolding — remove once the
-      # "Total tests: 0" failure on CI is resolved. Isolates whether the custom
-      # channel-list-reporter or Playwright core is responsible for 0 discovered tests.
-      - name: Debug Smoke Discovery
-        working-directory: system-test/typescript
-        run: |
-          echo "--- pwd ---"
-          pwd
-          echo "--- tree tests/latest/smoke ---"
-          ls -laR tests/latest/smoke
-          echo "--- playwright --list (default reporter, via project) ---"
-          npx playwright test --project=smoke-test tests/latest/smoke --list || true
-          echo "--- playwright --list (line reporter, bypass custom channel-list-reporter) ---"
-          npx playwright test --reporter=line tests/latest/smoke --list || true
-          echo "--- playwright.config.ts ---"
-          cat playwright.config.ts || true
-          echo "--- file(1) on smoke spec files (encoding/line-ending check) ---"
-          for f in tests/latest/smoke/**/*.spec.ts tests/latest/smoke/*.spec.ts; do
-            if [ -e "$f" ]; then
-              file "$f" || true
-            fi
-          done
-          echo "--- playwright version ---"
-          npx playwright --version
-          echo "--- optivem-testing package.json presence ---"
-          ls node_modules/@optivem/optivem-testing/package.json || true
-          echo "--- installed playwright packages ---"
-          npm ls --all 2>/dev/null | grep -iE "playwright|optivem-testing" || true
-
       - name: Run Smoke Tests (Stub)
         working-directory: system-test/typescript
         run: npx playwright test --project=smoke-test tests/latest/smoke
