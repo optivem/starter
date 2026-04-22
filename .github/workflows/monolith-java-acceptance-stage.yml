@@ -252,7 +252,7 @@ jobs:
 
       - name: Tag Docker Images for Prerelease
         id: tag-images
-        uses: optivem/actions/promote-docker-images@v1
+        uses: optivem/actions/tag-docker-images@v1
         with:
           image-urls: ${{ needs.check.outputs.image-digest-urls }}
           tag: ${{ steps.rc-version.outputs.version }}
