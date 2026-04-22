@@ -143,26 +143,25 @@ Differences that SHOULD be flagged:
 
 ## Output
 
-When the comparison is complete, write the results to a **timestamped plan file** at:
+When the comparison is complete, write the results to a **timestamped plan file** at the repo root:
 
 ```
-.claude/plans/workflow-diff-{timestamp}.md
+plans/{YYYYMMDD-HHMM}-compare-workflows.md
 ```
 
-where `{timestamp}` is the current date and time in `YYYY-MM-DD-HHmmss` format (e.g., `workflow-diff-2026-04-08-143052.md`).
+where `{YYYYMMDD-HHMM}` is the current date and time (e.g. `plans/20260422-1430-compare-workflows.md`).
 
-To get the timestamp, run: `date -u +"%Y-%m-%d-%H%M%S"`
+To get the timestamp, run: `date -u +"%Y%m%d-%H%M"`
 
-If the `.claude/plans/` directory does not exist, create it first.
+If the `plans/` directory does not exist, create it first (`mkdir -p plans`).
 
 ### Plan File Format
 
-The plan file must contain both the **differences found** and **recommendations for how to resolve each one**. Use this structure:
+The plan file must contain both the **differences found** and **recommendations for how to resolve each one**. The H1 title must include the timestamp, matching the filename stem.
 
 ```markdown
-# Workflow Diff Plan
+# {YYYYMMDD-HHMM} — Workflow Diff Plan
 
-Generated: {YYYY-MM-DD HH:MM:SS UTC}
 Architecture: [monolith | multitier | both]
 Stage: [all | specific stage]
 

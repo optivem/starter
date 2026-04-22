@@ -55,7 +55,7 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     outputs:
       component-version: ${{ steps.read-version.outputs.target-version }}
-      image-version-tag: ${{ fromJSON(steps.tag.outputs.image-urls)[2] }}
+      image-version-url: ${{ fromJSON(steps.tag.outputs.image-urls)[2] }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
@@ -152,9 +152,9 @@ jobs:
         id: push
         uses: optivem/actions/push-docker-image@v1
         with:
-          image-sha-tag: ${{ fromJSON(steps.tag.outputs.image-urls)[0] }}
-          image-latest-tag: ${{ fromJSON(steps.tag.outputs.image-urls)[1] }}
-          image-version-tag: ${{ fromJSON(steps.tag.outputs.image-urls)[2] }}
+          image-sha-url: ${{ fromJSON(steps.tag.outputs.image-urls)[0] }}
+          image-latest-url: ${{ fromJSON(steps.tag.outputs.image-urls)[1] }}
+          image-version-url: ${{ fromJSON(steps.tag.outputs.image-urls)[2] }}
 
   summary:
     needs: [check, run]
@@ -168,4 +168,4 @@ jobs:
         stage-name: 'Commit Stage'
         stage-success-content: |
           **Artifact URL:**
-          `${{ needs.run.outputs.image-version-tag }}`
+          `${{ needs.run.outputs.image-version-url }}`
