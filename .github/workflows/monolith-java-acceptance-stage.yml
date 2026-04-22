@@ -106,7 +106,7 @@ jobs:
       packages: write
     outputs:
       version: ${{ steps.rc-version.outputs.version }}
-      image-urls: ${{ steps.tag-images.outputs.image-urls }}
+      image-urls: ${{ steps.tag-images.outputs.tagged-image-urls }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5

@@ -213,7 +213,7 @@ jobs:
         with:
           prerelease-version: ${{ needs.check.outputs.version }}
           release-version: ${{ steps.promote.outputs.version }}
-          artifact-urls: ${{ steps.tag-images.outputs.image-urls }}
+          artifact-urls: ${{ steps.tag-images.outputs.tagged-image-urls }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
