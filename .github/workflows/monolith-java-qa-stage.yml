@@ -131,15 +131,6 @@ jobs:
     permissions:
       actions: write
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v5
-
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v4
-      with:
-        username: ${{ vars.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-
     - name: Summarize Stage
       uses: optivem/actions/render-system-stage-summary@v1
       with:
