@@ -13,10 +13,13 @@ on:
         - '.github/workflows/multitier-backend-dotnet-commit-stage.yml'
   workflow_dispatch:
     inputs:
-      sha:
+      commit-sha:
         description: 'Git SHA to build (leave empty for HEAD)'
         required: false
         type: string
+
+env:
+  COMMIT_SHA: ${{ inputs.commit-sha || github.sha }}
 
 jobs:
   check:
@@ -37,7 +40,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
         with:
-          ref: ${{ inputs.sha || github.sha }}
+          ref: ${{ env.COMMIT_SHA }}
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v4
@@ -54,24 +57,24 @@ jobs:
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     outputs:
-      component-version: ${{ steps.read-version.outputs.target-version }}
-      image-version-url: ${{ fromJSON(steps.tag.outputs.image-urls)[2] }}
+      component-version: ${{ steps.read-version.outputs.base-version }}
+      image-digest-url: ${{ steps.digest-url.outputs.value }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
         with:
-          ref: ${{ inputs.sha || github.sha }}
+          ref: ${{ env.COMMIT_SHA }}
           fetch-depth: 0
 
       - name: Verify Built SHA Is On Main
         id: verify-main
         uses: optivem/actions/check-sha-on-branch@v1
         with:
-          commit-sha: ${{ inputs.sha || github.sha }}
+          commit-sha: ${{ env.COMMIT_SHA }}
 
-      - name: Read Target Component Version
+      - name: Read Base Component Version
         id: read-version
-        uses: optivem/actions/read-target-version@v1
+        uses: optivem/actions/read-base-version@v1
         with:
           file: system/multitier/backend-dotnet/VERSION
 
@@ -113,56 +116,69 @@ jobs:
           dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
         working-directory: system/multitier/backend-dotnet
 
-      - name: Build Artifact
-        if: steps.verify-main.outputs.on-branch == 'true'
-        id: build
-        uses: optivem/actions/build-docker-image@v1
-        with:
-          working-directory: system/multitier/backend-dotnet
-          image-name: multitier-backend-dotnet
-          commit-sha: ${{ inputs.sha || github.sha }}
-          dockerfile: Dockerfile
-
       - name: Compose Dev Version
         if: steps.verify-main.outputs.on-branch == 'true'
         id: dev-version
         uses: optivem/actions/compose-prerelease-version@v1
         with:
-          target-version: ${{ steps.read-version.outputs.target-version }}
+          base-version: ${{ steps.read-version.outputs.base-version }}
           suffix: dev
-          number: ${{ github.run_number }}
+          build-number: ${{ github.run_number }}
 
-      - name: Tag Docker Image
+      - name: Log in to GHCR
         if: steps.verify-main.outputs.on-branch == 'true'
-        id: tag
-        uses: optivem/actions/tag-docker-image@v1
+        uses: docker/login-action@v4
         with:
-          source: ${{ steps.build.outputs.local-image-ref }}
-          image-name: multitier-backend-dotnet
-          tags: |
-            ${{ inputs.sha || github.sha }}
-            latest
-            ${{ steps.dev-version.outputs.version }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push Artifact
+      - name: Extract Docker Metadata
+        if: steps.verify-main.outputs.on-branch == 'true'
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/multitier-backend-dotnet
+          tags: |
+            type=sha,format=long
+            type=raw,value=latest
+            type=raw,value=${{ steps.dev-version.outputs.version }}
+
+      - name: Build and Push Docker Image
         if: steps.verify-main.outputs.on-branch == 'true'
         id: push
-        uses: optivem/actions/push-docker-image@v1
+        uses: docker/build-push-action@v6
         with:
-          image-sha-url: ${{ fromJSON(steps.tag.outputs.image-urls)[0] }}
-          image-latest-url: ${{ fromJSON(steps.tag.outputs.image-urls)[1] }}
-          image-version-url: ${{ fromJSON(steps.tag.outputs.image-urls)[2] }}
+          context: system/multitier/backend-dotnet
+          file: system/multitier/backend-dotnet/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          provenance: mode=max
+          sbom: true
+
+      - name: Compose Digest URL
+        if: steps.verify-main.outputs.on-branch == 'true'
+        id: digest-url
+        shell: bash
+        run: echo "value=ghcr.io/${{ github.repository }}/multitier-backend-dotnet@${{ steps.push.outputs.digest }}" >> "$GITHUB_OUTPUT"
 
   summary:
     needs: [check, run]
     if: always()
     runs-on: ubuntu-latest
     steps:
+    - name: Format Artifacts
+      id: format-artifacts
+      uses: optivem/actions/format-artifact-list@v1
+      with:
+        artifacts: ${{ needs.run.outputs.image-digest-url }}
+
     - name: Summarize Stage
       uses: optivem/actions/render-stage-summary@v1
       with:
-        stage-result: ${{ needs.run.result }}
         stage-name: 'Commit Stage'
+        stage-result: ${{ needs.run.result }}
         stage-success-content: |
-          **Artifact URL:**
-          `${{ needs.run.outputs.image-version-url }}`
+          🔗 **Artifacts:**
+          ${{ steps.format-artifacts.outputs.formatted }}

@@ -145,7 +145,7 @@ jobs:
       uses: optivem/actions/render-system-stage-summary@v1
       with:
         stage-name: 'QA Stage'
-        environment: qa
         stage-result: ${{ needs.publish-tag.result == 'failure' && 'failure' || needs.run.result }}
+        environment: qa
         success-version: ${{ needs.run.outputs.version }}
         success-artifact-ids: ${{ needs.run.outputs.image-urls }}

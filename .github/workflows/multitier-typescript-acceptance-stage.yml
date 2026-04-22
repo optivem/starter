@@ -5,13 +5,16 @@ on:
     - cron: '0 * * * *'  # Run every hour
   workflow_dispatch:
     inputs:
-      sha:
+      commit-sha:
         description: 'Git SHA to test (leave empty for latest image)'
         required: false
         type: string
 
 concurrency:
   group: multitier-typescript-acceptance-stage
+
+env:
+  COMMIT_SHA: ${{ inputs.commit-sha || github.sha }}
 
 jobs:
   preflight:
@@ -55,16 +58,16 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-          ref: ${{ inputs.sha || github.sha }}
+          ref: ${{ env.COMMIT_SHA }}
 
-      - name: Read Target Version
-        id: read-target-version
-        uses: optivem/actions/read-target-version@v1
+      - name: Read Base Version
+        id: read-base-version
+        uses: optivem/actions/read-base-version@v1
 
       - name: Ensure Version Unreleased
         uses: optivem/actions/ensure-version-unreleased@v1
         with:
-          version: multitier-typescript-v${{ steps.read-target-version.outputs.target-version }}
+          version: multitier-typescript-v${{ steps.read-base-version.outputs.base-version }}
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v4
@@ -77,8 +80,8 @@ jobs:
         uses: optivem/actions/resolve-docker-image-digests@v1
         with:
           image-urls: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-frontend-react:${{ inputs.sha || 'latest' }}
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-backend-typescript:${{ inputs.sha || 'latest' }}
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-frontend-react:${{ inputs.commit-sha || 'latest' }}
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-backend-typescript:${{ inputs.commit-sha || 'latest' }}
 
       - name: Check for Docker Image Updates Since Last Run
         id: should-run
@@ -103,7 +106,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-          ref: ${{ inputs.sha || github.sha }}
+          ref: ${{ env.COMMIT_SHA }}
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v4
@@ -290,17 +293,17 @@ jobs:
           CHANNEL: ui
           CHANNEL_MODE: static
 
-      - name: Read Target System Version
+      - name: Read Base System Version
         id: read-version
-        uses: optivem/actions/read-target-version@v1
+        uses: optivem/actions/read-base-version@v1
 
       - name: Generate Prerelease Version
         id: generate-version
         uses: optivem/actions/compose-prerelease-version@v1
         with:
-          target-version: ${{ steps.read-version.outputs.target-version }}
+          base-version: ${{ steps.read-version.outputs.base-version }}
           suffix: rc
-          number: ${{ github.run_number }}
+          build-number: ${{ github.run_number }}
           prefix: multitier-typescript
 
       - name: Tag Docker Images for Prerelease
@@ -319,7 +322,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
         with:
-          ref: ${{ inputs.sha || github.sha }}
+          ref: ${{ env.COMMIT_SHA }}
 
       - name: Publish Git Tag
         uses: optivem/actions/publish-tag@v1
@@ -338,8 +341,8 @@ jobs:
       uses: optivem/actions/render-system-stage-summary@v1
       with:
         stage-name: 'Acceptance Stage'
-        environment: acceptance
         stage-result: ${{ needs.publish-tag.result == 'failure' && 'failure' || needs.run.result }}
+        environment: acceptance
         success-version: ${{ needs.run.outputs.version }}
         success-artifact-ids: ${{ needs.run.outputs.image-urls }}
         skipped-reason: ${{ needs.preflight.outputs.skip-reason || needs.check.outputs.skip-reason }}

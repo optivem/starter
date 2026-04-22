@@ -171,7 +171,7 @@ jobs:
       uses: optivem/actions/render-system-stage-summary@v1
       with:
         stage-name: 'Production Stage'
-        environment: production
         stage-result: ${{ needs.run.result }}
+        environment: production
         success-version: ${{ needs.run.outputs.version }}
         success-artifact-ids: ${{ needs.run.outputs.image-urls }}

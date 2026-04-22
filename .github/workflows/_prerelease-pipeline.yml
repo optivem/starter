@@ -40,11 +40,14 @@ on:
         required: false
         type: string
         default: 'qa'
-      sha:
+      commit-sha:
         description: 'Git SHA to pin the pipeline to (leave empty for HEAD)'
         required: false
         type: string
         default: ''
+
+env:
+  COMMIT_SHA: ${{ inputs.commit-sha || github.sha }}
 
 jobs:
   # Early fail-fast: catch the case where <prefix>-v<VERSION> has been tagged
@@ -56,22 +59,22 @@ jobs:
     permissions:
       contents: read
     outputs:
-      target-version: ${{ steps.read-target-version.outputs.target-version }}
+      base-version: ${{ steps.read-base-version.outputs.base-version }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-          ref: ${{ inputs.sha || github.sha }}
+          ref: ${{ env.COMMIT_SHA }}
 
-      - name: Read Target Version
-        id: read-target-version
-        uses: optivem/actions/read-target-version@v1
+      - name: Read Base Version
+        id: read-base-version
+        uses: optivem/actions/read-base-version@v1
 
       - name: Ensure Version Unreleased
         uses: optivem/actions/ensure-version-unreleased@v1
         with:
-          version: ${{ inputs.prefix }}-v${{ steps.read-target-version.outputs.target-version }}
+          version: ${{ inputs.prefix }}-v${{ steps.read-base-version.outputs.base-version }}
 
   local:
     needs: check-version
@@ -81,7 +84,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
         with:
-          ref: ${{ inputs.sha || github.sha }}
+          ref: ${{ env.COMMIT_SHA }}
 
       # Setup runtimes
       - name: Setup Node.js
@@ -180,7 +183,7 @@ jobs:
       - uses: optivem/actions/trigger-and-wait-for-github-workflow@v1
         with:
           workflow: ${{ matrix.workflow }}
-          inputs: '{"sha": "${{ inputs.sha }}"}'
+          inputs: '{"commit-sha": "${{ inputs.commit-sha }}"}'
 
   acceptance-stage:
     needs: [check-version, local, commit-stage]
@@ -193,7 +196,7 @@ jobs:
         with:
           workflow: ${{ inputs.prefix }}-acceptance-stage.yml
           poll-interval: '300'
-          inputs: '{"sha": "${{ inputs.sha }}"}'
+          inputs: '{"commit-sha": "${{ inputs.commit-sha }}"}'
 
       # Resolve the rc tag that actually points at the tested SHA — whether our
       # dispatched run created it or a concurrent scheduled run did. This makes
@@ -201,15 +204,15 @@ jobs:
       - id: get-version
         uses: optivem/actions/resolve-latest-tag-from-sha@v1
         with:
-          commit-sha: ${{ inputs.sha || github.sha }}
-          pattern: ${{ inputs.prefix }}-v${{ needs.check-version.outputs.target-version }}-rc.*
+          commit-sha: ${{ env.COMMIT_SHA }}
+          pattern: ${{ inputs.prefix }}-v${{ needs.check-version.outputs.base-version }}-rc.*
 
       - name: Fail If No RC Tag On SHA
         if: steps.get-version.outputs.tag == ''
         shell: bash
         env:
-          PATTERN: ${{ inputs.prefix }}-v${{ needs.check-version.outputs.target-version }}-rc.*
-          SHA: ${{ inputs.sha || github.sha }}
+          PATTERN: ${{ inputs.prefix }}-v${{ needs.check-version.outputs.base-version }}-rc.*
+          SHA: ${{ env.COMMIT_SHA }}
         run: |
           echo "::error::No rc tag matching '$PATTERN' found on $SHA — acceptance-stage produced no tag and none was pre-existing."
           exit 1
@@ -223,7 +226,7 @@ jobs:
         with:
           workflow: ${{ inputs.prefix }}-acceptance-stage-legacy.yml
           poll-interval: '300'
-          inputs: '{"sha": "${{ inputs.sha }}"}'
+          inputs: '{"commit-sha": "${{ inputs.commit-sha }}"}'
 
   qa-stage:
     needs: [acceptance-stage, acceptance-stage-legacy]

@@ -661,17 +661,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Read Target System Version
+      - name: Read Base System Version
         id: read-version
-        uses: optivem/actions/read-target-version@v1
+        uses: optivem/actions/read-base-version@v1
 
       - name: Generate Prerelease Version
         id: generate-version
         uses: optivem/actions/compose-prerelease-version@v1
         with:
-          target-version: ${{ steps.read-version.outputs.target-version }}
+          base-version: ${{ steps.read-version.outputs.base-version }}
           suffix: rc
-          number: ${{ github.run_number }}
+          build-number: ${{ github.run_number }}
           prefix: multitier-dotnet-cloud
 
       - name: Tag Docker Images for Prerelease
@@ -707,8 +707,8 @@ jobs:
       uses: optivem/actions/render-system-stage-summary@v1
       with:
         stage-name: 'Acceptance Stage (Cloud Run)'
-        environment: acceptance
         stage-result: ${{ needs.publish-tag.result == 'failure' && 'failure' || needs.promote.result }}
+        environment: acceptance
         success-version: ${{ needs.promote.outputs.version }}
         success-artifact-ids: ${{ needs.promote.outputs.image-urls }}
         skipped-reason: ${{ needs.preflight.outputs.skip-reason || needs.check.outputs.skip-reason }}

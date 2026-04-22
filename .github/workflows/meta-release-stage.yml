@@ -36,7 +36,7 @@ jobs:
       contents: read
     outputs:
       meta_rc_tag: ${{ steps.rc.outputs.rc_tag }}
-      sha: ${{ steps.resolve.outputs.sha }}
+      commit-sha: ${{ steps.resolve.outputs.commit-sha }}
       version: ${{ steps.resolve.outputs.version }}
       release_tag: ${{ steps.resolve.outputs.release_tag }}
       monolith-java-rc: ${{ steps.flavor-rcs.outputs.monolith-java-rc }}
@@ -113,7 +113,7 @@ jobs:
             exit 1
           fi
           RELEASE_TAG="meta-v${TAG_VERSION}"
-          echo "sha=${SHA}" >> "$GITHUB_OUTPUT"
+          echo "commit-sha=${SHA}" >> "$GITHUB_OUTPUT"
           echo "version=${TAG_VERSION}" >> "$GITHUB_OUTPUT"
           echo "release_tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
 
@@ -220,7 +220,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.VERIFY_TOKEN }}
           RELEASE_TAG: ${{ needs.check.outputs.release_tag }}
-          SHA: ${{ needs.check.outputs.sha }}
+          SHA: ${{ needs.check.outputs.commit-sha }}
         run: |
           set -euo pipefail
           echo "Creating tag ${RELEASE_TAG} on ${SHA}"
@@ -240,7 +240,7 @@ jobs:
         env:
           RC_TAG: ${{ needs.check.outputs.meta_rc_tag }}
           RELEASE_TAG: ${{ needs.check.outputs.release_tag }}
-          SHA: ${{ needs.check.outputs.sha }}
+          SHA: ${{ needs.check.outputs.commit-sha }}
           MONOLITH_JAVA_RC: ${{ needs.check.outputs.monolith-java-rc }}
           MONOLITH_DOTNET_RC: ${{ needs.check.outputs.monolith-dotnet-rc }}
           MONOLITH_TYPESCRIPT_RC: ${{ needs.check.outputs.monolith-typescript-rc }}
