@@ -321,7 +321,7 @@ jobs:
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
-          CHANNEL: api
+          CHANNEL: API
           BASE_URL: ${{ needs.deploy-app.outputs.app-url }}
           EXTERNAL_BASE_URL: ${{ needs.deploy-external-real.outputs.external-url }}
 
@@ -365,7 +365,7 @@ jobs:
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
-          CHANNEL: ui
+          CHANNEL: UI
           CHANNEL_MODE: static
           BASE_URL: ${{ needs.deploy-app.outputs.app-url }}
           EXTERNAL_BASE_URL: ${{ needs.deploy-external-real.outputs.external-url }}
@@ -394,7 +394,7 @@ jobs:
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
-          CHANNEL: api
+          CHANNEL: API
           BASE_URL: ${{ needs.deploy-app.outputs.app-url }}
           EXTERNAL_BASE_URL: ${{ needs.deploy-external-real.outputs.external-url }}
 
@@ -438,7 +438,7 @@ jobs:
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
-          CHANNEL: ui
+          CHANNEL: UI
           CHANNEL_MODE: static
           BASE_URL: ${{ needs.deploy-app.outputs.app-url }}
           EXTERNAL_BASE_URL: ${{ needs.deploy-external-real.outputs.external-url }}
@@ -547,7 +547,7 @@ jobs:
         run: npx playwright test --project=e2e-test tests/latest/e2e
         env:
           ENVIRONMENT: acceptance
-          CHANNEL: api
+          CHANNEL: API
           BASE_URL: ${{ needs.deploy-app.outputs.app-url }}
           EXTERNAL_BASE_URL: ${{ needs.deploy-external-real.outputs.external-url }}
 
@@ -590,7 +590,7 @@ jobs:
         run: npx playwright test --project=e2e-test tests/latest/e2e
         env:
           ENVIRONMENT: acceptance
-          CHANNEL: ui
+          CHANNEL: UI
           CHANNEL_MODE: static
           BASE_URL: ${{ needs.deploy-app.outputs.app-url }}
           EXTERNAL_BASE_URL: ${{ needs.deploy-external-real.outputs.external-url }}
