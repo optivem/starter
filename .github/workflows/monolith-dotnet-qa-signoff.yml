@@ -25,7 +25,7 @@ jobs:
       contents: read
     steps:
       - name: Ensure Environment Variables Defined
-        uses: optivem/actions/ensure-env-vars-defined@v1
+        uses: optivem/actions/validate-env-vars-defined@v1
         with:
           names: |
             WORKFLOW_TOKEN
@@ -33,7 +33,7 @@ jobs:
           WORKFLOW_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
 
       - name: Check RC Exists
-        uses: optivem/actions/ensure-tag-exists@v1
+        uses: optivem/actions/validate-tag-exists@v1
         with:
           tag: ${{ inputs.version }}
 
