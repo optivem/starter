@@ -236,7 +236,6 @@ jobs:
           git push origin "$RELEASE_TAG"
           echo "Creating GitHub release ${RELEASE_TAG}"
           gh release create "$RELEASE_TAG" \
-            --repo "${GITHUB_REPOSITORY}" \
             --target "$SHA" \
             --title "$RELEASE_TAG" \
             --notes "Meta release aggregating all flavor releases at this version."
