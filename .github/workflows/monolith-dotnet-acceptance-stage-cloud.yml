@@ -224,7 +224,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Cache NuGet Packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('system-test/dotnet/**/*.csproj') }}
@@ -256,7 +256,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Cache NuGet Packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('system-test/dotnet/**/*.csproj') }}
@@ -288,7 +288,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Cache NuGet Packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('system-test/dotnet/**/*.csproj') }}
@@ -321,7 +321,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Cache NuGet Packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('system-test/dotnet/**/*.csproj') }}
@@ -333,7 +333,7 @@ jobs:
 
       - name: Cache Playwright Browsers
         id: cache-playwright
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('system-test/dotnet/**/*.csproj') }}
@@ -373,7 +373,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Cache NuGet Packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('system-test/dotnet/**/*.csproj') }}
@@ -406,7 +406,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Cache NuGet Packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('system-test/dotnet/**/*.csproj') }}
@@ -418,7 +418,7 @@ jobs:
 
       - name: Cache Playwright Browsers
         id: cache-playwright
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('system-test/dotnet/**/*.csproj') }}
@@ -458,7 +458,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Cache NuGet Packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('system-test/dotnet/**/*.csproj') }}
@@ -490,7 +490,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Cache NuGet Packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('system-test/dotnet/**/*.csproj') }}
@@ -522,7 +522,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Cache NuGet Packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('system-test/dotnet/**/*.csproj') }}
@@ -554,7 +554,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Cache NuGet Packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('system-test/dotnet/**/*.csproj') }}
@@ -586,7 +586,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Cache NuGet Packages
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('system-test/dotnet/**/*.csproj') }}
@@ -598,7 +598,7 @@ jobs:
 
       - name: Cache Playwright Browsers
         id: cache-playwright
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('system-test/dotnet/**/*.csproj') }}

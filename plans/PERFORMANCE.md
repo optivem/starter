@@ -223,7 +223,7 @@ Alternative: Use the API to create test data, then use the UI only for verificat
 The `npx playwright install --with-deps chromium` step takes ~30s on every run. Caching the browser binary across runs would eliminate this.
 
 ```yaml
-- uses: actions/cache@v4
+- uses: actions/cache@v5
   with:
     path: ~/.cache/ms-playwright
     key: playwright-${{ hashFiles('**/package-lock.json') }}
