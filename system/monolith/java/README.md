@@ -4,12 +4,6 @@ This is a sample monolithic application written in Java.
 
 ## Instructions
 
-Open up the 'monolith' folder
-
-```shell
-cd monolith
-```
-
 Check that you have Powershell 7
 
 ```shell

@@ -4,12 +4,6 @@ This is a sample monolithic application written in TypeScript using Next.js with
 
 ## Instructions
 
-Open up the 'monolith' folder
-
-```shell
-cd monolith
-```
-
 Ensure you have Node.js 22 installed
 
 ```shell

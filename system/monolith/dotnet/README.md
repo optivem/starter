@@ -2,12 +2,6 @@
 
 ## Instructions
 
-Open up the 'monolith' folder
-
-```shell
-cd monolith
-```
-
 Check that you have Powershell 7
 
 ```shell
