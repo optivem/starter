@@ -23,12 +23,12 @@ param(
 
 # Auto-detect architecture from project config if not specified
 if (-not $Architecture) {
-    $configPath = Join-Path (Split-Path $PSScriptRoot -Parent) ".optivem" "config.json"
+    $configPath = Join-Path (Split-Path $PSScriptRoot -Parent) ".system" "config.json"
     if (Test-Path $configPath) {
         $projectConfig = Get-Content $configPath -Raw | ConvertFrom-Json
         $Architecture = $projectConfig.architecture
     } else {
-        throw "Architecture not specified and .optivem/config.json not found. Use -Architecture monolith|multitier"
+        throw "Architecture not specified and .system/config.json not found. Use -Architecture monolith|multitier"
     }
 }
 
