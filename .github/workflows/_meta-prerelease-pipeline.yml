@@ -126,12 +126,9 @@ jobs:
       - name: Probe Meta System Release
         id: probe-release
         if: ${{ steps.decide.outputs.should_run == 'true' }}
-        uses: optivem/actions/check-github-release-exists@v1
+        uses: optivem/actions/check-tag-exists@v1
         with:
-          releases: |
-            [
-              {"key": "meta-v${{ steps.read-versions.outputs.meta }} (from VERSION)", "tag": "meta-v${{ steps.read-versions.outputs.meta }}"}
-            ]
+          tag: meta-v${{ steps.read-versions.outputs.meta }}
 
       - name: Probe Component + Monolith Image Tags
         id: probe-images
@@ -153,11 +150,15 @@ jobs:
         if: ${{ steps.decide.outputs.should_run == 'true' }}
         shell: bash
         env:
-          RELEASE_RESULTS: ${{ steps.probe-release.outputs.results }}
+          META_EXISTS: ${{ steps.probe-release.outputs.exists }}
+          META_KEY: meta-v${{ steps.read-versions.outputs.meta }} (from VERSION)
           IMAGE_RESULTS: ${{ steps.probe-images.outputs.results }}
         run: |
           set -euo pipefail
-          found=$(jq -sc '[.[] | .[] | select(.exists == true) | .key]' <<< "$RELEASE_RESULTS"$'\n'"$IMAGE_RESULTS")
+          found=$(jq -c '[.[] | select(.exists == true) | .key]' <<< "$IMAGE_RESULTS")
+          if [[ "$META_EXISTS" == "true" ]]; then
+            found=$(jq -c --arg k "$META_KEY" '. + [$k]' <<< "$found")
+          fi
           if [[ "$(jq 'length' <<< "$found")" -gt 0 ]]; then
             BUMP_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/workflows/auto-bump-patch.yml"
             {
