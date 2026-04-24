@@ -3,7 +3,7 @@ name: shop-real
 services:
 
   frontend:
-    image: ghcr.io/optivem/shop/multitier-frontend-react:latest
+    image: ghcr.io/optivem/shop/frontend-react:latest
     ports:
       - "3311:3000"
     environment:

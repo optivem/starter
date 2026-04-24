@@ -12,7 +12,7 @@ The repo already treats a handful of words as generic architecture vocabulary th
 
 - `ghcr.io/${github.repository}/sysapp-java`
 - `ghcr.io/${github.repository}/backend-java`
-- `ghcr.io/${github.repository}/multitier-frontend-react`
+- `ghcr.io/${github.repository}/frontend-react`
 
 No placeholder appears in any of these names — they are fully generic.
 
@@ -26,7 +26,7 @@ Other artifact identifiers are **not** consistent with that model. They embed `s
 - Devcontainer: `optivem-shop`
 - npm package names: `@optivem/shop-system-test`, `optivem-shop-frontend`, `shop-backend`, `shop-monolith`
 
-This plan promotes `system` to a real generic slot, used everywhere the system name appears next to architecture descriptors (`monolith`, `backend`, `multitier-frontend-react`, `tests`, etc.). After this change, those identifiers need no placeholder substitution — they read as `system-monolith-java`, `my-company_system-backend-java`, and so on.
+This plan promotes `system` to a real generic slot, used everywhere the system name appears next to architecture descriptors (`monolith`, `backend`, `frontend-react`, `tests`, etc.). After this change, those identifiers need no placeholder substitution — they read as `system-monolith-java`, `my-company_system-backend-java`, and so on.
 
 ---
 
@@ -50,7 +50,7 @@ Boundary rule: **if the identifier sits next to an architecture word (`monolith`
 | `.github/workflows/monolith-typescript-commit-stage.yml` | `optivem_shop-monolith-typescript`, `shop-monolith-typescript` | `optivem_system-monolith-typescript`, `system-monolith-typescript` |
 | `.github/workflows/backend-dotnet-commit-stage.yml` | `optivem_shop-backend-dotnet`, `shop-backend-dotnet` | `optivem_system-backend-dotnet`, `system-backend-dotnet` |
 | `.github/workflows/backend-typescript-commit-stage.yml` | `optivem_shop-backend-typescript`, `shop-backend-typescript` | `optivem_system-backend-typescript`, `system-backend-typescript` |
-| `.github/workflows/multitier-frontend-react-commit-stage.yml` | `optivem_shop-multitier-frontend-react`, `shop-multitier-frontend-react` | `optivem_system-multitier-frontend-react`, `system-multitier-frontend-react` |
+| `.github/workflows/frontend-react-commit-stage.yml` | `optivem_shop-frontend-react`, `shop-frontend-react` | `optivem_system-frontend-react`, `system-frontend-react` |
 | `system/monolith/java/build.gradle` | `optivem_shop-monolith-java`, `shop-monolith-java` | `optivem_system-monolith-java`, `system-monolith-java` |
 | `system/multitier/backend-java/build.gradle` | `optivem_shop-backend-java`, `shop-backend-java` | `optivem_system-backend-java`, `system-backend-java` |
 | `system-test/dotnet/Run-Sonar.ps1` | `optivem_shop-tests-dotnet` | `optivem_system-tests-dotnet` |

@@ -140,7 +140,7 @@ jobs:
             ghcr.io/${{ github.repository }}/backend-dotnet:v${{ steps.read-versions.outputs.mt_be_dotnet }}
             ghcr.io/${{ github.repository }}/backend-java:v${{ steps.read-versions.outputs.mt_be_java }}
             ghcr.io/${{ github.repository }}/backend-typescript:v${{ steps.read-versions.outputs.mt_be_typescript }}
-            ghcr.io/${{ github.repository }}/multitier-frontend-react:v${{ steps.read-versions.outputs.mt_fe_react }}
+            ghcr.io/${{ github.repository }}/frontend-react:v${{ steps.read-versions.outputs.mt_fe_react }}
 
       - name: Verify System Release + Component Images Not Yet Published
         if: ${{ steps.decide.outputs.should_run == 'true' }}
@@ -228,8 +228,8 @@ jobs:
           - stage: backend-typescript
             workflow: backend-typescript-commit-stage.yml
             variants: '["all","multitier-typescript"]'
-          - stage: multitier-frontend-react
-            workflow: multitier-frontend-react-commit-stage.yml
+          - stage: frontend-react
+            workflow: frontend-react-commit-stage.yml
             variants: '["all","multitier-java","multitier-dotnet","multitier-typescript"]'
     runs-on: ubuntu-latest
     steps:
