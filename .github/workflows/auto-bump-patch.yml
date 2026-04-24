@@ -30,7 +30,7 @@ jobs:
         with:
           version-files: |
             [
-              {"path": "VERSION", "signal": "github-release", "value": "meta-v"},
+              {"path": "VERSION", "signal": "git-tag", "value": "meta-v"},
               {"path": "system/monolith/dotnet/VERSION",         "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/monolith-system-dotnet"},
               {"path": "system/monolith/java/VERSION",           "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/monolith-system-java"},
               {"path": "system/monolith/typescript/VERSION",     "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/monolith-system-typescript"},
