@@ -240,7 +240,7 @@ jobs:
           entries: |
             [
               {"key": "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/monolith-system-dotnet:${{ needs.check.outputs.version }}",
-               "file": "system/monolith/dotnet/VERSION"}
+               "file": "VERSION"}
             ]
 
       - name: Compose Component Tags

@@ -21,9 +21,6 @@ jobs:
           version-files: |
             [
               {"path": "VERSION", "signal": "git-tag", "value": "meta-v"},
-              {"path": "system/monolith/dotnet/VERSION",         "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/monolith-system-dotnet"},
-              {"path": "system/monolith/java/VERSION",           "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/monolith-system-java"},
-              {"path": "system/monolith/typescript/VERSION",     "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/monolith-system-typescript"},
               {"path": "system/multitier/backend-dotnet/VERSION",    "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/multitier-backend-dotnet"},
               {"path": "system/multitier/backend-java/VERSION",      "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/multitier-backend-java"},
               {"path": "system/multitier/backend-typescript/VERSION","signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/multitier-backend-typescript"},

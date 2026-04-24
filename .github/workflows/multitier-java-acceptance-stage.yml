@@ -28,6 +28,10 @@ jobs:
       - name: Check Container Packages Exist
         id: check-artifacts
         uses: optivem/actions/check-ghcr-packages-exist@v1
+        with:
+          image-urls: |
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-frontend-react
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-backend-java
 
   check:
     needs: preflight

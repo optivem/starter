@@ -122,7 +122,7 @@ jobs:
         id: read-version
         uses: optivem/actions/read-base-version@v1
         with:
-          file: system/monolith/typescript/VERSION
+          file: VERSION
 
       - name: Compose Dev Version
         if: steps.verify-main.outputs.on-branch == 'true'
