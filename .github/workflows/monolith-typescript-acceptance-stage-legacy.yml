@@ -334,14 +334,14 @@ jobs:
 
       - name: mod11 - Run Contract Tests (Stub)
         working-directory: system-test/typescript
-        run: npx playwright test --project=external-system-contract-test tests/legacy/mod11/contract --grep-invert "@isolated" --workers=1
+        run: npx playwright test --project=external-system-contract-test "tests/legacy/mod11/contract/.*-stub-.*\.spec\.ts" --grep-invert "@isolated" --workers=1
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
 
       - name: mod11 - Run Contract Tests (Isolated) (Stub)
         working-directory: system-test/typescript
-        run: npx playwright test --project=external-system-contract-test tests/legacy/mod11/contract --grep "@isolated" --workers=1
+        run: npx playwright test --project=external-system-contract-test "tests/legacy/mod11/contract/.*-stub-.*\.spec\.ts" --grep "@isolated" --workers=1
         env:
           ENVIRONMENT: acceptance
           EXTERNAL_SYSTEM_MODE: stub
