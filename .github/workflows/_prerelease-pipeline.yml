@@ -71,10 +71,20 @@ jobs:
         id: read-base-version
         uses: optivem/actions/read-base-version@v1
 
-      - name: Ensure Version Unreleased
-        uses: optivem/actions/validate-version-unreleased@v1
+      - name: Check Version Already Released
+        id: check-release-tag
+        uses: optivem/actions/check-tag-exists@v1
         with:
-          version: ${{ inputs.prefix }}-v${{ steps.read-base-version.outputs.base-version }}
+          tag: ${{ inputs.prefix }}-v${{ steps.read-base-version.outputs.base-version }}
+
+      - name: Ensure Version Unreleased
+        if: steps.check-release-tag.outputs.exists == 'true'
+        shell: bash
+        env:
+          TAG: ${{ inputs.prefix }}-v${{ steps.read-base-version.outputs.base-version }}
+        run: |
+          echo "::error::Version $TAG is already released. Bump the VERSION file and create a new RC."
+          exit 1
 
   local:
     needs: check-version

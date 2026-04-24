@@ -67,10 +67,20 @@ jobs:
         with:
           prerelease-version: ${{ inputs.version || steps.resolve-latest.outputs.base-tag }}
 
-      - name: Verify Version Not Yet Released
-        uses: optivem/actions/validate-version-unreleased@v1
+      - name: Check Version Already Released
+        id: check-release-tag
+        uses: optivem/actions/check-tag-exists@v1
         with:
-          version: ${{ steps.release-version.outputs.version }}
+          tag: ${{ steps.release-version.outputs.version }}
+
+      - name: Verify Version Not Yet Released
+        if: steps.check-release-tag.outputs.exists == 'true'
+        shell: bash
+        env:
+          TAG: ${{ steps.release-version.outputs.version }}
+        run: |
+          echo "::error::Version $TAG is already released. Bump the VERSION file and create a new RC."
+          exit 1
 
       - name: Compose Docker Image URLs
         id: resolve-images

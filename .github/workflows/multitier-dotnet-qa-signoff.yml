@@ -45,18 +45,12 @@ jobs:
       contents: read
     outputs:
       version: ${{ steps.promote.outputs.status-tag }}
-      stage-result: ${{ steps.determine-result.outputs.stage-result }}
+      stage-result: ${{ inputs.result == 'approved' && 'success' || 'failure' }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
         with:
           ref: ${{ inputs.version }}
-
-      - name: Determine Stage Result
-        id: determine-result
-        uses: optivem/actions/map-signoff-to-stage-result@v1
-        with:
-          result: ${{ inputs.result }}
 
       - name: Generate QA Signoff Tag
         id: promote
