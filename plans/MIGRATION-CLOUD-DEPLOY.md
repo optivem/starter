@@ -82,7 +82,7 @@ Both get renamed to the same target names in the student's repo (e.g. `acceptanc
 1. **`config.go`**: Add `Deploy` field to config, parse `--deploy` flag, validate values
 2. **`apply_template.go`**: In `CopyWorkflows()`, select the `-cloud.yml` suffix variants when `Deploy == "cloud-run"`
 3. **`github_setup.go`**: When `Deploy == "cloud-run"`, also set GCP-related variables (`GCP_PROJECT_ID`, `GCP_REGION`, `GCP_WORKLOAD_IDENTITY_PROVIDER`, `GCP_SERVICE_ACCOUNT`) -- either from additional flags or by running `setup-gcp.sh` as a post-init step
-4. **`.optivem/config.json`**: Store the deploy target so future tooling knows:
+4. **`.system/config.json`**: Store the deploy target so future tooling knows:
    ```json
    {
      "architecture": "monolith",
