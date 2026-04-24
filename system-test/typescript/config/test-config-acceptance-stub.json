@@ -1,5 +1,5 @@
 {
-  "shop": {
+  "myShop": {
     "frontendUrl": "http://localhost:3312",
     "backendApiUrl": "http://localhost:8312"
   },

@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Diagnostics;
-using Optivem.Shop.Monolith.Core.Exceptions;
+using MyCompany.MyShop.Monolith.Core.Exceptions;
 
-namespace Optivem.Shop.Monolith.Api.Exception;
+namespace MyCompany.MyShop.Monolith.Api.Exception;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {
-    private const string ValidationErrorTypeUri = "https://api.optivem.com/errors/validation-error";
-    private const string ResourceNotFoundTypeUri = "https://api.optivem.com/errors/resource-not-found";
-    private const string InternalServerErrorTypeUri = "https://api.optivem.com/errors/internal-server-error";
+    private const string ValidationErrorTypeUri = "https://api.my-company.com/errors/validation-error";
+    private const string ResourceNotFoundTypeUri = "https://api.my-company.com/errors/resource-not-found";
+    private const string InternalServerErrorTypeUri = "https://api.my-company.com/errors/internal-server-error";
 
     private readonly ILogger<GlobalExceptionHandler> _logger;
 

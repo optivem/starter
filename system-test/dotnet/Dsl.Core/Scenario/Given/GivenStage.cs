@@ -106,7 +106,7 @@ namespace Dsl.Core.Scenario.Given
             await SetupPromotion();
             await SetupErp();
             await SetupTax();
-            await SetupShop();
+            await SetupMyShop();
         }
 
         private async Task SetupPromotion()
@@ -150,7 +150,7 @@ namespace Dsl.Core.Scenario.Given
             }
         }
 
-        private async Task SetupShop()
+        private async Task SetupMyShop()
         {
             await SetupCoupons();
             await SetupOrders();

@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Optivem.Shop.Backend.Data;
+using MyCompany.MyShop.Backend.Data;
 using Xunit;
 
-namespace Optivem.Shop.Backend.Tests;
+namespace MyCompany.MyShop.Backend.Tests;
 
 public class BackendApplicationTests : IClassFixture<WebApplicationFactory<Program>>
 {

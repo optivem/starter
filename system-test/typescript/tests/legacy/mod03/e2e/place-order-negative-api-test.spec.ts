@@ -1,10 +1,10 @@
 import { apiTest as test, expect } from './base/BaseE2eTest.js';
 
 test('shouldRejectOrderWithNonIntegerQuantity', async ({ config }) => {
-    const shopApiUrl = config.shop.backendApiUrl;
+    const myShopApiUrl = config.myShop.backendApiUrl;
 
     // When: place order with invalid quantity via raw HTTP
-    const response = await fetch(`${shopApiUrl}/api/orders`, {
+    const response = await fetch(`${myShopApiUrl}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sku: 'SOME-SKU', quantity: 'invalid-quantity', country: 'US' }),

@@ -3,8 +3,8 @@ using Dsl.Port.Then.Steps;
 using Dsl.Core.Shared;
 using Dsl.Core.Scenario;
 using Driver.Adapter;
-using Driver.Port.Shop.Dtos;
-using Dsl.Core.Shop.UseCases;
+using Driver.Port.MyShop.Dtos;
+using Dsl.Core.MyShop.UseCases;
 
 namespace Dsl.Core.Scenario.Then;
 
@@ -253,7 +253,7 @@ public abstract class BaseThenResultOrder<TSuccessResponse, TSuccessVerification
         }
         else
         {
-            var shop = await _thenClause.App.Shop(_thenClause.Channel);
+            var shop = await _thenClause.App.MyShop(_thenClause.Channel);
             var viewOrderResult = await shop.ViewOrder().OrderNumber(orderNumber).Execute();
             verification = viewOrderResult.ShouldSucceed();
         }

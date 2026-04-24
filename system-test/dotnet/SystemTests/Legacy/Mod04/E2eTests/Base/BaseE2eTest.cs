@@ -16,11 +16,11 @@ public abstract class BaseE2eTest : BaseClientTest
     public override async Task InitializeAsync()
     {
         await base.InitializeAsync();
-        await SetShopClientAsync();
+        await SetMyShopClientAsync();
         SetUpExternalClients();
     }
 
-    protected abstract Task SetShopClientAsync();
+    protected abstract Task SetMyShopClientAsync();
 
     protected static string CreateUniqueSku(string baseSku)
     {

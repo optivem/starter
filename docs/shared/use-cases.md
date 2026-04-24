@@ -1,9 +1,9 @@
-# Shop — Use Cases
+# MyShop — Use Cases
 
 ```mermaid
 graph LR
     Customer([Customer])
-    Seller([Shop Owner])
+    Seller([MyShop Owner])
     ERP([ERP])
     Clock([Clock])
 

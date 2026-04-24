@@ -3,19 +3,19 @@ import { randomUUID } from 'node:crypto';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function runPlaceOrderPositive(test: TestType<any, any>): void {
-  test('shouldPlaceOrderForValidInput', async ({ shopDriver, erpDriver }) => {
+  test('shouldPlaceOrderForValidInput', async ({ myShopDriver, erpDriver }) => {
     const sku = `SKU-${randomUUID().substring(0, 8)}`;
 
     const productResult = await erpDriver.returnsProduct({ sku, price: '20.00' });
     expect(productResult.success).toBe(true);
 
-    const result = await shopDriver.placeOrder({ sku, quantity: '5', country: 'US' });
+    const result = await myShopDriver.placeOrder({ sku, quantity: '5', country: 'US' });
 
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.value.orderNumber).toMatch(/^ORD-/);
 
-      const viewResult = await shopDriver.viewOrder(result.value.orderNumber);
+      const viewResult = await myShopDriver.viewOrder(result.value.orderNumber);
       expect(viewResult.success).toBe(true);
       if (viewResult.success) {
         expect(viewResult.value.sku).toBe(sku);

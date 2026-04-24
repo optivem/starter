@@ -1,8 +1,8 @@
 using System.Net;
 using System.Text.Json;
-using Optivem.Shop.Backend.Core.Dtos.External;
+using MyCompany.MyShop.Backend.Core.Dtos.External;
 
-namespace Optivem.Shop.Backend.Core.Services.External;
+namespace MyCompany.MyShop.Backend.Core.Services.External;
 
 public class TaxGateway
 {

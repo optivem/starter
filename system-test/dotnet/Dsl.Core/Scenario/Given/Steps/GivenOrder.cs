@@ -1,7 +1,7 @@
 using Common;
 using Dsl.Port.Given.Steps;
 using Dsl.Core.Scenario.Given;
-using Driver.Port.Shop.Dtos;
+using Driver.Port.MyShop.Dtos;
 using static Dsl.Core.Scenario.ScenarioDefaults;
 
 namespace Dsl.Core.Scenario.Given;
@@ -82,7 +82,7 @@ public class GivenOrder : BaseGiven, IGivenOrder
 
     internal override async Task Execute(UseCaseDsl app)
     {
-        var shop = await app.Shop(Channel);
+        var shop = await app.MyShop(Channel);
 
         (await shop.PlaceOrder()
             .OrderNumber(_orderNumber)

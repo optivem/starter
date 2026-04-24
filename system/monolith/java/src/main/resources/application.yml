@@ -38,7 +38,7 @@ management:
 
 error:
   types:
-    base-url: https://api.optivem.com/errors
+    base-url: https://api.my-company.example/errors
     validation-error: ${error.types.base-url}/validation-error
     resource-not-found: ${error.types.base-url}/resource-not-found
     bad-request: ${error.types.base-url}/bad-request

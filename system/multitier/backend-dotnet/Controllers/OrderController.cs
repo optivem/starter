@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Optivem.Shop.Backend.Core.Dtos;
-using Optivem.Shop.Backend.Core.Services;
+using MyCompany.MyShop.Backend.Core.Dtos;
+using MyCompany.MyShop.Backend.Core.Services;
 
-namespace Optivem.Shop.Backend.Controllers;
+namespace MyCompany.MyShop.Backend.Controllers;
 
 [ApiController]
 [Route("api/orders")]

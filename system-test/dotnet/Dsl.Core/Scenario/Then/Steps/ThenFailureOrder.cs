@@ -1,8 +1,8 @@
 using Dsl.Port.Then.Steps;
 using Dsl.Core.Shared;
 using Dsl.Core.Scenario;
-using Dsl.Core.Shop.UseCases;
-using Dsl.Core.Shop.UseCases.Base;
+using Dsl.Core.MyShop.UseCases;
+using Dsl.Core.MyShop.UseCases.Base;
 
 namespace Dsl.Core.Scenario.Then;
 

@@ -2,7 +2,7 @@ import type { ErpDriver } from '../../../../../../driver/port/external/erp/erp-d
 import type { GetProductRequest } from '../../../../../../driver/port/external/erp/dtos/GetProductRequest.js';
 import type { GetProductResponse } from '../../../../../../driver/port/external/erp/dtos/GetProductResponse.js';
 import { success, failure, type Result } from '../../../../../../common/result.js';
-import type { SystemError } from '../../../../../../driver/port/shop/dtos/errors/SystemError.js';
+import type { SystemError } from '../../../../../../driver/port/myShop/dtos/errors/SystemError.js';
 import { UseCaseResult } from '../../../../shared/use-case-result.js';
 import type { UseCaseContext } from '../../../../shared/use-case-context.js';
 import { BaseErpUseCase } from './base/BaseErpUseCase.js';

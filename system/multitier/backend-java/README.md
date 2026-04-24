@@ -1,6 +1,6 @@
 # Backend Service
 
-This is the backend API service for the Shop, built with Java Spring Boot.
+This is the backend API service for the MyShop, built with Java Spring Boot.
 
 ## Features
 

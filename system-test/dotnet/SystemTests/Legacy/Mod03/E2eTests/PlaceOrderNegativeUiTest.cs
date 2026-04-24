@@ -7,15 +7,15 @@ namespace SystemTests.Legacy.Mod03.E2eTests;
 
 public class PlaceOrderNegativeUiTest : BaseE2eTest
 {
-    protected override async Task SetShopRawAsync()
+    protected override async Task SetMyShopRawAsync()
     {
-        await SetUpShopBrowserAsync();
+        await SetUpMyShopBrowserAsync();
     }
 
     [Fact]
     public async Task ShouldRejectOrderWithNonIntegerQuantity()
     {
-        await shopUiPage!.GotoAsync(_configuration.ShopUiBaseUrl);
+        await shopUiPage!.GotoAsync(_configuration.MyShopUiBaseUrl);
         await shopUiPage.Locator("a[href='/new-order']").ClickAsync();
 
         await shopUiPage.Locator("[aria-label=\"SKU\"]").FillAsync(CreateUniqueSku(Defaults.SKU));

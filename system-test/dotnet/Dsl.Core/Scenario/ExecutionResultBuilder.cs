@@ -1,7 +1,7 @@
 using Dsl.Core.Shared;
 using Common;
-using Dsl.Core.Shop.UseCases.Base;
-using Driver.Port.Shop.Dtos.Error;
+using Dsl.Core.MyShop.UseCases.Base;
+using Driver.Port.MyShop.Dtos.Error;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,14 +13,14 @@ namespace Dsl.Core.Scenario
     public class ExecutionResultBuilder<TSuccessResponse, TSuccessVerification>
         where TSuccessVerification : ResponseVerification<TSuccessResponse>
     {
-        private readonly ShopUseCaseResult<TSuccessResponse, TSuccessVerification> _result;
+        private readonly MyShopUseCaseResult<TSuccessResponse, TSuccessVerification> _result;
         private string? _orderNumber;
         private string? _couponCode;
 
         internal ExecutionResultBuilder(UseCaseResult<TSuccessResponse, SystemError, TSuccessVerification, SystemErrorFailureVerification> result)
         {
-            // Cast to derived type - the result is always a ShopUseCaseResult at runtime
-            _result = (ShopUseCaseResult<TSuccessResponse, TSuccessVerification>)result;
+            // Cast to derived type - the result is always a MyShopUseCaseResult at runtime
+            _result = (MyShopUseCaseResult<TSuccessResponse, TSuccessVerification>)result;
         }
 
         public ExecutionResultBuilder<TSuccessResponse, TSuccessVerification> OrderNumber(string? orderNumber)

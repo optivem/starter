@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Optivem.Shop.Backend.Controllers;
+namespace MyCompany.MyShop.Backend.Controllers;
 
 [ApiController]
 [Route("")]

@@ -1,7 +1,7 @@
 using Common;
 using Driver.Adapter.External.Erp.Client.Dtos;
-using Driver.Adapter.Shop.Ui.Client.Pages;
-using Driver.Port.Shop.Dtos;
+using Driver.Adapter.MyShop.Ui.Client.Pages;
+using Driver.Port.MyShop.Dtos;
 using SystemTests.Commons.Constants;
 using SystemTests.Legacy.Mod04.E2eTests.Base;
 using Shouldly;
@@ -11,9 +11,9 @@ namespace SystemTests.Legacy.Mod04.E2eTests;
 
 public class PlaceOrderPositiveUiTest : BaseE2eTest
 {
-    protected override Task SetShopClientAsync()
+    protected override Task SetMyShopClientAsync()
     {
-        return SetUpShopUiClientAsync();
+        return SetUpMyShopUiClientAsync();
     }
 
     [Fact]

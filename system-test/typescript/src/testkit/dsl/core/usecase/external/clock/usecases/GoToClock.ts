@@ -1,6 +1,6 @@
 import type { ClockDriver } from '../../../../../../driver/port/external/clock/clock-driver.js';
 import { success, failure, type Result } from '../../../../../../common/result.js';
-import type { SystemError } from '../../../../../../driver/port/shop/dtos/errors/SystemError.js';
+import type { SystemError } from '../../../../../../driver/port/myShop/dtos/errors/SystemError.js';
 import { UseCaseResult } from '../../../../shared/use-case-result.js';
 import { VoidVerification } from '../../../../shared/void-verification.js';
 import type { UseCaseContext } from '../../../../shared/use-case-context.js';

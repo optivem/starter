@@ -1,13 +1,13 @@
 import { uiTest as test, expect } from './base/BaseE2eTest.js';
 
-test('shouldRejectOrderWithNonIntegerQuantity', async ({ shopUiClient }) => {
+test('shouldRejectOrderWithNonIntegerQuantity', async ({ myShopUiClient }) => {
     // When: place order with invalid quantity via UI client
-    const homeResult = await shopUiClient.openHomePage();
+    const homeResult = await myShopUiClient.openHomePage();
     expect(homeResult.success).toBe(true);
     if (!homeResult.success) return;
     await homeResult.value.clickNewOrder();
 
-    const newOrderPage = shopUiClient.newOrderPage();
+    const newOrderPage = myShopUiClient.newOrderPage();
     await newOrderPage.inputSku('SOME-SKU');
     await newOrderPage.inputQuantity('invalid-quantity');
     await newOrderPage.inputCountry('US');

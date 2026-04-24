@@ -8,7 +8,7 @@
 
 ## Architectures
 
-Shop ships two architectures side-by-side. Each has its own compose files and
+MyShop ships two architectures side-by-side. Each has its own compose files and
 usage examples:
 
 - [monolith/README.md](monolith/README.md) — single-service system

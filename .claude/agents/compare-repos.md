@@ -13,7 +13,7 @@ Resolve paths dynamically:
 ```bash
 ACADEMY_ROOT="$(cd "$(git rev-parse --show-toplevel)/.." && pwd)"
 ESHOP_TESTS="$ACADEMY_ROOT/eshop-tests"
-SHOP="$ACADEMY_ROOT/shop/system-test"
+MY_SHOP="$ACADEMY_ROOT/shop/system-test"
 ```
 
 ## Path Mapping
@@ -22,9 +22,9 @@ The two repos share the same directory structure under these roots:
 
 | Language   | eshop-tests root         | shop root                      |
 |------------|--------------------------|-----------------------------------|
-| .NET       | `$ESHOP_TESTS/dotnet/`   | `$SHOP/dotnet/`                |
-| Java       | `$ESHOP_TESTS/java/`     | `$SHOP/java/`                  |
-| TypeScript | `$ESHOP_TESTS/typescript/`| `$SHOP/typescript/`            |
+| .NET       | `$ESHOP_TESTS/dotnet/`   | `$MY_SHOP/dotnet/`                |
+| Java       | `$ESHOP_TESTS/java/`     | `$MY_SHOP/java/`                  |
+| TypeScript | `$ESHOP_TESTS/typescript/`| `$MY_SHOP/typescript/`            |
 
 Within each language directory, the subdirectory structure is identical (same folder names, same file names).
 
@@ -57,7 +57,7 @@ List all source files in both repos (excluding build artifacts). Report:
 For every file that exists in both repos, run a verbatim diff:
 
 ```bash
-diff "$ESHOP_TESTS/<lang>/<path>" "$SHOP/<lang>/<path>"
+diff "$ESHOP_TESTS/<lang>/<path>" "$MY_SHOP/<lang>/<path>"
 ```
 
 Report the **exact diff output** for every file that differs. Do not summarize or paraphrase — show the actual lines that differ.

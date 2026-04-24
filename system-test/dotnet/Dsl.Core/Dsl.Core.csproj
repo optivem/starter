@@ -17,7 +17,7 @@
     <ProjectReference Include="Shared\Dsl.Core.Shared.csproj" />
     <ProjectReference Include="UseCase\External\Clock\Clock.csproj" />
     <ProjectReference Include="UseCase\External\Erp\Erp.csproj" />
-    <ProjectReference Include="UseCase\Shop\Shop.csproj" />
+    <ProjectReference Include="UseCase\MyShop\MyShop.csproj" />
 
     <ProjectReference Include="..\Dsl.Port\Dsl.Port.csproj" />
     <ProjectReference Include="..\Driver.Adapter\Driver.Adapter.csproj" />
@@ -28,7 +28,7 @@
   <ItemGroup>
     <Compile Remove="UseCase\External\Clock\**\*.cs" />
     <Compile Remove="UseCase\External\Erp\**\*.cs" />
-    <Compile Remove="UseCase\Shop\**\*.cs" />
+    <Compile Remove="UseCase\MyShop\**\*.cs" />
 
     <Compile Remove="Shared\**\*.cs" />
     <Compile Remove="**\bin\**\*.cs" />

@@ -1,7 +1,7 @@
 import { apiTest as test, expect } from './base/BaseE2eTest.js';
 import { randomUUID } from 'node:crypto';
 
-test('shouldPlaceOrderForValidInput', async ({ shopApiClient, erpClient }) => {
+test('shouldPlaceOrderForValidInput', async ({ myShopApiClient, erpClient }) => {
     const sku = `SKU-${randomUUID().substring(0, 8)}`;
 
     // Given: create product in real ERP
@@ -9,7 +9,7 @@ test('shouldPlaceOrderForValidInput', async ({ shopApiClient, erpClient }) => {
     expect(productResult.success).toBe(true);
 
     // When: place order via API client
-    const result = await shopApiClient.orders().placeOrder({ sku, quantity: '5', country: 'US' });
+    const result = await myShopApiClient.orders().placeOrder({ sku, quantity: '5', country: 'US' });
 
     // Then: place order should succeed
     expect(result.success).toBe(true);
@@ -17,7 +17,7 @@ test('shouldPlaceOrderForValidInput', async ({ shopApiClient, erpClient }) => {
         expect(result.value.orderNumber).toMatch(/^ORD-/);
 
         // Then: view order returns full order details
-        const viewResult = await shopApiClient.orders().viewOrder(result.value.orderNumber);
+        const viewResult = await myShopApiClient.orders().viewOrder(result.value.orderNumber);
         expect(viewResult.success).toBe(true);
         if (viewResult.success) {
             expect(viewResult.value.orderNumber).toBe(result.value.orderNumber);

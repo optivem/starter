@@ -1,4 +1,4 @@
-namespace Optivem.Shop.SystemTest.Channel;
+namespace MyCompany.MyShop.SystemTest.Channel;
 
 public static class ChannelType
 {

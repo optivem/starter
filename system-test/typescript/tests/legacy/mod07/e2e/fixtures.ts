@@ -3,8 +3,8 @@ import { ChannelContext, bindChannels, bindTestEach } from '@optivem/optivem-tes
 import { chromium } from 'playwright';
 import type { Browser } from 'playwright';
 import { loadConfiguration } from '../../../../config/configuration-loader.js';
-import { ShopApiDriver } from '../../../../src/testkit/driver/adapter/shop/api/shop-api-driver.js';
-import { ShopUiDriver } from '../../../../src/testkit/driver/adapter/shop/ui/shop-ui-driver.js';
+import { MyShopApiDriver } from '../../../../src/testkit/driver/adapter/myShop/api/my-shop-api-driver.js';
+import { MyShopUiDriver } from '../../../../src/testkit/driver/adapter/myShop/ui/my-shop-ui-driver.js';
 import { ErpRealDriver } from '../../../../src/testkit/driver/adapter/external/erp/erp-real-driver.js';
 import { TaxRealDriver } from '../../../../src/testkit/driver/adapter/external/tax/tax-real-driver.js';
 import { ClockRealDriver } from '../../../../src/testkit/driver/adapter/external/clock/clock-real-driver.js';
@@ -13,22 +13,22 @@ import { ChannelType } from '../../../../src/testkit/channel/channel-type.js';
 
 const config = loadConfiguration();
 
-const _test = base.extend<{ app: UseCaseDsl; _shopBrowser: Browser }>({
-    _shopBrowser: async ({}, use) => {
+const _test = base.extend<{ app: UseCaseDsl; _myShopBrowser: Browser }>({
+    _myShopBrowser: async ({}, use) => {
         const browser = await chromium.launch();
         await use(browser);
         await browser.close();
     },
-    app: async ({ _shopBrowser }, use) => {
+    app: async ({ _myShopBrowser }, use) => {
         const channel = ChannelContext.get() || ChannelType.API;
         const appContext = new AppContext({
             channelMode: 'dynamic',
             channel,
-            shopDriverFactory: (ch) => {
+            myShopDriverFactory: (ch) => {
                 if (ch === ChannelType.UI) {
-                    return new ShopUiDriver(config.shop.frontendUrl, _shopBrowser);
+                    return new MyShopUiDriver(config.myShop.frontendUrl, _myShopBrowser);
                 }
-                return new ShopApiDriver(config.shop.backendApiUrl);
+                return new MyShopApiDriver(config.myShop.backendApiUrl);
             },
             erpDriver: new ErpRealDriver(config.externalSystems.erp.url),
             clockDriver: new ClockRealDriver(),

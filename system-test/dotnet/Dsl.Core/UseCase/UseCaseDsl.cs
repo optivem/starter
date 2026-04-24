@@ -3,10 +3,10 @@ using Dsl.Core.External.Clock;
 using Driver.Port.External.Clock;
 using Dsl.Core.External.Erp;
 using Driver.Port.External.Erp;
-using Driver.Adapter.Shop.Api;
-using Driver.Adapter.Shop.Ui;
-using Dsl.Core.Shop;
-using Driver.Port.Shop;
+using Driver.Adapter.MyShop.Api;
+using Driver.Adapter.MyShop.Ui;
+using Dsl.Core.MyShop;
+using Driver.Port.MyShop;
 using Driver.Port.External.Tax;
 using Dsl.Core.External.Tax;
 using Driver.Adapter.External.Erp;
@@ -14,7 +14,7 @@ using Optivem.Testing;
 using Dsl.Core.Shared;
 using Driver.Adapter.External.Clock;
 using Driver.Adapter.External.Tax;
-using Optivem.Shop.SystemTest.Channel;
+using MyCompany.MyShop.SystemTest.Channel;
 
 namespace Dsl.Core;
 
@@ -24,7 +24,7 @@ public class UseCaseDsl : IAsyncDisposable
 
     private readonly UseCaseContext _context;
     private readonly Configuration _configuration;
-    private readonly Dictionary<string, ShopDsl> _shops = new();
+    private readonly Dictionary<string, MyShopDsl> _shops = new();
     private ErpDsl? _erp;
     private TaxDsl? _tax;
     private ClockDsl? _clock;
@@ -35,28 +35,28 @@ public class UseCaseDsl : IAsyncDisposable
         _configuration = configuration;
     }
 
-    public async Task<ShopDsl> Shop(ChannelMode mode, Channel channel)
+    public async Task<MyShopDsl> MyShop(ChannelMode mode, Channel channel)
     {
-        var channelType = ResolveShopChannel(mode, channel);
-        return await GetOrCreateShop(channelType);
+        var channelType = ResolveMyShopChannel(mode, channel);
+        return await GetOrCreateMyShop(channelType);
     }
 
-    public async Task<ShopDsl> Shop(Channel channel)
+    public async Task<MyShopDsl> MyShop(Channel channel)
     {
-        return await Shop(_configuration.ChannelMode, channel);
+        return await MyShop(_configuration.ChannelMode, channel);
     }
 
-    private async Task<ShopDsl> GetOrCreateShop(string channelType)
+    private async Task<MyShopDsl> GetOrCreateMyShop(string channelType)
     {
         if (!_shops.TryGetValue(channelType, out var shop))
         {
-            shop = await ShopDsl.CreateAsync(await CreateShopDriverForChannelAsync(channelType), _context);
+            shop = await MyShopDsl.CreateAsync(await CreateMyShopDriverForChannelAsync(channelType), _context);
             _shops[channelType] = shop;
         }
         return shop;
     }
 
-    private static string ResolveShopChannel(ChannelMode mode, Channel channel)
+    private static string ResolveMyShopChannel(ChannelMode mode, Channel channel)
     {
         var channelType = mode switch
         {
@@ -68,7 +68,7 @@ public class UseCaseDsl : IAsyncDisposable
         return channelType;
     }
 
-    public async Task<ShopDsl> ApiShop() => await GetOrCreateShop(StaticChannel);
+    public async Task<MyShopDsl> ApiMyShop() => await GetOrCreateMyShop(StaticChannel);
 
     public ErpDsl Erp() => GetOrCreate(ref _erp, () => new ErpDsl(CreateErpDriver(), _context));
 
@@ -76,12 +76,12 @@ public class UseCaseDsl : IAsyncDisposable
 
     public ClockDsl Clock() => GetOrCreate(ref _clock, () => new ClockDsl(CreateClockDriver(), _context));
 
-    private async Task<IShopDriver> CreateShopDriverForChannelAsync(string channelType)
+    private async Task<IMyShopDriver> CreateMyShopDriverForChannelAsync(string channelType)
     {
         return channelType switch
         {
-            ChannelType.UI => await ShopUiDriver.CreateAsync(_configuration.ShopUiBaseUrl),
-            ChannelType.API => new ShopApiDriver(_configuration.ShopApiBaseUrl),
+            ChannelType.UI => await MyShopUiDriver.CreateAsync(_configuration.MyShopUiBaseUrl),
+            ChannelType.API => new MyShopApiDriver(_configuration.MyShopApiBaseUrl),
             _ => throw new InvalidOperationException($"Unknown channel type: {channelType}")
         };
     }

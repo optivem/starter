@@ -2,7 +2,7 @@ import type { TaxDriver } from '../../../../../../driver/port/external/tax/tax-d
 import type { GetCountryRequest } from '../../../../../../driver/port/external/tax/dtos/GetCountryRequest.js';
 import type { GetTaxResponse } from '../../../../../../driver/port/external/tax/dtos/GetTaxResponse.js';
 import { success, failure, type Result } from '../../../../../../common/result.js';
-import type { SystemError } from '../../../../../../driver/port/shop/dtos/errors/SystemError.js';
+import type { SystemError } from '../../../../../../driver/port/myShop/dtos/errors/SystemError.js';
 import { UseCaseResult } from '../../../../shared/use-case-result.js';
 import type { UseCaseContext } from '../../../../shared/use-case-context.js';
 import { BaseTaxUseCase } from './base/BaseTaxUseCase.js';

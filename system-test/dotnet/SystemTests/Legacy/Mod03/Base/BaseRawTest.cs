@@ -30,7 +30,7 @@ public abstract class BaseRawTest : BaseConfigurableTest, IAsyncLifetime
         return Task.CompletedTask;
     }
 
-    protected async Task SetUpShopBrowserAsync()
+    protected async Task SetUpMyShopBrowserAsync()
     {
         shopUiPlaywright = await Playwright.CreateAsync();
 
@@ -51,7 +51,7 @@ public abstract class BaseRawTest : BaseConfigurableTest, IAsyncLifetime
         shopUiPage = await shopUiBrowserContext.NewPageAsync();
     }
 
-    protected void SetUpShopHttpClient()
+    protected void SetUpMyShopHttpClient()
     {
         _shopApiHttpClient = new HttpClient();
         if (_httpObjectMapper == null)

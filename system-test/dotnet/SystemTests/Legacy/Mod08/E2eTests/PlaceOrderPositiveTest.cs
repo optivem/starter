@@ -1,5 +1,5 @@
-using Dsl.Core.Shop;
-using Driver.Port.Shop.Dtos;
+using Dsl.Core.MyShop;
+using Driver.Port.MyShop.Dtos;
 using SystemTests.Legacy.Mod08.E2eTests.Base;
 using Optivem.Testing;
 using Xunit;

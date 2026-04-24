@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
-import { SystemError } from '../../../../driver/port/shop/dtos/errors/SystemError.js';
-import { ViewOrderResponse } from '../../../../driver/port/shop/dtos/ViewOrderResponse.js';
-import { BrowseCouponItem } from '../../../../driver/port/shop/dtos/BrowseCouponsResponse.js';
+import { SystemError } from '../../../../driver/port/myShop/dtos/errors/SystemError.js';
+import { ViewOrderResponse } from '../../../../driver/port/myShop/dtos/ViewOrderResponse.js';
+import { BrowseCouponItem } from '../../../../driver/port/myShop/dtos/BrowseCouponsResponse.js';
 import { GetTimeResponse } from '../../../../driver/port/external/clock/dtos/GetTimeResponse.js';
 import { DEFAULTS } from '../defaults.js';
 import { UseCaseContext } from '../../shared/use-case-context.js';
@@ -95,7 +95,7 @@ export class ThenResultStage implements PromiseLike<void> {
 
     for (const cc of this.ctx.couponConfigs) {
       const resolvedCode = this.useCaseContext.getParamValue(cc.code) as string;
-      await this.app.shop().publishCoupon({
+      await this.app.myShop().publishCoupon({
         code: resolvedCode,
         discountRate: cc.discountRate,
         validFrom: cc.validFrom,
@@ -109,7 +109,7 @@ export class ThenResultStage implements PromiseLike<void> {
       const orderSku = this.useCaseContext.getParamValue(oc.sku) as string;
       const orderCountry = this.useCaseContext.getParamValueOrLiteral(oc.country) as string;
       const orderCouponCode = this.useCaseContext.getParamValue(oc.couponCode) as string | null;
-      const orderResult = await this.app.shop().placeOrder({
+      const orderResult = await this.app.myShop().placeOrder({
         sku: orderSku,
         quantity: oc.quantity,
         country: orderCountry,
@@ -122,7 +122,7 @@ export class ThenResultStage implements PromiseLike<void> {
     const resolvedCountry = this.useCaseContext.getParamValueOrLiteral(this.country) as string;
     const resolvedCouponCode = this.useCaseContext.getParamValue(this.couponCode) as string | null;
 
-    const result = await this.app.shop('dynamic').placeOrder({
+    const result = await this.app.myShop('dynamic').placeOrder({
       sku: resolvedSku,
       quantity: this.quantity,
       country: resolvedCountry,
@@ -134,7 +134,7 @@ export class ThenResultStage implements PromiseLike<void> {
       if (!result.success) return;
 
       if (this._orderAssertions.length > 0) {
-        const orderResult = await this.app.shop().viewOrder(result.value.orderNumber);
+        const orderResult = await this.app.myShop().viewOrder(result.value.orderNumber);
         expect(orderResult.success).toBe(true);
         if (orderResult.success) {
           for (const fn of this._orderAssertions) fn(orderResult.value);
@@ -143,7 +143,7 @@ export class ThenResultStage implements PromiseLike<void> {
 
       for (const couponEntry of this._couponAssertions) {
         const resolvedCouponCode = this.useCaseContext.getParamValue(couponEntry.code) as string;
-        const browseResult = await this.app.shop().browseCoupons();
+        const browseResult = await this.app.myShop().browseCoupons();
         expect(browseResult.success).toBe(true);
         if (browseResult.success) {
           const coupon = browseResult.value.coupons.find((c) => c.code === resolvedCouponCode);

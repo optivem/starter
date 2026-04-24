@@ -1,5 +1,5 @@
 using System.Runtime.CompilerServices;
-using Driver.Port.Shop.Dtos;
+using Driver.Port.MyShop.Dtos;
 
 namespace Dsl.Port.Then.Steps;
 

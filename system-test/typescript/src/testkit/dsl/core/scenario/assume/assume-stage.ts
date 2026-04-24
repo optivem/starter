@@ -6,9 +6,9 @@ import type { AssumeRunning as IAssumeRunning } from '../../../port/assume/steps
 export class AssumeStage implements IAssumeStage {
   constructor(private readonly app: AppContext) {}
 
-  shop(): AssumeRunning {
+  myShop(): AssumeRunning {
     return new AssumeRunning(this, async () => {
-      const result = await this.app.shop().goToShop();
+      const result = await this.app.myShop().goToMyShop();
       expect(result.success).toBe(true);
     });
   }

@@ -1,13 +1,13 @@
 using Dsl.Core.Shared;
 using Common;
-using Dsl.Core.Shop.UseCases.Base;
+using Dsl.Core.MyShop.UseCases.Base;
 
 namespace Dsl.Core.Scenario
 {
     public class ExecutionResult<TSuccessResponse, TSuccessVerification>
         where TSuccessVerification : ResponseVerification<TSuccessResponse>
     {
-        internal ExecutionResult(ShopUseCaseResult<TSuccessResponse, TSuccessVerification> result,
+        internal ExecutionResult(MyShopUseCaseResult<TSuccessResponse, TSuccessVerification> result,
             string? orderNumber, string? couponCode)
         {
             if (result == null)
@@ -21,7 +21,7 @@ namespace Dsl.Core.Scenario
             Context = new ExecutionResultContext(orderNumber, couponCode);
         }
 
-        public ShopUseCaseResult<TSuccessResponse, TSuccessVerification> Result { get; }
+        public MyShopUseCaseResult<TSuccessResponse, TSuccessVerification> Result { get; }
 
         public string? OrderNumber { get; }
 

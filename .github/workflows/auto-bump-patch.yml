@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: shop-auto-bump-patch
+  group: my-shop-auto-bump-patch
 
 jobs:
   bump:

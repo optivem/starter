@@ -2,7 +2,7 @@ import { test, expect, forChannels, ChannelType } from './base/BaseE2eTest.js';
 import { randomUUID } from 'node:crypto';
 
 forChannels(ChannelType.UI, ChannelType.API)(() => {
-    test('shouldPlaceOrderForValidInput', async ({ shopDriver, erpDriver }) => {
+    test('shouldPlaceOrderForValidInput', async ({ myShopDriver, erpDriver }) => {
         const sku = `SKU-${randomUUID().substring(0, 8)}`;
 
         // Given
@@ -10,14 +10,14 @@ forChannels(ChannelType.UI, ChannelType.API)(() => {
         expect(productResult.success).toBe(true);
 
         // When
-        const result = await shopDriver.placeOrder({ sku, quantity: '5', country: 'US' });
+        const result = await myShopDriver.placeOrder({ sku, quantity: '5', country: 'US' });
 
         // Then
         expect(result.success).toBe(true);
         if (result.success) {
             expect(result.value.orderNumber).toMatch(/^ORD-/);
 
-            const viewResult = await shopDriver.viewOrder(result.value.orderNumber);
+            const viewResult = await myShopDriver.viewOrder(result.value.orderNumber);
             expect(viewResult.success).toBe(true);
             if (viewResult.success) {
                 expect(viewResult.value.sku).toBe(sku);

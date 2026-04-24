@@ -15,22 +15,22 @@ export const apiTest = base.extend<{ config: TestConfig }>({
 });
 
 // Raw Playwright fixtures for UI tests
-export const uiTest = base.extend<{ config: TestConfig; shopPage: Page; _shopBrowser: Browser; _shopContext: BrowserContext }>({
+export const uiTest = base.extend<{ config: TestConfig; myShopPage: Page; _myShopBrowser: Browser; _myShopContext: BrowserContext }>({
     config: async ({}, use) => {
         await use(config);
     },
-    _shopBrowser: async ({}, use) => {
+    _myShopBrowser: async ({}, use) => {
         const browser = await chromium.launch();
         await use(browser);
         await browser.close();
     },
-    _shopContext: async ({ _shopBrowser }, use) => {
-        const context = await _shopBrowser.newContext({ viewport: { width: 1920, height: 1080 } });
+    _myShopContext: async ({ _myShopBrowser }, use) => {
+        const context = await _myShopBrowser.newContext({ viewport: { width: 1920, height: 1080 } });
         await use(context);
         await context.close();
     },
-    shopPage: async ({ _shopContext }, use) => {
-        const page = await _shopContext.newPage();
+    myShopPage: async ({ _myShopContext }, use) => {
+        const page = await _myShopContext.newPage();
         await use(page);
         await page.close();
     },

@@ -1,5 +1,5 @@
-using Dsl.Core.Shop;
-using Driver.Port.Shop.Dtos;
+using Dsl.Core.MyShop;
+using Driver.Port.MyShop.Dtos;
 using SystemTests.Commons.Constants;
 using SystemTests.Legacy.Mod07.E2eTests.Base;
 using Optivem.Testing;
@@ -20,7 +20,7 @@ public class PlaceOrderPositiveTest : BaseE2eTest
             .Execute())
             .ShouldSucceed();
 
-        var shop = await _app.Shop(channel);
+        var shop = await _app.MyShop(channel);
         (await shop.PlaceOrder()
             .OrderNumber(Defaults.ORDER_NUMBER)
             .Sku(Defaults.SKU)

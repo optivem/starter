@@ -13,8 +13,8 @@ public static class SystemConfigurationLoader
         var configFile = GetConfigFileName(environment, externalSystemMode);
         var configuration = LoadJsonFile(configFile);
 
-        var shopUiBaseUrl = GetValue(configuration, "Shop:UiBaseUrl");
-        var shopApiBaseUrl = GetValue(configuration, "Shop:ApiBaseUrl");
+        var shopUiBaseUrl = GetValue(configuration, "MyShop:UiBaseUrl");
+        var shopApiBaseUrl = GetValue(configuration, "MyShop:ApiBaseUrl");
         var erpBaseUrl = GetValue(configuration, "Erp:ApiBaseUrl");
         var taxBaseUrl = GetValue(configuration, "Tax:ApiBaseUrl");
         var clockBaseUrl = GetValue(configuration, "Clock:ApiBaseUrl");

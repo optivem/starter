@@ -1,5 +1,5 @@
 using SystemTests.Latest.AcceptanceTests.Base;
-using Dsl.Core.Shop;
+using Dsl.Core.MyShop;
 using Dsl.Port.Then.Steps;
 using Optivem.Testing;
 

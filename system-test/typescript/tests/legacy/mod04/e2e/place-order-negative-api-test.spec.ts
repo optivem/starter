@@ -1,8 +1,8 @@
 import { apiTest as test, expect } from './base/BaseE2eTest.js';
 
-test('shouldRejectOrderWithNonIntegerQuantity', async ({ shopApiClient }) => {
+test('shouldRejectOrderWithNonIntegerQuantity', async ({ myShopApiClient }) => {
     // When: place order with non-integer quantity via API client
-    const result = await shopApiClient.orders().placeOrder({ sku: 'SOME-SKU', quantity: 'invalid-quantity', country: 'US' });
+    const result = await myShopApiClient.orders().placeOrder({ sku: 'SOME-SKU', quantity: 'invalid-quantity', country: 'US' });
 
     // Then: should fail
     expect(result.success).toBe(false);

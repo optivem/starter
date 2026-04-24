@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const BASE_URL = 'https://api.optivem.com/errors';
+const BASE_URL = 'https://api.my-company.example/errors';
 
 export interface FieldError {
   field: string;

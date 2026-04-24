@@ -1,8 +1,8 @@
-# Shop — Project Registration
+# MyShop — Project Registration
 
 | Field | Value |
 |-------|-------|
-| System Name | Shop |
+| System Name | MyShop |
 | Repository | TODO: your repo URL |
 | Architecture | TODO: monolith or multitier |
 | Repository Strategy | TODO: monorepo or multirepo |

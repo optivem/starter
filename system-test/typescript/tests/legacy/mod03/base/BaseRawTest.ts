@@ -1,11 +1,11 @@
 export {
   getConfiguration,
-  getShopApiBaseUrl,
-  getShopUiBaseUrl,
+  getMyShopApiBaseUrl,
+  getMyShopUiBaseUrl,
   getErpBaseUrl,
   getTaxBaseUrl,
   createUniqueSku,
-  setUpShopBrowser,
-  tearDownShopBrowser,
-  type ShopBrowser,
+  setUpMyShopBrowser,
+  tearDownMyShopBrowser,
+  type MyShopBrowser,
 } from '../../mod02/base/BaseRawTest.js';

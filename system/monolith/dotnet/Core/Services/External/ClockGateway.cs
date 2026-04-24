@@ -1,7 +1,7 @@
 using System.Text.Json;
-using Optivem.Shop.Monolith.Core.Dtos.External;
+using MyCompany.MyShop.Monolith.Core.Dtos.External;
 
-namespace Optivem.Shop.Monolith.Core.Services.External;
+namespace MyCompany.MyShop.Monolith.Core.Services.External;
 
 public class ClockGateway
 {

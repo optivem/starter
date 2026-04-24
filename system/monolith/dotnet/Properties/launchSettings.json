@@ -8,7 +8,7 @@
     }
   },
   "profiles": {
-    "Optivem.Shop.Monolith": {
+    "MyCompany.MyShop.Monolith": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

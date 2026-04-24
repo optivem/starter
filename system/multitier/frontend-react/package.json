@@ -1,7 +1,7 @@
 {
-  "name": "optivem-shop-frontend",
+  "name": "my-company-my-shop-frontend",
   "version": "1.0.0",
-  "description": "Frontend for Shop",
+  "description": "Frontend for MyShop",
   "type": "module",
   "scripts": {
     "dev": "vite",

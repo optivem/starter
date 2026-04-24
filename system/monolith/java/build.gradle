@@ -12,9 +12,9 @@ checkstyle {
 	configFile = file("${rootDir}/config/checkstyle/checkstyle.xml")
 }
 
-group = 'com.optivem.shop.monolith'
+group = 'com.mycompany.myshop.monolith'
 version = '0.0.1-SNAPSHOT'
-description = 'Shop - Monolith'
+description = 'MyShop - Monolith'
 
 java {
 	toolchain {
@@ -60,9 +60,9 @@ jacocoTestReport {
 
 sonar {
 	properties {
-		property 'sonar.projectKey', 'optivem_shop-monolith-java'
-		property 'sonar.projectName', 'shop-monolith-java'
-		property 'sonar.organization', 'optivem'
+		property 'sonar.projectKey', 'optivem_my-my-shop-monolith-java'
+		property 'sonar.projectName', 'my-my-shop-monolith-java'
+		property 'sonar.organization', 'my-company'
 		property 'sonar.coverage.jacoco.xmlReportPaths', "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
 		property 'sonar.issue.ignore.multicriteria', 'e1,e2'
 		property 'sonar.issue.ignore.multicriteria.e1.ruleKey', 'java:S2699'

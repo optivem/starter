@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Optivem.Shop.Monolith.Core.Dtos;
-using Optivem.Shop.Monolith.Core.Services;
+using MyCompany.MyShop.Monolith.Core.Dtos;
+using MyCompany.MyShop.Monolith.Core.Services;
 
-namespace Optivem.Shop.Monolith.Controllers;
+namespace MyCompany.MyShop.Monolith.Controllers;
 
 [ApiController]
 [Route("api/coupons")]

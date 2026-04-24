@@ -15,11 +15,11 @@ public class AssumeStage : IAssumeStage
         _channel = channel;
     }
 
-    public IAssumeRunning Shop()
+    public IAssumeRunning MyShop()
     {
         return new AssumeRunningAction(async () =>
         {
-            (await (await _app.Shop(_channel)).GoToShop().Execute()).ShouldSucceed();
+            (await (await _app.MyShop(_channel)).GoToMyShop().Execute()).ShouldSucceed();
         }, this);
     }
 

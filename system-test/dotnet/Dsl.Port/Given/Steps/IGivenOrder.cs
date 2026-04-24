@@ -1,5 +1,5 @@
 using Dsl.Port.Given.Steps.Base;
-using Driver.Port.Shop.Dtos;
+using Driver.Port.MyShop.Dtos;
 
 namespace Dsl.Port.Given.Steps;
 

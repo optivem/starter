@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { BrowseCouponsResponse } from '../../../../driver/port/shop/dtos/BrowseCouponsResponse.js';
+import { BrowseCouponsResponse } from '../../../../driver/port/myShop/dtos/BrowseCouponsResponse.js';
 import { UseCaseContext } from '../../shared/use-case-context.js';
 import { AppContext } from '../app-context.js';
 import { ScenarioContext } from '../scenario-context.js';
@@ -39,10 +39,10 @@ export class ThenBrowseCouponsResultStage implements PromiseLike<void> {
   private async _doExecute(): Promise<void> {
     for (const cc of this.ctx.couponConfigs) {
       const resolvedCode = this.useCaseContext.getParamValue(cc.code) as string;
-      await this.app.shop().publishCoupon({ code: resolvedCode, discountRate: cc.discountRate });
+      await this.app.myShop().publishCoupon({ code: resolvedCode, discountRate: cc.discountRate });
     }
 
-    const result = await this.app.shop('static').browseCoupons();
+    const result = await this.app.myShop('static').browseCoupons();
     expect(result.success).toBe(true);
     if (result.success) {
       this._browseResult = result.value;

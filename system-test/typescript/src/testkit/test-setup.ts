@@ -2,8 +2,8 @@ import { loadConfiguration, TestConfig } from '../../config/configuration-loader
 import { ScenarioDsl, AppContext } from './dsl/scenario-dsl.js';
 import type { ChannelMode } from './dsl/scenario-dsl.js';
 import { UseCaseContext } from './dsl/core/shared/use-case-context.js';
-import { ShopApiDriver } from './driver/adapter/shop/api/shop-api-driver.js';
-import { ShopUiDriver } from './driver/adapter/shop/ui/shop-ui-driver.js';
+import { MyShopApiDriver } from './driver/adapter/myShop/api/my-shop-api-driver.js';
+import { MyShopUiDriver } from './driver/adapter/myShop/ui/my-shop-ui-driver.js';
 import { ErpRealDriver } from './driver/adapter/external/erp/erp-real-driver.js';
 import { ErpStubDriver } from './driver/adapter/external/erp/erp-stub-driver.js';
 import { ClockRealDriver } from './driver/adapter/external/clock/clock-real-driver.js';
@@ -37,7 +37,7 @@ export function createScenario(options: ScenarioOptions = {}): ScenarioDsl {
   const app = new AppContext({
     channelMode,
     channel,
-    shopDriverFactory: (ch) => createShopDriverForChannel(config, ch as Channel, options),
+    myShopDriverFactory: (ch) => createMyShopDriverForChannel(config, ch as Channel, options),
     erpDriver: createErpDriver(config, mode),
     clockDriver: createClockDriver(config, mode),
     taxDriver: createTaxDriver(config, mode),
@@ -47,12 +47,12 @@ export function createScenario(options: ScenarioOptions = {}): ScenarioDsl {
   return new ScenarioDsl(app, useCaseContext);
 }
 
-function createShopDriverForChannel(config: TestConfig, channel: Channel, options: ScenarioOptions) {
+function createMyShopDriverForChannel(config: TestConfig, channel: Channel, options: ScenarioOptions) {
   if (channel === ChannelType.UI) {
     if (!options.browser) throw new Error('Browser is required for UI channel');
-    return new ShopUiDriver(config.shop.frontendUrl, options.browser);
+    return new MyShopUiDriver(config.myShop.frontendUrl, options.browser);
   }
-  return new ShopApiDriver(config.shop.backendApiUrl);
+  return new MyShopApiDriver(config.myShop.backendApiUrl);
 }
 
 function createErpDriver(config: TestConfig, mode: ExternalSystemMode): ErpDriver {

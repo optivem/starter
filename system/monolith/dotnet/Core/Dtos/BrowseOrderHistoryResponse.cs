@@ -1,6 +1,6 @@
-using Optivem.Shop.Monolith.Core.Entities;
+using MyCompany.MyShop.Monolith.Core.Entities;
 
-namespace Optivem.Shop.Monolith.Core.Dtos;
+namespace MyCompany.MyShop.Monolith.Core.Dtos;
 
 public class BrowseOrderHistoryResponse
 {

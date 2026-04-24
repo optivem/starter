@@ -1,6 +1,6 @@
 import type { AppContext, ChannelMode } from '../scenario/app-context.js';
 import { UseCaseContext, type ExternalSystemMode } from '../shared/use-case-context.js';
-import { ShopDsl } from './shop/ShopDsl.js';
+import { MyShopDsl } from './myShop/MyShopDsl.js';
 import { ClockDsl } from './external/clock/ClockDsl.js';
 import { ErpDsl } from './external/erp/ErpDsl.js';
 import { TaxDsl } from './external/tax/TaxDsl.js';
@@ -11,7 +11,7 @@ function resolveExternalSystemMode(): ExternalSystemMode {
 
 export class UseCaseDsl {
   private readonly useCaseContext: UseCaseContext;
-  private _shopDsl?: ShopDsl;
+  private _myShopDsl?: MyShopDsl;
   private _clockDsl?: ClockDsl;
   private _erpDsl?: ErpDsl;
   private _taxDsl?: TaxDsl;
@@ -20,11 +20,11 @@ export class UseCaseDsl {
     this.useCaseContext = new UseCaseContext(resolveExternalSystemMode());
   }
 
-  shop(mode?: ChannelMode): ShopDsl {
-    if (!this._shopDsl || mode) {
-      this._shopDsl = new ShopDsl(this.app.shop(mode), this.useCaseContext);
+  myShop(mode?: ChannelMode): MyShopDsl {
+    if (!this._myShopDsl || mode) {
+      this._myShopDsl = new MyShopDsl(this.app.myShop(mode), this.useCaseContext);
     }
-    return this._shopDsl;
+    return this._myShopDsl;
   }
 
   clock(): ClockDsl {

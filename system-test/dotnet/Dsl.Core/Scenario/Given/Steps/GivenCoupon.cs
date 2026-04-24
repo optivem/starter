@@ -79,7 +79,7 @@ public class GivenCoupon : BaseGiven, IGivenCoupon
 
     internal override async Task Execute(UseCaseDsl app)
     {
-        var shop = await app.Shop(Channel);
+        var shop = await app.MyShop(Channel);
         (await shop.PublishCoupon()
             .CouponCode(_couponCode)
             .DiscountRate(_discountRate)

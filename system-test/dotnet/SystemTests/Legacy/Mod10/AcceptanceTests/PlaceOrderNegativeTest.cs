@@ -1,6 +1,6 @@
 using SystemTests.Commons.Providers;
 using SystemTests.Legacy.Mod10.AcceptanceTests.Base;
-using Dsl.Core.Shop;
+using Dsl.Core.MyShop;
 using Optivem.Testing;
 using Xunit;
 

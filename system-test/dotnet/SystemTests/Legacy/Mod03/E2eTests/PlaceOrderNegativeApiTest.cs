@@ -9,9 +9,9 @@ namespace SystemTests.Legacy.Mod03.E2eTests;
 
 public class PlaceOrderNegativeApiTest : BaseE2eTest
 {
-    protected override Task SetShopRawAsync()
+    protected override Task SetMyShopRawAsync()
     {
-        SetUpShopHttpClient();
+        SetUpMyShopHttpClient();
         return Task.CompletedTask;
     }
 
@@ -20,7 +20,7 @@ public class PlaceOrderNegativeApiTest : BaseE2eTest
     {
         var placeOrderJson = $$"""{"sku":"{{CreateUniqueSku(Defaults.SKU)}}","quantity":"invalid-quantity"}""";
 
-        var uri = new Uri(_configuration.ShopApiBaseUrl + "/api/orders");
+        var uri = new Uri(_configuration.MyShopApiBaseUrl + "/api/orders");
         var content = new StringContent(placeOrderJson, Encoding.UTF8, "application/json");
         var response = await _shopApiHttpClient!.PostAsync(uri, content);
 

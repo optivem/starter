@@ -8,7 +8,7 @@ RUN dotnet restore
 
 # Copy everything else and build
 COPY . ./
-RUN dotnet publish Optivem.Shop.Backend.csproj -c Release -o out
+RUN dotnet publish MyCompany.MyShop.Backend.csproj -c Release -o out
 
 # Use the official ASP.NET runtime image for the app
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
@@ -18,4 +18,4 @@ COPY --from=build /app/out ./
 EXPOSE 8081
 
 # Set the entry point
-ENTRYPOINT ["dotnet", "Optivem.Shop.Backend.dll"]
+ENTRYPOINT ["dotnet", "MyCompany.MyShop.Backend.dll"]

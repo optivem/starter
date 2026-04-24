@@ -1,14 +1,14 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Diagnostics;
-using Optivem.Shop.Backend.Core.Exceptions;
+using MyCompany.MyShop.Backend.Core.Exceptions;
 
-namespace Optivem.Shop.Backend.Api.Exception;
+namespace MyCompany.MyShop.Backend.Api.Exception;
 
 public class GlobalExceptionHandler : IExceptionHandler
 {
-    private const string ValidationErrorTypeUri = "https://api.optivem.com/errors/validation-error";
-    private const string ResourceNotFoundTypeUri = "https://api.optivem.com/errors/resource-not-found";
-    private const string InternalServerErrorTypeUri = "https://api.optivem.com/errors/internal-server-error";
+    private const string ValidationErrorTypeUri = "https://api.my-company.com/errors/validation-error";
+    private const string ResourceNotFoundTypeUri = "https://api.my-company.com/errors/resource-not-found";
+    private const string InternalServerErrorTypeUri = "https://api.my-company.com/errors/internal-server-error";
 
     private readonly ILogger<GlobalExceptionHandler> _logger;
 

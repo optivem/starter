@@ -4,7 +4,7 @@ using Dsl.Port.Assume.Steps;
 
 public interface IAssumeStage
 {
-    IAssumeRunning Shop();
+    IAssumeRunning MyShop();
 
     IAssumeRunning Erp();
 

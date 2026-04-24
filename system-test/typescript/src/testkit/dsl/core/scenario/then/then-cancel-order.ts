@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
-import { SystemError } from '../../../../driver/port/shop/dtos/errors/SystemError.js';
-import { ViewOrderResponse } from '../../../../driver/port/shop/dtos/ViewOrderResponse.js';
+import { SystemError } from '../../../../driver/port/myShop/dtos/errors/SystemError.js';
+import { ViewOrderResponse } from '../../../../driver/port/myShop/dtos/ViewOrderResponse.js';
 import { DEFAULTS } from '../defaults.js';
 import { UseCaseContext } from '../../shared/use-case-context.js';
 import { AppContext } from '../app-context.js';
@@ -75,7 +75,7 @@ export class ThenCancelOrderResultStage implements PromiseLike<void> {
 
     for (const cc of this.ctx.couponConfigs) {
       const resolvedCode = this.useCaseContext.getParamValue(cc.code) as string;
-      await this.app.shop().publishCoupon({
+      await this.app.myShop().publishCoupon({
         code: resolvedCode,
         discountRate: cc.discountRate,
         validFrom: cc.validFrom,
@@ -89,7 +89,7 @@ export class ThenCancelOrderResultStage implements PromiseLike<void> {
       const resolvedSku = this.useCaseContext.getParamValue(oc.sku) as string;
       const resolvedCountry = this.useCaseContext.getParamValueOrLiteral(oc.country) as string;
       const resolvedCouponCode = this.useCaseContext.getParamValue(oc.couponCode) as string | null;
-      const placeResult = await this.app.shop().placeOrder({
+      const placeResult = await this.app.myShop().placeOrder({
         sku: resolvedSku,
         quantity: oc.quantity,
         country: resolvedCountry,
@@ -98,10 +98,10 @@ export class ThenCancelOrderResultStage implements PromiseLike<void> {
       if (placeResult.success) {
         oc.orderNumber = placeResult.value.orderNumber;
         if (oc.status === 'CANCELLED') {
-          await this.app.shop().cancelOrder(placeResult.value.orderNumber);
+          await this.app.myShop().cancelOrder(placeResult.value.orderNumber);
         }
         if (oc.status === 'DELIVERED') {
-          await this.app.shop().deliverOrder(placeResult.value.orderNumber);
+          await this.app.myShop().deliverOrder(placeResult.value.orderNumber);
         }
       }
     }
@@ -110,13 +110,13 @@ export class ThenCancelOrderResultStage implements PromiseLike<void> {
       ? this.ctx.orderConfigs[0].orderNumber
       : this.orderNumber;
 
-    const result = await this.app.shop('dynamic').cancelOrder(targetOrderNumber);
+    const result = await this.app.myShop('dynamic').cancelOrder(targetOrderNumber);
 
     if (this._expectSuccess) {
       expect(result.success).toBe(true);
 
       if (this._orderAssertions.length > 0) {
-        const orderResult = await this.app.shop().viewOrder(targetOrderNumber);
+        const orderResult = await this.app.myShop().viewOrder(targetOrderNumber);
         expect(orderResult.success).toBe(true);
         if (orderResult.success) {
           for (const fn of this._orderAssertions) fn(orderResult.value);
@@ -129,7 +129,7 @@ export class ThenCancelOrderResultStage implements PromiseLike<void> {
       }
 
       if (this._orderAssertions.length > 0) {
-        const orderResult = await this.app.shop().viewOrder(targetOrderNumber);
+        const orderResult = await this.app.myShop().viewOrder(targetOrderNumber);
         expect(orderResult.success).toBe(true);
         if (orderResult.success) {
           for (const fn of this._orderAssertions) fn(orderResult.value);

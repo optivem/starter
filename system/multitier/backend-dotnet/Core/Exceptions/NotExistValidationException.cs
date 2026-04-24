@@ -1,4 +1,4 @@
-namespace Optivem.Shop.Backend.Core.Exceptions;
+namespace MyCompany.MyShop.Backend.Core.Exceptions;
 
 public class NotExistValidationException : ValidationException
 {

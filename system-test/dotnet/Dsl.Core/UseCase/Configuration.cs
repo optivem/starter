@@ -25,8 +25,8 @@ public class Configuration
         this.channelMode = channelMode;
     }
 
-    public string ShopUiBaseUrl => shopUiBaseUrl;
-    public string ShopApiBaseUrl => shopApiBaseUrl;
+    public string MyShopUiBaseUrl => shopUiBaseUrl;
+    public string MyShopApiBaseUrl => shopApiBaseUrl;
     public string ErpBaseUrl => erpBaseUrl;
     public string TaxBaseUrl => taxBaseUrl;
     public string ClockBaseUrl => clockBaseUrl;

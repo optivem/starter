@@ -9,9 +9,9 @@ namespace SystemTests.Legacy.Mod03.E2eTests;
 
 public class PlaceOrderPositiveUiTest : BaseE2eTest
 {
-    protected override async Task SetShopRawAsync()
+    protected override async Task SetMyShopRawAsync()
     {
-        await SetUpShopBrowserAsync();
+        await SetUpMyShopBrowserAsync();
     }
 
     [Fact]
@@ -25,7 +25,7 @@ public class PlaceOrderPositiveUiTest : BaseE2eTest
         var createProductResponse = await _erpHttpClient!.PostAsync(createProductUri, createProductContent);
         ((int)createProductResponse.StatusCode).ShouldBe(201);
 
-        await shopUiPage!.GotoAsync(_configuration.ShopUiBaseUrl);
+        await shopUiPage!.GotoAsync(_configuration.MyShopUiBaseUrl);
         await shopUiPage.Locator("a[href='/new-order']").ClickAsync();
 
         await shopUiPage.Locator("[aria-label=\"SKU\"]").FillAsync(sku);
@@ -39,7 +39,7 @@ public class PlaceOrderPositiveUiTest : BaseE2eTest
         var orderNumber = match.Groups[1].Value;
         orderNumber.ShouldStartWith("ORD-");
 
-        await shopUiPage.GotoAsync(_configuration.ShopUiBaseUrl);
+        await shopUiPage.GotoAsync(_configuration.MyShopUiBaseUrl);
         await shopUiPage.Locator("a[href='/order-history']").ClickAsync();
         await shopUiPage.Locator("[aria-label='Order Number']").FillAsync(orderNumber);
         await shopUiPage.Locator("[aria-label='Refresh Order List']").ClickAsync();

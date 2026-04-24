@@ -14,14 +14,14 @@ forChannels(ChannelType.UI, ChannelType.API)(() => {
             .sku(SKU).unitPrice('20.00').execute())
             .shouldSucceed();
 
-        (await app.shop().placeOrder()
+        (await app.myShop().placeOrder()
             .orderNumber(ORDER_NUMBER)
             .sku(SKU).quantity(5).country(COUNTRY).execute())
             .shouldSucceed()
             .orderNumber(ORDER_NUMBER)
             .orderNumberStartsWith('ORD-');
 
-        (await app.shop().viewOrder()
+        (await app.myShop().viewOrder()
             .orderNumber(ORDER_NUMBER).execute())
             .shouldSucceed()
             .orderNumber(ORDER_NUMBER)

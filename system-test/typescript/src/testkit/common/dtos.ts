@@ -1,15 +1,15 @@
 // Barrel re-export — DTOs are now split by domain under driver/port/
 // This file preserves backward compatibility for existing imports.
 
-// Shop
-export type { PlaceOrderRequest } from '../driver/port/shop/dtos/PlaceOrderRequest.js';
-export type { PlaceOrderResponse } from '../driver/port/shop/dtos/PlaceOrderResponse.js';
-export type { ViewOrderResponse } from '../driver/port/shop/dtos/ViewOrderResponse.js';
-export { OrderStatus } from '../driver/port/shop/dtos/OrderStatus.js';
-export type { PublishCouponRequest } from '../driver/port/shop/dtos/PublishCouponRequest.js';
-export type { BrowseCouponItem, BrowseCouponsResponse } from '../driver/port/shop/dtos/BrowseCouponsResponse.js';
-export type { SystemError, FieldError } from '../driver/port/shop/dtos/errors/SystemError.js';
-export type { ProblemDetailResponse } from '../driver/adapter/shop/api/client/dtos/errors/ProblemDetailResponse.js';
+// MyShop
+export type { PlaceOrderRequest } from '../driver/port/myShop/dtos/PlaceOrderRequest.js';
+export type { PlaceOrderResponse } from '../driver/port/myShop/dtos/PlaceOrderResponse.js';
+export type { ViewOrderResponse } from '../driver/port/myShop/dtos/ViewOrderResponse.js';
+export { OrderStatus } from '../driver/port/myShop/dtos/OrderStatus.js';
+export type { PublishCouponRequest } from '../driver/port/myShop/dtos/PublishCouponRequest.js';
+export type { BrowseCouponItem, BrowseCouponsResponse } from '../driver/port/myShop/dtos/BrowseCouponsResponse.js';
+export type { SystemError, FieldError } from '../driver/port/myShop/dtos/errors/SystemError.js';
+export type { ProblemDetailResponse } from '../driver/adapter/myShop/api/client/dtos/errors/ProblemDetailResponse.js';
 
 // Clock
 export type { GetTimeResponse } from '../driver/port/external/clock/dtos/GetTimeResponse.js';

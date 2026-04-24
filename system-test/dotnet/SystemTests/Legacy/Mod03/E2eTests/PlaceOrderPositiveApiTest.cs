@@ -10,9 +10,9 @@ namespace SystemTests.Legacy.Mod03.E2eTests;
 
 public class PlaceOrderPositiveApiTest : BaseE2eTest
 {
-    protected override Task SetShopRawAsync()
+    protected override Task SetMyShopRawAsync()
     {
-        SetUpShopHttpClient();
+        SetUpMyShopHttpClient();
         return Task.CompletedTask;
     }
 
@@ -29,7 +29,7 @@ public class PlaceOrderPositiveApiTest : BaseE2eTest
 
         var placeOrderJson = $$"""{"sku":"{{sku}}","quantity":"5","country":"US"}""";
 
-        var placeOrderUri = new Uri(_configuration.ShopApiBaseUrl + "/api/orders");
+        var placeOrderUri = new Uri(_configuration.MyShopApiBaseUrl + "/api/orders");
         var placeOrderContent = new StringContent(placeOrderJson, Encoding.UTF8, "application/json");
         var placeOrderResponse = await _shopApiHttpClient!.PostAsync(placeOrderUri, placeOrderContent);
         ((int)placeOrderResponse.StatusCode).ShouldBe(201);
@@ -39,7 +39,7 @@ public class PlaceOrderPositiveApiTest : BaseE2eTest
         var orderNumber = placeOrderDoc.RootElement.GetProperty("orderNumber").GetString()!;
         orderNumber.ShouldStartWith("ORD-");
 
-        var viewOrderUri = new Uri(_configuration.ShopApiBaseUrl + $"/api/orders/{orderNumber}");
+        var viewOrderUri = new Uri(_configuration.MyShopApiBaseUrl + $"/api/orders/{orderNumber}");
         var viewOrderResponse = await _shopApiHttpClient!.GetAsync(viewOrderUri);
         ((int)viewOrderResponse.StatusCode).ShouldBe((int)HttpStatusCode.OK);
 

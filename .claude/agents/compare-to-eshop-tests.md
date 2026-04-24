@@ -31,7 +31,7 @@ Resolve paths dynamically:
 ```bash
 ACADEMY_ROOT="$(cd "$(git rev-parse --show-toplevel)/.." && pwd)"
 ESHOP_TESTS="$ACADEMY_ROOT/eshop-tests"
-SHOP="$ACADEMY_ROOT/shop/system-test"
+MY_SHOP="$ACADEMY_ROOT/shop/system-test"
 ```
 
 ## Structural Differences
@@ -42,15 +42,15 @@ The repos have the **same files** but different project structures. In `eshop-te
 
 | Layer | eshop-tests path | shop path |
 |-------|-----------------|--------------|
-| channel | `java/channel/src/main/java/com/optivem/eshop/dsl/channel/` | `java/src/main/java/com/optivem/shop/testkit/channel/` |
-| common | `java/common/src/main/java/com/optivem/eshop/dsl/common/` | `java/src/main/java/com/optivem/shop/testkit/common/` |
-| dsl-core | `java/dsl-core/src/main/java/com/optivem/eshop/dsl/core/` | `java/src/main/java/com/optivem/shop/testkit/dsl/core/` |
-| driver-port | `java/driver-port/src/main/java/com/optivem/eshop/dsl/driver/port/` | `java/src/main/java/com/optivem/shop/testkit/driver/port/` |
-| driver-adapter | `java/driver-adapter/src/main/java/com/optivem/eshop/dsl/driver/adapter/` | `java/src/main/java/com/optivem/shop/testkit/driver/adapter/` |
-| tests | `java/system-test/src/test/java/com/optivem/eshop/systemtest/` | `java/src/test/java/com/optivem/shop/systemtest/` |
-| test config | `java/system-test/src/main/java/com/optivem/eshop/systemtest/` | `java/src/main/java/com/optivem/shop/systemtest/` |
+| channel | `java/channel/src/main/java/com/my-company/eshop/dsl/channel/` | `java/src/main/java/com/optivem/shop/testkit/channel/` |
+| common | `java/common/src/main/java/com/my-company/eshop/dsl/common/` | `java/src/main/java/com/optivem/shop/testkit/common/` |
+| dsl-core | `java/dsl-core/src/main/java/com/my-company/eshop/dsl/core/` | `java/src/main/java/com/optivem/shop/testkit/dsl/core/` |
+| driver-port | `java/driver-port/src/main/java/com/my-company/eshop/dsl/driver/port/` | `java/src/main/java/com/optivem/shop/testkit/driver/port/` |
+| driver-adapter | `java/driver-adapter/src/main/java/com/my-company/eshop/dsl/driver/adapter/` | `java/src/main/java/com/optivem/shop/testkit/driver/adapter/` |
+| tests | `java/system-test/src/test/java/com/my-company/eshop/systemtest/` | `java/src/test/java/com/optivem/shop/systemtest/` |
+| test config | `java/system-test/src/main/java/com/my-company/eshop/systemtest/` | `java/src/main/java/com/optivem/shop/systemtest/` |
 
-**Package mapping:** `com.optivem.eshop.dsl` (eshop-tests) → `com.optivem.shop.testkit` (shop). Test packages: `com.optivem.eshop.systemtest` → `com.optivem.shop.systemtest`.
+**Package mapping:** `com.my-company.eshop.dsl` (eshop-tests) → `com.mycompany.myshop.testkit` (shop). Test packages: `com.my-company.eshop.systemtest` → `com.mycompany.myshop.systemtest`.
 
 ### .NET
 
@@ -60,7 +60,7 @@ The repos have the **same files** but different project structures. In `eshop-te
 
 .NET has the **same directory structure** in both repos (Channel/, Common/, Core/, Driver.Adapter/, SystemTests/). The directories map directly.
 
-**Namespace mapping:** `Optivem.Eshop` (eshop-tests) → `Optivem.Shop` (shop) — check if this applies.
+**Namespace mapping:** `MyCompany.Eshop` (eshop-tests) → `MyCompany.MyShop` (shop) — check if this applies.
 
 ### TypeScript
 
@@ -115,10 +115,10 @@ Report:
 For every file that exists in both repos, run a diff:
 
 ```bash
-diff "$ESHOP_TESTS/<path>" "$SHOP/<path>"
+diff "$ESHOP_TESTS/<path>" "$MY_SHOP/<path>"
 ```
 
-**Expected diff lines to ignore:** Package/namespace declarations will differ due to the package mapping (e.g. `com.optivem.eshop.dsl` vs `com.optivem.shop.testkit`). Import statements will also differ for the same reason. Flag these as "(expected package difference)" and focus on **logic differences** in the report.
+**Expected diff lines to ignore:** Package/namespace declarations will differ due to the package mapping (e.g. `com.my-company.eshop.dsl` vs `com.mycompany.myshop.testkit`). Import statements will also differ for the same reason. Flag these as "(expected package difference)" and focus on **logic differences** in the report.
 
 #### Quick mode
 

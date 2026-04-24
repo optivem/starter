@@ -1,8 +1,8 @@
 using SystemTests.TestInfrastructure.Configuration;
 using Dsl.Core;
 using Driver.Adapter.External.Erp.Client;
-using Driver.Adapter.Shop.Api.Client;
-using Driver.Adapter.Shop.Ui.Client;
+using Driver.Adapter.MyShop.Api.Client;
+using Driver.Adapter.MyShop.Ui.Client;
 using Driver.Adapter.External.Tax.Client;
 using Xunit;
 
@@ -12,8 +12,8 @@ public abstract class BaseClientTest : BaseConfigurableTest, IAsyncLifetime
 {
     protected readonly Dsl.Core.Configuration _configuration;
 
-    protected ShopUiClient? _shopUiClient;
-    protected ShopApiClient? _shopApiClient;
+    protected MyShopUiClient? _shopUiClient;
+    protected MyShopApiClient? _shopApiClient;
 
     protected ErpRealClient? _erpClient;
     protected TaxRealClient? _taxClient;
@@ -28,14 +28,14 @@ public abstract class BaseClientTest : BaseConfigurableTest, IAsyncLifetime
         return Task.CompletedTask;
     }
 
-    protected async Task SetUpShopUiClientAsync()
+    protected async Task SetUpMyShopUiClientAsync()
     {
-        _shopUiClient = await ShopUiClient.CreateAsync(_configuration.ShopUiBaseUrl);
+        _shopUiClient = await MyShopUiClient.CreateAsync(_configuration.MyShopUiBaseUrl);
     }
 
-    protected void SetUpShopApiClient()
+    protected void SetUpMyShopApiClient()
     {
-        _shopApiClient = new ShopApiClient(_configuration.ShopApiBaseUrl);
+        _shopApiClient = new MyShopApiClient(_configuration.MyShopApiBaseUrl);
     }
 
     protected void SetUpExternalClients()

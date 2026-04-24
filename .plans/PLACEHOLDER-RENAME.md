@@ -1,12 +1,45 @@
 # Plan: Rename template placeholders to `my-company` / `my-shop`
 
-## Status: DRAFT — awaiting go-ahead
+## Status: IN PROGRESS
 
 ## Goal
 
 Replace the implicit placeholders `optivem` (company) and `shop` (system) inside this repo with distinctive multi-word literals. Once landed, the scaffolding logic in `gh-optivem/internal/steps/replacements.go` collapses to pure find-replace: no word-boundary checks, no `optivemAllowedPatterns`, no pass-ordering constraints.
 
 This plan covers the `shop` repo only. `gh-optivem` simplification and `courses/` content updates are listed at the bottom as dependent follow-ups.
+
+---
+
+## Execution approach
+
+Work **language by language**. For each language: bulk content replacement → file/dir renames → basic compilation check (`tsc --noEmit`, `dotnet build`, `gradlew compileJava`). Run `Run-SystemTests.ps1 -Architecture monolith -Sample` **only at the end** after all languages are done (expensive to spin up per language).
+
+Order:
+
+1. **TypeScript** — monolith, multitier backend, frontend-react, system-test/typescript
+2. **.NET** — monolith, multitier backend-dotnet, system-test/dotnet
+3. **Java** — monolith, multitier backend-java, system-test/java
+4. **Cross-cutting** — workflows, SonarCloud keys, docs/README/agent prompts
+5. **Run-SystemTests `-Sample`** — one sample run per language once everything is renamed
+
+### Decisions taken (recommendations accepted)
+
+- **A** — Accept that `courses/` will need FU-2 update before next course release.
+- **Yes** — Rewrite `api.optivem.com` → `api.my-company.example` in template contexts (errors URIs, etc.).
+- **Single branch per language** — test-build-commit per language; do not mix languages in one commit.
+- **Keep** `optivem/shop` GitHub repo name; only content inside is renamed.
+
+### Token-minimization guidance (Claude tokens)
+
+Every replacement is a find-replace across 100s–1000s of matches. Surgical `Edit` per-match is far too expensive in Claude tokens (~50x) — use bulk scripted replacement:
+
+- **Prefer PowerShell `Get-ChildItem ... | ForEach-Object { (Get-Content) -replace ... | Set-Content }`** over Edit tool for repetitive replacements in many files.
+- **One script pass per language** — all ordered replacements in a single script invocation, not one sed call per pattern.
+- **Verify with `Grep` after**, not by re-reading each file.
+- **Protect allowlisted strings with sentinels** (e.g. `@optivem/optivem-testing`, `ghcr.io/optivem/shop`, `"author": "Optivem"`, LICENSE) — replace with unique token before bulk pass, restore at end.
+- **Directory/file renames via `git mv` in batches**, not one rename per tool call.
+- **Do not read the same file twice**; the first `Grep` pass is enough to plan the changes.
+- **Aim for ≤ 10 tool calls per phase** — audit, script, run, verify.
 
 ---
 

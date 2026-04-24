@@ -16,11 +16,11 @@ public abstract class BaseE2eTest : BaseRawTest
     public override async Task InitializeAsync()
     {
         await base.InitializeAsync();
-        await SetShopRawAsync();
+        await SetMyShopRawAsync();
         SetUpExternalHttpClients();
     }
 
-    protected abstract Task SetShopRawAsync();
+    protected abstract Task SetMyShopRawAsync();
 
     protected static string CreateUniqueSku(string baseSku)
     {

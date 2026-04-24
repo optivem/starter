@@ -3,7 +3,7 @@ using Dsl.Port.Then.Steps;
 using Dsl.Core.Shared;
 using Dsl.Core.Scenario;
 using Driver.Adapter;
-using Dsl.Core.Shop.UseCases;
+using Dsl.Core.MyShop.UseCases;
 
 namespace Dsl.Core.Scenario.Then;
 
@@ -76,7 +76,7 @@ public abstract class BaseThenResultCoupon<TSuccessResponse, TSuccessVerificatio
         await RunPrelude(result);
 
         var couponCode = await _couponCodeFactory();
-        var shop = await _thenClause.App.Shop(_thenClause.Channel);
+        var shop = await _thenClause.App.MyShop(_thenClause.Channel);
         var browseResult = await shop.BrowseCoupons().Execute();
         var verification = browseResult.ShouldSucceed();
         verification.HasCouponWithCode(couponCode);

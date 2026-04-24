@@ -4,9 +4,9 @@ namespace SystemTests.Legacy.Mod05.E2eTests;
 
 public class PlaceOrderPositiveApiTest : PlaceOrderPositiveBaseTest
 {
-    protected override Task SetShopDriverAsync()
+    protected override Task SetMyShopDriverAsync()
     {
-        SetUpShopApiDriver();
+        SetUpMyShopApiDriver();
         return Task.CompletedTask;
     }
 }

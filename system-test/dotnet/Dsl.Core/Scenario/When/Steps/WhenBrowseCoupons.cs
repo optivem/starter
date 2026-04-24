@@ -3,8 +3,8 @@ using Dsl.Port;
 using Dsl.Port.When.Steps;
 using Dsl.Core.Shared;
 using Driver.Adapter;
-using Driver.Port.Shop.Dtos;
-using Dsl.Core.Shop.UseCases;
+using Driver.Port.MyShop.Dtos;
+using Dsl.Core.MyShop.UseCases;
 
 namespace Dsl.Core.Scenario.When.Steps;
 
@@ -17,7 +17,7 @@ public class WhenBrowseCoupons : BaseWhen<BrowseCouponsResponse, BrowseCouponsVe
 
     protected override async Task<ExecutionResult<BrowseCouponsResponse, BrowseCouponsVerification>> Execute(UseCaseDsl app)
     {
-        var shop = await app.Shop(ChannelMode.Dynamic, Channel);
+        var shop = await app.MyShop(ChannelMode.Dynamic, Channel);
         var result = await shop.BrowseCoupons()
             .Execute();
 

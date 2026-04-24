@@ -1,4 +1,4 @@
-using Dsl.Core.Shop;
+using Dsl.Core.MyShop;
 using SystemTests.Legacy.Mod08.E2eTests.Base;
 using Optivem.Testing;
 using Xunit;

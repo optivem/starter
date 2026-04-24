@@ -1,4 +1,4 @@
-# Shop — System Architecture
+# MyShop — System Architecture
 
 ```mermaid
 graph LR

@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     } catch {
       return NextResponse.json(
         {
-          type: 'https://api.optivem.com/errors/bad-request',
+          type: 'https://api.my-company.example/errors/bad-request',
           title: 'Bad Request',
           status: 400,
           detail: 'Invalid request format',

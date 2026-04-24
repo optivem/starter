@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Optivem.Shop.Monolith.Pages
+namespace MyCompany.MyShop.Monolith.Pages
 {
     public class PrivacyModel : PageModel
     {

@@ -1,5 +1,5 @@
 using Common;
-using Driver.Port.Shop.Dtos;
+using Driver.Port.MyShop.Dtos;
 using SystemTests.Commons.Constants;
 using SystemTests.Legacy.Mod05.E2eTests.Base;
 using Shouldly;

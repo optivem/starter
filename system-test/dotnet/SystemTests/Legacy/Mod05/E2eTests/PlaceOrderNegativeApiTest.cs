@@ -2,9 +2,9 @@ namespace SystemTests.Legacy.Mod05.E2eTests;
 
 public class PlaceOrderNegativeApiTest : PlaceOrderNegativeBaseTest
 {
-    protected override Task SetShopDriverAsync()
+    protected override Task SetMyShopDriverAsync()
     {
-        SetUpShopApiDriver();
+        SetUpMyShopApiDriver();
         return Task.CompletedTask;
     }
 }

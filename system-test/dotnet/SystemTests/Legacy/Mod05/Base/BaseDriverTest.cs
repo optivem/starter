@@ -1,10 +1,10 @@
 using SystemTests.TestInfrastructure.Configuration;
 using Dsl.Core;
 using Driver.Port.External.Erp;
-using Driver.Port.Shop;
+using Driver.Port.MyShop;
 using Driver.Adapter.External.Erp;
-using Driver.Adapter.Shop.Api;
-using Driver.Adapter.Shop.Ui;
+using Driver.Adapter.MyShop.Api;
+using Driver.Adapter.MyShop.Ui;
 using Driver.Adapter.External.Tax;
 using Xunit;
 
@@ -13,7 +13,7 @@ namespace SystemTests.Legacy.Mod05.Base;
 public abstract class BaseDriverTest : BaseConfigurableTest, IAsyncLifetime
 {
     protected readonly Dsl.Core.Configuration _configuration;
-    protected IShopDriver? _shopDriver;
+    protected IMyShopDriver? _shopDriver;
     protected ErpRealDriver? _erpDriver;
     protected TaxRealDriver? _taxDriver;
 
@@ -27,14 +27,14 @@ public abstract class BaseDriverTest : BaseConfigurableTest, IAsyncLifetime
         return Task.CompletedTask;
     }
 
-    protected void SetUpShopApiDriver()
+    protected void SetUpMyShopApiDriver()
     {
-        _shopDriver = new ShopApiDriver(_configuration.ShopApiBaseUrl);
+        _shopDriver = new MyShopApiDriver(_configuration.MyShopApiBaseUrl);
     }
 
-    protected async Task SetUpShopUiDriverAsync()
+    protected async Task SetUpMyShopUiDriverAsync()
     {
-        _shopDriver = await ShopUiDriver.CreateAsync(_configuration.ShopUiBaseUrl);
+        _shopDriver = await MyShopUiDriver.CreateAsync(_configuration.MyShopUiBaseUrl);
     }
 
     protected void SetUpExternalDrivers()

@@ -2,8 +2,8 @@ import { expect, type TestType } from '@playwright/test';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function runPlaceOrderNegative(test: TestType<any, any>): void {
-  test('shouldRejectOrderWithNonIntegerQuantity', async ({ shopDriver }) => {
-    const result = await shopDriver.placeOrder({ sku: 'SOME-SKU', quantity: '3.5', country: 'US' });
+  test('shouldRejectOrderWithNonIntegerQuantity', async ({ myShopDriver }) => {
+    const result = await myShopDriver.placeOrder({ sku: 'SOME-SKU', quantity: '3.5', country: 'US' });
 
     expect(result.success).toBe(false);
     if (!result.success) {

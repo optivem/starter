@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Optivem.Shop.Monolith.Data;
+using MyCompany.MyShop.Monolith.Data;
 using Xunit;
 
-namespace Optivem.Shop.Monolith.Tests;
+namespace MyCompany.MyShop.Monolith.Tests;
 
 public class MonolithApplicationTests : IClassFixture<WebApplicationFactory<Program>>
 {

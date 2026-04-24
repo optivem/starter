@@ -1,7 +1,7 @@
 using Dsl.Port;
 using Dsl.Core.Shared;
 using SystemTests.Legacy.Mod06.Base;
-using Dsl.Core.Shop;
+using Dsl.Core.MyShop;
 
 namespace SystemTests.Legacy.Mod06.E2eTests.Base;
 

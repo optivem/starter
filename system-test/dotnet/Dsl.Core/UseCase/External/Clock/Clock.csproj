@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <RootNamespace>Optivem.Shop.SystemTest.Core.External.Clock</RootNamespace>
+    <RootNamespace>MyCompany.MyShop.SystemTest.Core.External.Clock</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

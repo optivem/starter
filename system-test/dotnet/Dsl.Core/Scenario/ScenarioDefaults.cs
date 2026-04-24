@@ -1,4 +1,4 @@
-using Driver.Port.Shop.Dtos;
+using Driver.Port.MyShop.Dtos;
 
 namespace Dsl.Core.Scenario;
 

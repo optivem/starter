@@ -1,6 +1,6 @@
-using Optivem.Shop.Backend.Core.Entities;
+using MyCompany.MyShop.Backend.Core.Entities;
 
-namespace Optivem.Shop.Backend.Core.Dtos;
+namespace MyCompany.MyShop.Backend.Core.Dtos;
 
 public class BrowseOrderHistoryResponse
 {

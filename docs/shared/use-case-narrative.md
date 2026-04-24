@@ -1,4 +1,4 @@
-# Shop — Use Case Narrative: Place Order
+# MyShop — Use Case Narrative: Place Order
 
 ### Use Case Name
 Place Order

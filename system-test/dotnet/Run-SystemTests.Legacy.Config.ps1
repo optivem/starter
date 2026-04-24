@@ -7,7 +7,7 @@ $Config = @{
 
         # === mod02: Smoke ===
         @{  Id = "mod02-smoke";
-            SampleTest = "ShouldBeAbleToGoToShop";
+            SampleTest = "ShouldBeAbleToGoToMyShop";
             Name = "mod02 - Smoke (real)";
             Command = "dotnet test --filter 'FullyQualifiedName~.Legacy.Mod02.SmokeTests' -e EXTERNAL_SYSTEM_MODE=real --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
@@ -25,7 +25,7 @@ $Config = @{
 
         # === mod04: Smoke + E2E ===
         @{  Id = "mod04-smoke";
-            SampleTest = "ShouldBeAbleToGoToShop";
+            SampleTest = "ShouldBeAbleToGoToMyShop";
             Name = "mod04 - Smoke (real)";
             Command = "dotnet test --filter 'FullyQualifiedName~.Legacy.Mod04.SmokeTests' -e EXTERNAL_SYSTEM_MODE=real --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
@@ -41,7 +41,7 @@ $Config = @{
 
         # === mod05: Smoke + E2E ===
         @{  Id = "mod05-smoke";
-            SampleTest = "ShouldBeAbleToGoToShop";
+            SampleTest = "ShouldBeAbleToGoToMyShop";
             Name = "mod05 - Smoke (real)";
             Command = "dotnet test --filter 'FullyQualifiedName~.Legacy.Mod05.SmokeTests' -e EXTERNAL_SYSTEM_MODE=real --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
@@ -57,7 +57,7 @@ $Config = @{
 
         # === mod06: Smoke + E2E ===
         @{  Id = "mod06-smoke";
-            SampleTest = "ShouldBeAbleToGoToShop";
+            SampleTest = "ShouldBeAbleToGoToMyShop";
             Name = "mod06 - Smoke (real)";
             Command = "dotnet test --filter 'FullyQualifiedName~.Legacy.Mod06.SmokeTests' -e EXTERNAL_SYSTEM_MODE=real --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
@@ -79,7 +79,7 @@ $Config = @{
 
         # === mod07: Smoke + E2E ===
         @{  Id = "mod07-smoke";
-            SampleTest = "ShouldBeAbleToGoToShop";
+            SampleTest = "ShouldBeAbleToGoToMyShop";
             Name = "mod07 - Smoke (real)";
             Command = "dotnet test --filter 'FullyQualifiedName~.Legacy.Mod07.SmokeTests' -e EXTERNAL_SYSTEM_MODE=real --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
@@ -101,7 +101,7 @@ $Config = @{
 
         # === mod08: Smoke + E2E ===
         @{  Id = "mod08-smoke";
-            SampleTest = "ShouldBeAbleToGoToShop";
+            SampleTest = "ShouldBeAbleToGoToMyShop";
             Name = "mod08 - Smoke (real)";
             Command = "dotnet test --filter 'FullyQualifiedName~.Legacy.Mod08.SmokeTests' -e EXTERNAL_SYSTEM_MODE=real --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
@@ -123,14 +123,14 @@ $Config = @{
 
         # === mod09: Smoke (stub + real) ===
         @{  Id = "mod09-smoke-stub";
-            SampleTest = "ShouldBeAbleToGoToShop";
+            SampleTest = "ShouldBeAbleToGoToMyShop";
             Name = "mod09 - Smoke (stub)";
             Command = "dotnet test --filter 'FullyQualifiedName~.Legacy.Mod09.SmokeTests' -e EXTERNAL_SYSTEM_MODE=stub --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
             TestReportPath = "SystemTests\TestResults\testResults.html";
             TestInstallCommands = "pwsh bin/Debug/net8.0/playwright.ps1 install"; },
         @{  Id = "mod09-smoke-real";
-            SampleTest = "ShouldBeAbleToGoToShop";
+            SampleTest = "ShouldBeAbleToGoToMyShop";
             Name = "mod09 - Smoke (real)";
             Command = "dotnet test --filter 'FullyQualifiedName~.Legacy.Mod09.SmokeTests' -e EXTERNAL_SYSTEM_MODE=real --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";

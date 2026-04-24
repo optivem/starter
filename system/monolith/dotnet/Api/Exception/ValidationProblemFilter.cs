@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
-namespace Optivem.Shop.Monolith.Api.Exception;
+namespace MyCompany.MyShop.Monolith.Api.Exception;
 
 public class ValidationProblemFilter : IActionFilter
 {
@@ -38,7 +38,7 @@ public class ValidationProblemFilter : IActionFilter
 
             var problemDetail = new
             {
-                type = "https://api.optivem.com/errors/validation-error",
+                type = "https://api.my-company.com/errors/validation-error",
                 title = "Validation Error",
                 status = 422,
                 detail = "The request contains one or more validation errors",

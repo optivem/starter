@@ -1,7 +1,7 @@
 export {
   getConfiguration,
-  getShopApiBaseUrl,
-  getShopUiBaseUrl,
+  getMyShopApiBaseUrl,
+  getMyShopUiBaseUrl,
   getErpBaseUrl,
   getTaxBaseUrl,
   createUniqueSku,

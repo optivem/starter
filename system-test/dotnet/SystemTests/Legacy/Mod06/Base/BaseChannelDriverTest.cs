@@ -1,10 +1,10 @@
 using SystemTests.TestInfrastructure.Configuration;
 using Dsl.Core;
 using Driver.Port.External.Erp;
-using Driver.Adapter.Shop.Api;
-using Driver.Adapter.Shop.Ui;
-using Dsl.Core.Shop;
-using Driver.Port.Shop;
+using Driver.Adapter.MyShop.Api;
+using Driver.Adapter.MyShop.Ui;
+using Dsl.Core.MyShop;
+using Driver.Port.MyShop;
 using Driver.Adapter.External.Erp;
 using Driver.Adapter.External.Tax;
 using Optivem.Testing;
@@ -15,7 +15,7 @@ namespace SystemTests.Legacy.Mod06.Base;
 
 public abstract class BaseChannelDriverTest : BaseConfigurableTest, IAsyncLifetime
 {
-    protected IShopDriver? _shopDriver;
+    protected IMyShopDriver? _shopDriver;
     protected ErpRealDriver? _erpDriver;
     protected TaxRealDriver? _taxDriver;
 
@@ -32,7 +32,7 @@ public abstract class BaseChannelDriverTest : BaseConfigurableTest, IAsyncLifeti
         // For non-channel tests (like Erp), skip shop driver creation
         try
         {
-            _shopDriver = await CreateShopDriverAsync(configuration);
+            _shopDriver = await CreateMyShopDriverAsync(configuration);
         }
         catch (InvalidOperationException ex) when (ex.Message.Contains("Channel type is not set"))
         {
@@ -58,17 +58,17 @@ public abstract class BaseChannelDriverTest : BaseConfigurableTest, IAsyncLifeti
         await SetupDrivers();
     }
 
-    private static async Task<IShopDriver?> CreateShopDriverAsync(Dsl.Core.Configuration configuration)
+    private static async Task<IMyShopDriver?> CreateMyShopDriverAsync(Dsl.Core.Configuration configuration)
     {
         var channelType = ChannelContext.Get();
 
         if (channelType == ChannelType.UI)
         {
-            return await ShopUiDriver.CreateAsync(configuration.ShopUiBaseUrl);
+            return await MyShopUiDriver.CreateAsync(configuration.MyShopUiBaseUrl);
         }
         else if (channelType == ChannelType.API)
         {
-            return new ShopApiDriver(configuration.ShopApiBaseUrl);
+            return new MyShopApiDriver(configuration.MyShopApiBaseUrl);
         }
         else
         {

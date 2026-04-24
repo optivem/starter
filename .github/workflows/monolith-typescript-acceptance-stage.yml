@@ -148,8 +148,8 @@ jobs:
         with:
           endpoints: |
             [
-              { "name": "Shop UI", "url": "http://localhost:3311/" },
-              { "name": "Shop API", "url": "http://localhost:8311/health" },
+              { "name": "MyShop UI", "url": "http://localhost:3311/" },
+              { "name": "MyShop API", "url": "http://localhost:8311/health" },
               { "name": "ERP", "url": "http://localhost:9311/erp/health" },
               { "name": "Clock", "url": "http://localhost:9311/clock/health" }
             ]
@@ -170,8 +170,8 @@ jobs:
         with:
           endpoints: |
             [
-              { "name": "Shop UI", "url": "http://localhost:3312/" },
-              { "name": "Shop API", "url": "http://localhost:8312/health" },
+              { "name": "MyShop UI", "url": "http://localhost:3312/" },
+              { "name": "MyShop API", "url": "http://localhost:8312/health" },
               { "name": "ERP", "url": "http://localhost:9312/erp/health" },
               { "name": "Clock", "url": "http://localhost:9312/clock/health" }
             ]

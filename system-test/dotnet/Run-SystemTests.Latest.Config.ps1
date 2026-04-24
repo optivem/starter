@@ -7,7 +7,7 @@ $Config = @{
 
         # === Smoke Tests (stub) ===
         @{  Id = "smoke-stub";
-            SampleTest = "ShouldBeAbleToGoToShop";
+            SampleTest = "ShouldBeAbleToGoToMyShop";
             Name = "latest - Smoke (stub)";
             Command = "dotnet test --filter 'FullyQualifiedName~.Latest.SmokeTests' -e EXTERNAL_SYSTEM_MODE=stub --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";
@@ -16,7 +16,7 @@ $Config = @{
 
         # === Smoke Tests (real) ===
         @{  Id = "smoke-real";
-            SampleTest = "ShouldBeAbleToGoToShop";
+            SampleTest = "ShouldBeAbleToGoToMyShop";
             Name = "latest - Smoke (real)";
             Command = "dotnet test --filter 'FullyQualifiedName~.Latest.SmokeTests' -e EXTERNAL_SYSTEM_MODE=real --logger 'trx;LogFileName=testResults.trx' --logger 'html;LogFileName=testResults.html' --logger 'console;verbosity=detailed' -e ENVIRONMENT=local";
             Path = "SystemTests";

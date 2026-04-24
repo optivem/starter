@@ -27,8 +27,8 @@ if (-not $Token) {
     exit 1
 }
 
-$projectKey = "optivem_shop-tests-dotnet"
-$projectName = "Shop Tests (.NET)"
+$projectKey = "optivem_my-shop-tests-dotnet"
+$projectName = "MyShop Tests (.NET)"
 
 Write-Host "Running SonarScanner for .NET..." -ForegroundColor Cyan
 
@@ -38,7 +38,7 @@ dotnet sonarscanner begin `
     /d:sonar.host.url="https://sonarcloud.io" `
     /d:sonar.token=$Token
 
-dotnet build Optivem.Shop.sln --no-incremental
+dotnet build MyCompany.MyShop.sln --no-incremental
 
 dotnet sonarscanner end /d:sonar.token=$Token
 

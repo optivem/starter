@@ -1,4 +1,4 @@
-namespace Optivem.Shop.Monolith.Core.Dtos;
+namespace MyCompany.MyShop.Monolith.Core.Dtos;
 
 public class BrowseCouponsResponse
 {

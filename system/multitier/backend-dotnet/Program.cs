@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using Optivem.Shop.Backend.Api.Exception;
-using Optivem.Shop.Backend.Core.Services;
-using Optivem.Shop.Backend.Core.Services.External;
-using Optivem.Shop.Backend.Data;
+using MyCompany.MyShop.Backend.Api.Exception;
+using MyCompany.MyShop.Backend.Core.Services;
+using MyCompany.MyShop.Backend.Core.Services.External;
+using MyCompany.MyShop.Backend.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 

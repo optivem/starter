@@ -11,12 +11,12 @@ import { ValidationException } from '../../core/exceptions/validation.exception'
 import { NotExistValidationException } from '../../core/exceptions/not-exist-validation.exception';
 
 const VALIDATION_ERROR_TYPE_URI =
-  'https://api.optivem.com/errors/validation-error';
+  'https://api.my-company.example/errors/validation-error';
 const RESOURCE_NOT_FOUND_TYPE_URI =
-  'https://api.optivem.com/errors/resource-not-found';
-const BAD_REQUEST_TYPE_URI = 'https://api.optivem.com/errors/bad-request';
+  'https://api.my-company.example/errors/resource-not-found';
+const BAD_REQUEST_TYPE_URI = 'https://api.my-company.example/errors/bad-request';
 const INTERNAL_SERVER_ERROR_TYPE_URI =
-  'https://api.optivem.com/errors/internal-server-error';
+  'https://api.my-company.example/errors/internal-server-error';
 
 interface ValidationError {
   field: string;

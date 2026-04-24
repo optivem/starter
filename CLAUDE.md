@@ -1,4 +1,4 @@
-# Shop Repo Guidelines
+# MyShop Repo Guidelines
 
 ## Documentation: No GitHub Pages
 

@@ -7,7 +7,7 @@ $Config = @{
 
         # === mod02: Smoke ===
         @{  Id = "mod02-smoke";
-            SampleTest = "shouldBeAbleToGoToShop";
+            SampleTest = "shouldBeAbleToGoToMyShop";
             Name = "mod02 - Smoke (real)";
             Command = "`$env:EXTERNAL_SYSTEM_MODE = 'real'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=smoke-test tests/legacy/mod02/smoke";
             Path = ".";
@@ -25,7 +25,7 @@ $Config = @{
 
         # === mod04: Smoke + E2E ===
         @{  Id = "mod04-smoke";
-            SampleTest = "shouldBeAbleToGoToShop";
+            SampleTest = "shouldBeAbleToGoToMyShop";
             Name = "mod04 - Smoke (real)";
             Command = "`$env:EXTERNAL_SYSTEM_MODE = 'real'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=smoke-test tests/legacy/mod04/smoke";
             Path = ".";
@@ -41,7 +41,7 @@ $Config = @{
 
         # === mod05: Smoke + E2E ===
         @{  Id = "mod05-smoke";
-            SampleTest = "shouldBeAbleToGoToShop";
+            SampleTest = "shouldBeAbleToGoToMyShop";
             Name = "mod05 - Smoke (real)";
             Command = "`$env:EXTERNAL_SYSTEM_MODE = 'real'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=smoke-test tests/legacy/mod05/smoke";
             Path = ".";
@@ -57,7 +57,7 @@ $Config = @{
 
         # === mod06: Smoke + E2E ===
         @{  Id = "mod06-smoke";
-            SampleTest = "shouldBeAbleToGoToShop";
+            SampleTest = "shouldBeAbleToGoToMyShop";
             Name = "mod06 - Smoke (real)";
             Command = "`$env:EXTERNAL_SYSTEM_MODE = 'real'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=smoke-test tests/legacy/mod06/smoke";
             Path = ".";
@@ -80,7 +80,7 @@ $Config = @{
 
         # === mod07: Smoke + E2E ===
         @{  Id = "mod07-smoke";
-            SampleTest = "shouldBeAbleToGoToShop";
+            SampleTest = "shouldBeAbleToGoToMyShop";
             Name = "mod07 - Smoke (real)";
             Command = "`$env:EXTERNAL_SYSTEM_MODE = 'real'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=smoke-test tests/legacy/mod07/smoke";
             Path = ".";
@@ -103,7 +103,7 @@ $Config = @{
 
         # === mod08: Smoke + E2E ===
         @{  Id = "mod08-smoke";
-            SampleTest = "shouldBeAbleToGoToShop";
+            SampleTest = "shouldBeAbleToGoToMyShop";
             Name = "mod08 - Smoke (real)";
             Command = "`$env:EXTERNAL_SYSTEM_MODE = 'real'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=smoke-test tests/legacy/mod08/smoke";
             Path = ".";
@@ -126,14 +126,14 @@ $Config = @{
 
         # === mod09: Smoke (stub + real) ===
         @{  Id = "mod09-smoke-stub";
-            SampleTest = "shouldBeAbleToGoToShop";
+            SampleTest = "shouldBeAbleToGoToMyShop";
             Name = "mod09 - Smoke (stub)";
             Command = "`$env:EXTERNAL_SYSTEM_MODE = 'stub'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=smoke-test tests/legacy/mod09/smoke";
             Path = ".";
             TestReportPath = "playwright-report\index.html";
             TestInstallCommands = $null },
         @{  Id = "mod09-smoke-real";
-            SampleTest = "shouldBeAbleToGoToShop";
+            SampleTest = "shouldBeAbleToGoToMyShop";
             Name = "mod09 - Smoke (real)";
             Command = "`$env:EXTERNAL_SYSTEM_MODE = 'real'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=smoke-test tests/legacy/mod09/smoke";
             Path = ".";

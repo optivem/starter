@@ -7,7 +7,7 @@ $Config = @{
 
         # === Smoke Tests (stub) ===
         @{  Id = "smoke-stub";
-            SampleTest = "shouldBeAbleToGoToShop";
+            SampleTest = "shouldBeAbleToGoToMyShop";
             Name = "latest - Smoke (stub)";
             Command = "`$env:EXTERNAL_SYSTEM_MODE = 'stub'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=smoke-test tests/latest/smoke";
             Path = ".";
@@ -16,7 +16,7 @@ $Config = @{
 
         # === Smoke Tests (real) ===
         @{  Id = "smoke-real";
-            SampleTest = "shouldBeAbleToGoToShop";
+            SampleTest = "shouldBeAbleToGoToMyShop";
             Name = "latest - Smoke (real)";
             Command = "`$env:EXTERNAL_SYSTEM_MODE = 'real'; `$env:ENVIRONMENT = 'local'; npx playwright test --project=smoke-test tests/latest/smoke";
             Path = ".";

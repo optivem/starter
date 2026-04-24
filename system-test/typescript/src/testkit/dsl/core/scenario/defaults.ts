@@ -1,4 +1,4 @@
-import { OrderStatus } from '../../../driver/port/shop/dtos/OrderStatus.js';
+import { OrderStatus } from '../../../driver/port/myShop/dtos/OrderStatus.js';
 
 export const DEFAULTS = {
   SKU: 'DEFAULT-SKU',

@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "Optivem.Shop.Backend": {
+    "MyCompany.MyShop.Backend": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": false,

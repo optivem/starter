@@ -1,5 +1,5 @@
 {
-  "name": "optivem-shop",
+  "name": "my-company-my-shop",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-24.04",
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {

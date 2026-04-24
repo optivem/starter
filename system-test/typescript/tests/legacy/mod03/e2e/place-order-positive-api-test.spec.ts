@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 test('shouldPlaceOrderForValidInput', async ({ config }) => {
     const sku = `SKU-${randomUUID().substring(0, 8)}`;
     const erpBaseUrl = config.externalSystems.erp.url;
-    const shopApiUrl = config.shop.backendApiUrl;
+    const myShopApiUrl = config.myShop.backendApiUrl;
 
     // Given: create product in real ERP
     const createProductResponse = await fetch(`${erpBaseUrl}/api/products`, {
@@ -15,7 +15,7 @@ test('shouldPlaceOrderForValidInput', async ({ config }) => {
     expect(createProductResponse.status).toBe(201);
 
     // When: place order via raw HTTP
-    const placeOrderResponse = await fetch(`${shopApiUrl}/api/orders`, {
+    const placeOrderResponse = await fetch(`${myShopApiUrl}/api/orders`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sku, quantity: '5', country: 'US' }),
@@ -27,7 +27,7 @@ test('shouldPlaceOrderForValidInput', async ({ config }) => {
     expect(orderData.orderNumber).toBeDefined();
 
     // Then: view order via raw HTTP and assert full details
-    const viewOrderResponse = await fetch(`${shopApiUrl}/api/orders/${orderData.orderNumber}`);
+    const viewOrderResponse = await fetch(`${myShopApiUrl}/api/orders/${orderData.orderNumber}`);
     expect(viewOrderResponse.ok).toBe(true);
     const order = (await viewOrderResponse.json()) as {
         orderNumber: string;

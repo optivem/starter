@@ -8,9 +8,9 @@ namespace SystemTests.Legacy.Mod04.E2eTests;
 
 public class PlaceOrderNegativeUiTest : BaseE2eTest
 {
-    protected override Task SetShopClientAsync()
+    protected override Task SetMyShopClientAsync()
     {
-        return SetUpShopUiClientAsync();
+        return SetUpMyShopUiClientAsync();
     }
 
     [Fact]

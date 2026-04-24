@@ -1,6 +1,6 @@
 using Common;
 using Driver.Adapter.External.Erp.Client.Dtos;
-using Driver.Port.Shop.Dtos;
+using Driver.Port.MyShop.Dtos;
 using SystemTests.Commons.Constants;
 using SystemTests.Legacy.Mod04.E2eTests.Base;
 using Shouldly;
@@ -10,9 +10,9 @@ namespace SystemTests.Legacy.Mod04.E2eTests;
 
 public class PlaceOrderPositiveApiTest : BaseE2eTest
 {
-    protected override Task SetShopClientAsync()
+    protected override Task SetMyShopClientAsync()
     {
-        SetUpShopApiClient();
+        SetUpMyShopApiClient();
         return Task.CompletedTask;
     }
 

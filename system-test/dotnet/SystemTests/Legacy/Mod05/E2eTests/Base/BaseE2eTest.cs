@@ -16,11 +16,11 @@ public abstract class BaseE2eTest : BaseDriverTest
     public override async Task InitializeAsync()
     {
         await base.InitializeAsync();
-        await SetShopDriverAsync();
+        await SetMyShopDriverAsync();
         SetUpExternalDrivers();
     }
 
-    protected abstract Task SetShopDriverAsync();
+    protected abstract Task SetMyShopDriverAsync();
 
     protected static string CreateUniqueSku(string baseSku)
     {

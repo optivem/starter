@@ -1,8 +1,8 @@
-# Shop — System Architecture
+# MyShop — System Architecture
 
 ```mermaid
 graph LR
-    User -->|UI / API| Shop[Shop]
-    Shop -->|REST| ERP
-    Shop -->|REST| Clock
+    User -->|UI / API| MyShop[MyShop]
+    MyShop -->|REST| ERP
+    MyShop -->|REST| Clock
 ```

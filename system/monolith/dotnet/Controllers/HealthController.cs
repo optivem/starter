@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Optivem.Shop.Monolith.Controllers;
+namespace MyCompany.MyShop.Monolith.Controllers;
 
 [ApiController]
 [Route("")]

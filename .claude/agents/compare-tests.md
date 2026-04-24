@@ -51,7 +51,7 @@ Low-level typed HTTP/UI/external-system clients that wrap raw API calls, plus dr
   - `external/` — external system client adapters (clock, ERP, tax via WireMock)
   - `shared/` — shared HTTP/Playwright/WireMock infrastructure
 - **.NET:** `system-test/dotnet/Driver.Adapter/`
-  - `Shop/` — shop API/UI client adapters
+  - `MyShop/` — shop API/UI client adapters
   - `External/` — external system client adapters
   - `Shared/` — shared HTTP/Playwright/WireMock infrastructure
 - **TypeScript:** `system-test/typescript/src/testkit/driver/adapter/`
@@ -61,7 +61,7 @@ Interfaces and DTOs that define the contract between tests and drivers.
 
 - **Java:** `system-test/java/src/main/java/com/optivem/shop/testkit/driver/port/`
 - **.NET:** `system-test/dotnet/Driver.Port/`
-  - `Shop/` — shop port DTOs (request/response types)
+  - `MyShop/` — shop port DTOs (request/response types)
   - `External/` — external system port DTOs
 - **TypeScript:** `system-test/typescript/src/testkit/driver/port/`
 
@@ -197,7 +197,7 @@ Compare the four-layer architecture infrastructure across languages. For each la
 
 ### 4. Use Case DSL Layer
 - Use case driver interfaces and implementations
-- Shop use cases (orders, coupons, products)
+- MyShop use cases (orders, coupons, products)
 - External system use cases (clock, ERP, tax)
 - Stub vs real driver variants
 
@@ -394,7 +394,7 @@ Progression Mismatches:
 ### Clients Layer
 | Class/Interface          | Java | .NET | TypeScript | Match? |
 |--------------------------|------|------|------------|--------|
-| ShopApiClient            |  Y   |  Y   |     Y      |  Full  |
+| MyShopApiClient            |  Y   |  Y   |     Y      |  Full  |
 
 Missing:
   - ...

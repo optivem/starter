@@ -2,13 +2,13 @@ import { Layout, FeatureCard } from '../components';
 
 /**
  * Home page component displaying the main landing page
- * Provides navigation to key features: Shop and Order History
+ * Provides navigation to key features: MyShop and Order History
  */
 export function Home() {
   return (
     <Layout>
       <div className="jumbotron bg-light p-5 rounded">
-        <h1 className="display-4">Welcome to Shop!</h1>
+        <h1 className="display-4">Welcome to MyShop!</h1>
         <p className="lead">Your modern e-commerce solution</p>
         <hr className="my-4" />
         <div className="row mt-4">
