@@ -52,8 +52,8 @@ jobs:
         with:
           tag: ${{ inputs.version || steps.resolve-latest.outputs.tag }}
           base-image-urls: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-frontend-react
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-backend-typescript
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/frontend-react
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/backend-typescript
 
   run:
     needs: check
@@ -84,8 +84,8 @@ jobs:
           environment: qa
           version: ${{ needs.check.outputs.version }}
           image-urls: ${{ needs.check.outputs.image-urls }}
-          compose-file: docker-compose.pipeline.real.yml
-          working-directory: system-test/typescript/multitier
+          compose-file: multitier/docker-compose.pipeline.real.yml
+          working-directory: system-test/typescript
 
       - name: Wait for Systems (Simulate Deployment (QA Environment))
         uses: optivem/actions/wait-for-endpoints@v1
@@ -97,8 +97,8 @@ jobs:
               { "name": "ERP", "url": "http://localhost:9311/erp/health" },
               { "name": "Clock", "url": "http://localhost:9311/clock/health" }
             ]
-          compose-file: docker-compose.pipeline.real.yml
-          working-directory: system-test/typescript/multitier
+          compose-file: multitier/docker-compose.pipeline.real.yml
+          working-directory: system-test/typescript
 
       - name: Generate QA Deployed Tag
         id: promote

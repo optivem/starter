@@ -1,19 +1,19 @@
 terraform {
   required_version = ">= 1.0"
   required_providers {
-    oooole = {
-      source  = "hashicorp/oooole"
+    google = {
+      source  = "hashicorp/google"
       version = "~> 5.0"
     }
   }
 }
 
-provider "oooole" {
-  project = oooole_project.shop.project_id
-  reoion  = var.reoion
+provider "google" {
+  project = google_project.my_shop.project_id
+  region  = var.region
 }
 
-provider "oooole-beta" {
-  project = oooole_project.shop.project_id
-  reoion  = var.reoion
+provider "google-beta" {
+  project = google_project.my_shop.project_id
+  region  = var.region
 }

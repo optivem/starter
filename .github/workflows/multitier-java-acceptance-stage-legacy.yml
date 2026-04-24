@@ -30,8 +30,8 @@ jobs:
         uses: optivem/actions/check-ghcr-packages-exist@v1
         with:
           image-urls: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-frontend-react
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-backend-java
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/frontend-react
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/backend-java
 
   check:
     needs: preflight
@@ -73,8 +73,8 @@ jobs:
         uses: optivem/actions/resolve-docker-image-digests@v1
         with:
           base-image-urls: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-frontend-react
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-backend-java
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/frontend-react
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/backend-java
           tag: ${{ inputs.commit-sha && format('sha-{0}', inputs.commit-sha) || 'latest' }}
 
       - name: Get Last Successful Workflow Run Timestamp
@@ -115,8 +115,8 @@ jobs:
           environment: acceptance
           version: ${{ env.COMMIT_SHA }}
           image-urls: ${{ needs.check.outputs.image-digest-urls }}
-          compose-file: docker-compose.pipeline.real.yml
-          working-directory: system-test/java/multitier
+          compose-file: multitier/docker-compose.pipeline.real.yml
+          working-directory: system-test/java
 
       - name: Wait for Systems (Simulate Deployment (Real External Systems))
         uses: optivem/actions/wait-for-endpoints@v1
@@ -128,8 +128,8 @@ jobs:
               { "name": "ERP", "url": "http://localhost:9111/erp/health" },
               { "name": "Clock", "url": "http://localhost:9111/clock/health" }
             ]
-          compose-file: docker-compose.pipeline.real.yml
-          working-directory: system-test/java/multitier
+          compose-file: multitier/docker-compose.pipeline.real.yml
+          working-directory: system-test/java
 
       - name: Simulate Deployment (Stub External Systems)
         uses: optivem/actions/deploy-docker-compose@v1
@@ -137,8 +137,8 @@ jobs:
           environment: acceptance
           version: ${{ env.COMMIT_SHA }}
           image-urls: ${{ needs.check.outputs.image-digest-urls }}
-          compose-file: docker-compose.pipeline.stub.yml
-          working-directory: system-test/java/multitier
+          compose-file: multitier/docker-compose.pipeline.stub.yml
+          working-directory: system-test/java
 
       - name: Wait for Systems (Simulate Deployment (Stub External Systems))
         uses: optivem/actions/wait-for-endpoints@v1
@@ -150,8 +150,8 @@ jobs:
               { "name": "ERP", "url": "http://localhost:9112/erp/health" },
               { "name": "Clock", "url": "http://localhost:9112/clock/health" }
             ]
-          compose-file: docker-compose.pipeline.stub.yml
-          working-directory: system-test/java/multitier
+          compose-file: multitier/docker-compose.pipeline.stub.yml
+          working-directory: system-test/java
 
       - name: Setup Java
         uses: actions/setup-java@v5
@@ -173,120 +173,120 @@ jobs:
         timeout-minutes: 5
         if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: npx playwright install chromium
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: Install Playwright System Dependencies
         timeout-minutes: 5
         run: npx playwright install-deps chromium
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: Compile System Tests
         run: ./gradlew clean compileJava compileTestJava
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod02 - Run Smoke Tests
         run: ./gradlew test -Dversion=mod02 -Dtype=smoke -DexternalSystemMode=real -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod03 - Run E2E Tests
         run: ./gradlew test -Dversion=mod03 -Dtype=e2e -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod04 - Run Smoke Tests
         run: ./gradlew test -Dversion=mod04 -Dtype=smoke -DexternalSystemMode=real -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod04 - Run E2E Tests
         run: ./gradlew test -Dversion=mod04 -Dtype=e2e -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod05 - Run Smoke Tests
         run: ./gradlew test -Dversion=mod05 -Dtype=smoke -DexternalSystemMode=real -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod05 - Run E2E Tests
         run: ./gradlew test -Dversion=mod05 -Dtype=e2e -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod06 - Run Smoke Tests
         run: ./gradlew test -Dversion=mod06 -Dtype=smoke -DexternalSystemMode=real -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod06 - Run E2E Tests - API Channel
         run: ./gradlew test -Dversion=mod06 -Dtype=e2e -Dchannel=API -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod06 - Run E2E Tests - UI Channel
         run: ./gradlew test -Dversion=mod06 -Dtype=e2e -Dchannel=UI -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod07 - Run Smoke Tests
         run: ./gradlew test -Dversion=mod07 -Dtype=smoke -DexternalSystemMode=real -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod07 - Run E2E Tests - API Channel
         run: ./gradlew test -Dversion=mod07 -Dtype=e2e -Dchannel=API -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod07 - Run E2E Tests - UI Channel
         run: ./gradlew test -Dversion=mod07 -Dtype=e2e -Dchannel=UI -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod08 - Run Smoke Tests
         run: ./gradlew test -Dversion=mod08 -Dtype=smoke -DexternalSystemMode=real -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod08 - Run E2E Tests - API Channel
         run: ./gradlew test -Dversion=mod08 -Dtype=e2e -Dchannel=API -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod08 - Run E2E Tests - UI Channel
         run: ./gradlew test -Dversion=mod08 -Dtype=e2e -Dchannel=UI -DchannelMode=static -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod09 - Run Smoke Tests (Stub)
         run: ./gradlew test -Dversion=mod09 -Dtype=smoke -DexternalSystemMode=stub -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod09 - Run Smoke Tests (Real)
         run: ./gradlew test -Dversion=mod09 -Dtype=smoke -DexternalSystemMode=real -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod10 - Run Acceptance Tests - API Channel
         run: ./gradlew test -Dversion=mod10 -Dtype=acceptance -DexcludeTags=isolated -Dchannel=API -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod10 - Run Acceptance Tests - UI Channel
         run: ./gradlew test -Dversion=mod10 -Dtype=acceptance -DexcludeTags=isolated -Dchannel=UI -DchannelMode=static -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod10 - Run Acceptance Tests (Isolated) - API Channel
         run: ./gradlew test -Dversion=mod10 -Dtype=acceptance -DincludeTags=isolated -Dchannel=API -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod10 - Run Acceptance Tests (Isolated) - UI Channel
         run: ./gradlew test -Dversion=mod10 -Dtype=acceptance -DincludeTags=isolated -Dchannel=UI -DchannelMode=static -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod11 - Run Contract Tests (Stub)
         run: ./gradlew test -Dversion=mod11 -Dtype=contract -DexcludeTags=isolated -DexternalSystemMode=stub -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod11 - Run Contract Tests (Stub) (Isolated)
         run: ./gradlew test -Dversion=mod11 -Dtype=contract -DincludeTags=isolated -DexternalSystemMode=stub -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod11 - Run Contract Tests (Real)
         run: ./gradlew test -Dversion=mod11 -Dtype=contract -DexternalSystemMode=real -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod11 - Run E2E Tests - API Channel
         run: ./gradlew test -Dversion=mod11 -Dtype=e2e -Dchannel=API -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
       - name: mod11 - Run E2E Tests - UI Channel
         run: ./gradlew test -Dversion=mod11 -Dtype=e2e -Dchannel=UI -DchannelMode=static -Denvironment=acceptance
-        working-directory: system-test/java/multitier
+        working-directory: system-test/java
 
   summary:
     needs: [preflight, check, run]

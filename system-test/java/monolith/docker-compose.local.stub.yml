@@ -1,8 +1,8 @@
-name: my-my-shop-stub
+name: my-shop-stub
 
 services:
 
-  monolith:
+  sysapp:
     build:
       context: ../../../system/monolith/java
       dockerfile: Dockerfile

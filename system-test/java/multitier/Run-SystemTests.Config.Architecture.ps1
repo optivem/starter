@@ -4,7 +4,7 @@
 
 $SystemConfig = @{
     "real" = @{
-        ContainerName = "my-my-shop-real"
+        ContainerName = "my-shop-real"
 
         SystemComponents = @(
             @{ Name = "Frontend";
@@ -26,7 +26,7 @@ $SystemConfig = @{
     }
 
     "stub" = @{
-        ContainerName = "my-my-shop-stub"
+        ContainerName = "my-shop-stub"
 
         SystemComponents = @(
             @{ Name = "Frontend";

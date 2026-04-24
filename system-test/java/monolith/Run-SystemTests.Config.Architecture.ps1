@@ -4,15 +4,15 @@
 
 $SystemConfig = @{
     "real" = @{
-        ContainerName = "my-my-shop-real"
+        ContainerName = "my-shop-real"
 
         SystemComponents = @(
             @{ Name = "Monolith";
                 Url = "http://localhost:3111";
-                ContainerName = "monolith" }
+                ContainerName = "sysapp" }
             @{ Name = "Monolith API";
                 Url = "http://localhost:8111/health";
-                ContainerName = "monolith" }
+                ContainerName = "sysapp" }
         )
 
         ExternalSystems = @(
@@ -26,15 +26,15 @@ $SystemConfig = @{
     }
 
     "stub" = @{
-        ContainerName = "my-my-shop-stub"
+        ContainerName = "my-shop-stub"
 
         SystemComponents = @(
             @{ Name = "Monolith";
                 Url = "http://localhost:3112";
-                ContainerName = "monolith" }
+                ContainerName = "sysapp" }
             @{ Name = "Monolith API";
                 Url = "http://localhost:8112/health";
-                ContainerName = "monolith" }
+                ContainerName = "sysapp" }
         )
 
         ExternalSystems = @(

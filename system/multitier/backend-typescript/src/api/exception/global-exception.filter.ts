@@ -14,7 +14,8 @@ const VALIDATION_ERROR_TYPE_URI =
   'https://api.my-company.example/errors/validation-error';
 const RESOURCE_NOT_FOUND_TYPE_URI =
   'https://api.my-company.example/errors/resource-not-found';
-const BAD_REQUEST_TYPE_URI = 'https://api.my-company.example/errors/bad-request';
+const BAD_REQUEST_TYPE_URI =
+  'https://api.my-company.example/errors/bad-request';
 const INTERNAL_SERVER_ERROR_TYPE_URI =
   'https://api.my-company.example/errors/internal-server-error';
 

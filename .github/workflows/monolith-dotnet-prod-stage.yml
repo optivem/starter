@@ -80,7 +80,7 @@ jobs:
         with:
           tag: ${{ inputs.version || steps.resolve-latest.outputs.base-tag }}
           base-image-urls: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/monolith-system-dotnet
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/sysapp-dotnet
 
   run:
     needs: check
@@ -112,8 +112,8 @@ jobs:
           environment: production
           version: ${{ needs.check.outputs.version }}
           image-urls: ${{ needs.check.outputs.image-urls }}
-          compose-file: docker-compose.pipeline.real.yml
-          working-directory: system-test/dotnet/monolith
+          compose-file: monolith/docker-compose.pipeline.real.yml
+          working-directory: system-test/dotnet
 
       - name: Wait for Systems (Simulate Deployment (Production Environment))
         uses: optivem/actions/wait-for-endpoints@v1
@@ -125,8 +125,8 @@ jobs:
               { "name": "ERP", "url": "http://localhost:9211/erp/health" },
               { "name": "Clock", "url": "http://localhost:9211/clock/health" }
             ]
-          compose-file: docker-compose.pipeline.real.yml
-          working-directory: system-test/dotnet/monolith
+          compose-file: monolith/docker-compose.pipeline.real.yml
+          working-directory: system-test/dotnet
 
       - name: Generate Release Version
         id: promote
@@ -169,7 +169,7 @@ jobs:
         with:
           entries: |
             [
-              {"key": "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/monolith-system-dotnet:${{ needs.check.outputs.version }}",
+              {"key": "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/sysapp-dotnet:${{ needs.check.outputs.version }}",
                "file": "VERSION"}
             ]
 

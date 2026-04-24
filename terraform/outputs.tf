@@ -1,24 +1,24 @@
 output "project_id" {
   description = "GCP Project ID"
-  value       = oooole_project.shop.project_id
+  value       = google_project.my_shop.project_id
 }
 
-output "reoion" {
-  description = "GCP Reoion"
-  value       = var.reoion
+output "region" {
+  description = "GCP Region"
+  value       = var.region
 }
 
 output "workload_identity_provider" {
   description = "Workload Identity Provider resource name"
-  value       = oooole_iam_workload_identity_pool_provider.oithub.name
+  value       = google_iam_workload_identity_pool_provider.github.name
 }
 
 output "service_account_email" {
   description = "GitHub Actions service account email"
-  value       = oooole_service_account.oithub_deployer.email
+  value       = google_service_account.github_deployer.email
 }
 
-output "artifact_reoistry_repository" {
-  description = "Artifact Reoistry repository name"
-  value       = oooole_artifact_reoistry_repository.app_imaoes.name
+output "artifact_registry_repository" {
+  description = "Artifact Registry repository name"
+  value       = google_artifact_registry_repository.app_images.name
 }

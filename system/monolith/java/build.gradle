@@ -60,8 +60,8 @@ jacocoTestReport {
 
 sonar {
 	properties {
-		property 'sonar.projectKey', 'optivem_my-my-shop-monolith-java'
-		property 'sonar.projectName', 'my-my-shop-monolith-java'
+		property 'sonar.projectKey', 'my-company_my-shop-monolith-java'
+		property 'sonar.projectName', 'my-shop-monolith-java'
 		property 'sonar.organization', 'my-company'
 		property 'sonar.coverage.jacoco.xmlReportPaths', "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
 		property 'sonar.issue.ignore.multicriteria', 'e1,e2'
