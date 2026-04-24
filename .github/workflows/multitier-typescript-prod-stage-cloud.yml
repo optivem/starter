@@ -246,7 +246,7 @@ jobs:
         with:
           prerelease-version: ${{ needs.check.outputs.version }}
 
-      - name: Tag Docker Images
+      - name: Tag Docker Images with System Release Version
         id: tag-images
         uses: optivem/actions/tag-docker-images@v1
         with:
@@ -282,6 +282,29 @@ jobs:
             multitier-backend-typescript:system/multitier/backend-typescript/VERSION
             multitier-frontend-react:system/multitier/frontend-react/VERSION
           token: ${{ secrets.WORKFLOW_TOKEN }}
+
+      - name: Read Component Base Versions
+        id: read-component-versions
+        uses: optivem/actions/read-base-versions@v1
+        with:
+          entries: |
+            [
+              {"key": "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-backend-typescript:${{ needs.check.outputs.version }}",
+               "file": "system/multitier/backend-typescript/VERSION"},
+              {"key": "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-frontend-react:${{ needs.check.outputs.version }}",
+               "file": "system/multitier/frontend-react/VERSION"}
+            ]
+
+      - name: Compose Component Tags
+        id: compose-component-tags
+        uses: optivem/actions/compose-tags@v1
+        with:
+          versions: ${{ steps.read-component-versions.outputs.versions }}
+
+      - name: Tag Docker Images with Component Release Versions
+        uses: optivem/actions/tag-docker-images@v1
+        with:
+          image-tags: ${{ steps.compose-component-tags.outputs.tags }}
 
   summary:
     needs: [check, promote]
