@@ -210,6 +210,7 @@ jobs:
         with:
           image-urls: ${{ needs.check.outputs.image-urls }}
           tag: ${{ steps.promote.outputs.version }}
+          token: ${{ secrets.GHCR_TOKEN }}
 
       - name: Publish Release Tag
         uses: optivem/actions/publish-tag@v1
@@ -253,6 +254,7 @@ jobs:
         uses: optivem/actions/tag-docker-images@v1
         with:
           image-tags: ${{ steps.compose-component-tags.outputs.tags }}
+          token: ${{ secrets.GHCR_TOKEN }}
 
   summary:
     needs: [check, promote]
