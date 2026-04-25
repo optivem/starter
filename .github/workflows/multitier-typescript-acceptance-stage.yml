@@ -336,8 +336,33 @@ jobs:
           tag: ${{ needs.run.outputs.version }}
           token: ${{ secrets.WORKFLOW_TOKEN }}
 
+  sonar:
+    needs: run
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ env.COMMIT_SHA }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: system-test/typescript/package-lock.json
+
+      - name: Run Sonar Analysis
+        working-directory: system-test/typescript
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: pwsh ./Run-Sonar.ps1
+
   summary:
-    needs: [preflight, check, run, publish-tag]
+    needs: [preflight, check, run, publish-tag, sonar]
     if: always()
     runs-on: ubuntu-latest
     permissions:

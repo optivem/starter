@@ -1,7 +1,16 @@
 plugins {
 	id 'java'
+	id 'org.sonarqube' version '7.2.3.7755'
 	id 'org.springframework.boot' version '3.5.6'
 	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+sonar {
+	properties {
+		property 'sonar.projectKey', 'optivem_shop-tests-java'
+		property 'sonar.projectName', 'shop-tests-java'
+		property 'sonar.organization', 'optivem'
+	}
 }
 
 group = 'com.mycompany.myshop.systemtest'

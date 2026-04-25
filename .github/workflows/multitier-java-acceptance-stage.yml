@@ -294,8 +294,35 @@ jobs:
           tag: ${{ needs.run.outputs.version }}
           token: ${{ secrets.WORKFLOW_TOKEN }}
 
+  sonar:
+    needs: run
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ env.COMMIT_SHA }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: temurin
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Run Sonar Analysis
+        working-directory: system-test/java
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: pwsh ./Run-Sonar.ps1
+
   summary:
-    needs: [preflight, check, run, publish-tag]
+    needs: [preflight, check, run, publish-tag, sonar]
     if: always()
     runs-on: ubuntu-latest
     permissions:

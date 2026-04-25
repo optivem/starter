@@ -1,14 +1,15 @@
 <#
 .SYNOPSIS
-    Runs SonarScanner analysis on the solution.
+    Runs SonarScanner analysis on the monolith .NET app.
 
 .DESCRIPTION
-    Requires dotnet-sonarscanner and SonarCloud/SonarQube token.
-    Install: dotnet tool install --global dotnet-sonarscanner
-    Get token: https://sonarcloud.io/account/security (SonarCloud) or your SonarQube server.
+    Local helper that pushes a SonarCloud analysis using your personal token.
+    CI runs the same analysis from monolith-dotnet-commit-stage.yml; this
+    script is for manual runs.
+    Get token: https://sonarcloud.io/account/security
 
 .PARAMETER Token
-    SonarCloud/SonarQube token. Or set $env:SONAR_TOKEN.
+    SonarCloud token. Or set $env:SONAR_TOKEN.
 
 .EXAMPLE
     .\Run-Sonar.ps1
@@ -27,10 +28,11 @@ if (-not $Token) {
     exit 1
 }
 
-$projectKey = "optivem_shop-tests-dotnet"
-$projectName = "shop-tests-dotnet"
+$projectKey = "optivem_shop-monolith-dotnet"
+$projectName = "shop-monolith-dotnet"
+$solution = "MyCompany.MyShop.Monolith.sln"
 
-Write-Host "Running SonarScanner for .NET system tests..." -ForegroundColor Cyan
+Write-Host "Running SonarScanner for monolith .NET..." -ForegroundColor Cyan
 
 dotnet tool install --global dotnet-sonarscanner 2>$null
 
@@ -41,7 +43,7 @@ dotnet sonarscanner begin `
     /d:sonar.host.url="https://sonarcloud.io" `
     /d:sonar.token=$Token
 
-dotnet build MyCompany.MyShop.sln --no-incremental
+dotnet build $solution --no-incremental
 
 dotnet sonarscanner end /d:sonar.token=$Token
 
