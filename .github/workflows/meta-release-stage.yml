@@ -291,18 +291,18 @@ jobs:
       - name: Dispatch gh-acceptance-stage in optivem/gh-optivem
         env:
           GH_TOKEN: ${{ secrets.REPO_TOKEN }}
-          MY_SHOP_TAG: ${{ needs.check.outputs.release_tag }}
+          SHOP_TAG: ${{ needs.check.outputs.release_tag }}
         run: |
           set -euo pipefail
-          echo "Dispatching gh-acceptance-stage.yml with my-shop-tag=${MY_SHOP_TAG}"
+          echo "Dispatching gh-acceptance-stage.yml with shop-tag=${SHOP_TAG}"
           gh workflow run gh-acceptance-stage.yml \
             --repo optivem/gh-optivem \
-            -f my-shop-tag="${MY_SHOP_TAG}" \
+            -f shop-tag="${SHOP_TAG}" \
             -f verify-level=release
           {
             echo "## Dispatched gh-acceptance-stage"
             echo ""
-            echo "- Target repo: [optivem/gh-optivem](https://github.com/my-company/gh-optivem/actions/workflows/gh-acceptance-stage.yml)"
-            echo "- my-shop-tag: \`${MY_SHOP_TAG}\`"
+            echo "- Target repo: [optivem/gh-optivem](https://github.com/optivem/gh-optivem/actions/workflows/gh-acceptance-stage.yml)"
+            echo "- shop-tag: \`${SHOP_TAG}\`"
             echo "- verify-level: \`release\`"
           } >> "$GITHUB_STEP_SUMMARY"
