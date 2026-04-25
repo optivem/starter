@@ -10,7 +10,7 @@
 
 The repo already treats a handful of words as generic architecture vocabulary that is **never replaced during scaffolding**: `backend`, `frontend`, `monolith`, `multitier`. Docker image names extend this list with `system`, used as the "single deployable = the whole system" role in monolith images:
 
-- `ghcr.io/${github.repository}/sysapp-java`
+- `ghcr.io/${github.repository}/monolith-system-java`
 - `ghcr.io/${github.repository}/backend-java`
 - `ghcr.io/${github.repository}/frontend-react`
 

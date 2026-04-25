@@ -61,6 +61,8 @@ jobs:
           echo "Variant: ${{ inputs.variant }}"
           echo "Skip local: ${{ inputs.skip-local }}"
           echo "Skip acceptance-legacy: ${{ inputs.skip-acceptance-legacy }}"
+          echo "Is release run: ${{ inputs.is-release-run }}"
+          echo "Fail-fast: ${{ inputs.fail-fast }}"
           echo "Triggered by: ${{ github.event_name }} ${{ github.event.schedule }}"
       - uses: actions/checkout@v6
         with:
@@ -139,9 +141,9 @@ jobs:
         with:
           fail-on-error: 'true'
           image-urls: |
-            ghcr.io/${{ github.repository }}/sysapp-dotnet:v${{ steps.read-versions.outputs.meta }}
-            ghcr.io/${{ github.repository }}/sysapp-java:v${{ steps.read-versions.outputs.meta }}
-            ghcr.io/${{ github.repository }}/sysapp-typescript:v${{ steps.read-versions.outputs.meta }}
+            ghcr.io/${{ github.repository }}/monolith-system-dotnet:v${{ steps.read-versions.outputs.meta }}
+            ghcr.io/${{ github.repository }}/monolith-system-java:v${{ steps.read-versions.outputs.meta }}
+            ghcr.io/${{ github.repository }}/monolith-system-typescript:v${{ steps.read-versions.outputs.meta }}
             ghcr.io/${{ github.repository }}/multitier-backend-dotnet:v${{ steps.read-versions.outputs.mt_be_dotnet }}
             ghcr.io/${{ github.repository }}/multitier-backend-java:v${{ steps.read-versions.outputs.mt_be_java }}
             ghcr.io/${{ github.repository }}/multitier-backend-typescript:v${{ steps.read-versions.outputs.mt_be_typescript }}

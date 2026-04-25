@@ -60,8 +60,8 @@ jobs:
         with:
           tag: ${{ inputs.version || steps.resolve-latest.outputs.tag }}
           base-image-urls: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/frontend-react
-            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/backend-typescript
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-frontend-react
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-backend-typescript
 
   deploy-frontend:
     needs: check
@@ -95,7 +95,7 @@ jobs:
         uses: google-github-actions/deploy-cloudrun@v3
         with:
           service: multitier-typescript-frontend-qa
-          image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/frontend-react:${{ needs.check.outputs.version }}
+          image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-frontend-react:${{ needs.check.outputs.version }}
           region: ${{ vars.GCP_REGION }}
           project_id: ${{ vars.GCP_PROJECT_ID }}
           flags: --port=3000 --max-instances=3 --allow-unauthenticated
@@ -136,7 +136,7 @@ jobs:
         uses: google-github-actions/deploy-cloudrun@v3
         with:
           service: multitier-typescript-backend-qa
-          image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/backend-typescript:${{ needs.check.outputs.version }}
+          image: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-backend-typescript:${{ needs.check.outputs.version }}
           region: ${{ vars.GCP_REGION }}
           project_id: ${{ vars.GCP_PROJECT_ID }}
           env_vars: |
