@@ -25,7 +25,7 @@ on:
         default: ''
         type: string
       skip-qa:
-        description: 'Bypass the per-flavor QA approval gate. For each flavor, use the latest <flavor>-v<VERSION>-rc.* tag (the RC published by meta-prerelease) instead of requiring the *-qa-approved variant. Promote jobs still run against those RCs and the meta-v tag/release is created normally — the only thing skipped is the QA approval requirement.'
+        description: 'Bypass the per-flavor QA approval gate AND skip the 6 promote-<flavor> jobs. For each flavor, the latest <flavor>-v<VERSION>-rc.* tag (published by meta-prerelease) is resolved for the summary, but no flavor prod-stage is dispatched. The meta-v tag/release is created directly. Use only when the per-flavor prod-stages already ran in a prior attempt and only the meta-v tag is missing — otherwise the meta-v release will reference flavor releases that do not exist.'
         required: false
         default: false
         type: boolean
@@ -176,6 +176,7 @@ jobs:
 
   promote-monolith-java:
     needs: check
+    if: ${{ !inputs.skip-qa }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
@@ -186,6 +187,7 @@ jobs:
 
   promote-monolith-dotnet:
     needs: check
+    if: ${{ !inputs.skip-qa }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
@@ -196,6 +198,7 @@ jobs:
 
   promote-monolith-typescript:
     needs: check
+    if: ${{ !inputs.skip-qa }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
@@ -206,6 +209,7 @@ jobs:
 
   promote-multitier-java:
     needs: check
+    if: ${{ !inputs.skip-qa }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
@@ -216,6 +220,7 @@ jobs:
 
   promote-multitier-dotnet:
     needs: check
+    if: ${{ !inputs.skip-qa }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
@@ -226,6 +231,7 @@ jobs:
 
   promote-multitier-typescript:
     needs: check
+    if: ${{ !inputs.skip-qa }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
@@ -234,8 +240,12 @@ jobs:
           timeout-seconds: '3600'
           workflow-inputs: '{"version": "${{ needs.check.outputs.multitier-typescript-rc }}"}'
 
+  # When skip-qa=true, the 6 promote jobs above are skipped and tag-meta-release
+  # runs straight after check. !failure() && !cancelled() lets the job proceed
+  # whether the promotes succeeded or were skipped.
   tag-meta-release:
     needs: [check, promote-monolith-java, promote-monolith-dotnet, promote-monolith-typescript, promote-multitier-java, promote-multitier-dotnet, promote-multitier-typescript]
+    if: ${{ !failure() && !cancelled() }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -268,6 +278,7 @@ jobs:
           RC_TAG: ${{ needs.check.outputs.meta_rc_tag }}
           RELEASE_TAG: ${{ needs.check.outputs.release_tag }}
           SHA: ${{ needs.check.outputs.commit-sha }}
+          SKIP_QA: ${{ inputs.skip-qa }}
           MONOLITH_JAVA_RC: ${{ needs.check.outputs.monolith-java-rc }}
           MONOLITH_DOTNET_RC: ${{ needs.check.outputs.monolith-dotnet-rc }}
           MONOLITH_TYPESCRIPT_RC: ${{ needs.check.outputs.monolith-typescript-rc }}
@@ -277,6 +288,11 @@ jobs:
         run: |
           BASE="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
           tag_link() { echo "[\`$1\`](${BASE}/releases/tag/$1)"; }
+          if [[ "$SKIP_QA" == "true" ]]; then
+            FLAVOR_HEADING="### Flavor RCs (promote jobs skipped — skip-qa=true)"
+          else
+            FLAVOR_HEADING="### Flavor RCs promoted"
+          fi
           {
             echo "## Meta release promoted"
             echo ""
@@ -285,8 +301,9 @@ jobs:
             echo "| RC tag | $(tag_link "${RC_TAG}") |"
             echo "| Release tag | $(tag_link "${RELEASE_TAG}") |"
             echo "| Commit | [\`${SHA::7}\`](${BASE}/commit/${SHA}) |"
+            echo "| skip-qa | ${SKIP_QA:-false} |"
             echo ""
-            echo "### Flavor RCs promoted"
+            echo "$FLAVOR_HEADING"
             echo "| Flavor | RC version |"
             echo "|---|---|"
             echo "| monolith-java | $(tag_link "${MONOLITH_JAVA_RC}") |"
