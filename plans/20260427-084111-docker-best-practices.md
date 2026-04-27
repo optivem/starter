@@ -14,18 +14,6 @@
 
 ---
 
-## 10. Postgres password env var fallback in pipeline compose
-
-**Status:** All compose files hardcode `POSTGRES_PASSWORD=app`. Fine for local; for pipeline.real running in CI, allow override.
-
-**Affected files:** 12 `docker-compose.pipeline.*.yml` files.
-
-**Action:** Change `POSTGRES_PASSWORD=app` to `POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-app}` in pipeline compose files. Same for backend `POSTGRES_DB_PASSWORD`. Local compose stays as-is (dev convenience).
-
-**Verification:** `POSTGRES_PASSWORD=secret docker compose -f ...pipeline... up` overrides; without override falls back to `app`.
-
----
-
 ## Order of execution
 
 Execute in numerical order. Each item is committable on its own — commit after each item lands and tests pass.

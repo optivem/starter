@@ -13,28 +13,6 @@
 
 ---
 
-## W7 — npm `warn deprecated` (transitive)
-
-**Symptom**
-```
-npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory.
-npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities…
-npm warn deprecated glob@10.5.0: Old versions of glob are not supported…
-```
-
-**Affected workflows (4):** `monolith-typescript-commit-stage`, `multitier-backend-typescript-commit-stage`, `prerelease-pipeline-monolith-typescript`, `prerelease-pipeline-multitier-typescript`.
-
-**Root cause:** Transitive dependencies pinned via direct dependencies' lockfiles. We don't import these directly.
-
-**Proposed fix:**
-1. Run `npm outdated` and `npm audit fix` on each TypeScript project.
-2. For genuinely stuck transitive deps, use npm `overrides` in `package.json` to force a newer version (e.g. `"glob": "^11"`).
-3. Re-run lockfile generation and commit.
-
-**Risk:** Medium. `npm overrides` can break sub-deps that genuinely require the older API. Test each project after the override. Easier path: bump the direct dependencies that pull these in, which usually carries the transitive bumps for free.
-
----
-
 ## W8 — npm audit reports vulnerabilities
 
 **Findings (from latest run):**
@@ -157,6 +135,30 @@ You can use '--warning-mode all' to show the individual deprecation warnings…
 3. Bump Gradle version once warnings are clean.
 
 **Risk:** Medium. Gradle deprecations are usually mechanical fixes, but the build files in this repo are referenced by course materials. Some patterns may be deliberately old to teach a specific approach. Coordinate with the Java track owner before bulk-rewriting build.gradle files.
+
+---
+
+## W7 — npm `warn deprecated` (transitive)
+
+**Do AFTER W8** — W8's direct-dep bumps will likely clear most of these transitives for free; running W7 first means doing the work twice.
+
+**Symptom**
+```
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory.
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities…
+npm warn deprecated glob@10.5.0: Old versions of glob are not supported…
+```
+
+**Affected workflows (4):** `monolith-typescript-commit-stage`, `multitier-backend-typescript-commit-stage`, `prerelease-pipeline-monolith-typescript`, `prerelease-pipeline-multitier-typescript`.
+
+**Root cause:** Transitive dependencies pinned via direct dependencies' lockfiles. We don't import these directly.
+
+**Proposed fix:**
+1. After W8 completes, re-run `npm outdated` on each TypeScript project to see what deprecations remain.
+2. For genuinely stuck transitive deps, use npm `overrides` in `package.json` to force a newer version (e.g. `"glob": "^11"`).
+3. Re-run lockfile generation and commit.
+
+**Risk:** Medium. `npm overrides` can break sub-deps that genuinely require the older API. Test each project after the override. Easier path: bump the direct dependencies that pull these in, which usually carries the transitive bumps for free.
 
 ---
 
