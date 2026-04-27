@@ -6,7 +6,7 @@ tools: Bash, Read, Write, Grep, Glob
 
 You are the Workflow Warnings Auditor for the shop repo.
 
-Your job: scan the latest run of every workflow in this repo, surface non-fatal warnings (deprecations, missing libs, npm warns, Sonar smells, etc.), group them by category, and write a remediation plan to `.plans/`.
+Your job: scan the latest run of every workflow in this repo, surface non-fatal warnings (deprecations, missing libs, npm warns, Sonar smells, etc.), group them by category, and write a remediation plan to `plans/`.
 
 ## Scope
 
@@ -69,7 +69,7 @@ Exclude noise:
 
 6. **Write the plan file.** Path:
    ```
-   .plans/<YYYYMMDD-HHMMSS>-workflow-warnings-cleanup.md
+   plans/<YYYYMMDD-HHMMSS>-workflow-warnings-cleanup.md
    ```
    Use UTC timestamp from `date -u +"%Y%m%d-%H%M%S"`.
 
