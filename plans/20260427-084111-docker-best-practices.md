@@ -6,28 +6,6 @@
 
 ---
 
-## 1. Add non-root `USER` to all app Dockerfiles
-
-**Status:** Only `system/monolith/typescript/Dockerfile` runs as non-root. The other 6 run as root.
-
-**Affected files:**
-- `system/monolith/java/Dockerfile`
-- `system/multitier/backend-java/Dockerfile`
-- `system/monolith/dotnet/Dockerfile`
-- `system/multitier/backend-dotnet/Dockerfile`
-- `system/multitier/backend-typescript/Dockerfile`
-- `system/multitier/frontend-react/Dockerfile`
-
-**Actions:**
-- Java (both): add `RUN addgroup -S app && adduser -S app -G app`, `USER app`, and `--chown=app:app` on the JAR copy.
-- .NET (both): add `USER app` (the official `mcr.microsoft.com/dotnet/aspnet:8.0` image already ships an `app` user).
-- backend-typescript: switch final stage to `USER node` (image already has it) — verify `dist/` and `node_modules/` are readable.
-- frontend-react: replace `nginx:alpine` with `nginxinc/nginx-unprivileged:alpine`. Update `EXPOSE` to 8080 and pipeline compose port mappings if needed.
-
-**Verification:** Build each image and `docker run --rm <image> id` — should NOT show uid 0.
-
----
-
 ## 2. Add `HEALTHCHECK` to every app Dockerfile
 
 **Status:** Postgres has a healthcheck; no app service does. `depends_on` only waits for container start, not readiness.

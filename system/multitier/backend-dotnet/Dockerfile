@@ -14,7 +14,8 @@ RUN dotnet publish MyCompany.MyShop.Backend.csproj -c Release -o out
 # Use the official ASP.NET runtime image for the app
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
-COPY --from=build /app/out ./
+COPY --from=build --chown=app:app /app/out ./
+USER app
 
 EXPOSE 8081
 
