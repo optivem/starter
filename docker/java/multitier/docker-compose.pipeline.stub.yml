@@ -3,7 +3,7 @@ name: my-shop-stub
 services:
 
   frontend:
-    image: ghcr.io/optivem/shop/multitier-frontend-react:latest
+    image: ${SYSTEM_IMAGE_FRONTEND:-ghcr.io/optivem/shop/multitier-frontend-react:latest}
     ports:
       - "3112:3000"
     environment:
@@ -15,7 +15,7 @@ services:
       - app-network
 
   backend:
-    image: ghcr.io/optivem/shop/multitier-backend-java:latest
+    image: ${SYSTEM_IMAGE_BACKEND:-ghcr.io/optivem/shop/multitier-backend-java:latest}
     ports:
       - "8112:8081"
     environment:
