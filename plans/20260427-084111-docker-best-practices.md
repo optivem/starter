@@ -6,41 +6,6 @@
 
 ---
 
-## 4. Dedupe `npm ci` in backend-typescript
-
-**Status:** `system/multitier/backend-typescript/Dockerfile` runs `npm ci` twice (build stage full deps, runtime stage `--omit=dev`). Two cold installs.
-
-**Action:** Restructure to a `deps-prod` stage that runs `npm ci --omit=dev` once in parallel with the build stage. Copy `node_modules` from `deps-prod` into the runtime stage.
-
-**Template:**
-```dockerfile
-FROM node:22-alpine AS deps-prod
-WORKDIR /app
-COPY package*.json ./
-RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev
-
-FROM node:22-alpine AS build
-WORKDIR /app
-COPY package*.json ./
-RUN --mount=type=cache,target=/root/.npm npm ci
-COPY . .
-RUN npm run build
-
-FROM node:22-alpine
-WORKDIR /app
-ENV NODE_ENV=production
-COPY --from=deps-prod /app/node_modules ./node_modules
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/package*.json ./
-USER node
-EXPOSE 8081
-CMD ["node", "dist/main"]
-```
-
-**Verification:** Build is faster on a warm cache; final image still runs.
-
----
-
 ## 5. Drop gradlew CRLF workaround, fix at source
 
 **Status:** Both Java Dockerfiles run `sed -i 's/\r$//' gradlew && chmod +x gradlew` to fix Windows line endings — band-aid for misconfigured git attributes.
