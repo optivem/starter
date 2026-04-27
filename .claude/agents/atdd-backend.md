@@ -1,5 +1,5 @@
 ---
-name: backend
+name: atdd-backend
 description: Implements backend changes to make API acceptance tests pass
 tools: Read, Glob, Grep, Edit, Write, Bash
 model: opus

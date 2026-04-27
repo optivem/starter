@@ -1,5 +1,5 @@
 ---
-name: release
+name: atdd-release
 description: Removes @Disabled from passing acceptance tests, commits the final GREEN, and closes the GitHub issue
 tools: Read, Glob, Grep, Edit, Bash
 model: sonnet

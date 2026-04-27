@@ -1,5 +1,5 @@
 ---
-name: driver
+name: atdd-driver
 description: Implements drivers for acceptance tests — AT - RED - DRIVER - WRITE and AT - RED - DRIVER - COMMIT
 tools: Read, Glob, Grep, Edit, Write, Bash
 model: opus

@@ -23,9 +23,11 @@ Total **21 files**. Most is domain-agnostic; references to `eshop` / `eshop-test
 
 ```
 .claude/
-  agents/atdd/             ← managed: backend.md, frontend.md, driver.md, dsl.md,
-                              manager.md, release.md, story.md, test.md
-  commands/atdd/           ← managed: implement-ticket.md, manage-project.md
+  agents/                  ← managed (atdd- prefix): atdd-backend.md, atdd-frontend.md,
+                              atdd-driver.md, atdd-dsl.md, atdd-manager.md,
+                              atdd-release.md, atdd-story.md, atdd-test.md
+  commands/                ← managed (atdd- prefix): atdd-implement-ticket.md,
+                              atdd-manage-project.md
 docs/prompts/
   atdd/                    ← managed: orchestrator.md, orchestrator-diagram.md,
                               acceptance-tests.md, contract-tests.md, glossary.md
@@ -34,15 +36,18 @@ docs/prompts/
   code/                    ← managed: language-equivalents.md
 ```
 
-The `atdd/` subdirectories under `.claude/agents/` and `.claude/commands/` exist so shop's pre-existing non-ATDD agents (compare-*, editor, monitor, docs/) stay at the root and are not mixed with ATDD doctrine.
+`.claude/agents/` and `.claude/commands/` use a flat layout with `atdd-` filename prefix because Claude Code's documentation does not confirm subdir support for agents/commands (verified 2026-04-27). The `atdd-` prefix marks ownership; shop's pre-existing non-ATDD agents (compare-*, editor, monitor, docs/) stay at the root unchanged.
 
-**Ownership rule** (enforced by the downstream CLI): every file inside the managed subdirs is owned by `gh optivem atdd`. Students copy out and rename to customize.
+`docs/prompts/` keeps subdirectory layout — these are doctrine docs, not Claude Code agent/command files, so subdirectories are fine.
+
+**Ownership rule** (enforced by the downstream CLI): every file matching `.claude/agents/atdd-*.md`, `.claude/commands/atdd-*.md`, and every file under `docs/prompts/{atdd,architecture,code}/` is owned by `gh optivem atdd`. Students copy out and rename to customize.
+
+**Frontmatter convention**: each `atdd-<name>.md` agent file has `name: atdd-<name>` in its YAML frontmatter, matching the filename for unambiguous discovery regardless of which (filename vs. frontmatter) Claude Code uses for agent identification.
 
 ## Tasks
 
 ### Phase 1 — consolidate canonical assets in shop
 
-- [ ] Confirm Claude Code reads agents/commands from `atdd/` subdirectories. If not, fall back to flat layout with `atdd-` filename prefix.
 - [ ] Decide what to do with the `shop/` package convention referenced in the prompts — it's a generic ATDD term (the SUT subfolder, distinct from `external/`), not the repo name. Keep as-is. Document the distinction in `docs/prompts/atdd/orchestrator.md` if not already clear.
 
 ## Open questions
