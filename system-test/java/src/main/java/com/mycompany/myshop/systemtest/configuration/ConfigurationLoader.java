@@ -17,14 +17,32 @@ public class ConfigurationLoader {
         var configFile = getConfigFileName(environmentMode, externalSystemMode);
         var config = loadYamlFile(configFile);
 
-        var myShopUiBaseUrl = getNestedStringValue(config, "test", "myShop", "ui", BASE_URL);
-        var myShopApiBaseUrl = getNestedStringValue(config, "test", "myShop", "api", BASE_URL);
-        var erpBaseUrl = getNestedStringValue(config, "test", "erp", "api", BASE_URL);
-        var clockBaseUrl = getNestedStringValue(config, "test", "clock", "api", BASE_URL);
-        var taxBaseUrl = getNestedStringValue(config, "test", "tax", "api", BASE_URL);
+        // Env var overrides let the cross-lang verification workflow point this
+        // test JAR at a different language's SUT without touching the YAML files.
+        // Suffix matches externalSystemMode so stub/real suites in one tests-latest.json
+        // run can each get their own URL set.
+        var suffix = "_" + externalSystemMode.name().toUpperCase();
+        var myShopUiBaseUrl = getEnvVarOrDefault("MYSHOP_UI_BASE_URL" + suffix,
+                getNestedStringValue(config, "test", "myShop", "ui", BASE_URL));
+        var myShopApiBaseUrl = getEnvVarOrDefault("MYSHOP_API_BASE_URL" + suffix,
+                getNestedStringValue(config, "test", "myShop", "api", BASE_URL));
+        var erpBaseUrl = getEnvVarOrDefault("ERP_API_BASE_URL" + suffix,
+                getNestedStringValue(config, "test", "erp", "api", BASE_URL));
+        var clockBaseUrl = getEnvVarOrDefault("CLOCK_API_BASE_URL" + suffix,
+                getNestedStringValue(config, "test", "clock", "api", BASE_URL));
+        var taxBaseUrl = getEnvVarOrDefault("TAX_API_BASE_URL" + suffix,
+                getNestedStringValue(config, "test", "tax", "api", BASE_URL));
 
         return new Configuration(myShopUiBaseUrl, myShopApiBaseUrl, erpBaseUrl, clockBaseUrl, taxBaseUrl,
                 externalSystemMode, channelMode);
+    }
+
+    private static String getEnvVarOrDefault(String envVarName, String fileValue) {
+        var envValue = System.getenv(envVarName);
+        if (envValue != null && !envValue.isBlank()) {
+            return envValue;
+        }
+        return fileValue;
     }
 
     private static String getConfigFileName(Environment environmentMode, ExternalSystemMode externalSystemMode) {

@@ -13,14 +13,25 @@ public static class SystemConfigurationLoader
         var configFile = GetConfigFileName(environment, externalSystemMode);
         var configuration = LoadJsonFile(configFile);
 
-        var shopUiBaseUrl = GetValue(configuration, "MyShop:UiBaseUrl");
-        var shopApiBaseUrl = GetValue(configuration, "MyShop:ApiBaseUrl");
-        var erpBaseUrl = GetValue(configuration, "Erp:ApiBaseUrl");
-        var taxBaseUrl = GetValue(configuration, "Tax:ApiBaseUrl");
-        var clockBaseUrl = GetValue(configuration, "Clock:ApiBaseUrl");
+        // Env var overrides let the cross-lang verification workflow point this
+        // test assembly at a different language's SUT without touching the JSON files.
+        // Suffix matches externalSystemMode so stub/real suites in one tests-latest.json
+        // run can each get their own URL set.
+        var suffix = "_" + externalSystemMode.ToString().ToUpper();
+        var shopUiBaseUrl = GetEnvVarOrDefault("MYSHOP_UI_BASE_URL" + suffix, GetValue(configuration, "MyShop:UiBaseUrl"));
+        var shopApiBaseUrl = GetEnvVarOrDefault("MYSHOP_API_BASE_URL" + suffix, GetValue(configuration, "MyShop:ApiBaseUrl"));
+        var erpBaseUrl = GetEnvVarOrDefault("ERP_API_BASE_URL" + suffix, GetValue(configuration, "Erp:ApiBaseUrl"));
+        var taxBaseUrl = GetEnvVarOrDefault("TAX_API_BASE_URL" + suffix, GetValue(configuration, "Tax:ApiBaseUrl"));
+        var clockBaseUrl = GetEnvVarOrDefault("CLOCK_API_BASE_URL" + suffix, GetValue(configuration, "Clock:ApiBaseUrl"));
 
         return new Dsl.Core.Configuration(shopUiBaseUrl, shopApiBaseUrl, erpBaseUrl, taxBaseUrl, clockBaseUrl,
             externalSystemMode, channelMode);
+    }
+
+    private static string GetEnvVarOrDefault(string envVarName, string fileValue)
+    {
+        var envValue = System.Environment.GetEnvironmentVariable(envVarName);
+        return string.IsNullOrWhiteSpace(envValue) ? fileValue : envValue;
     }
 
     private static string GetConfigFileName(Environment environment, ExternalSystemMode externalSystemMode)

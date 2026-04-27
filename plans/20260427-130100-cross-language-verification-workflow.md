@@ -44,9 +44,6 @@ This is purely a **regression check**. It does NOT tag images, publish git tags,
 
 **Items remaining for Phase 1:**
 
-- [ ] **Diagnose any base-URL mismatch failures** — if java tests against .NET system fail because they hit `:3111` (java port) instead of `:3211` (dotnet port), decide:
-  - **Option A (recommended):** parameterize base URL via env var (`BASE_URL_UI` / `BASE_URL_API`) read by each test framework, set per matrix row from `system.json`. One mechanism, no per-cross-lang config explosion.
-  - **Option B:** add per-system-lang test config files. N×M file fan-out, ugly.
 - [ ] **Decide whether `gh optivem run system` (which docker-compose-builds implicitly) is sufficient or if `gh optivem build system` should be split out as its own workflow step** — current plan calls both; potentially redundant. Confirm during dry run.
 - [ ] **Add summary step** — a final `if: always()` step that posts a matrix-result table to `$GITHUB_STEP_SUMMARY` so a failed combo is obvious without clicking in. Use `optivem/actions/render-system-stage-summary@v1` or a small inline bash that reads `needs.*.result`.
 
