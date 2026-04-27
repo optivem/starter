@@ -16,12 +16,12 @@ If a GitHub issue number was provided as input, prefix every commit message with
    - If new DSL methods are needed, call them directly as if they exist — compile errors are expected.
 2. Verify that they pass when executed against the Real External System:
    ```
-   .\Run-SystemTests.ps1 -Suite <suite-contract-real> -Test <TestMethodName>
+   gh optivem test system --suite <suite-contract-real> --test <TestMethodName>
    ```
    If they don't pass, ask the user for support. STOP. Do NOT continue.
 3. Verify that they fail when executed against the Stub External System:
    ```
-   .\Run-SystemTests.ps1 -Suite <suite-contract-stub> -Test <TestMethodName>
+   gh optivem test system --suite <suite-contract-stub> --test <TestMethodName>
    ```
 4. Mark the tests as disabled with reason `"CT - RED - TEST"` (see `language-equivalents.md` for syntax).
 5. STOP. Present the contract tests to the user and ask for approval. Do NOT continue.
@@ -48,7 +48,7 @@ If a GitHub issue number was provided as input, prefix every commit message with
 1. Implement the Drivers by throwing a "TODO: Driver" not-implemented exception (see `language-equivalents.md`).
 2. Run the tests and verify they fail with a runtime error:
    ```
-   .\Run-SystemTests.ps1 -Suite <suite-contract-stub> -Test <TestMethodName>
+   gh optivem test system --suite <suite-contract-stub> --test <TestMethodName>
    ```
 3. Mark the tests as disabled with reason `"CT - RED - DSL"` (see `language-equivalents.md` for syntax).
 4. COMMIT with message `<Scenario> | CT - RED - DSL`.
@@ -76,7 +76,8 @@ If a GitHub issue number was provided as input, prefix every commit message with
 2. Implement the External System Stubs.
 3. Run the External System Contract Tests:
    ```
-   .\Run-SystemTests.ps1 -Suite <suite-contract-stub> -Test <TestMethodName> -Rebuild
+   gh optivem build system --rebuild
+   gh optivem test system --suite <suite-contract-stub> --test <TestMethodName>
    ```
 4. Verify that the tests pass. If they fail, ask the user. STOP. Do NOT continue.
 5. STOP. Present the stub implementation to the user and ask for approval. Do NOT continue.

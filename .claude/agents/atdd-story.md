@@ -1,5 +1,5 @@
 ---
-name: story
+name: atdd-story
 description: Converts a user story into Gherkin acceptance scenarios
 tools: Read
 model: opus

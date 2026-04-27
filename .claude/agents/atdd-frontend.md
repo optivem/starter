@@ -1,5 +1,5 @@
 ---
-name: frontend
+name: atdd-frontend
 description: Implements frontend changes to make UI acceptance tests pass
 tools: Read, Glob, Grep, Edit, Write, Bash
 model: opus

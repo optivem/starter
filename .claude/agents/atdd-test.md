@@ -1,5 +1,5 @@
 ---
-name: test
+name: atdd-test
 description: Writes acceptance tests (AT - RED - TEST - WRITE) or commits them (AT - RED - TEST - COMMIT) — phase is specified in the input
 tools: Read, Glob, Grep, Edit, Write, Bash
 model: opus

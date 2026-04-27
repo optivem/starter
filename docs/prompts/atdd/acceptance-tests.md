@@ -37,8 +37,8 @@ If a GitHub issue number was provided as input, prefix every commit message with
    - After writing each test, verify it matches the acceptance criteria exactly — Given maps to Given, When maps to When, Then maps to Then. Every precondition stated in the scenario must appear in the test. If anything is unclear, ask before proceeding.
 2. Run the tests and verify they fail (compile error is expected if new DSL methods are needed):
    ```
-   .\Run-SystemTests.ps1 -Suite <acceptance-api> -Test <TestMethodName>
-   .\Run-SystemTests.ps1 -Suite <acceptance-ui> -Test <TestMethodName>
+   gh optivem test system --suite <acceptance-api> --test <TestMethodName>
+   gh optivem test system --suite <acceptance-ui> --test <TestMethodName>
    ```
 3. STOP. Present the tests to the user and ask for approval. Do NOT continue.
 
@@ -49,8 +49,8 @@ If a GitHub issue number was provided as input, prefix every commit message with
    b. Implement the new methods by throwing a "TODO: DSL" not-implemented exception (see `language-equivalents.md`) — do not implement DSL.
    c. Run the tests and verify they fail with a runtime error:
       ```
-      .\Run-SystemTests.ps1 -Suite <acceptance-api> -Test <TestMethodName>
-      .\Run-SystemTests.ps1 -Suite <acceptance-ui> -Test <TestMethodName>
+      gh optivem test system --suite <acceptance-api> --test <TestMethodName>
+      gh optivem test system --suite <acceptance-ui> --test <TestMethodName>
       ```
 2. Mark the tests as disabled with reason `"AT - RED - TEST"` (see `language-equivalents.md` for syntax).
 3. COMMIT with message `<Scenario> | AT - RED - TEST`.
@@ -70,8 +70,8 @@ If a GitHub issue number was provided as input, prefix every commit message with
 1. Implement the Drivers by throwing a "TODO: Driver" not-implemented exception (see `language-equivalents.md`).
 2. Run the tests and verify they fail with a runtime error:
    ```
-   .\Run-SystemTests.ps1 -Suite <acceptance-api> -Test <TestMethodName>
-   .\Run-SystemTests.ps1 -Suite <acceptance-ui> -Test <TestMethodName>
+   gh optivem test system --suite <acceptance-api> --test <TestMethodName>
+   gh optivem test system --suite <acceptance-ui> --test <TestMethodName>
    ```
 3. Mark the tests as disabled with reason `"AT - RED - DSL"` (see `language-equivalents.md` for syntax).
 4. Ensure that there are no test files in the list of changed files.
@@ -103,7 +103,8 @@ If a GitHub issue number was provided as input, prefix every commit message with
    a. Implement the backend changes.
    b. Run acceptance tests for the API channel:
       ```
-      .\Run-SystemTests.ps1 -Suite <acceptance-api> -Test <TestMethodName> -Rebuild
+      gh optivem build system --rebuild
+      gh optivem test system --suite <acceptance-api> --test <TestMethodName>
       ```
    c. If tests fail, fix the backend until the tests pass.
    d. If you have challenges making the tests pass, ask the user.
@@ -112,7 +113,8 @@ If a GitHub issue number was provided as input, prefix every commit message with
    a. Implement the frontend changes.
    b. Run acceptance tests for the UI channel:
       ```
-      .\Run-SystemTests.ps1 -Suite <acceptance-ui> -Test <TestMethodName> -Rebuild
+      gh optivem build system --rebuild
+      gh optivem test system --suite <acceptance-ui> --test <TestMethodName>
       ```
    c. If tests fail, fix the frontend until the tests pass.
    d. If you have challenges making the tests pass, ask the user.
@@ -128,8 +130,8 @@ If a GitHub issue number was provided as input, prefix every commit message with
 2. Remove the disabled annotation (reason `"AT - RED - SYSTEM DRIVER"`) from the tests.
 3. Run the tests and verify they all pass:
    ```
-   .\Run-SystemTests.ps1 -Suite <acceptance-api> -Test <TestMethodName>
-   .\Run-SystemTests.ps1 -Suite <acceptance-ui> -Test <TestMethodName>
+   gh optivem test system --suite <acceptance-api> --test <TestMethodName>
+   gh optivem test system --suite <acceptance-ui> --test <TestMethodName>
    ```
 4. Ensure that there are no non-test files in the list of changed files in the `shop` repository.
 5. COMMIT in the `shop` repository with message `<Scenario> | AT - GREEN - SYSTEM`.

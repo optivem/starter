@@ -1,5 +1,5 @@
 ---
-name: dsl
+name: atdd-dsl
 description: Implements DSL for acceptance tests — AT - RED - DSL - WRITE and AT - RED - DSL - COMMIT
 tools: Read, Glob, Grep, Edit, Write, Bash
 model: opus
