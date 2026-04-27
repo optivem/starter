@@ -7,8 +7,9 @@ The input is a GitHub issue number (e.g. `#42`), optionally followed by flags. A
 **Autonomous mode:** if `--autonomous` is present in the input, skip all STOP/human-approval steps — agents self-approve and the pipeline runs end-to-end without waiting for the user.
 
 **Repositories:** optionally specify which repositories the pipeline operates on:
-- `--test-repos <repo1>,<repo2>,...` — the test repositories to implement in (e.g. `eshop-tests-java`, `eshop-tests-dotnet`, `eshop-tests-typescript`)
-- `--system-repos <repo1>,<repo2>,...` — the system (backend/frontend) repositories (e.g. `eshop`)
+- `--test-repos <repo1>,<repo2>,...` — the test repositories to implement in (e.g. `shop`)
+- `--system-repos <repo1>,<repo2>,...` — the system (backend/frontend) repositories (e.g. `shop`)
+<!-- TODO(gh-optivem): multirepo support — install-time substitution should produce repo lists matching the consumer's scaffold: `<repo>-backend`,`<repo>-frontend` (multitier), `<repo>-system` (multirepo monolith), or just `<repo>` (monorepo). v1 install is monorepo-only. -->
 
 If not specified, infer the appropriate repositories from the GitHub issue context (labels, title, existing tests, etc.) and confirm with the user before proceeding.
 

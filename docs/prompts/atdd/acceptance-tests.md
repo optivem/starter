@@ -122,15 +122,17 @@ If a GitHub issue number was provided as input, prefix every commit message with
 
 ## AT - GREEN - SYSTEM - COMMIT
 
-1. In the `eshop` repository: COMMIT all backend and frontend changes with message `<Scenario> | AT - GREEN - SYSTEM`.
+<!-- TODO(gh-optivem): multirepo support — in monorepo (shop) the system commit (step 1) and the test commit (steps 4–5) happen in the same repo. In multirepo scaffolds (`<repo>` + `<repo>-backend` + `<repo>-frontend`, or `<repo>` + `<repo>-system`) they are different repos; install-time substitution must map the system commit to the backend/frontend/system repo and the test commit to the test repo. v1 install is monorepo-only. -->
+
+1. In the `shop` repository: COMMIT all backend and frontend changes with message `<Scenario> | AT - GREEN - SYSTEM`.
 2. Remove the disabled annotation (reason `"AT - RED - SYSTEM DRIVER"`) from the tests.
 3. Run the tests and verify they all pass:
    ```
    .\Run-SystemTests.ps1 -Suite <acceptance-api> -Test <TestMethodName>
    .\Run-SystemTests.ps1 -Suite <acceptance-ui> -Test <TestMethodName>
    ```
-4. Ensure that there are no non-test files in the list of changed files in the `eshop-tests` repository.
-5. COMMIT in the `eshop-tests` repository with message `<Scenario> | AT - GREEN - SYSTEM`.
+4. Ensure that there are no non-test files in the list of changed files in the `shop` repository.
+5. COMMIT in the `shop` repository with message `<Scenario> | AT - GREEN - SYSTEM`.
 6. If a GitHub issue was provided as input, tick the checkbox for the completed acceptance criterion in that issue.
 7. If all acceptance criteria in the issue are now ticked, and the issue belongs to a GitHub project, move the issue to the **In Review** status in that project.
 8. If there are remaining `// TODO:` scenarios in the test file, return to AT - RED - TEST - WRITE for the next scenario.

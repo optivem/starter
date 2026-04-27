@@ -22,9 +22,11 @@ You are the Manager Agent.
    - If `--test-repos` and `--system-repos` were provided by the caller, use them as-is.
    - Otherwise, infer the appropriate repositories from the issue context:
      - Read the issue title, labels, body, and any linked PRs or branches.
-     - Known test repositories: `eshop-tests-java`, `eshop-tests-dotnet`, `eshop-tests-typescript`.
-     - Known system repositories: `eshop`.
-     - If the issue gives no clear signal, default to all three test repositories and the `eshop` system repository.
+     - Known test repositories: `shop` (system tests live in the same monorepo as the system).
+     - Known system repositories: `shop`.
+     - If the issue gives no clear signal, default to the `shop` repository.
+     <!-- TODO(gh-optivem): multirepo support — for `<repo>` + `<repo>-backend` + `<repo>-frontend` (multitier) or `<repo>` + `<repo>-system` (multirepo monolith) scaffolds, the install-time substitution needs to expand `shop` into the relevant repo names, and this default branch should list all of them. v1 install is monorepo-only. -->
+
 5. Return the issue number and the resolved `test-repos` and `system-repos` lists to the orchestrator.
 6. Stories are processed **sequentially** — one at a time, top card first.
 

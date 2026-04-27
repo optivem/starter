@@ -7,8 +7,9 @@ Input: $ARGUMENTS
 **GitHub project:** optionally specify `--project <org/number-or-url>` to identify which GitHub project board to use (e.g. `--project optivem/3`). If not specified, the manager-agent will attempt to discover it from the git remote of the current repository.
 
 **Repositories:** optionally specify `--test-repos` and `--system-repos` to control which repositories the pipeline operates on:
-- `--test-repos <repo1>,<repo2>,...` — the test repositories to implement in (e.g. `eshop-tests-java`, `eshop-tests-dotnet`, `eshop-tests-typescript`)
-- `--system-repos <repo1>,<repo2>,...` — the system (backend/frontend) repositories (e.g. `eshop`)
+- `--test-repos <repo1>,<repo2>,...` — the test repositories to implement in (e.g. `shop`)
+- `--system-repos <repo1>,<repo2>,...` — the system (backend/frontend) repositories (e.g. `shop`)
+<!-- TODO(gh-optivem): multirepo support — install-time substitution should produce repo lists matching the consumer's scaffold: `<repo>-backend`,`<repo>-frontend` (multitier), `<repo>-system` (multirepo monolith), or just `<repo>` (monorepo). v1 install is monorepo-only. -->
 
 If not specified, pass them through to the manager-agent and let it determine the appropriate repositories from the GitHub issue context (labels, title, existing code, etc.).
 

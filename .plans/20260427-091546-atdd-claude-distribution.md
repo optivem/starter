@@ -42,7 +42,6 @@ The `atdd/` subdirectories under `.claude/agents/` and `.claude/commands/` exist
 
 ### Phase 1 — consolidate canonical assets in shop
 
-- [ ] Replace `eshop` / `eshop-tests` literals in copied content with `shop`. Audit results: 5 hits in `acceptance-tests.md`, 3 in `orchestrator.md`.
 - [ ] Replace `Run-SystemTests.ps1` invocations with `gh optivem test system ...` calls. Verify `--test` flag exists in `gh-optivem/internal/runner_commands.go`; if not, add it as part of this work.
 - [ ] Confirm Claude Code reads agents/commands from `atdd/` subdirectories. If not, fall back to flat layout with `atdd-` filename prefix.
 - [ ] Decide what to do with the `shop/` package convention referenced in the prompts — it's a generic ATDD term (the SUT subfolder, distinct from `external/`), not the repo name. Keep as-is. Document the distinction in `docs/prompts/atdd/orchestrator.md` if not already clear.
