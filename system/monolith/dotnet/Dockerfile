@@ -2,9 +2,10 @@
 # Use the official .NET SDK image for build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
+ENV NUGET_PACKAGES=/root/.nuget/packages
 
-# Copy csproj and restore as distinct layers
-COPY *.csproj ./
+# Copy csproj + central package management files (if present) and restore as distinct layer
+COPY *.csproj global.json* Directory.Packages.props* ./
 RUN --mount=type=cache,target=/root/.nuget/packages dotnet restore
 
 # Copy everything else and build

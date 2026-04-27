@@ -6,22 +6,6 @@
 
 ---
 
-## 3. Fix .NET NuGet cache mount
-
-**Status:** `--mount=type=cache,target=/root/.nuget/packages` is silently ignored — `dotnet restore` writes to `~/.nuget/packages` (per `$HOME`), not `/root/.nuget/packages`, unless `NUGET_PACKAGES` is set.
-
-**Affected files:**
-- `system/monolith/dotnet/Dockerfile`
-- `system/multitier/backend-dotnet/Dockerfile`
-
-**Actions:**
-- Add `ENV NUGET_PACKAGES=/root/.nuget/packages` before the `RUN dotnet restore` line in the build stage.
-- Add `global.json* Directory.Packages.props*` to the `COPY *.csproj ./` line so future central package management works.
-
-**Verification:** Time a clean build then a re-build of the same image — second build should skip restore.
-
----
-
 ## 4. Dedupe `npm ci` in backend-typescript
 
 **Status:** `system/multitier/backend-typescript/Dockerfile` runs `npm ci` twice (build stage full deps, runtime stage `--omit=dev`). Two cold installs.
