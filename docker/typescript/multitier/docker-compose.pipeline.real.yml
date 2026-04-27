@@ -3,7 +3,7 @@ name: my-shop-real
 services:
 
   frontend:
-    image: ghcr.io/optivem/shop/multitier-frontend-react:latest
+    image: ${SYSTEM_IMAGE_FRONTEND:-ghcr.io/optivem/shop/multitier-frontend-react:latest}
     ports:
       - "3311:3000"
     environment:
@@ -15,7 +15,7 @@ services:
       - app-network
 
   backend:
-    image: ghcr.io/optivem/shop/multitier-backend-typescript:latest
+    image: ${SYSTEM_IMAGE_BACKEND:-ghcr.io/optivem/shop/multitier-backend-typescript:latest}
     ports:
       - "8311:8081"
     environment:
