@@ -1,12 +1,12 @@
 # Plan — GitHub Storage / Hygiene Cleanup
 
 **Date:** 2026-04-27
-**Context:** Follow-on items after extending `cleanup-prereleases` action with orphan-manifest cleanup and wiring `container-packages` into [shop/.github/workflows/cleanup.yml](../.github/workflows/cleanup.yml). The list below covers other GitHub surfaces that accumulate over time and were not addressed by that change.
+**Context:** Follow-on items after adding the `cleanup-orphan-manifests` action and wiring `container-packages` into [shop/.github/workflows/cleanup.yml](../.github/workflows/cleanup.yml). The list below covers other GitHub surfaces that accumulate over time and were not addressed by that change.
 **Scope:** Highest-ROI items first. Each item is self-contained — apply, leave for later, or drop independently.
 
 ## Out of scope
 
-- Items already shipped: tag/release/Docker-image-tag/orphan-manifest cleanup (covered by [actions/cleanup-prereleases](../../actions/cleanup-prereleases/action.yml) + [shop/.github/workflows/cleanup.yml](../.github/workflows/cleanup.yml)).
+- Items already shipped: tag/release/Docker-image-tag/orphan-manifest cleanup (covered by [actions/cleanup-prereleases](../../actions/cleanup-prereleases/action.yml) + [actions/cleanup-orphan-manifests](../../actions/cleanup-orphan-manifests/action.yml) + [shop/.github/workflows/cleanup.yml](../.github/workflows/cleanup.yml)).
 - Deployments cleanup (already handled by [actions/cleanup-deployments](../../actions/cleanup-deployments/action.yml)).
 - Production-release pruning. Final `vX.Y.Z` releases are the historical record; not auto-deleted.
 
@@ -115,3 +115,18 @@
 - For shop, releases don't currently attach binaries (Docker images are the artifact). Verify and skip.
 
 **Risk:** None if we leave alone.
+
+---
+
+## C9 — Retired-package sweep (one-off, ad-hoc)
+
+**Goal:** Delete entire GHCR packages that no active workflow publishes to anymore (renamed/retired services). The current `cleanup-prereleases` action only operates on packages listed in `CONTAINER_PACKAGES`; once a package is removed from that list, nothing prunes it — both the package and all its versions linger indefinitely.
+
+**Action:**
+- `gh api /orgs/optivem/packages?package_type=container --paginate --jq '.[].name'` to list all GHCR container packages.
+- Diff against the union of `CONTAINER_PACKAGES` across all active cleanup workflows.
+- For each orphan: confirm no recent pulls (`gh api /orgs/optivem/packages/container/<name>` → `version_count`, `updated_at`), then delete via `gh api -X DELETE /orgs/optivem/packages/container/<name>`.
+
+**Risk:** Medium. Deleting a whole package is irreversible and breaks any external system still pulling it. Always do a dry-run inventory first; only delete after manual confirmation. One-off, not a recurring workflow.
+
+**Decision needed:** confirm no external consumers before deleting any orphan package.
