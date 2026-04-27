@@ -6,31 +6,6 @@
 
 ---
 
-## 5. Drop gradlew CRLF workaround, fix at source
-
-**Status:** Both Java Dockerfiles run `sed -i 's/\r$//' gradlew && chmod +x gradlew` to fix Windows line endings — band-aid for misconfigured git attributes.
-
-**Affected files:**
-- `system/monolith/java/Dockerfile`
-- `system/multitier/backend-java/Dockerfile`
-- `system/monolith/java/.gitattributes` (create)
-- `system/multitier/backend-java/.gitattributes` (create)
-
-**Actions:**
-1. Create `.gitattributes` in each Java module:
-   ```
-   * text=auto eol=lf
-   gradlew text eol=lf
-   *.sh    text eol=lf
-   *.bat   text eol=crlf
-   ```
-2. Re-normalize: `git add --renormalize .` then commit.
-3. Replace the `sed && chmod` line with just `chmod +x gradlew` (or even drop chmod if file mode is preserved).
-
-**Verification:** Fresh clone on Windows still builds; gradlew has LF endings in the repo.
-
----
-
 ## 6. Bump `external-real-sim` from node:18 to node:22 + bake into Dockerfile
 
 **Status:** All 12 `*-real.yml` compose files use `image: node:18-alpine` then run `sh -c "npm install && npm start"` at container start. Node 18 reached EOL April 2025. The runtime `npm install` adds 10–30s to every `up`.

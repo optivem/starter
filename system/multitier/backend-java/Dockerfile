@@ -8,7 +8,7 @@ COPY settings.gradle .
 COPY src src
 COPY config config
 RUN --mount=type=cache,target=/root/.gradle \
-    sed -i 's/\r$//' gradlew && chmod +x gradlew && ./gradlew bootJar --no-daemon
+    chmod +x gradlew && ./gradlew bootJar --no-daemon
 
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
