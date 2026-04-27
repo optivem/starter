@@ -15,7 +15,7 @@ The content lives today in `eshop-tests/`:
 - `docs/prompts/architecture/`: driver-adapter, driver-port, dsl-core, dsl-port, test (5 files).
 - `docs/prompts/code/language-equivalents.md`.
 
-Total ~21 files, ~786 lines. About 90% is domain-agnostic ATDD doctrine; the rest is hardcoded references (`eshop`, `eshop-tests`, `Run-SystemTests.ps1`).
+Total ~21 files, ~786 lines. About 90% is domain-agnostic ATDD doctrine; the rest is hardcoded references to the SUT (`eshop`, `eshop-tests`) and to legacy test-runner commands.
 
 ## Repo layout assumptions
 

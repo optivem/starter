@@ -172,7 +172,7 @@ jobs:
 
       # Install the gh-optivem CLI extension. The extension provides the
       # `gh optivem run system` and `gh optivem test system` subcommands
-      # that replaced the old Run-SystemTests.ps1 orchestrator.
+      # used to bring up the docker-compose stacks and run the test suites.
       - name: Install gh-optivem CLI extension
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
