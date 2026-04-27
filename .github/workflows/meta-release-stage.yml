@@ -75,7 +75,7 @@ jobs:
             VERSION=$(tr -d '[:space:]' < VERSION)
             echo "VERSION on main: ${VERSION}"
             RC_TAG=$(git tag --list "meta-v${VERSION}-rc.*" \
-              | awk -F'-rc\\.' '{print $2 " " $0}' \
+              | awk -F'-rc[.]' '{print $2 " " $0}' \
               | sort -k1,1 -n \
               | tail -n 1 \
               | awk '{print $2}')
@@ -153,7 +153,7 @@ jobs:
             if [[ "$SKIP_QA" == "true" ]]; then
               rc=$(git tag --list "${flavor}-v${VERSION}-rc.*" \
                 | awk '!/-qa-approved$/' \
-                | awk -F'-rc\.' '{print $2 " " $0}' \
+                | awk -F'-rc[.]' '{print $2 " " $0}' \
                 | sort -k1,1 -n \
                 | tail -n 1 \
                 | awk '{print $2}')
@@ -161,7 +161,7 @@ jobs:
             else
               rc=$(git tag --list "${flavor}-v${VERSION}-rc.*-qa-approved" \
                 | sed -E 's/-qa-approved$//' \
-                | awk -F'-rc\.' '{print $2 " " $0}' \
+                | awk -F'-rc[.]' '{print $2 " " $0}' \
                 | sort -k1,1 -n \
                 | tail -n 1 \
                 | awk '{print $2}')

@@ -13,23 +13,6 @@
 
 ---
 
-## W10 — `awk: warning: escape sequence \. treated as plain .`
-
-**Symptom**
-```
-awk: warning: escape sequence `\.' treated as plain `.'
-```
-
-**Affected workflows (1):** `meta-release-stage` (~6 occurrences).
-
-**Root cause:** Inline awk script uses `\.` outside a character class. POSIX awk treats backslash before non-special characters as the literal char and warns.
-
-**Proposed fix:** In the `meta-release-stage.yml` (or a script it sources), find the awk invocation and replace `\.` with `[.]` or just `.` (depending on whether literal-period was intended).
-
-**Risk:** Trivial. Cosmetic — script already produces correct output.
-
----
-
 ## W2 — C# Sonar S-rule warnings (S1075, S1118, S1186, S1939, S2068, S2699, S2955, S3267, S4136, S4502)
 
 **Affected workflows (7):** `monolith-dotnet-commit-stage`, `multitier-backend-dotnet-commit-stage`, all 4 `*-dotnet-acceptance-stage*`, `prerelease-pipeline-monolith-dotnet`.
@@ -157,7 +140,6 @@ npm warn deprecated glob@10.5.0: Old versions of glob are not supported…
 | **P2** | W3 (CS8603/CS8604) | Test-DSL hardening |
 | **P3** | W2 (C# Sonar) | Pedagogical review needed first |
 | **P3** | W7 (npm deprecated) | Cleanup after W8 |
-| **P3** | W10 (awk) | Cosmetic |
 
 ---
 
