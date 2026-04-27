@@ -137,6 +137,8 @@ jobs:
         if: steps.verify-main.outputs.on-branch == 'true'
         id: meta
         uses: docker/metadata-action@v6
+        env:
+          DOCKER_METADATA_ANNOTATIONS_LEVELS: index,manifest
         with:
           images: ghcr.io/${{ github.repository }}/monolith-system-dotnet
           tags: |
@@ -177,6 +179,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          annotations: ${{ steps.meta.outputs.annotations }}
           provenance: mode=max
           sbom: true
 
