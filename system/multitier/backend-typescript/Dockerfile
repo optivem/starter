@@ -14,6 +14,7 @@ RUN npm run build
 # Stage 2: Run the app
 FROM node:22-alpine
 WORKDIR /app
+ENV NODE_ENV=production
 
 # Copy package files and install production dependencies
 COPY --from=build /app/package*.json ./
@@ -21,6 +22,9 @@ RUN --mount=type=cache,target=/root/.npm npm ci --omit=dev
 
 # Copy built files
 COPY --from=build /app/dist ./dist
+
+# Drop privileges to the built-in node user
+USER node
 
 # Expose port
 EXPOSE 8081

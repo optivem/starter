@@ -1,5 +1,7 @@
 # Plan — Shop Workflow Warnings Cleanup
 
+🤖 **Picked up by agent** — `Valentina_Desk` at `2026-04-27T08:35:44Z`
+
 **Date:** 2026-04-27
 **Source audit:** Latest runs of all 69 workflows in the shop repo. 48 had completed runs analyzed; 19 cloud workflows have never run; 2 were in progress at audit time.
 **Scope:** Address warnings (not failures). The Docker YAML parse error breaking every commit-stage workflow is tracked separately.
@@ -8,52 +10,6 @@
 
 - Hard failures already breaking commit-stage runs (Docker YAML `(7:7)` error). Fix those independently — they are blockers, not warnings.
 - Cloud-stage workflows that have never run: their warning surface is unknown. Re-evaluate once they have run at least once with the GCP secrets configured.
-
----
-
-## W1 — NuGet `NU1603`: WireMock.Net version mismatch
-
-**Symptom**
-```
-warning NU1603: Driver.Adapter depends on WireMock.Net (>= 1.6.28) but WireMock.Net 1.6.28 was not found.
-                WireMock.Net 1.7.0 was resolved instead.
-```
-
-**Affected workflows (5):** `monolith-dotnet-acceptance-stage`, `monolith-dotnet-acceptance-stage-legacy`, `multitier-dotnet-acceptance-stage`, `multitier-dotnet-acceptance-stage-legacy`, `prerelease-pipeline-monolith-dotnet`.
-
-**Root cause:** `Driver.Adapter` references WireMock.Net `1.6.28` but the package was unpublished/withdrawn from NuGet; only 1.7.0+ is available, so NuGet auto-bumps and warns.
-
-**Proposed fix:** In `system-test/dotnet/Driver.Adapter/*.csproj`, bump `WireMock.Net` reference from `1.6.28` to `1.7.0` (or floating `1.7.*`). Run `dotnet restore` locally to confirm the warning is gone. No code changes expected — 1.6→1.7 is a minor bump per WireMock.Net's semver.
-
-**Risk:** Low. WireMock.Net is dev-only (test infrastructure). API differences between 1.6.28 and 1.7.0 are documented; if any DSL we use changed signature, the test compilation will catch it immediately. No production binary impact.
-
----
-
-## W2 — C# Sonar S-rule warnings (S1075, S1118, S1186, S1939, S2068, S2699, S2955, S3267, S4136, S4502)
-
-**Affected workflows (7):** `monolith-dotnet-commit-stage`, `multitier-backend-dotnet-commit-stage`, all 4 `*-dotnet-acceptance-stage*`, `prerelease-pipeline-monolith-dotnet`.
-
-**Sample findings:**
-- `S2068` — `"password"` literal in `appsettings.json`
-- `S2699` — test method with no assertion (`MonolithApplicationTests.cs:31`)
-- `S1186` — empty methods in `Pages/Privacy.cshtml.cs`
-- `S1075` — hardcoded URLs
-- `S4502` — CSRF disable
-- `S4136` — overload adjacency
-- `S1939` — redundant interface declaration
-- `S2955` — comparison with `default(T)`
-- `S3267` — loops that could be LINQ
-- `S1118` — utility class missing `static`
-
-**Proposed fix:** Triage each rule. Most are low-effort one-line fixes:
-- `S2068`: rename the property or add `// NOSONAR — placeholder for sample app` if intentional.
-- `S2699`: add `Assert.Pass()` or a real assertion to the smoke test.
-- `S1186`: add `// nothing to do — required by framework` comment inside empty methods.
-- `S1075`, `S4502`, `S1118`, `S1939`, `S2955`, `S3267`, `S4136`: address per Sonar guidance.
-
-This is teaching material — some "smells" may be deliberate. Annotate with comments where intentional; fix where not.
-
-**Risk:** Low–medium. Behavioral risk is near zero (these are style/guideline warnings, not bugs). Risk is **pedagogical**: this codebase is a sample for students. Fixing a smell may erase a teachable example. Recommend reviewing each rule with course author before applying — do not auto-fix in bulk.
 
 ---
 
@@ -226,6 +182,34 @@ awk: warning: escape sequence `\.' treated as plain `.'
 
 ---
 
+## W2 — C# Sonar S-rule warnings (S1075, S1118, S1186, S1939, S2068, S2699, S2955, S3267, S4136, S4502)
+
+**Affected workflows (7):** `monolith-dotnet-commit-stage`, `multitier-backend-dotnet-commit-stage`, all 4 `*-dotnet-acceptance-stage*`, `prerelease-pipeline-monolith-dotnet`.
+
+**Sample findings:**
+- `S2068` — `"password"` literal in `appsettings.json`
+- `S2699` — test method with no assertion (`MonolithApplicationTests.cs:31`)
+- `S1186` — empty methods in `Pages/Privacy.cshtml.cs`
+- `S1075` — hardcoded URLs
+- `S4502` — CSRF disable
+- `S4136` — overload adjacency
+- `S1939` — redundant interface declaration
+- `S2955` — comparison with `default(T)`
+- `S3267` — loops that could be LINQ
+- `S1118` — utility class missing `static`
+
+**Proposed fix:** Triage each rule. Most are low-effort one-line fixes:
+- `S2068`: rename the property or add `// NOSONAR — placeholder for sample app` if intentional.
+- `S2699`: add `Assert.Pass()` or a real assertion to the smoke test.
+- `S1186`: add `// nothing to do — required by framework` comment inside empty methods.
+- `S1075`, `S4502`, `S1118`, `S1939`, `S2955`, `S3267`, `S4136`: address per Sonar guidance.
+
+This is teaching material — some "smells" may be deliberate. Annotate with comments where intentional; fix where not.
+
+**Risk:** Low–medium. Behavioral risk is near zero (these are style/guideline warnings, not bugs). Risk is **pedagogical**: this codebase is a sample for students. Fixing a smell may erase a teachable example. Recommend reviewing each rule with course author before applying — do not auto-fix in bulk.
+
+---
+
 ## Priority order (recommended)
 
 | Priority | Warning | Why |
@@ -233,7 +217,6 @@ awk: warning: escape sequence `\.' treated as plain `.'
 | **P0** | W4 (Node 20 deprecation) | Hard external deadline — June 2, 2026 |
 | **P0** | W8 (npm vulnerabilities) | Security; students copy this template |
 | **P1** | W5 (Playwright deps) | Cheap reliability win |
-| **P1** | W1 (NuGet NU1603) | Cheap one-line bump |
 | **P2** | W6 (Gradle 9.0) | Future-proofing; needs investigation pass |
 | **P2** | W3 (CS8603/CS8604) | Test-DSL hardening |
 | **P3** | W2 (C# Sonar) | Pedagogical review needed first |
