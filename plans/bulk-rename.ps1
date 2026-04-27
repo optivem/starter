@@ -4,7 +4,7 @@
 # all matching files under the relevant subtrees and applies the ordered
 # replacements for that language.
 #
-# Rationale: per `.plans/PLACEHOLDER-RENAME.md`, surgical Edit calls are too
+# Rationale: per `plans/PLACEHOLDER-RENAME.md`, surgical Edit calls are too
 # expensive in Claude tokens for 1000s of matches. This script does the bulk
 # find-replace in one pass, with allowlist protection and case-sensitive
 # `-creplace` so we do not double-replace `Shop` -> `MyShop` -> `MyMyShop`.
