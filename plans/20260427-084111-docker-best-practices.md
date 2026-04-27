@@ -14,16 +14,6 @@
 
 ---
 
-## 9. Frontend nginx — drop shell wrapper in CMD
-
-**Status:** `system/multitier/frontend-react/Dockerfile` line 32 uses `CMD ["/bin/sh", "-c", "envsubst ... && nginx -g 'daemon off;'"]`. The official `nginx:alpine` (and `nginxinc/nginx-unprivileged:alpine`) image already supports `/etc/nginx/templates/*.template` natively via its entrypoint script.
-
-**Action:** Remove the shell wrapper. Just `COPY nginx.conf /etc/nginx/templates/default.conf.template` and let the image's entrypoint handle envsubst. Default `CMD` becomes unnecessary.
-
-**Verification:** Container starts, `$BACKEND_API_URL` is substituted.
-
----
-
 ## 10. Postgres password env var fallback in pipeline compose
 
 **Status:** All compose files hardcode `POSTGRES_PASSWORD=app`. Fine for local; for pipeline.real running in CI, allow override.
