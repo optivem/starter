@@ -2,7 +2,8 @@ name: meta-prerelease-stage
 
 on:
   schedule:
-    - cron: '0 */3 * * *'  # Every 3 hours
+    - cron: '0 */3 * * *'  # Every 3 hours — gated, only runs if there are new commits since the last run
+    - cron: '0 7 * * 1'    # Mondays 07:00 UTC — weekly heartbeat, runs unconditionally
   workflow_dispatch:
     inputs:
       skip-tests:
@@ -28,6 +29,6 @@ jobs:
       level: qa
       variant: all
       skip-local: false
-      skip-tests: ${{ inputs.skip-tests == null && false || inputs.skip-tests }}
+      skip-tests: ${{ inputs.skip-tests || false }}
       is-release-run: true
-      fail-fast: ${{ inputs.fail-fast == null && false || inputs.fail-fast }}
+      fail-fast: ${{ inputs.fail-fast || false }}
