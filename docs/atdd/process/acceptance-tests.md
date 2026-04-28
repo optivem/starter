@@ -136,7 +136,7 @@ The unit of work is the **ticket** — all scenarios for the ticket are written 
 
 1. COMMIT all changes (backend, frontend, and the test re-enabling from AT - GREEN - SYSTEM - WRITE step 1) with message `<Ticket> | AT - GREEN - SYSTEM`.
 2. If a GitHub issue was provided as input, tick the checkbox for each acceptance criterion completed by this ticket.
-3. If all acceptance criteria in the issue are now ticked, and the issue belongs to a GitHub project, move the issue to the **In Review** status in that project.
+3. If all acceptance criteria in the issue are now ticked, and the issue belongs to a GitHub project, move the issue to the **DONE** status in that project.
 
 
 # TODO: VJ: Need to add insutrctions regarding handling legacy code...
