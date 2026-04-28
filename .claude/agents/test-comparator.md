@@ -1,5 +1,5 @@
 ---
-name: compare-tests
+name: test-comparator
 description: Compare system tests and architecture layers (clients, drivers, channels, use case DSL, scenario DSL) between latest and legacy versions across languages
 tools: Bash, Read, Grep, Glob, Write
 ---
@@ -266,7 +266,7 @@ The agent's cross-language rules live in separate docs. Read them before running
 
 Write the report as one file and the plan as **one file per language that has action items**. Do not print content inline — write to disk.
 
-### Report — `reports/{YYYYMMDD-HHMM}-compare-tests-{mode}.md`
+### Report — `reports/{YYYYMMDD-HHMM}-test-comparator-{mode}.md`
 
 - Purpose: descriptive findings. What exists, what is missing, what differs.
 - Contents: everything under the **Report Format** section below (class coverage tables, method differences, body differences, architectural abstraction tables, architecture layer tables, summary counts).
@@ -278,9 +278,9 @@ Write the report as one file and the plan as **one file per language that has ac
 
 Write a **separate plan file per language** that has at least one action item. File naming:
 
-- `plans/{YYYYMMDD-HHMM}-compare-tests-{mode}-java.md`
-- `plans/{YYYYMMDD-HHMM}-compare-tests-{mode}-dotnet.md`
-- `plans/{YYYYMMDD-HHMM}-compare-tests-{mode}-typescript.md`
+- `plans/{YYYYMMDD-HHMM}-test-comparator-{mode}-java.md`
+- `plans/{YYYYMMDD-HHMM}-test-comparator-{mode}-dotnet.md`
+- `plans/{YYYYMMDD-HHMM}-test-comparator-{mode}-typescript.md`
 
 **Skip any language that has zero action items** — do not create an empty plan file for it. Java is the default reference implementation, so it often has no action items, but this is **not** automatic: if another language has a clearly better design that Java should adopt, write a Java plan file for those changes.
 

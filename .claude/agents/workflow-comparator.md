@@ -1,5 +1,5 @@
 ---
-name: compare-workflows
+name: workflow-comparator
 description: Compare GitHub Actions workflows across languages (Java, .NET, TypeScript) to find inconsistencies
 tools: Bash, Read, Grep, Glob, Write
 ---
@@ -146,10 +146,10 @@ Differences that SHOULD be flagged:
 When the comparison is complete, write the results to a **timestamped plan file** at the repo root:
 
 ```
-plans/{YYYYMMDD-HHMM}-compare-workflows.md
+plans/{YYYYMMDD-HHMM}-workflow-comparator.md
 ```
 
-where `{YYYYMMDD-HHMM}` is the current date and time (e.g. `plans/20260422-1430-compare-workflows.md`).
+where `{YYYYMMDD-HHMM}` is the current date and time (e.g. `plans/20260422-1430-workflow-comparator.md`).
 
 To get the timestamp, run: `date -u +"%Y%m%d-%H%M"`
 

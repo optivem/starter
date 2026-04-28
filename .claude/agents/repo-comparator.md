@@ -1,5 +1,5 @@
 ---
-name: compare-repos
+name: repo-comparator
 description: Verbatim comparison of all test and DSL files between eshop-tests and shop repos
 tools: Bash, Read, Grep, Glob
 ---
