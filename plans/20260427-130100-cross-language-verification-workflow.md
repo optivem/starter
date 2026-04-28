@@ -61,8 +61,7 @@ The cross-lang workflow should refactor to **pull pre-built `sha-<sha>` images**
 **Risk specific to Phase 2:**
 - Cross-lang testing pre-built images means failures could indicate (a) genuine cross-lang behavior drift OR (b) drift between source HEAD and the published image. Minor confusion, manageable via good error messaging in the test summary.
 
-**Pending follow-up:**
-- Wire cross-lang invocation into `meta-prerelease-stage.yml` so it runs after the per-flavor stages succeed. (Not part of this plan — separate workflow-orchestration change.)
+**Meta-prerelease integration (done with Phase 2):** cross-lang is now invoked from `meta-prerelease-stage.yml` as a sibling job to `run`, gated by the same `check` step. Both run in parallel — cross-lang is a regression check and does NOT gate the meta-rc tag (release gating stays with the per-flavor acceptance stages inside `run`). Triggered with `commit-sha: ${{ github.sha }}` so it pulls `sha-<sha>` images for the same commit meta-prerelease is processing.
 
 ## Phase 3 — legacy cross-lang verification (open question, separate workflow)
 

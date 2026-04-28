@@ -24,6 +24,14 @@ on:
         description: 'Git SHA to test (leave empty for latest image)'
         required: false
         type: string
+  workflow_call:
+    # Invoked from meta-prerelease-stage in parallel with the per-flavor pipeline
+    # — see meta-prerelease-stage.yml `cross-lang` job.
+    inputs:
+      commit-sha:
+        description: 'Git SHA to test (leave empty for latest image)'
+        required: false
+        type: string
 
 concurrency:
   group: cross-lang-system-verification
