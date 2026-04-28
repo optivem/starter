@@ -200,43 +200,43 @@ flowchart TD
 
 ## AT - GREEN - SYSTEM Phase Detail
 
+**Notes / Assumptions:**
+- The agent has access to both backend and frontend code and works across the full stack — no silos like a human team. A single COMMIT therefore covers all implementation changes; the workflow does not split backend and frontend into separate commits.
+- When fixing backend or frontend code, do NOT change tests, DSL, or drivers — only the system implementation.
+
 ```mermaid
 flowchart TD
+    ENABLE["ENABLE TESTS: &lt;Ticket&gt; | AT - RED - SYSTEM DRIVER"]
     BACKEND[Implement backend changes]
     RUN_API[Run acceptance tests for API channel]
     API_PASS{API tests pass?}
-    FIX_BACKEND[Fix backend code only - do NOT change tests/dsl/drivers]
+    FIX_BACKEND[Fix backend code only]
     FRONTEND[Implement frontend changes]
     RUN_UI[Run acceptance tests for UI channel]
     UI_PASS{UI tests pass?}
-    FIX_FRONTEND[Fix frontend code only - do NOT change tests/dsl/drivers]
+    FIX_FRONTEND[Fix frontend code only]
     STOP_WRITE[STOP - HUMAN REVIEW — present implementation for approval]
-    COMMIT_SYS["COMMIT: &lt;Scenario&gt; | AT - GREEN - SYSTEM - backend + frontend changes"]
-    REMOVE_DISABLED[Remove disabled annotation reason 'AT - RED - SYSTEM DRIVER']
-    RUN_VERIFY[Run all tests; verify they pass]
-    COMMIT_TESTS["COMMIT: &lt;Scenario&gt; | AT - GREEN - SYSTEM - test changes only"]
+    COMMIT["COMMIT: &lt;Ticket&gt; | AT - GREEN - SYSTEM"]
     GH_TICK[Tick acceptance criterion checkbox; if all ticked move issue to In Review]
-    LOOP_BACK[If remaining // TODO: scenarios, return to AT - RED - TEST - WRITE]
+    STOP_END[STOP - ORCHESTRATOR — phase progression]
 
+    ENABLE --> BACKEND
     BACKEND --> RUN_API
     RUN_API --> API_PASS
+    API_PASS -->|Yes| FRONTEND
     API_PASS -->|No| FIX_BACKEND
     FIX_BACKEND --> RUN_API
-    API_PASS -->|Yes| FRONTEND
     FRONTEND --> RUN_UI
     RUN_UI --> UI_PASS
+    UI_PASS -->|Yes| STOP_WRITE
     UI_PASS -->|No| FIX_FRONTEND
     FIX_FRONTEND --> RUN_UI
-    UI_PASS -->|Yes| STOP_WRITE
-    STOP_WRITE --> COMMIT_SYS
-    COMMIT_SYS --> REMOVE_DISABLED
-    REMOVE_DISABLED --> RUN_VERIFY
-    RUN_VERIFY --> COMMIT_TESTS
-    COMMIT_TESTS --> GH_TICK
-    GH_TICK --> LOOP_BACK
+    STOP_WRITE --> COMMIT
+    COMMIT --> GH_TICK
+    GH_TICK --> STOP_END
 
     classDef effortNode fill:#004085,stroke:#002752,stroke-width:2px,color:#fff
-    class BACKEND,FRONTEND effortNode
+    class BACKEND,FRONTEND,FIX_BACKEND,FIX_FRONTEND effortNode
     classDef humanReviewNode fill:#ffeb3b,stroke:#fbc02d,stroke-width:2px,color:#000
     class STOP_WRITE humanReviewNode
 ```
@@ -257,9 +257,9 @@ flowchart TD
     RETURN[Return to AT cycle - continue with system driver check]
 
     TRIGGER --> EXISTS
+    EXISTS -->|Yes| CT_RED_TEST
     EXISTS -->|No| SMOKE
     SMOKE --> CT_RED_TEST
-    EXISTS -->|Yes| CT_RED_TEST
     CT_RED_TEST --> DSL_CHANGED
     DSL_CHANGED -->|No| CT_GREEN_STUB
     DSL_CHANGED -->|Yes| CT_RED_DSL
