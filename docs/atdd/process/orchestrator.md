@@ -167,6 +167,8 @@ _Triggered when ticket type = system-api-task (System API Driver redesign at the
 
 A System API task changes the System API at the boundary — request/response DTOs, endpoints, status codes, and the like. The System API Driver is updated to match. Driver *interfaces* may grow or change; existing acceptance tests must keep passing through them. Single-driver scope by construction (single-boundary ticket); multi-boundary work is split into multiple coordinated tickets at creation. The cycle ends with a **single COMMIT** covering the driver update.
 
+WRITE and COMMIT mechanics (`SYSTEM API REDESIGN - WRITE` and `SYSTEM API REDESIGN - COMMIT`) live in [`task-and-chore-cycles.md`](task-and-chore-cycles.md).
+
 The system-api-task ticket carries a **checklist of structural change items** in its body; the agent ticks them off as the work is done, and once all are ticked the issue moves to DONE.
 
 ```
@@ -200,6 +202,8 @@ The cycle is governed by the rule that **existing AC must stay green**. There is
 _Triggered when ticket type = system-ui-task (System UI Driver redesign at the system boundary, no change-driven AC, no other boundaries touched)._
 
 A System UI task changes the System UI at the boundary — page structure, form fields, navigation, and the like. The System UI Driver is updated to match. Driver *interfaces* may grow or change; existing acceptance tests must keep passing through them. Single-driver scope by construction (single-boundary ticket); multi-boundary work is split into multiple coordinated tickets at creation. The cycle ends with a **single COMMIT** covering the driver update.
+
+WRITE and COMMIT mechanics (`SYSTEM UI REDESIGN - WRITE` and `SYSTEM UI REDESIGN - COMMIT`) live in [`task-and-chore-cycles.md`](task-and-chore-cycles.md).
 
 The system-ui-task ticket carries a **checklist of structural change items** in its body; the agent ticks them off as the work is done, and once all are ticked the issue moves to DONE.
 
@@ -235,6 +239,8 @@ _Triggered when ticket type = external-api-task (an external system changed its 
 
 An external system updated its API — new version, breaking change, deprecated endpoint, or similar. We update the External System Driver to match the new external surface. The work routes through the **Contract Test Sub-Process** (which itself routes through the **External System Onboarding Sub-Process** if no Driver yet exists). Single-driver scope by construction (single-boundary ticket); multi-boundary work is split into multiple coordinated tickets at creation. After CT completes its four-commit sequence, the Acceptance Stage of the pipeline runs to verify nothing else broke; on red, fix-loop until green.
 
+This cycle has no standalone WRITE / COMMIT phases of its own — all WRITE and COMMIT mechanics live in [`contract-tests.md`](contract-tests.md). See [`task-and-chore-cycles.md`](task-and-chore-cycles.md) for the cross-reference.
+
 The external-api-task ticket carries a **checklist of structural change items** in its body; the agent ticks them off as the work is done, and once all are ticked the issue moves to DONE.
 
 ```
@@ -262,6 +268,8 @@ There is no standalone STOP - HUMAN REVIEW or COMMIT in this cycle — those hap
 _Triggered when ticket type = chore (internal-only structural change, drivers untouched, no change-driven AC)._
 
 A chore changes nothing at the boundary — it's an internal refactor, rename, dependency upgrade, or similar. Drivers (interfaces and implementations) are untouched. The cycle is therefore a single-step implementation followed by review, commit, and Acceptance Stage verify.
+
+WRITE and COMMIT mechanics (`CHORE - WRITE` and `CHORE - COMMIT`) live in [`task-and-chore-cycles.md`](task-and-chore-cycles.md).
 
 The chore ticket carries a **checklist of refactor / upgrade steps** in its body; the agent ticks them off as the work is done, and once all are ticked the issue moves to DONE.
 
