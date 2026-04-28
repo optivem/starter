@@ -6,33 +6,21 @@ name: cross-lang-system-verification
 # are excluded — they are already covered by the per-(arch, lang)
 # acceptance stages.
 #
-# This workflow is purely a regression check. It does NOT tag images,
-# publish git tags, or trigger downstream prerelease pipelines. Failures
-# here surface backend-behavior drift but do not block any release.
+# Reusable workflow only — invoked from `_meta-prerelease-pipeline.yml`
+# (sibling of the `pipeline` job, both `needs: commit`). No standalone
+# triggers: cross-lang resolves `sha-<sha>` images from GHCR that only
+# exist after the per-lang commit stages have run, so a schedule or
+# manual dispatch run could only succeed by accident.
 #
-# Pulls pre-built `sha-<sha>` images from GHCR (same artifacts the per-lang
-# acceptance stages publish). Assumes commit stages have already run and
-# images are published — missing images are an error, not a skip. Inside
-# `_meta-prerelease-pipeline.yml` this is enforced by `needs: commit`; the
-# scheduled / workflow_dispatch entry points assume commit images already
-# exist for the resolved SHA.
+# Inside the pipeline cross-lang IS a release gate — `tag-meta-rc` only
+# fires when both `pipeline` and `cross-lang` settle successfully.
 
 on:
-  schedule:
-    - cron: '0 6 * * *'  # Daily at 06:00 UTC — fallback safety net
-  workflow_dispatch:
-    inputs:
-      commit-sha:
-        description: 'Git SHA to test (leave empty for latest image)'
-        required: false
-        type: string
   workflow_call:
-    # Invoked from meta-prerelease-stage in parallel with the per-flavor pipeline
-    # — see meta-prerelease-stage.yml `cross-lang` job.
     inputs:
       commit-sha:
-        description: 'Git SHA to test (leave empty for latest image)'
-        required: false
+        description: 'Git SHA to test — must point at a SHA whose commit-stage images exist in GHCR.'
+        required: true
         type: string
 
 concurrency:
@@ -40,7 +28,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  COMMIT_SHA: ${{ inputs.commit-sha || github.sha }}
+  COMMIT_SHA: ${{ inputs.commit-sha }}
 
 jobs:
   verify:
@@ -179,7 +167,7 @@ jobs:
         uses: optivem/actions/resolve-docker-image-digests@v1
         with:
           base-image-urls: ${{ matrix.sut-base-image-urls }}
-          tag: ${{ inputs.commit-sha && format('sha-{0}', inputs.commit-sha) || 'latest' }}
+          tag: sha-${{ inputs.commit-sha }}
 
       - name: Compute Endpoint Lists from system.json
         id: endpoints
@@ -273,24 +261,3 @@ jobs:
         # and the matrix entry surfaces red if either is red.
         if: always()
         run: gh optivem test system --no-build --no-start --system docker/${{ matrix.system-lang }}/${{ matrix.arch }}/system.json --tests system-test/${{ matrix.test-lang }}/tests-legacy.json
-
-  summary:
-    # Aggregate headline for the run page. Per-row pass/fail is already visible
-    # in the matrix table — this surfaces the "12/12 green" or "X failed" line at
-    # the top of the run summary without needing to click into individual jobs.
-    name: Cross-lang verification summary
-    runs-on: ubuntu-latest
-    needs: verify
-    if: always()
-    steps:
-      - name: Aggregate result
-        run: |
-          {
-            echo "## Cross-lang system verification"
-            echo ""
-            echo "**Aggregate:** ${{ needs.verify.result }}"
-            echo ""
-            echo "Per-combo pass/fail is visible in the matrix table on this run's page."
-            echo "\`fail-fast\` is disabled — failing combos do not mask others."
-          } >> "$GITHUB_STEP_SUMMARY"
-          [[ "${{ needs.verify.result }}" == "success" ]] || exit 1

@@ -203,7 +203,8 @@ jobs:
           fi
           echo "All artifacts available for current VERSION values across meta + monoliths + components. OK to proceed."
 
-  # Phase 0: Run all local stages in parallel. fail-fast (input, default true) cancels siblings on first failure.
+  # Phase 0/1a: Run all local stages in parallel — independent of `commit` (Phase 1b)
+  # and runs alongside it. fail-fast (input, default true) cancels siblings on first failure.
   local:
     needs: check
     if: ${{ needs.check.outputs.should_run == 'true' && !inputs.skip-local && !inputs.skip-tests }}
@@ -219,10 +220,12 @@ jobs:
           workflow: prerelease-pipeline-${{ matrix.variant }}.yml
           workflow-inputs: '{"level": "local", "skip-commit-stage": "true", "skip-acceptance-legacy": "${{ inputs.skip-acceptance-legacy }}", "commit-sha": "${{ github.sha }}"}'
 
-  # Phase 1: Run all commit stages in parallel (deduplicated — frontend-react is shared
-  # across multitier variants). fail-fast (input, default true) cancels siblings on first failure.
+  # Phase 1b: Run all commit stages in parallel (deduplicated — frontend-react is shared
+  # across multitier variants). Independent of `local` (Phase 1a) — both gate only on `check`
+  # and run concurrently; Phase 2 jobs (`pipeline`, `cross-lang`) wait on both.
+  # fail-fast (input, default true) cancels siblings on first failure.
   commit:
-    needs: local
+    needs: check
     if: ${{ always() && !failure() && !cancelled() && !inputs.skip-tests && !inputs.skip-commit && contains(fromJSON('["commit","acceptance","qa"]'), inputs.level) }}
     strategy:
       fail-fast: ${{ inputs.fail-fast }}
@@ -259,9 +262,11 @@ jobs:
 
   # Phase 2: Run all pipelines in parallel. Each pipeline produces RC tags namespaced
   # by its prefix (e.g. monolith-java-v1.0.0-rc.N), so there are no shared-counter collisions.
+  # Needs both Phase 1 jobs — `local` (parallel with commit) is allowed to be skipped
+  # but must not have failed; `commit` provides the GHCR images this phase consumes.
   # fail-fast (input, default true) cancels siblings on first failure.
   pipeline:
-    needs: commit
+    needs: [local, commit]
     if: ${{ always() && !failure() && !cancelled() && !inputs.skip-tests && contains(fromJSON('["acceptance","qa"]'), inputs.level) }}
     strategy:
       fail-fast: ${{ inputs.fail-fast }}
@@ -277,8 +282,9 @@ jobs:
           workflow-inputs: '{"level": "${{ inputs.level }}", "skip-local-stage": "true", "skip-commit-stage": "true", "skip-acceptance-legacy": "${{ inputs.skip-acceptance-legacy }}", "commit-sha": "${{ github.sha }}"}'
 
   # Cross-language behavior-parity regression check. Runs in parallel with `pipeline`
-  # above — both gate on `commit` because cross-lang pulls the `sha-<sha>` images
-  # that the commit stages publish (resolve-docker-image-digests would 404 otherwise).
+  # above — both need `commit` because cross-lang pulls the `sha-<sha>` images that
+  # the commit stages publish (resolve-docker-image-digests would 404 otherwise), and
+  # `local` is included so a Phase 1 local-stage failure still blocks Phase 2.
   # Pinned to the same SHA so workflow files / system.json / tests config match the
   # commit being verified.
   #
@@ -286,7 +292,7 @@ jobs:
   # against each other; a single-variant run only publishes one SUT image set, so the
   # other matrix entries would 404 on digest resolution.
   cross-lang:
-    needs: commit
+    needs: [local, commit]
     if: ${{ always() && !failure() && !cancelled() && !inputs.skip-tests && inputs.variant == 'all' && contains(fromJSON('["acceptance","qa"]'), inputs.level) }}
     uses: ./.github/workflows/cross-lang-system-verification.yml
     secrets: inherit
