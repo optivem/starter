@@ -89,8 +89,8 @@ jobs:
           attempt_delay: 10000
           with: |
             registry: ghcr.io
-            username: ${{ github.actor }}
-            password: ${{ secrets.GITHUB_TOKEN }}
+            username: ${{ github.repository_owner }}
+            password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Resolve Docker Image Digests
         id: find-latest
@@ -165,8 +165,8 @@ jobs:
           attempt_delay: 10000
           with: |
             registry: ghcr.io
-            username: ${{ github.actor }}
-            password: ${{ secrets.GITHUB_TOKEN }}
+            username: ${{ github.repository_owner }}
+            password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Deploy App to Cloud Run
         id: deploy
@@ -214,8 +214,8 @@ jobs:
           attempt_delay: 10000
           with: |
             registry: ghcr.io
-            username: ${{ github.actor }}
-            password: ${{ secrets.GITHUB_TOKEN }}
+            username: ${{ github.repository_owner }}
+            password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Deploy External Real to Cloud Run
         id: deploy
@@ -259,8 +259,8 @@ jobs:
           attempt_delay: 10000
           with: |
             registry: ghcr.io
-            username: ${{ github.actor }}
-            password: ${{ secrets.GITHUB_TOKEN }}
+            username: ${{ github.repository_owner }}
+            password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Deploy External Stub to Cloud Run
         id: deploy
