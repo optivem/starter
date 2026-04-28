@@ -61,7 +61,7 @@ The cross-lang workflow should refactor to **pull pre-built `sha-<sha>` images**
 **Risk specific to Phase 2:**
 - Cross-lang testing pre-built images means failures could indicate (a) genuine cross-lang behavior drift OR (b) drift between source HEAD and the published image. Minor confusion, manageable via good error messaging in the test summary.
 
-**Meta-prerelease integration (done with Phase 2):** cross-lang is now invoked from `meta-prerelease-stage.yml` as a sibling job to `run`, gated by the same `check` step. Both run in parallel — cross-lang is a regression check and does NOT gate the meta-rc tag (release gating stays with the per-flavor acceptance stages inside `run`). Triggered with `commit-sha: ${{ github.sha }}` so it pulls `sha-<sha>` images for the same commit meta-prerelease is processing.
+**Meta-prerelease integration (done with Phase 2):** cross-lang is invoked from `_meta-prerelease-pipeline.yml` as a sibling job to the per-flavor `pipeline` matrix. Both gate on `commit` (which publishes the `sha-<sha>` images cross-lang pulls). Cross-lang is gated on `variant == 'all'` AND `level in ['acceptance','qa']` AND `!skip-tests` — single-variant runs only publish one SUT image set, so other matrix entries would 404 on digest resolution. Cross-lang failure cascades up: pipeline workflow → `run` job in stage → blocks `tag-meta-rc`. Pinned to `commit-sha: ${{ github.sha }}` so workflow files / system.json / tests config match the commit being verified.
 
 ## Phase 3 — legacy cross-lang verification (folded inline)
 
@@ -96,4 +96,4 @@ End state: **one full workflow run completes with all 12 combos either green or 
 **Achieved:**
 - Phase 1 verified in run [25037183700](https://github.com/optivem/shop/actions/runs/25037183700) — 12/12 green, ~11.5 min wall time (build-from-source).
 - Phase 2 verified in run [25040305391](https://github.com/optivem/shop/actions/runs/25040305391) — 12/12 green, ~11 min wall time (pre-built images; the predicted 5–15 min/entry savings did not materialize because gradle/dotnet/playwright runtime dominates over docker build time).
-- Phase 3 (legacy folded inline) — pending first CI run after this commit.
+- Phase 3 (legacy folded inline) verified in run [25040988575](https://github.com/optivem/shop/actions/runs/25040988575) — 12/12 green, ~20.5 min wall time (latest + legacy sequentially per matrix entry, ~2× Phase 2 as predicted).
