@@ -1,8 +1,8 @@
 # Testkit Architecture Rules
 
-Cross-language rules that apply equally to Java, .NET, and TypeScript in the `system-test/` testkit. Unlike the language-specific exceptions in `compare-tests.md`, these rules are universal — a violation in any language is always a mismatch to flag.
+Cross-language rules that apply equally to Java, .NET, and TypeScript in the `system-test/` testkit. Unlike the language-specific exceptions in `test-comparator.md`, these rules are universal — a violation in any language is always a mismatch to flag.
 
-Referenced by `.claude/agents/compare-tests.md`.
+Referenced by `.claude/agents/test-comparator.md`.
 
 ---
 

@@ -2,7 +2,7 @@
 
 Accepted cross-language differences caused by language idioms or type-system constraints. Do **not** propose aligning them. Do **not** list them as action items in any plan. Do list them under an "Exceptions (known divergences)" subsection of any comparison report so their state remains visible.
 
-Referenced by `.claude/agents/compare-tests.md`.
+Referenced by `.claude/agents/test-comparator.md`.
 
 For cross-language rules that **must** be aligned (as opposed to these accepted divergences), see `testkit-architecture-rules.md`.
 

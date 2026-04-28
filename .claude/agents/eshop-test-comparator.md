@@ -1,5 +1,5 @@
 ---
-name: compare-to-eshop-tests
+name: eshop-test-comparator
 description: Verbatim comparison of system-test files between shop and eshop-tests for a specific language, accounting for structural differences
 tools: Bash, Read, Grep, Glob
 ---
