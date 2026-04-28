@@ -105,8 +105,8 @@ flowchart TD
     EXTEND_DSL["Change DSL interfaces; implement DSL stubs (throw 'TODO: DSL')"]
     STOP_DSL[STOP - HUMAN REVIEW — review DSL changes and stubs for approval]
     RUN_FAIL[Run tests; verify runtime failure]
-    DISABLE_ALL[Mark all tests disabled with reason 'AT - RED - TEST']
-    COMMIT["COMMIT: Ticket | AT - RED - TEST"]
+    DISABLE_ALL["DISABLE TESTS: &lt;Ticket&gt; | AT - RED - TEST"]
+    COMMIT["COMMIT: &lt;Ticket&gt; | AT - RED - TEST"]
     STOP_END[STOP - ORCHESTRATOR — phase progression]
 
     WRITE --> STOP_WRITE_TESTS
@@ -130,7 +130,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    ENABLE[Enable tests disabled with reason 'AT - RED - TEST']
+    ENABLE["ENABLE TESTS: &lt;Ticket&gt; | AT - RED - TEST"]
     IMPL_DSL[Implement DSL for real - replace 'TODO: DSL' stub]
     UPDATE_DRIVER_IFACE[Update Driver interfaces as needed]
     CHECK_EXT[Set flag: External System Driver Interface Changed = yes/no]
@@ -138,9 +138,9 @@ flowchart TD
     STOP_WRITE[STOP - HUMAN REVIEW — present DSL, Driver changes, both flags for approval]
     IMPL_DRIVERS_STUB[Implement Drivers by throwing 'TODO: Driver']
     RUN_RUNTIME[Run tests; verify runtime failure]
-    DISABLE[Mark tests disabled with reason 'AT - RED - DSL']
+    DISABLE["DISABLE TESTS: &lt;Scenario&gt; | AT - RED - DSL"]
     NO_TEST_FILES[Ensure no test files in changed files list]
-    COMMIT["COMMIT: Scenario | AT - RED - DSL"]
+    COMMIT["COMMIT: &lt;Scenario&gt; | AT - RED - DSL"]
     GH_COMMENT[If issue number provided, post DSL changes summary on issue]
     PROCEED[Proceed to AT - RED - SYSTEM DRIVER - WRITE]
 
@@ -167,15 +167,15 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    ENABLE[Enable tests disabled with reason 'AT - RED - DSL']
+    ENABLE["ENABLE TESTS: &lt;Scenario&gt; | AT - RED - DSL"]
     IMPL[Implement Drivers under shop/ - replace 'TODO: Driver' stub]
     NOTE_EXTERNAL[Do NOT implement drivers under external/ - handled by CT sub-process]
     NOTE_NO_SOURCE[Do NOT read backend/frontend source - model on existing driver methods]
     RUN[Run tests; verify runtime failure]
     STOP_WRITE[STOP - HUMAN REVIEW — present Driver implementation for approval]
-    DISABLE[Mark tests disabled with reason 'AT - RED - SYSTEM DRIVER']
+    DISABLE["DISABLE TESTS: &lt;Scenario&gt; | AT - RED - SYSTEM DRIVER"]
     NO_TEST_FILES[Ensure no test files in changed files]
-    COMMIT["COMMIT: Scenario | AT - RED - SYSTEM DRIVER"]
+    COMMIT["COMMIT: &lt;Scenario&gt; | AT - RED - SYSTEM DRIVER"]
     GH_COMMENT[If issue number provided, post Driver changes summary on issue]
     STOP_END[STOP - ORCHESTRATOR — phase progression]
 
@@ -209,10 +209,10 @@ flowchart TD
     UI_PASS{UI tests pass?}
     FIX_FRONTEND[Fix frontend code only - do NOT change tests/dsl/drivers]
     STOP_WRITE[STOP - HUMAN REVIEW — present implementation for approval]
-    COMMIT_SYS["COMMIT: Scenario | AT - GREEN - SYSTEM - backend + frontend changes"]
+    COMMIT_SYS["COMMIT: &lt;Scenario&gt; | AT - GREEN - SYSTEM - backend + frontend changes"]
     REMOVE_DISABLED[Remove disabled annotation reason 'AT - RED - SYSTEM DRIVER']
     RUN_VERIFY[Run all tests; verify they pass]
-    COMMIT_TESTS["COMMIT: Scenario | AT - GREEN - SYSTEM - test changes only"]
+    COMMIT_TESTS["COMMIT: &lt;Scenario&gt; | AT - GREEN - SYSTEM - test changes only"]
     GH_TICK[Tick acceptance criterion checkbox; if all ticked move issue to In Review]
     LOOP_BACK[If remaining // TODO: scenarios, return to AT - RED - TEST - WRITE]
 
@@ -278,12 +278,12 @@ flowchart TD
     ASK_USER[Ask user for support; STOP]
     RUN_STUB[Run against Stub External System]
     STUB_FAIL{Tests fail?}
-    DISABLE[Mark tests disabled with reason 'CT - RED - TEST']
+    DISABLE["DISABLE TESTS: &lt;Scenario&gt; | CT - RED - TEST"]
     STOP_WRITE[STOP - HUMAN REVIEW — present contract tests for approval]
     HAS_COMPILE_ERR{Compile-time errors in WRITE?}
     EXTEND_DSL["Extend DSL interfaces with new methods; implement DSL stubs (throw 'TODO: DSL')"]
     RUN_RUNTIME[Run tests; verify runtime failure]
-    COMMIT["COMMIT: Scenario | CT - RED - TEST"]
+    COMMIT["COMMIT: &lt;Scenario&gt; | CT - RED - TEST"]
     STOP_END[STOP - ORCHESTRATOR — phase progression]
 
     WRITE --> RUN_REAL
@@ -311,15 +311,15 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    ENABLE[Enable tests disabled with reason 'CT - RED - TEST']
+    ENABLE["ENABLE TESTS: &lt;Scenario&gt; | CT - RED - TEST"]
     IMPL_DSL[Implement DSL for real - replace 'TODO: DSL' stub]
     UPDATE_DRIVER_IFACE[Update Driver interfaces as needed]
     CHECK_EXT[Set flag: External System Driver Interface Changed = yes/no - no recursive triggering]
     STOP_WRITE[STOP - HUMAN REVIEW — present DSL, Driver changes, flag for approval]
     IMPL_DRIVERS_STUB[Implement Drivers by throwing 'TODO: Driver']
     RUN_RUNTIME[Run tests against suite-contract-stub; verify runtime failure]
-    DISABLE[Mark tests disabled with reason 'CT - RED - DSL']
-    COMMIT["COMMIT: Scenario | CT - RED - DSL"]
+    DISABLE["DISABLE TESTS: &lt;Scenario&gt; | CT - RED - DSL"]
+    COMMIT["COMMIT: &lt;Scenario&gt; | CT - RED - DSL"]
     GH_COMMENT[If issue number provided, post DSL changes summary on issue]
     PROCEED[Proceed to CT - RED - EXTERNAL DRIVER - WRITE]
 
@@ -344,12 +344,12 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    ENABLE[Enable tests disabled with reason 'CT - RED - DSL']
+    ENABLE["ENABLE TESTS: &lt;Scenario&gt; | CT - RED - DSL"]
     IMPL[Implement Drivers under external/ only - replace 'TODO: Driver' stub]
     RUN[Run tests; verify runtime failure]
     STOP_WRITE[STOP - HUMAN REVIEW — present Driver implementation for approval]
-    DISABLE[Mark tests disabled with reason 'CT - RED - EXTERNAL DRIVER']
-    COMMIT["COMMIT: Scenario | CT - RED - EXTERNAL DRIVER"]
+    DISABLE["DISABLE TESTS: &lt;Scenario&gt; | CT - RED - EXTERNAL DRIVER"]
+    COMMIT["COMMIT: &lt;Scenario&gt; | CT - RED - EXTERNAL DRIVER"]
     GH_COMMENT[If issue number provided, post Driver changes summary on issue]
     STOP_END[STOP - ORCHESTRATOR — phase progression]
 
@@ -371,7 +371,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    ENABLE[Enable tests disabled with reason 'CT - RED - EXTERNAL DRIVER']
+    ENABLE["ENABLE TESTS: &lt;Scenario&gt; | CT - RED - EXTERNAL DRIVER"]
     IMPL_STUBS[Implement External System Stubs]
     RUN[Run External System Contract Tests against suite-contract-stub]
     PASS{Tests pass?}
@@ -379,7 +379,7 @@ flowchart TD
     STOP_WRITE[STOP - HUMAN REVIEW — present stub implementation for approval]
     REMOVE_DISABLED[Remove disabled annotation reason 'CT - RED - EXTERNAL DRIVER']
     RUN_VERIFY[Run tests; verify they pass]
-    COMMIT["COMMIT: Scenario | CT - GREEN - STUBS"]
+    COMMIT["COMMIT: &lt;Scenario&gt; | CT - GREEN - STUBS"]
     STOP_END[STOP - ORCHESTRATOR — phase progression]
 
     ENABLE --> IMPL_STUBS
