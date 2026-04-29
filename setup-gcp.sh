@@ -34,18 +34,26 @@ else
   echo "  ✅ terraform CLI found"
 fi
 
-if ! gh auth status &> /dev/null; then
+gh_auth_err=$(gh auth status 2>&1) && gh_auth_ok=1 || gh_auth_ok=0
+if (( gh_auth_ok == 0 )); then
   echo "❌ Not authenticated to GitHub. Run: gh auth login"
+  echo "    gh auth status output: $gh_auth_err"
   PREREQ_OK=false
 else
   echo "  ✅ GitHub authenticated"
 fi
 
-if ! gcloud auth list --filter=status:ACTIVE --format="value(account)" 2>/dev/null | grep -q .; then
+gcloud_active=$(gcloud auth list --filter=status:ACTIVE --format="value(account)") || {
+  rc=$?
+  echo "❌ 'gcloud auth list' failed (exit $rc) — see stderr above. Run: gcloud auth login"
+  PREREQ_OK=false
+  gcloud_active=""
+}
+if [[ -z "${gcloud_active:-}" ]] && [[ "$PREREQ_OK" == "true" ]]; then
   echo "❌ Not authenticated to Google Cloud. Run: gcloud auth login"
   PREREQ_OK=false
-else
-  GCP_ACCOUNT=$(gcloud auth list --filter=status:ACTIVE --format="value(account)" 2>/dev/null | head -1)
+elif [[ -n "${gcloud_active:-}" ]]; then
+  GCP_ACCOUNT=$(echo "$gcloud_active" | head -1)
   echo "  ✅ Google Cloud authenticated as: $GCP_ACCOUNT"
 fi
 
@@ -64,7 +72,11 @@ echo ""
 
 # Get or prompt for billing account
 echo "Checking GCP billing account..."
-BILLING_ACCOUNT=$(gcloud billing accounts list --format="value(name)" --limit=1 2>/dev/null || true)
+BILLING_ACCOUNT=$(gcloud billing accounts list --format="value(name)" --limit=1) || {
+  rc=$?
+  echo "❌ 'gcloud billing accounts list' failed (exit $rc) — see stderr above" >&2
+  exit "$rc"
+}
 
 if [[ -z "$BILLING_ACCOUNT" ]]; then
   echo "❌ No active billing account found."
