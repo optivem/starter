@@ -167,7 +167,7 @@ jobs:
         run: |
           set -euo pipefail
           source "$GITHUB_WORKSPACE/.github/workflows/scripts/gh-retry.sh"
-          # Default mode: require a successful `qa/signoff` Check Run on the rc (QA gate).
+          # Default mode: require a successful `qa/signoff` commit-status on the rc (QA gate).
           # skip-qa mode: accept the latest <flavor>-v<VERSION>-rc.<N> regardless of QA verdict.
           # The strict regex on rc tags excludes any legacy status-suffix tags
           # (-qa-approved, -qa-deployed, etc.) that may still be in the repo from before
@@ -190,14 +190,14 @@ jobs:
             else
               for tag in "${rc_tags[@]}"; do
                 sha=$(git rev-parse "${tag}^{}" 2>/dev/null || git rev-parse "${tag}")
-                approved=$(gh_retry api "repos/${REPO}/commits/${sha}/check-runs?check_name=qa%2Fsignoff&per_page=100" \
-                  --jq '[.check_runs[]? | select(.conclusion=="success")] | length')
+                statuses=$(gh_retry api "repos/${REPO}/commits/${sha}/statuses" --paginate)
+                approved=$(echo "$statuses" | jq '[.[] | select(.context=="qa/signoff" and .state=="success")] | length')
                 if [[ "${approved:-0}" -gt 0 ]]; then
                   rc="${tag}"
                   break
                 fi
               done
-              missing="No QA-approved RC (qa/signoff Check Run with conclusion=success) found for ${flavor} at v${VERSION}. Was the acceptance pipeline run to completion and qa-signoff dispatched? (Re-dispatch with skip-qa=true to bypass the QA gate and use the latest unapproved RC.)"
+              missing="No QA-approved RC (qa/signoff commit-status with state=success) found for ${flavor} at v${VERSION}. Was the acceptance pipeline run to completion and qa-signoff dispatched? (Re-dispatch with skip-qa=true to bypass the QA gate and use the latest unapproved RC.)"
             fi
             if [[ -z "$rc" ]]; then
               echo "::error::${missing}"

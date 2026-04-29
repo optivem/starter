@@ -18,7 +18,7 @@ jobs:
     permissions:
       contents: read
     outputs:
-      version: ${{ inputs.version || steps.resolve-latest.outputs.base-tag }}
+      version: ${{ inputs.version || steps.resolve-latest.outputs.tag }}
       image-urls: ${{ steps.resolve-images.outputs.image-urls }}
     steps:
       - name: Ensure Environment Variables Defined
@@ -42,10 +42,10 @@ jobs:
       - name: Resolve Latest QA-Approved RC
         id: resolve-latest
         if: inputs.version == ''
-        uses: optivem/actions/resolve-latest-prerelease-with-check@v1
+        uses: optivem/actions/resolve-latest-prerelease-with-status@v1
         with:
           tag-prefix: monolith-typescript-v
-          check-name: qa/signoff
+          status-context: qa/signoff
           token: ${{ secrets.WORKFLOW_TOKEN }}
 
       - name: Check RC Exists
@@ -55,18 +55,29 @@ jobs:
           tag: ${{ inputs.version }}
 
       - name: Check QA Approved
+        id: qa-status
         if: inputs.version != ''
-        uses: optivem/actions/check-run-exists@v1
+        uses: optivem/actions/get-commit-status@v1
         with:
-          ref: ${{ inputs.version }}
-          check-name: qa/signoff
+          commit-sha: ${{ inputs.version }}
+          context: qa/signoff
+          state: success
           token: ${{ secrets.WORKFLOW_TOKEN }}
+
+      - name: Verify QA Approved
+        if: inputs.version != '' && steps.qa-status.outputs.state != 'success'
+        shell: bash
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          echo "::error::Version $VERSION has no successful qa/signoff commit-status. Cannot deploy to production."
+          exit 1
 
       - name: Generate Release Version
         id: release-version
         uses: optivem/actions/compose-release-version@v1
         with:
-          prerelease-version: ${{ inputs.version || steps.resolve-latest.outputs.base-tag }}
+          prerelease-version: ${{ inputs.version || steps.resolve-latest.outputs.tag }}
 
       - name: Check System Release Already Published
         id: check-release-tag
@@ -87,7 +98,7 @@ jobs:
         id: resolve-images
         uses: optivem/actions/compose-docker-image-urls@v1
         with:
-          tag: ${{ inputs.version || steps.resolve-latest.outputs.base-tag }}
+          tag: ${{ inputs.version || steps.resolve-latest.outputs.tag }}
           base-image-urls: |
             ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/monolith-system-typescript
 
