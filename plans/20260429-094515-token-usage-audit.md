@@ -11,8 +11,7 @@ The two open audit plans (`plans/20260429-094515-token-usage-audit.md` + `plans/
 **(A) Cross-cutting design decisions** — each unblocks multiple plan items:
 
 1. Who owns `CT - GREEN - STUBS`? Create `atdd-stub`, fold into `atdd-driver`, or fold into `atdd-test`? (process-audit **NDC #1**)
-2. `<Ticket>` vs `<Scenario>` in CT commit messages — does CT batch per ticket or loop per scenario? (process-audit **NDC #5** + deferred process-rule-change **#10**)
-3. Dangling TODO at `at-green-system.md:36` — delete or fill with the legacy-handling rule (token-usage **stale #2** + process-audit deferred **#9**)
+2. `<Ticket>` vs `<Scenario>` in CT commit messages — does CT batch per ticket or loop per scenario? (process-audit **NDC #4** + deferred process-rule-change **#10**)
 
 **Recommended order:** any. The remaining items are independent — pick whichever you want to resolve next.
 
@@ -66,15 +65,4 @@ The two open audit plans (`plans/20260429-094515-token-usage-audit.md` + `plans/
 **Question for the user:** `dsl-port.md` is a 36-line doc covering Fluent Interface, with*() signatures, Stage Transitions, Then Generics, ThenResultStage, No-arg Assertion Variants. Is this content load-bearing for human readers (browsing the docs site)? If yes, leave as-is — it's not waste, it's reference material. If no, consider whether to (a) merge it into `dsl-core.md` (which is currently `@include`d by 2 agents), or (b) keep it as documentation-only and exclude it from agent context (already excluded — no action needed).
 
 **Recommendation:** Likely "reference-only, leave as-is" — it documents the DSL port shape for human readers and the `architecture-sync` agent reads it as input when comparing code to docs. No token cost as no agent `@include`s it.
-
----
-
-### 2. [at-green-system.md] Stale TODO at end of file
-
-**Evidence:**
-- `docs/atdd/process/at-green-system.md:36` reads: `# TODO: VJ: Need to add insutrctions regarding handling legacy code...`
-- The doc is `@include`d by `atdd-backend.md`, `atdd-frontend.md`, `atdd-release.md` (3 agents).
-- The line is an author note for a future addition, not operational content. It also contains a typo ("insutrctions").
-
-**Question for the user:** Delete the line (3 line-equivalents per ticket saved across the three agents)? Or replace with the intended legacy-handling rule (if you have it ready)? Or leave it as a visible reminder?
 

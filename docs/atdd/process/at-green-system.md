@@ -32,5 +32,6 @@
 2. If a GitHub issue was provided as input, tick the checkbox for each acceptance criterion completed by this ticket.
 3. If all acceptance criteria in the issue are now ticked, and the issue belongs to a GitHub project, move the issue to the **DONE** status in that project.
 
+## Legacy Coverage
 
-# TODO: VJ: Need to add insutrctions regarding handling legacy code...
+Legacy Coverage handling is defined in the Legacy Coverage Cycle (TBD). Behavioral AC and legacy-coverage AC are written into the same test class with the ordering rule from `at-red-test.md` step 1, and AT - GREEN - SYSTEM does not differentiate between them — when all tests are green the cycle ends.
