@@ -32,11 +32,11 @@ After STOP, two **orthogonal gates** are evaluated per ticket:
 
 **Order when both gates fire: Legacy Coverage Cycle first, then AT Cycle.** Rationale: fill the coverage gap before piling new behavior on top.
 
-The full per-ticket flow is captured by the table below. The combinatorics are: **{6 ticket types} × {Legacy Coverage section: yes/no}** = **12 flows**, all of which collapse to the rule "Legacy Coverage Cycle first (if present), then the type-specific cycle, then DONE."
+The full per-ticket flow is captured by the table below. The combinatorics are: **{6 ticket types} × {Legacy Coverage section: yes/no}** = **12 flows**, all of which collapse to the rule "Legacy Coverage Cycle first (if present), then the type-specific cycle, then **TICKET STATUS - IN ACCEPTANCE**."
 
-The three Task Cycles and the Chore Cycle are all governed by the rule that **existing AC must stay green**; the **Acceptance Stage** of the CI pipeline at the end of each cycle is the verifier.[^green]
+The three Task Cycles and the Chore Cycle are all governed by the rule that **existing AC must stay green** locally before the final ticket commit. After that commit the ticket enters **TICKET STATUS - IN ACCEPTANCE** and the agent stops — see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md). Agents are CI-unaware.[^green]
 
-[^green]: "Existing AC must stay green" + "Acceptance Stage is the verifier" — referenced from each structural-cycle row in the table below as `[^green]`.
+[^green]: "Existing AC must stay green" — verified locally via sample-suite runs before the final commit, per `CLAUDE.md`. CI's Acceptance Stage runs the full suite afterwards but is human-watched, not agent-watched. Referenced from each structural-cycle row in the table below as `[^green]`.
 
 **Output asymmetry — change-driven AC vs legacy-coverage AC.** The two artifact streams are produced under different rules:
 
@@ -82,6 +82,9 @@ AT - RED - SYSTEM DRIVER
     │
     ▼
 AT - GREEN - SYSTEM
+    │
+    ▼
+TICKET STATUS - IN ACCEPTANCE (see shared-ticket-status-in-acceptance.md)
 ```
 
 ### Decision criteria
@@ -172,16 +175,10 @@ STOP - HUMAN REVIEW (present implementation for approval)
 COMMIT: <Ticket> | <PHASE> where PHASE ∈ {SYSTEM API REDESIGN, SYSTEM UI REDESIGN, CHORE}
     │
     ▼
-Wait for Pipeline - Acceptance Stage
-    │
-    ├── Acceptance Stage passes? ──── Yes ──→ Tick checklist items; if all ticked move issue to DONE ──→ Mark Ticket DONE ──→ DONE
-    │
-    No
-    ▼
-Fix breakage ──→ Wait for Pipeline - Acceptance Stage (loop until green)
+TICKET STATUS - IN ACCEPTANCE (see shared-ticket-status-in-acceptance.md)
 ```
 
-All three are governed by the rule that **existing AC must stay green**.[^green] There is no per-scenario RED/GREEN (no change-driven AC is produced); the **Acceptance Stage** of the CI pipeline runs the existing acceptance, contract, and unit suites against the changed code; a red stage routes back through Fix → Wait until green.
+All three are governed by the rule that **existing AC must stay green** locally before the final ticket commit.[^green] There is no per-scenario RED/GREEN (no change-driven AC is produced); the sample suite runs locally before the COMMIT to verify the change. The post-commit CI Acceptance Stage is human-watched, not agent-watched — see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md).
 
 The External API Task Cycle is structurally similar but routes through the Contract Test Sub-Process instead of a direct Implement → Review → COMMIT step; see "External API Task Cycle" below.
 
@@ -195,7 +192,7 @@ A System API task changes the System API at the boundary — request/response DT
 
 WRITE and COMMIT mechanics (`SYSTEM API REDESIGN - WRITE` and the shared structural-cycle COMMIT with phase suffix `SYSTEM API REDESIGN`) live in [`task-and-chore-cycles.md`](task-and-chore-cycles.md). Flow: see **Structural Cycle Flow (shared)** above.
 
-The system-api-task ticket carries a **checklist of structural change items** in its body; the agent ticks them off as the work is done, and once all are ticked the issue moves to DONE.
+The system-api-task ticket carries a **checklist of structural change items** in its body; the agent ticks them off as the work is done, and on the final ticket commit moves the issue to **IN ACCEPTANCE** (see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md)).
 
 ---
 
@@ -207,7 +204,7 @@ A System UI task changes the System UI at the boundary — page structure, form 
 
 WRITE and COMMIT mechanics (`SYSTEM UI REDESIGN - WRITE` and the shared structural-cycle COMMIT with phase suffix `SYSTEM UI REDESIGN`) live in [`task-and-chore-cycles.md`](task-and-chore-cycles.md). Flow: see **Structural Cycle Flow (shared)** above.
 
-The system-ui-task ticket carries a **checklist of structural change items** in its body; the agent ticks them off as the work is done, and once all are ticked the issue moves to DONE.
+The system-ui-task ticket carries a **checklist of structural change items** in its body; the agent ticks them off as the work is done, and on the final ticket commit moves the issue to **IN ACCEPTANCE** (see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md)).
 
 ---
 
@@ -215,11 +212,11 @@ The system-ui-task ticket carries a **checklist of structural change items** in 
 
 _Triggered when ticket type = external-api-task (an external system changed its API; we are reacting to a third-party change, no change-driven AC of our own)._
 
-An external system updated its API — new version, breaking change, deprecated endpoint, or similar. We update the External System Driver to match the new external surface. The work routes through the **Contract Test Sub-Process** (which itself routes through the **External System Onboarding Sub-Process** if no Driver yet exists). Single-driver scope by construction (single-boundary ticket); multi-boundary work is split into multiple coordinated tickets at creation. After CT completes its four-commit sequence, the Acceptance Stage of the pipeline runs to verify nothing else broke; on red, fix-loop until green.
+An external system updated its API — new version, breaking change, deprecated endpoint, or similar. We update the External System Driver to match the new external surface. The work routes through the **Contract Test Sub-Process** (which itself routes through the **External System Onboarding Sub-Process** if no Driver yet exists). Single-driver scope by construction (single-boundary ticket); multi-boundary work is split into multiple coordinated tickets at creation. After CT completes its four-commit sequence, the ticket enters **TICKET STATUS - IN ACCEPTANCE** — see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md).
 
 This cycle has no standalone WRITE / COMMIT phases of its own — all WRITE and COMMIT mechanics live in the per-phase CT docs (`ct-red-test.md`, `ct-red-dsl.md`, `ct-red-external-driver.md`, `ct-green-stubs.md`) plus `ct-cycle-conventions.md`. See [`task-and-chore-cycles.md`](task-and-chore-cycles.md) for the cross-reference.
 
-The external-api-task ticket carries a **checklist of structural change items** in its body; the agent ticks them off as the work is done, and once all are ticked the issue moves to DONE.
+The external-api-task ticket carries a **checklist of structural change items** in its body; the agent ticks them off as the work is done, and on the final ticket commit moves the issue to **IN ACCEPTANCE** (see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md)).
 
 ```
 Triggered: ticket type = external-api-task
@@ -228,16 +225,10 @@ Triggered: ticket type = external-api-task
 Contract Test Sub-Process (see above)
     │
     ▼
-Wait for Pipeline - Acceptance Stage
-    │
-    ├── Acceptance Stage passes? ──── Yes ──→ Tick checklist items; if all ticked move issue to DONE ──→ Mark Ticket DONE ──→ DONE
-    │
-    No
-    ▼
-Fix breakage ──→ Wait for Pipeline - Acceptance Stage (loop until green)
+TICKET STATUS - IN ACCEPTANCE (see shared-ticket-status-in-acceptance.md)
 ```
 
-There is no standalone STOP - HUMAN REVIEW or COMMIT in this cycle — those happen inside the Contract Test Sub-Process (which has its own per-phase STOPs and four-commit sequence). The cycle is governed by the rule that **existing AC must stay green**; the verifier is the **Acceptance Stage** of the CI pipeline, which runs the existing acceptance, contract, and unit suites against the changed driver code. A red Acceptance Stage routes back through Fix → Wait until green.
+There is no standalone STOP - HUMAN REVIEW or COMMIT in this cycle — those happen inside the Contract Test Sub-Process (which has its own per-phase STOPs and four-commit sequence). The cycle is governed by the rule that **existing AC must stay green** locally; the sample suite runs locally as part of CT's COMMIT steps. The post-commit CI Acceptance Stage is human-watched, not agent-watched — see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md).
 
 ---
 
@@ -245,11 +236,11 @@ There is no standalone STOP - HUMAN REVIEW or COMMIT in this cycle — those hap
 
 _Triggered when ticket type = chore (internal-only structural change, drivers untouched, no change-driven AC)._
 
-A chore changes nothing at the boundary — it's an internal refactor, rename, dependency upgrade, or similar. Drivers (interfaces and implementations) are untouched. The cycle is therefore a single-step implementation followed by review, commit, and Acceptance Stage verify.
+A chore changes nothing at the boundary — it's an internal refactor, rename, dependency upgrade, or similar. Drivers (interfaces and implementations) are untouched. The cycle is therefore a single-step implementation followed by review, commit, and the move to **TICKET STATUS - IN ACCEPTANCE**.
 
 WRITE and COMMIT mechanics (`CHORE - WRITE` and the shared structural-cycle COMMIT with phase suffix `CHORE`) live in [`task-and-chore-cycles.md`](task-and-chore-cycles.md). Flow: see **Structural Cycle Flow (shared)** above.
 
-The chore ticket carries a **checklist of refactor / upgrade steps** in its body; the agent ticks them off as the work is done, and once all are ticked the issue moves to DONE.
+The chore ticket carries a **checklist of refactor / upgrade steps** in its body; the agent ticks them off as the work is done, and on the final ticket commit moves the issue to **IN ACCEPTANCE** (see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md)).
 
 ---
 
@@ -268,7 +259,7 @@ The chore ticket carries a **checklist of refactor / upgrade steps** in its body
 | AT - RED - SYSTEM DRIVER | `atdd-driver` | System Drivers only (`shop/`). WRITE = STOP, COMMIT = commit. |
 | AT - GREEN - SYSTEM (backend) | `atdd-backend` | Implements backend changes for API channel. |
 | AT - GREEN - SYSTEM (frontend) | `atdd-frontend` | Implements frontend changes for UI channel. |
-| AT - GREEN - SYSTEM (commit + close) | `atdd-release` | Removes `@Disabled`, COMMITs the final GREEN, ticks AC checkboxes, moves the issue to DONE. |
+| AT - GREEN - SYSTEM (commit + close) | `atdd-release` | Removes `@Disabled`, COMMITs the final GREEN, ticks AC checkboxes, moves the issue to **IN ACCEPTANCE** (see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md)). |
 | CT - RED - TEST | `atdd-test` | WRITE = STOP, COMMIT = commit + push |
 | CT - RED - DSL | `atdd-dsl` | WRITE = STOP, COMMIT = commit + push |
 | CT - RED - EXTERNAL DRIVER | `atdd-driver` | External Drivers only (`external/`). WRITE = STOP, COMMIT = commit + push. |

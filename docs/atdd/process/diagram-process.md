@@ -18,6 +18,7 @@
 - `docs/atdd/process/glossary.md`
 - `docs/atdd/process/shared-commit-confirmation.md`
 - `docs/atdd/process/shared-phase-progression.md`
+- `docs/atdd/process/shared-ticket-status-in-acceptance.md`
 - `docs/atdd/process/task-and-chore-cycles.md`
 
 ## Overview
@@ -33,7 +34,7 @@ flowchart TD
     SYS_UI[System UI Task Cycle — see § System UI Task Cycle]
     EXT_API[External API Task Cycle — see § External API Task Cycle]
     CHORE[Chore Cycle — see § Chore Cycle]
-    DONE[DONE]
+    IN_ACCEPTANCE[TICKET STATUS - IN ACCEPTANCE — see shared-ticket-status-in-acceptance.md]
 
     INTAKE --> LEGACY
     INTAKE --> AT
@@ -49,11 +50,11 @@ flowchart TD
     AT --> CT
     EXT_API --> CT
     CT --> ONBOARD
-    AT --> DONE
-    SYS_API --> DONE
-    SYS_UI --> DONE
-    EXT_API --> DONE
-    CHORE --> DONE
+    AT --> IN_ACCEPTANCE
+    SYS_API --> IN_ACCEPTANCE
+    SYS_UI --> IN_ACCEPTANCE
+    EXT_API --> IN_ACCEPTANCE
+    CHORE --> IN_ACCEPTANCE
 ```
 
 ## Intake
@@ -121,7 +122,7 @@ flowchart TD
     GATE_SYS{System Driver Interface Changed?}
     AT_RED_SYS_DRIVER[AT - RED - SYSTEM DRIVER]
     AT_GREEN_SYSTEM[AT - GREEN - SYSTEM]
-    DONE[DONE]
+    IN_ACCEPTANCE[TICKET STATUS - IN ACCEPTANCE — see shared-ticket-status-in-acceptance.md]
 
     AT_RED_TEST --> GATE_DSL
     GATE_DSL -->|No| AT_GREEN_SYSTEM
@@ -133,7 +134,7 @@ flowchart TD
     GATE_SYS -->|No| AT_GREEN_SYSTEM
     GATE_SYS -->|Yes| AT_RED_SYS_DRIVER
     AT_RED_SYS_DRIVER --> AT_GREEN_SYSTEM
-    AT_GREEN_SYSTEM --> DONE
+    AT_GREEN_SYSTEM --> IN_ACCEPTANCE
 ```
 
 ## Contract Test Sub-Process
@@ -224,24 +225,12 @@ flowchart TD
     UPDATE[Update System API Driver interface and impl]
     STOP_REVIEW[STOP - HUMAN REVIEW — present driver changes]
     COMMIT[COMMIT — Ticket SYSTEM API REDESIGN]
-    WAIT[Wait for Pipeline - Acceptance Stage]
-    GATE{Acceptance Stage passes?}
-    FIX[Fix breakage]
-    TICK[Tick checklist items]
-    GATE_DONE{All ticked?}
-    DONE[Mark Ticket DONE]
+    IN_ACCEPTANCE[TICKET STATUS - IN ACCEPTANCE — see shared-ticket-status-in-acceptance.md]
 
     TRIGGER --> UPDATE
     UPDATE --> STOP_REVIEW
     STOP_REVIEW --> COMMIT
-    COMMIT --> WAIT
-    WAIT --> GATE
-    GATE -->|No| FIX
-    FIX --> WAIT
-    GATE -->|Yes| TICK
-    TICK --> GATE_DONE
-    GATE_DONE -->|No| WAIT
-    GATE_DONE -->|Yes| DONE
+    COMMIT --> IN_ACCEPTANCE
 ```
 
 ## System UI Task Cycle
@@ -254,24 +243,12 @@ flowchart TD
     UPDATE[Update System UI Driver interface and impl]
     STOP_REVIEW[STOP - HUMAN REVIEW — present driver changes]
     COMMIT[COMMIT — Ticket SYSTEM UI REDESIGN]
-    WAIT[Wait for Pipeline - Acceptance Stage]
-    GATE{Acceptance Stage passes?}
-    FIX[Fix breakage]
-    TICK[Tick checklist items]
-    GATE_DONE{All ticked?}
-    DONE[Mark Ticket DONE]
+    IN_ACCEPTANCE[TICKET STATUS - IN ACCEPTANCE — see shared-ticket-status-in-acceptance.md]
 
     TRIGGER --> UPDATE
     UPDATE --> STOP_REVIEW
     STOP_REVIEW --> COMMIT
-    COMMIT --> WAIT
-    WAIT --> GATE
-    GATE -->|No| FIX
-    FIX --> WAIT
-    GATE -->|Yes| TICK
-    TICK --> GATE_DONE
-    GATE_DONE -->|No| WAIT
-    GATE_DONE -->|Yes| DONE
+    COMMIT --> IN_ACCEPTANCE
 ```
 
 ## External API Task Cycle
@@ -280,22 +257,10 @@ flowchart TD
 flowchart TD
     TRIGGER[Triggered ticket type external-api-task]
     CT[Contract Test Sub-Process — see § Contract Test Sub-Process]
-    WAIT[Wait for Pipeline - Acceptance Stage]
-    GATE{Acceptance Stage passes?}
-    FIX[Fix breakage]
-    TICK[Tick checklist items]
-    GATE_DONE{All ticked?}
-    DONE[Mark Ticket DONE]
+    IN_ACCEPTANCE[TICKET STATUS - IN ACCEPTANCE — see shared-ticket-status-in-acceptance.md]
 
     TRIGGER --> CT
-    CT --> WAIT
-    WAIT --> GATE
-    GATE -->|No| FIX
-    FIX --> WAIT
-    GATE -->|Yes| TICK
-    TICK --> GATE_DONE
-    GATE_DONE -->|No| WAIT
-    GATE_DONE -->|Yes| DONE
+    CT --> IN_ACCEPTANCE
 ```
 
 ## Chore Cycle
@@ -308,22 +273,10 @@ flowchart TD
     IMPL[Implement chore refactor upgrade rename]
     STOP_REVIEW[STOP - HUMAN REVIEW — present implementation]
     COMMIT[COMMIT — Ticket CHORE]
-    WAIT[Wait for Pipeline - Acceptance Stage]
-    GATE{Acceptance Stage passes?}
-    FIX[Fix breakage]
-    TICK[Tick checklist items]
-    GATE_DONE{All ticked?}
-    DONE[Mark Ticket DONE]
+    IN_ACCEPTANCE[TICKET STATUS - IN ACCEPTANCE — see shared-ticket-status-in-acceptance.md]
 
     TRIGGER --> IMPL
     IMPL --> STOP_REVIEW
     STOP_REVIEW --> COMMIT
-    COMMIT --> WAIT
-    WAIT --> GATE
-    GATE -->|No| FIX
-    FIX --> WAIT
-    GATE -->|Yes| TICK
-    TICK --> GATE_DONE
-    GATE_DONE -->|No| WAIT
-    GATE_DONE -->|Yes| DONE
+    COMMIT --> IN_ACCEPTANCE
 ```

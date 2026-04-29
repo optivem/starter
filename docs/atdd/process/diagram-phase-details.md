@@ -125,7 +125,7 @@ flowchart TD
     FIX_FRONTEND[Fix frontend]
     STOP_WRITE[STOP - HUMAN REVIEW — present implementation]
     COMMIT[COMMIT — Ticket AT - GREEN - SYSTEM]
-    TICK[Tick AC checkboxes move issue to DONE if all ticked]
+    IN_ACCEPTANCE[TICKET STATUS - IN ACCEPTANCE — tick AC checkboxes and set status; see shared-ticket-status-in-acceptance.md]
 
     ENABLE --> BACKEND
     BACKEND --> RUN_API
@@ -139,7 +139,7 @@ flowchart TD
     FIX_FRONTEND --> RUN_UI
     GATE_UI -->|Yes| STOP_WRITE
     STOP_WRITE --> COMMIT
-    COMMIT --> TICK
+    COMMIT --> IN_ACCEPTANCE
 
     classDef effortNode fill:#cce5ff,stroke:#004085,stroke-width:2px
     class BACKEND,FRONTEND,FIX_BACKEND,FIX_FRONTEND effortNode

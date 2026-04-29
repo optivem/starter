@@ -18,12 +18,12 @@ The COMMIT step itself is gated by the universal rule in `shared-commit-confirma
 
 Every structural-cycle COMMIT (`SYSTEM API REDESIGN`, `SYSTEM UI REDESIGN`, `CHORE`) follows the same six steps, with only the commit-message phase suffix varying:
 
-1. Confirm affected components compile (per `CLAUDE.md`: `./gradlew build` / `npx tsc --noEmit` / `dotnet build`).
+1. Confirm affected components compile (per `CLAUDE.md`: run `./compile-all.sh` from the repo root, or a single-project command for narrow changes).
 2. Run the sample suite for each affected language (per `CLAUDE.md`: `gh optivem test system --sample`) and verify it passes.
 3. Apply the gate in `shared-commit-confirmation.md` — ask "Can I commit?" with the proposed message and staged file list, and wait for explicit approval.
 4. COMMIT with message `<Ticket> | <PHASE>` where `<PHASE>` is `SYSTEM API REDESIGN`, `SYSTEM UI REDESIGN`, or `CHORE` per the cycle.
-5. If a GitHub issue was provided, tick any checklist items completed by this commit.
-6. STOP. The CI **Acceptance Stage** is the verifier from here on; phase progression is controlled by the orchestrator.
+5. If a GitHub issue was provided, tick any checklist items completed by this commit (local action; not CI-gated).
+6. Move the issue to **TICKET STATUS - IN ACCEPTANCE** — see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md). The cycle ends here; the agent is CI-unaware.
 
 The EXTERNAL API REDESIGN cycle has no standalone COMMIT — see "EXTERNAL API REDESIGN" below for the CT-sub-process redirect.
 

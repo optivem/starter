@@ -29,8 +29,8 @@
 ## AT - GREEN - SYSTEM - COMMIT
 
 1. COMMIT all changes (backend, frontend, and the test re-enabling from AT - GREEN - SYSTEM - WRITE step 1) with message `<Ticket> | AT - GREEN - SYSTEM`.
-2. If a GitHub issue was provided as input, tick the checkbox for each acceptance criterion completed by this ticket.
-3. If all acceptance criteria in the issue are now ticked, and the issue belongs to a GitHub project, move the issue to the **DONE** status in that project.
+2. If a GitHub issue was provided as input, tick the checkbox for each acceptance criterion completed by this ticket (local action; not CI-gated).
+3. Move the issue to **TICKET STATUS - IN ACCEPTANCE** — see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md). The cycle ends here; the agent is CI-unaware.
 
 
 # TODO: VJ: Need to add insutrctions regarding handling legacy code...

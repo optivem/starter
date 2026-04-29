@@ -6,9 +6,15 @@ This rule is intentionally separate from `cycles.md`: that file decides *which* 
 
 ## Rule
 
-**No agent may run `git commit` (or `gh issue close`, or any other state-mutating push to GitHub) without first asking the user "Can I commit?" and receiving an explicit "yes" reply in the same turn.**
+**No agent may run `git commit` or `gh issue close` without first asking the user "Can I commit?" and receiving an explicit "yes" reply in the same turn.**
 
-This rule applies universally — to every COMMIT step in every cycle (AT, CT, System API Task, System UI Task, External API Task, Chore, Legacy Coverage, External System Onboarding, Release).
+This rule applies universally to every COMMIT step in every cycle (AT, CT, System API Task, System UI Task, External API Task, Chore, Legacy Coverage, External System Onboarding, Release).
+
+## Scope: not every GitHub mutation
+
+The rule covers only `git commit` and `gh issue close`. **Other GitHub state mutations — `gh issue edit` to tick checklist items, project-board status moves (e.g. to IN ACCEPTANCE), label changes — are not gated by this rule.** Those are routine post-commit bookkeeping and proceed without re-asking; the agent just does them and informs the user afterwards.
+
+In particular, the IN ACCEPTANCE procedure in [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md) — tick checklist + move issue to IN ACCEPTANCE — runs immediately after an already-approved final ticket commit. Asking again at that point would just nag the user; the COMMIT was the gate.
 
 ## Procedure
 
