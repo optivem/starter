@@ -5,7 +5,7 @@
 # Usage: scripts/atdd-rehearsal-start.sh <name>
 #
 # Example: scripts/atdd-rehearsal-start.sh demo1
-#   creates a sibling directory `../shop-rehearsal-demo1`
+#   creates a sibling directory `../rehearsal-demo1`
 #   on a fresh branch `rehearsal/demo1` based on the current HEAD.
 #
 # Multiple rehearsals can coexist — pick a unique <name> for each one.
@@ -34,7 +34,7 @@ if ! [[ "$NAME" =~ ^[A-Za-z0-9_-]+$ ]]; then
 fi
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
-WORKTREE_DIR="$REPO_ROOT/../shop-rehearsal-$NAME"
+WORKTREE_DIR="$REPO_ROOT/../rehearsal-$NAME"
 BRANCH="rehearsal/$NAME"
 
 if [ -e "$WORKTREE_DIR" ]; then

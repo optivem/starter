@@ -22,7 +22,7 @@ REPO_ROOT="$(git rev-parse --show-toplevel)"
 # to `all_cleanup_cmds` (an array of bash commands for batch mode).
 print_rehearsal() {
     local name="$1"
-    local worktree_dir="$REPO_ROOT/../shop-rehearsal-$name"
+    local worktree_dir="$REPO_ROOT/../rehearsal-$name"
     local branch="rehearsal/$name"
 
     local worktree_exists=0
@@ -82,7 +82,7 @@ if [ $# -ne 1 ] || [ -z "${1:-}" ]; then
     echo "  $0 --all      # every rehearsal at once"
     echo
     echo "Active rehearsals:"
-    git worktree list | grep -E "shop-rehearsal-" || echo "  (none)"
+    git worktree list | grep -E "/rehearsal-" || echo "  (none)"
     exit 1
 fi
 
