@@ -207,7 +207,7 @@ jobs:
   # and runs alongside it. fail-fast (input, default true) cancels siblings on first failure.
   local:
     needs: check
-    if: ${{ needs.check.outputs.should_run == 'true' && !inputs.skip-local }}
+    if: ${{ needs.check.outputs.should_run == 'true' && !inputs.skip-local && !inputs.debug-skip-tests }}
     strategy:
       fail-fast: ${{ inputs.fail-fast }}
       matrix:
