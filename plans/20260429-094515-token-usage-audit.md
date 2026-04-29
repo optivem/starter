@@ -11,7 +11,6 @@ The two open audit plans (`plans/20260429-094515-token-usage-audit.md` + `plans/
 **(A) Cross-cutting design decisions** — each unblocks multiple plan items:
 
 1. Who owns `CT - GREEN - STUBS`? Create `atdd-stub`, fold into `atdd-driver`, or fold into `atdd-test`? (process-audit **NDC #1**)
-2. `<Ticket>` vs `<Scenario>` in CT commit messages — does CT batch per ticket or loop per scenario? (process-audit **NDC #4** + deferred process-rule-change **#10**)
 
 **Recommended order:** any. The remaining items are independent — pick whichever you want to resolve next.
 

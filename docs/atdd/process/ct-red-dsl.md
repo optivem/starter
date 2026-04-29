@@ -19,6 +19,6 @@ STOP. Present the DSL implementation, Driver interface changes, and the flag to 
    gh optivem test system --suite <suite-contract-stub> --test <TestMethodName>
    ```
 3. Mark the tests as disabled with reason `"CT - RED - DSL"` (see `language-equivalents.md` for syntax).
-4. COMMIT with message `<Scenario> | CT - RED - DSL`.
+4. COMMIT with message `<Ticket> | CT - RED - DSL`.
 5. If a GitHub issue number was provided as input, post a comment on the issue summarising the DSL interface changes made (new methods added, interfaces updated).
 6. Automatically proceed to CT - RED - EXTERNAL DRIVER - WRITE (STOP).
