@@ -172,13 +172,16 @@ Implement change for this cycle:
 STOP - HUMAN REVIEW (present implementation for approval)
     │
     ▼
+TEST: compile + sample suite (sample run is gated — ask user before running locally)
+    │
+    ▼
 COMMIT: <Ticket> | <PHASE> where PHASE ∈ {SYSTEM API REDESIGN, SYSTEM UI REDESIGN, CHORE}
     │
     ▼
 TICKET STATUS - IN ACCEPTANCE (see shared-ticket-status-in-acceptance.md)
 ```
 
-All three are governed by the rule that **existing AC must stay green** locally before the final ticket commit.[^green] There is no per-scenario RED/GREEN (no change-driven AC is produced); the sample suite runs locally before the COMMIT to verify the change. The post-commit CI Acceptance Stage is human-watched, not agent-watched — see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md).
+All three are governed by the rule that **existing AC must stay green** locally before the final ticket commit.[^green] There is no per-scenario RED/GREEN (no change-driven AC is produced); the sample suite runs locally during the TEST phase (after WRITE, before COMMIT) to verify the change, gated by explicit user approval. The post-commit CI Acceptance Stage is human-watched, not agent-watched — see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md).
 
 The External API Task Cycle is structurally similar but routes through the Contract Test Sub-Process instead of a direct Implement → Review → COMMIT step; see "External API Task Cycle" below.
 
@@ -190,7 +193,7 @@ _Triggered when ticket type = system-api-task (System API Driver redesign at the
 
 A System API task changes the System API at the boundary — request/response DTOs, endpoints, status codes, and the like. The System API Driver is updated to match. Driver *interfaces* may grow or change; existing acceptance tests must keep passing through them. Single-driver scope by construction (single-boundary ticket); multi-boundary work is split into multiple coordinated tickets at creation. The cycle ends with a **single COMMIT** covering the driver update.
 
-WRITE and COMMIT mechanics (`SYSTEM API REDESIGN - WRITE` and the shared structural-cycle COMMIT with phase suffix `SYSTEM API REDESIGN`) live in [`task-and-chore-cycles.md`](task-and-chore-cycles.md). Flow: see **Structural Cycle Flow (shared)** above.
+WRITE, TEST, and COMMIT mechanics (`SYSTEM API REDESIGN - WRITE`, the shared structural-cycle TEST, and the shared structural-cycle COMMIT with phase suffix `SYSTEM API REDESIGN`) live in [`task-and-chore-cycles.md`](task-and-chore-cycles.md). Flow: see **Structural Cycle Flow (shared)** above.
 
 The system-api-task ticket carries a **checklist of structural change items** in its body; the agent ticks them off as the work is done, and on the final ticket commit moves the issue to **IN ACCEPTANCE** (see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md)).
 
@@ -202,7 +205,7 @@ _Triggered when ticket type = system-ui-task (System UI Driver redesign at the s
 
 A System UI task changes the System UI at the boundary — page structure, form fields, navigation, and the like. The System UI Driver is updated to match. Driver *interfaces* may grow or change; existing acceptance tests must keep passing through them. Single-driver scope by construction (single-boundary ticket); multi-boundary work is split into multiple coordinated tickets at creation. The cycle ends with a **single COMMIT** covering the driver update.
 
-WRITE and COMMIT mechanics (`SYSTEM UI REDESIGN - WRITE` and the shared structural-cycle COMMIT with phase suffix `SYSTEM UI REDESIGN`) live in [`task-and-chore-cycles.md`](task-and-chore-cycles.md). Flow: see **Structural Cycle Flow (shared)** above.
+WRITE, TEST, and COMMIT mechanics (`SYSTEM UI REDESIGN - WRITE`, the shared structural-cycle TEST, and the shared structural-cycle COMMIT with phase suffix `SYSTEM UI REDESIGN`) live in [`task-and-chore-cycles.md`](task-and-chore-cycles.md). Flow: see **Structural Cycle Flow (shared)** above.
 
 The system-ui-task ticket carries a **checklist of structural change items** in its body; the agent ticks them off as the work is done, and on the final ticket commit moves the issue to **IN ACCEPTANCE** (see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md)).
 
@@ -238,7 +241,7 @@ _Triggered when ticket type = chore (internal-only structural change, drivers un
 
 A chore changes nothing at the boundary — it's an internal refactor, rename, dependency upgrade, or similar. Drivers (interfaces and implementations) are untouched. The cycle is therefore a single-step implementation followed by review, commit, and the move to **TICKET STATUS - IN ACCEPTANCE**.
 
-WRITE and COMMIT mechanics (`CHORE - WRITE` and the shared structural-cycle COMMIT with phase suffix `CHORE`) live in [`task-and-chore-cycles.md`](task-and-chore-cycles.md). Flow: see **Structural Cycle Flow (shared)** above.
+WRITE, TEST, and COMMIT mechanics (`CHORE - WRITE`, the shared structural-cycle TEST, and the shared structural-cycle COMMIT with phase suffix `CHORE`) live in [`task-and-chore-cycles.md`](task-and-chore-cycles.md). Flow: see **Structural Cycle Flow (shared)** above.
 
 The chore ticket carries a **checklist of refactor / upgrade steps** in its body; the agent ticks them off as the work is done, and on the final ticket commit moves the issue to **IN ACCEPTANCE** (see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md)).
 
@@ -264,14 +267,24 @@ The chore ticket carries a **checklist of refactor / upgrade steps** in its body
 | CT - RED - DSL | `atdd-dsl` | WRITE = STOP, COMMIT = commit + push |
 | CT - RED - EXTERNAL DRIVER | `atdd-driver` | External Drivers only (`external/`). WRITE = STOP, COMMIT = commit + push. |
 | CT - GREEN - STUBS | _no dedicated agent — see "Stubs ownership" needs-decision in the audit plan_ | Implement External System Stubs; commit. |
-| SYSTEM API REDESIGN - WRITE / COMMIT | `atdd-task` (subtype `system-api-redesign`) | WRITE = update System API + driver impl + STOP. COMMIT = shared structural-cycle COMMIT (compile, sample, commit, tick checklist). |
-| SYSTEM UI REDESIGN - WRITE / COMMIT | `atdd-task` (subtype `system-ui-redesign`) | WRITE = update System UI + driver impl + STOP. COMMIT = shared structural-cycle COMMIT. |
-| EXTERNAL API REDESIGN | `atdd-task` (subtype `external-system-api-change`) | No standalone WRITE/COMMIT — routes entirely through the Contract Test Sub-Process. |
-| CHORE - WRITE / COMMIT | `atdd-chore` | WRITE = implement chore + STOP. COMMIT = shared structural-cycle COMMIT. |
+| SYSTEM API REDESIGN - WRITE / TEST / COMMIT | `atdd-task` (subtype `system-api-redesign`) | WRITE = update System API + driver impl + STOP. TEST = shared structural-cycle TEST (compile, ask-then-sample, STOP). COMMIT = shared structural-cycle COMMIT (commit + tick checklist + status move). |
+| SYSTEM UI REDESIGN - WRITE / TEST / COMMIT | `atdd-task` (subtype `system-ui-redesign`) | WRITE = update System UI + driver impl + STOP. TEST = shared structural-cycle TEST. COMMIT = shared structural-cycle COMMIT. |
+| EXTERNAL API REDESIGN | `atdd-task` (subtype `external-system-api-change`) | No standalone WRITE / TEST / COMMIT — routes entirely through the Contract Test Sub-Process. |
+| CHORE - WRITE / TEST / COMMIT | `atdd-chore` | WRITE = implement chore + STOP. TEST = shared structural-cycle TEST. COMMIT = shared structural-cycle COMMIT. |
+
+## Scope
+
+Every pipeline run is bounded by a **Scope** declared in pre-flight (see `.claude/commands/atdd/atdd-implement-ticket.md` "Scope Confirmation"). Scope has three axes — **Architecture** (`monolith|multitier|both`), **System Lang** (`java|dotnet|typescript|all`), and **Test Lang** (`java|dotnet|typescript|all`) — and is propagated into every dispatched sub-agent prompt.
+
+Defaults are rehearsal-aware: rehearsal mode defaults to a single implementation (`Architecture=multitier`, `System Lang=java`, `Test Lang=typescript`) for fast iteration; outside rehearsal the defaults fan out to all parallel implementations (`Architecture=both`, `System Lang=all`, `Test Lang=all`). The user confirms or overrides scope at the start of every run; flags `--architecture`, `--system-lang`, `--test-lang` skip the per-axis prompt.
+
+Sub-agents — notably `atdd-task` and `atdd-chore` — restrict ALL file edits, residual-reference greps, compile checks, and sample-suite runs to in-scope paths. The shared structural-cycle TEST procedure (see `task-and-chore-cycles.md`) runs the sample suite only for in-scope Test Lang(s) and prints a drift warning naming any out-of-scope implementations that were deliberately left untouched.
 
 ## STOP Behaviour
 
-Every WRITE phase ends with **STOP** — present results to the user and wait for explicit approval before proceeding to COMMIT. The orchestrator does not auto-approve; phase progression always requires a human decision at every STOP.
+Every WRITE phase ends with **STOP** — present results to the user and wait for explicit approval before proceeding. The orchestrator does not auto-approve; phase progression always requires a human decision at every STOP.
+
+Structural cycles add a second STOP at the end of **TEST** (after compile + sample suite, before COMMIT) so the user can review the test results before commit confirmation. The TEST phase also contains an internal approval gate before invoking the local sample suite — see `task-and-chore-cycles.md`.
 
 ## Commit Confirmation
 
