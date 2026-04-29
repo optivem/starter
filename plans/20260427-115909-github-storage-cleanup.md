@@ -123,9 +123,9 @@
 **Goal:** Delete entire GHCR packages that no active workflow publishes to anymore (renamed/retired services). The current `cleanup-prereleases` action only operates on packages listed in `CONTAINER_PACKAGES`; once a package is removed from that list, nothing prunes it — both the package and all its versions linger indefinitely.
 
 **Action:**
-- `gh api /orgs/optivem/packages?package_type=container --paginate --jq '.[].name'` to list all GHCR container packages.
+- `gh api "/orgs/optivem/packages?package_type=container" --paginate --jq '.[].name'` to list all GHCR container packages.
 - Diff against the union of `CONTAINER_PACKAGES` across all active cleanup workflows.
-- For each orphan: confirm no recent pulls (`gh api /orgs/optivem/packages/container/<name>` → `version_count`, `updated_at`), then delete via `gh api -X DELETE /orgs/optivem/packages/container/<name>`.
+- For each orphan: confirm no recent pulls (`gh api "/orgs/optivem/packages/container/<name>"` → `version_count`, `updated_at`), then delete via `gh api -X DELETE "/orgs/optivem/packages/container/<name>"`.
 
 **Risk:** Medium. Deleting a whole package is irreversible and breaks any external system still pulling it. Always do a dry-run inventory first; only delete after manual confirmation. One-off, not a recurring workflow.
 
