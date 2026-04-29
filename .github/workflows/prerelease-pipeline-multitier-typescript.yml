@@ -32,6 +32,11 @@ on:
         description: 'Git SHA to pin (leave empty for HEAD)'
         required: false
         type: string
+      debug-skip-tests:
+        description: 'DEBUG ONLY: bypass acceptance-stage tests and skip the acceptance-stage-legacy run, while still minting the same RC tag. Use only when iterating on the meta-prerelease pipeline plumbing — never on a real release path.'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   verify:
@@ -47,3 +52,4 @@ jobs:
       skip-commit-stage: ${{ inputs.skip-commit-stage == true }}
       skip-acceptance-legacy: ${{ inputs.skip-acceptance-legacy == true }}
       commit-sha: ${{ inputs.commit-sha }}
+      debug-skip-tests: ${{ inputs.debug-skip-tests == true }}

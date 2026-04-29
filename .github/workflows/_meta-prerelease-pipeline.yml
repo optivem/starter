@@ -29,7 +29,12 @@ on:
         type: boolean
         default: false
       skip-tests:
-        description: 'Bypass ALL test phases (local, commit, pipeline) and tag the meta-rc directly. RECOVERY-ONLY: meta-release-stage (triggered by the meta-rc tag) requires all 6 flavor rcs to already have a successful qa/signoff Check Run. Use this only when those flavor approvals exist from a previous run but the meta-rc tag itself was never created (e.g. a transient failure after qa-signoff was written). Otherwise the meta-rc will be tagged but meta-release-stage will fail. The check job still runs (no-meaningful-changes / version-already-released probes).'
+        description: 'RECOVERY ONLY: bypass ALL test phases (local, commit, pipeline, cross-lang) and tag the meta-rc directly. Requires all 6 flavor rcs to already exist (with successful qa/signoff) from a prior run; otherwise meta-release-stage will fail because no flavor rcs are produced. Use only when a transient failure prevented the meta-rc tag from being created after the flavor pipelines already succeeded. For DEBUG mode (workflow plumbing, no flavor rcs needed yet) use `debug-skip-tests` instead — that runs all stages but skips the slow acceptance tests.'
+        required: false
+        type: boolean
+        default: false
+      debug-skip-tests:
+        description: 'DEBUG ONLY: run the full meta pipeline (commit + pipeline + per-flavor prereleases) but bypass the slow acceptance-stage tests, the acceptance-stage-legacy run, and cross-lang regression. Flavor rcs and meta-rc are still minted. Use only when iterating on the meta-prerelease pipeline plumbing — never on a real release path. Unlike `skip-tests`, this still produces flavor rcs so meta-release-stage can promote.'
         required: false
         type: boolean
         default: false
@@ -73,6 +78,7 @@ jobs:
           echo "Skip commit: ${{ inputs.skip-commit }}"
           echo "Skip acceptance-legacy: ${{ inputs.skip-acceptance-legacy }}"
           echo "Skip tests: ${{ inputs.skip-tests }}"
+          echo "Debug skip tests: ${{ inputs.debug-skip-tests }}"
           echo "Fail-fast: ${{ inputs.fail-fast }}"
           echo "Pipeline timeout (seconds): ${{ inputs.pipeline-timeout-seconds }}"
           echo "Triggered by: ${{ github.event_name }} ${{ github.event.schedule }}"
@@ -280,7 +286,7 @@ jobs:
         with:
           workflow: prerelease-pipeline-${{ matrix.variant }}.yml
           timeout-seconds: ${{ inputs.pipeline-timeout-seconds }}
-          workflow-inputs: '{"level": "${{ inputs.level }}", "skip-local-stage": "true", "skip-commit-stage": "true", "skip-acceptance-legacy": "${{ inputs.skip-acceptance-legacy }}", "commit-sha": "${{ github.sha }}"}'
+          workflow-inputs: '{"level": "${{ inputs.level }}", "skip-local-stage": "true", "skip-commit-stage": "true", "skip-acceptance-legacy": "${{ inputs.skip-acceptance-legacy }}", "commit-sha": "${{ github.sha }}", "debug-skip-tests": "${{ inputs.debug-skip-tests }}"}'
 
   # Cross-language behavior-parity regression check. Runs in parallel with `pipeline`
   # above — both need `commit` because cross-lang pulls the `sha-<sha>` images that
@@ -293,7 +299,7 @@ jobs:
   # other matrix entries would 404 on digest resolution.
   cross-lang:
     needs: commit
-    if: ${{ always() && !failure() && !cancelled() && !inputs.skip-tests && inputs.variant == 'all' && contains(fromJSON('["acceptance","qa"]'), inputs.level) }}
+    if: ${{ always() && !failure() && !cancelled() && !inputs.skip-tests && !inputs.debug-skip-tests && inputs.variant == 'all' && contains(fromJSON('["acceptance","qa"]'), inputs.level) }}
     uses: ./.github/workflows/cross-lang-system-verification.yml
     secrets: inherit
     with:

@@ -9,6 +9,11 @@ on:
         description: 'Git SHA to test (leave empty for latest image)'
         required: false
         type: string
+      debug-skip-tests:
+        description: 'DEBUG ONLY: bypass deployments + acceptance tests and tag the RC anyway. Produces an RC tag indistinguishable from a tested one. Use only when iterating on the meta-prerelease pipeline plumbing — never on a real release path.'
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: monolith-dotnet-acceptance-stage
@@ -181,6 +186,7 @@ jobs:
             password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Simulate Deployment (Real External Systems)
+        if: ${{ !inputs.debug-skip-tests }}
         uses: optivem/actions/deploy-docker-compose@v1
         with:
           environment: acceptance
@@ -191,6 +197,7 @@ jobs:
           working-directory: docker/dotnet/monolith
 
       - name: Wait for Systems (Simulate Deployment (Real External Systems))
+        if: ${{ !inputs.debug-skip-tests }}
         uses: optivem/actions/wait-for-endpoints@v1
         with:
           endpoints: |
@@ -204,6 +211,7 @@ jobs:
           working-directory: docker/dotnet/monolith
 
       - name: Simulate Deployment (Stub External Systems)
+        if: ${{ !inputs.debug-skip-tests }}
         uses: optivem/actions/deploy-docker-compose@v1
         with:
           environment: acceptance
@@ -214,6 +222,7 @@ jobs:
           working-directory: docker/dotnet/monolith
 
       - name: Wait for Systems (Simulate Deployment (Stub External Systems))
+        if: ${{ !inputs.debug-skip-tests }}
         uses: optivem/actions/wait-for-endpoints@v1
         with:
           endpoints: |
@@ -227,11 +236,13 @@ jobs:
           working-directory: docker/dotnet/monolith
 
       - name: Setup .NET
+        if: ${{ !inputs.debug-skip-tests }}
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 8.0.x
 
       - name: Cache NuGet Packages
+        if: ${{ !inputs.debug-skip-tests }}
         uses: actions/cache@v5
         with:
           path: ~/.nuget/packages
@@ -239,12 +250,14 @@ jobs:
           restore-keys: nuget-${{ runner.os }}-
 
       - name: Cache Playwright Browsers
+        if: ${{ !inputs.debug-skip-tests }}
         uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('system-test/dotnet/**/*.csproj') }}
 
       - name: Compile System Tests
+        if: ${{ !inputs.debug-skip-tests }}
         # Required so playwright.ps1 (in the build output) exists for the
         # next install-deps step. The CLI's setupCommands (dotnet clean +
         # build) re-run this incrementally, which is fast.
@@ -252,6 +265,7 @@ jobs:
         working-directory: system-test/dotnet
 
       - name: Install Playwright System Dependencies
+        if: ${{ !inputs.debug-skip-tests }}
         timeout-minutes: 5
         # Linux apt-get packages for Chromium. Browser binaries themselves
         # come from each suite's testInstallCommand (`pwsh playwright.ps1
@@ -260,6 +274,7 @@ jobs:
         working-directory: system-test/dotnet
 
       - name: Install gh-optivem CLI extension
+        if: ${{ !inputs.debug-skip-tests }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh extension install optivem/gh-optivem
@@ -274,36 +289,47 @@ jobs:
       # build outputs; without it each step would re-run the full clean +
       # build pass — ~20-40s per step × 11 = unworkable.
       - name: smoke-stub
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite smoke-stub --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: smoke-real
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite smoke-real --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: acceptance-api
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite acceptance-api --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: acceptance-ui
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite acceptance-ui --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: acceptance-isolated-api
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite acceptance-isolated-api --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: acceptance-isolated-ui
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite acceptance-isolated-ui --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: contract-stub
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite contract-stub --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: contract-stub-isolated
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite contract-stub-isolated --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: contract-real
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite contract-real --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: e2e-api
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite e2e-api --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: e2e-ui
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite e2e-ui --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: Read Base System Version

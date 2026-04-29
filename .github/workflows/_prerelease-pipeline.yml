@@ -45,6 +45,11 @@ on:
         required: false
         type: string
         default: ''
+      debug-skip-tests:
+        description: 'DEBUG ONLY: bypass acceptance-stage tests and skip the acceptance-stage-legacy run, while still minting the same RC tag. Use only when iterating on the meta-prerelease pipeline plumbing — never on a real release path.'
+        required: false
+        type: boolean
+        default: false
 
 env:
   COMMIT_SHA: ${{ inputs.commit-sha || github.sha }}
@@ -218,7 +223,7 @@ jobs:
           workflow: ${{ inputs.prefix }}-acceptance-stage.yml
           poll-interval: '300'
           timeout-seconds: '7200'
-          workflow-inputs: '{"commit-sha": "${{ inputs.commit-sha }}"}'
+          workflow-inputs: '{"commit-sha": "${{ inputs.commit-sha }}", "debug-skip-tests": "${{ inputs.debug-skip-tests }}"}'
 
       # Resolve the rc tag that actually points at the tested SHA — whether our
       # dispatched run created it or a concurrent scheduled run did. This makes
@@ -249,7 +254,7 @@ jobs:
           workflow: ${{ inputs.prefix }}-acceptance-stage-legacy.yml
           poll-interval: '300'
           timeout-seconds: '7200'
-          workflow-inputs: '{"commit-sha": "${{ inputs.commit-sha }}"}'
+          workflow-inputs: '{"commit-sha": "${{ inputs.commit-sha }}", "debug-skip-tests": "${{ inputs.debug-skip-tests }}"}'
 
   qa-stage:
     needs: [acceptance-stage, acceptance-stage-legacy]
