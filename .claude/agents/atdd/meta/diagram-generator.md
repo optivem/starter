@@ -1,7 +1,7 @@
 ---
 name: diagram-generator
 description: Generates a Mermaid architecture diagram at `docs/atdd/architecture/diagram-architecture.md` and/or two Mermaid process diagrams at `docs/atdd/process/diagram-process.md` (cycle-level flow) and `docs/atdd/process/diagram-phase-details.md` (per-phase WRITE/COMMIT mechanics), derived purely from reading the prose docs in each directory. The invocation prompt selects scope — `architecture`, `process`, or `both`; only files in scope are overwritten. Touches no other docs. Use when the architecture or process prose has changed and the diagrams should be regenerated.
-tools: Read, Glob, Write
+tools: Read, Glob, Grep, Edit, Write, Bash
 model: opus
 ---
 
@@ -77,6 +77,53 @@ You MUST NOT read any file outside the in-scope glob(s) (with their exclusions) 
    Wrote docs/atdd/architecture/diagram-architecture.md (24 nodes, 26 edges across 4 diagrams: Overview 4/4, DSL Layer 6/7, Shop Drivers 7/8, External Drivers 7/7)
    Wrote docs/atdd/process/diagram-process.md (38 nodes, 51 edges across 6 diagrams: Overview 6/6, Intake 7/12, AT Cycle 10/12, Contract Test Sub-Process 9/10, External System Onboarding Sub-Process 14/14, Legacy Coverage Cycle 3/2)
    Wrote docs/atdd/process/diagram-phase-details.md (76 nodes, 81 edges across 8 diagrams: AT - RED - TEST 10/10, AT - RED - DSL 14/15, AT - RED - SYSTEM DRIVER 8/7, AT - GREEN - SYSTEM 13/14, CT - RED - TEST 13/14, CT - RED - DSL 11/10, CT - RED - EXTERNAL DRIVER 8/7, CT - GREEN - STUBS 10/10)
+   ```
+7. **Self-validate before handing off.** Run a two-pass check on every in-scope output file. **Do not print the summary lines from step 6 or any "complete" message until pass A is clean — a parse error means the file is broken even if the bytes were written.**
+
+   **Pass A — syntactic lint (always run, no external tool needed).** Use `Grep` to scan each in-scope file for the parse-error patterns we know about. The flagship case is unquoted Mermaid-reserved characters inside `[...]` labels (see *Constraints on the diagrams themselves*). Run this regex per in-scope file:
+
+   ```
+   Grep pattern: \[[^"\]]*[|(){}<>&"#;][^\]]*\]
+   path: <in-scope file>
+   output_mode: content
+   -n: true
+   ```
+
+   A match means a label like `COMMIT[COMMIT: Ticket | AT - RED - TEST]` slipped through unquoted. Auto-fix via `Edit`: wrap the label body in double quotes, turning `NODE[...]` into `NODE["..."]`. Re-run the Grep until it returns no matches. Also lint for two other known traps: a bare `end` used as a node ID (Mermaid keyword — rename it), and any line that ends with `\` followed by trailing whitespace (continuation breaks).
+
+   **Pass B — full parse check via `mmdc` (run when available).** Try `mmdc` from `@mermaid-js/mermaid-cli`; it parses every `mermaid` block and exits non-zero on syntax errors. The agent does not need to install anything globally — `npx -y` will fetch it on demand the first time, and on subsequent runs it is cached.
+
+   For each in-scope file, run (Bash):
+
+   ```bash
+   # Extract every ```mermaid ... ``` block to its own tmp file, then validate each.
+   tmpdir=$(mktemp -d)
+   awk -v dir="$tmpdir" '
+     /^```mermaid$/  { n++; out=sprintf("%s/block-%02d.mmd", dir, n); inblk=1; next }
+     /^```$/         { inblk=0; next }
+     inblk           { print > out }
+   ' "<in-scope file>"
+   for f in "$tmpdir"/block-*.mmd; do
+     npx -y @mermaid-js/mermaid-cli@latest -i "$f" -o "$f.svg" --quiet 2>&1 || echo "PARSE ERROR in $f"
+   done
+   ```
+
+   Surface each `PARSE ERROR` line in chat together with the offending block path; if you can identify the source-of-truth `mermaid` block (by line number in the in-scope file), fix it via `Edit` and re-run pass B until clean. If `npx` itself fails (no Node installed, sandbox blocks network, etc.), capture the stderr verbatim and proceed to the human-review fallback below — do **not** silently skip pass B without telling the human. Always clean up `$tmpdir` at the end (`rm -rf`).
+
+   **After both passes are clean**, print the step 6 summary lines, then a single confirmation line:
+
+   ```
+   Self-check passed: <N> mermaid blocks linted clean across <M> file(s); mmdc parse check: <ok | skipped because: <reason>>.
+   ```
+
+   **Human-review fallback (only when pass B was skipped).** If `mmdc` could not run, append a STOP block asking the human to open each file in a Mermaid preview and confirm rendering. Example:
+
+   ```
+   STOP - HUMAN REVIEW — Pass B was skipped (<reason>). Please open each file in a Mermaid preview (GitHub web view, VS Code Markdown Preview, etc.) and confirm every block renders without a "Parse error":
+   - C:/GitHub/optivem/academy/shop/docs/atdd/architecture/diagram-architecture.md (4 mermaid blocks)
+   - C:/GitHub/optivem/academy/shop/docs/atdd/process/diagram-process.md (6 mermaid blocks)
+   - C:/GitHub/optivem/academy/shop/docs/atdd/process/diagram-phase-details.md (8 mermaid blocks)
+   Reply "rendered ok" to close out, or paste the parse error and I'll fix it.
    ```
 
 ## Output format
@@ -180,6 +227,7 @@ flowchart TD
 
 - **Mermaid only.** No PlantUML, no images, no ASCII art.
 - **Short readable IDs, concise labels in brackets:** `DRIVER_PORT[Driver Port]`, `AT_RED_TEST[AT - RED - TEST]`. Keep labels to roughly the noun the prose uses — **target ≤ 30 characters**, hard cap ~40. Do **not** stuff descriptions, examples, or parenthetical clarifications into the label (no `DSL Port - Fluent Given/When/Then Stages`, no `Ext* DTOs - string-only Requests, typed Responses`); the source docs explain those, and long labels widen nodes until the whole diagram needs zoom.
+- **Quote labels that contain Mermaid-reserved characters.** A node label MUST be wrapped in double quotes (`NODE["..."]`) whenever it contains any of `|`, `(`, `)`, `{`, `}`, `[`, `]`, `<`, `>`, `&`, `"`, `#`, or `;` — Mermaid otherwise tries to parse them as edge-label delimiters or shape syntax. The COMMIT-message convention `<Ticket> | <PHASE>` (e.g. `COMMIT["COMMIT: Ticket | AT - RED - TEST"]`) is the most common case; quote it every time. Do not "fix" the prose by stripping the `|` — preserve the convention and quote the label.
 - **Both branches drawn at every decision diamond** — no dangling `if no, …`.
 - **No explanatory prose** beyond the brief generated-by line and the source-docs list. The diagram is the deliverable; the source docs explain.
 - **One concept per diagram, multiple diagrams per file** — applies to BOTH files. Each `mermaid` block shows exactly one cluster/subprocess (or the overview); never merge to "save space." Splitting is the whole point — a 22-node diagram requires zoom on GitHub, four 6-node diagrams do not.

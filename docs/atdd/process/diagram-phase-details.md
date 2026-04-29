@@ -30,7 +30,7 @@ flowchart TD
     STOP_DSL[STOP - HUMAN REVIEW — Approve DSL prototypes]
     RUN[Run tests — verify runtime failure]
     DISABLE[Disable change-driven scenarios as AT - RED - TEST]
-    COMMIT[COMMIT: Ticket | AT - RED - TEST]
+    COMMIT["COMMIT: Ticket | AT - RED - TEST"]
 
     WRITE --> EXTEND_DSL
     EXTEND_DSL --> STOP_WRITE_TESTS
@@ -64,7 +64,7 @@ flowchart TD
     RUN[Run tests — verify runtime failure]
     DISABLE[Disable tests as AT - RED - DSL]
     NO_TESTS_CHECK[Verify no test files in changed-files list]
-    COMMIT[COMMIT: Ticket | AT - RED - DSL]
+    COMMIT["COMMIT: Ticket | AT - RED - DSL"]
 
     ENABLE --> IMPL_DSL
     IMPL_DSL --> UPDATE_DRIVER_IFACE
@@ -95,7 +95,7 @@ flowchart TD
     STOP_WRITE[STOP - HUMAN REVIEW — Approve Driver impl]
     DISABLE[Disable tests as AT - RED - SYSTEM DRIVER]
     NO_TESTS_CHECK[Verify no test files in changed-files list]
-    COMMIT[COMMIT: Ticket | AT - RED - SYSTEM DRIVER]
+    COMMIT["COMMIT: Ticket | AT - RED - SYSTEM DRIVER"]
 
     ENABLE --> IMPL
     IMPL --> RUN
@@ -124,7 +124,7 @@ flowchart TD
     UI_OK{UI tests pass?}
     FIX_FRONTEND[Fix frontend until tests pass]
     STOP_WRITE[STOP - HUMAN REVIEW — Approve impl]
-    COMMIT[COMMIT: Ticket | AT - GREEN - SYSTEM]
+    COMMIT["COMMIT: Ticket | AT - GREEN - SYSTEM"]
     TICK[Tick AC checkboxes]
     IN_ACCEPTANCE[Move to TICKET STATUS - IN ACCEPTANCE]
 
@@ -164,7 +164,7 @@ flowchart TD
     COMPILE_ERR{Compile errors in WRITE?}
     EXTEND_DSL[Extend DSL + TODO: DSL prototypes]
     RUN_RUNTIME[Run tests — verify runtime failure]
-    COMMIT[COMMIT: Scenario | CT - RED - TEST]
+    COMMIT["COMMIT: Scenario | CT - RED - TEST"]
 
     WRITE --> RUN_REAL
     RUN_REAL --> REAL_OK
@@ -198,7 +198,7 @@ flowchart TD
     IMPL_PROTOTYPES[Implement TODO: Driver prototypes]
     RUN[Run tests — verify runtime failure]
     DISABLE[Disable tests as CT - RED - DSL]
-    COMMIT[COMMIT: Scenario | CT - RED - DSL]
+    COMMIT["COMMIT: Scenario | CT - RED - DSL"]
     POST_COMMENT[Post issue comment summarising DSL changes]
 
     ENABLE --> IMPL_DSL
@@ -226,7 +226,7 @@ flowchart TD
     RUN[Run tests — verify runtime failure]
     STOP_WRITE[STOP - HUMAN REVIEW — Approve Driver impl]
     DISABLE[Disable tests as CT - RED - EXTERNAL DRIVER]
-    COMMIT[COMMIT: Scenario | CT - RED - EXTERNAL DRIVER]
+    COMMIT["COMMIT: Scenario | CT - RED - EXTERNAL DRIVER"]
     POST_COMMENT[Post issue comment summarising Driver changes]
 
     ENABLE --> IMPL
@@ -254,7 +254,7 @@ flowchart TD
     STOP_WRITE[STOP - HUMAN REVIEW — Approve stubs]
     REMOVE_DISABLE[Remove disabled annotation]
     RUN_FINAL[Run tests — verify pass]
-    COMMIT[COMMIT: Scenario | CT - GREEN - STUBS]
+    COMMIT["COMMIT: Scenario | CT - GREEN - STUBS"]
 
     ENABLE --> IMPL_STUBS
     IMPL_STUBS --> RUN
