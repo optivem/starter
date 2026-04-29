@@ -1,14 +1,20 @@
 #!/usr/bin/env bash
 #
-# Pre-commit hook: runs linters only for backends whose files are staged.
+# Pre-commit hook (dispatcher).
 #
-# Detected backends (by staged file paths):
-#   TypeScript multitier:  system/multitier/backend-typescript/  -> npm run lint
-#   TypeScript monolith:   system/monolith/typescript/           -> npm run lint
-#   Java multitier:        system/multitier/backend-java/        -> ./gradlew checkstyleMain
-#   Java monolith:         system/monolith/java/                 -> ./gradlew checkstyleMain
-#   .NET multitier:        system/multitier/backend-dotnet/      -> dotnet format *.slnx --verify-no-changes
-#   .NET monolith:         system/monolith/dotnet/               -> dotnet format *.sln --verify-no-changes
+# For each project that has staged files, delegates to that project's
+# scripts/pre-commit-check.sh, which runs compile then lint.
+#
+# Projects:
+#   system/monolith/java
+#   system/monolith/typescript
+#   system/monolith/dotnet
+#   system/multitier/backend-java
+#   system/multitier/backend-typescript
+#   system/multitier/backend-dotnet
+#   system/multitier/frontend-react
+#
+# Bypass with: git commit --no-verify
 
 set -uo pipefail
 
@@ -19,68 +25,53 @@ if [ -z "$STAGED_FILES" ]; then
     exit 0
 fi
 
-FAILED=0
+FAILED_PROJECTS=()
 
-run_lint() {
-    local label="$1"
-    shift
-    echo "==> Running lint: $label"
-    if "$@"; then
-        echo "    PASSED: $label"
+run_project_check() {
+    local project_path="$1"
+    local check_script="$REPO_ROOT/$project_path/scripts/pre-commit-check.sh"
+
+    if [ ! -f "$check_script" ]; then
+        echo "==> [$project_path] SKIP (no scripts/pre-commit-check.sh)"
+        return 0
+    fi
+
+    echo "==> [$project_path] running pre-commit check"
+    if bash "$check_script"; then
+        echo "    PASSED: $project_path"
     else
-        echo "    FAILED: $label"
-        FAILED=1
+        echo "    FAILED: $project_path"
+        FAILED_PROJECTS+=("$project_path")
     fi
 }
 
-# --- TypeScript backends ---
+# Each entry: project_path|staged_path_prefix
+PROJECTS=(
+    "system/monolith/java|^system/monolith/java/"
+    "system/monolith/typescript|^system/monolith/typescript/"
+    "system/monolith/dotnet|^system/monolith/dotnet/"
+    "system/multitier/backend-java|^system/multitier/backend-java/"
+    "system/multitier/backend-typescript|^system/multitier/backend-typescript/"
+    "system/multitier/backend-dotnet|^system/multitier/backend-dotnet/"
+    "system/multitier/frontend-react|^system/multitier/frontend-react/"
+)
 
-if echo "$STAGED_FILES" | grep -q "^system/multitier/backend-typescript/"; then
-    cd "$REPO_ROOT/system/multitier/backend-typescript"
-    run_lint "TypeScript multitier (eslint)" npm run lint
-    cd "$REPO_ROOT"
-fi
+for entry in "${PROJECTS[@]}"; do
+    project_path="${entry%%|*}"
+    path_prefix="${entry##*|}"
+    if echo "$STAGED_FILES" | grep -q "$path_prefix"; then
+        run_project_check "$project_path"
+    fi
+done
 
-if echo "$STAGED_FILES" | grep -q "^system/monolith/typescript/"; then
-    cd "$REPO_ROOT/system/monolith/typescript"
-    run_lint "TypeScript monolith (next lint)" npm run lint
-    cd "$REPO_ROOT"
-fi
-
-# --- Java backends ---
-
-if echo "$STAGED_FILES" | grep -q "^system/multitier/backend-java/"; then
-    cd "$REPO_ROOT/system/multitier/backend-java"
-    run_lint "Java multitier (checkstyle)" ./gradlew checkstyleMain
-    cd "$REPO_ROOT"
-fi
-
-if echo "$STAGED_FILES" | grep -q "^system/monolith/java/"; then
-    cd "$REPO_ROOT/system/monolith/java"
-    run_lint "Java monolith (checkstyle)" ./gradlew checkstyleMain
-    cd "$REPO_ROOT"
-fi
-
-# --- .NET backends ---
-
-if echo "$STAGED_FILES" | grep -q "^system/multitier/backend-dotnet/"; then
-    cd "$REPO_ROOT/system/multitier/backend-dotnet"
-    # Find the solution file (slnx or sln)
-    SLN_FILE=$(ls *.slnx 2>/dev/null || ls *.sln 2>/dev/null)
-    run_lint ".NET multitier (dotnet format)" dotnet format "$SLN_FILE" --verify-no-changes
-    cd "$REPO_ROOT"
-fi
-
-if echo "$STAGED_FILES" | grep -q "^system/monolith/dotnet/"; then
-    cd "$REPO_ROOT/system/monolith/dotnet"
-    SLN_FILE=$(ls *.slnx 2>/dev/null || ls *.sln 2>/dev/null)
-    run_lint ".NET monolith (dotnet format)" dotnet format "$SLN_FILE" --verify-no-changes
-    cd "$REPO_ROOT"
-fi
-
-if [ "$FAILED" -ne 0 ]; then
+if [ "${#FAILED_PROJECTS[@]}" -ne 0 ]; then
     echo ""
-    echo "Pre-commit hook FAILED. Fix lint errors before committing."
+    echo "Pre-commit hook FAILED for:"
+    for p in "${FAILED_PROJECTS[@]}"; do
+        echo "  - $p"
+    done
+    echo ""
+    echo "Fix the errors above before committing, or bypass with: git commit --no-verify"
     exit 1
 fi
 

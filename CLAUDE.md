@@ -8,15 +8,13 @@ If you find yourself proposing a `pages.yml` workflow, a `build_type=workflow` P
 
 ## Pre-Commit Verification
 
-Before committing any code changes, always verify compilation locally for the affected components:
+Before committing any code changes, always verify compilation locally. The default is to run `./compile-all.sh` from the repo root — it compiles every system and system-test project across all three languages and prints a pass/fail summary. Never commit code that does not compile.
+
+If you only touched a single project, you can run that project's compile command directly instead of the full sweep:
 
 - **Java** (monolith/multitier): `./gradlew build` in the project directory
-- **TypeScript** (monolith): `npx tsc --noEmit` in the project directory
-- **TypeScript** (multitier frontend-react): `npx tsc --noEmit` in the project directory
-- **TypeScript** (multitier backend-typescript): `npx tsc --noEmit` in the project directory
+- **TypeScript** (monolith / multitier backend / frontend-react): `npx tsc --noEmit` in the project directory
 - **.NET** (monolith/multitier): `dotnet build` in the project directory
-
-Never commit code that does not compile. If multiple components are changed, verify each one before committing.
 
 ### System Test Verification
 
