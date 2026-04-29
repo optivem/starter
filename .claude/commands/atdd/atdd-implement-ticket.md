@@ -52,25 +52,23 @@ Now look for `--rehearsal` in `$ARGUMENTS` and resolve the rehearsal `<id>`:
 3. Otherwise (no token, or the next token is another flag): set `<id>` = `<ts>`.
 
 Then act:
-- If `--rehearsal` is present AND `in_rehearsal = false` → **print the setup commands and EXIT immediately**, doing nothing else (no status validation, no story, nothing). Print this exact block, substituting the resolved `<id>`, `<N>`, and `<other-flags>` (every flag from `$ARGUMENTS` except `--rehearsal` and its optional `<label>` value):
+- If `--rehearsal` is present AND `in_rehearsal = false` → **print the setup commands and EXIT immediately**, doing nothing else (no status validation, no story, nothing). Print the block below, substituting the resolved `<id>`, `<N>`, and `<other-flags>` (every flag from `$ARGUMENTS` except `--rehearsal` and its optional `<label>` value).
 
-  Print the commands flush-left (no leading whitespace) so they paste cleanly into a shell. Use this exact shape:
+Render the block flush-left in your reply (no leading whitespace, no indentation, no list markers around the code fence) so the commands paste cleanly into a shell. Keep the three setup commands on three separate lines — short lines won't wrap in the terminal, and the user can still select all three and paste in one go (newlines act as Enter). Do NOT join them with `&&` into a single long line; the wrap is worse than the multi-line. Use this exact shape:
 
-  ```
-  Rehearsal mode requested. Run these commands yourself:
+```
+Rehearsal mode requested. Select all three lines and paste once:
 
-  ./scripts/atdd-rehearsal-start.sh <id>
-  cd ../rehearsal-<id>
-  claude
+./scripts/atdd-rehearsal-start.sh <id>
+cd ../rehearsal-<id>
+claude
 
-  Then in the new Claude Code session, re-invoke the skill (without --rehearsal):
+Then in the new Claude Code session, re-invoke the skill (without --rehearsal):
 
-  /atdd:atdd-implement-ticket #<N> <other-flags>
+/atdd:atdd-implement-ticket #<N> <other-flags>
 
-  Nothing has been done in this session. The fresh session is required so
-  Claude Code's working directory becomes the rehearsal worktree — otherwise
-  sub-agents would commit into your real repo.
-  ```
+Nothing has been done in this session. The fresh session is required so Claude Code's working directory becomes the rehearsal worktree — otherwise sub-agents would commit into your real repo.
+```
 
 - If `--rehearsal` is present AND `in_rehearsal = true` → ignore the flag (you're already in a rehearsal) and proceed.
 - If `--rehearsal` is absent → proceed.
