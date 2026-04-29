@@ -64,7 +64,7 @@ jobs:
       contents: read
       packages: read
     outputs:
-      version: ${{ steps.promote.outputs.status-tag }}
+      version: ${{ needs.check.outputs.version }}
       image-urls: ${{ needs.check.outputs.image-urls }}
     steps:
       - name: Checkout Repository
@@ -119,33 +119,15 @@ jobs:
           compose-file: docker-compose.pipeline.real.yml
           working-directory: docker/java/multitier
 
-      - name: Generate QA Deployed Tag
-        id: promote
-        uses: optivem/actions/compose-prerelease-status@v1
+      - name: Record QA Deployment
+        uses: optivem/actions/create-deployment@v1
         with:
-          prerelease-version: ${{ needs.check.outputs.version }}
-          environment: qa
-          status: deployed
-
-  publish-tag:
-    needs: run
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ inputs.version }}
-
-      - name: Publish Git Tag
-        uses: optivem/actions/publish-tag@v1
-        with:
-          tag: ${{ needs.run.outputs.version }}
+          ref: ${{ needs.check.outputs.version }}
+          environment: multitier-java-qa
           token: ${{ secrets.WORKFLOW_TOKEN }}
 
   summary:
-    needs: [check, run, publish-tag]
+    needs: [check, run]
     if: always()
     runs-on: ubuntu-latest
     permissions:
@@ -155,7 +137,7 @@ jobs:
       uses: optivem/actions/render-system-stage-summary@v1
       with:
         stage-name: 'QA Stage'
-        stage-result: ${{ needs.publish-tag.result == 'failure' && 'failure' || needs.run.result }}
+        stage-result: ${{ needs.run.result }}
         environment: qa
         success-version: ${{ needs.run.outputs.version }}
         success-artifact-ids: ${{ needs.run.outputs.image-urls }}

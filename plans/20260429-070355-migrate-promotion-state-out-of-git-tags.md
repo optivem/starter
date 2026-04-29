@@ -90,45 +90,19 @@ Floating Docker tags (`:qa`, `:staging`, `:prod`) optional as ergonomic pull han
 
 ## Sequencing
 
-Multi-step rollout. Steps 1–4 below; step 0 (the immediate stop-gap) is in the sister bug-fix plan.
+Steps 1 and 2 shipped together as a single batch (all 6 flavors + meta-release-stage migrated, no per-flavor branch needed since the writers and readers are migrated in lockstep). Steps 3 and 4 deferred.
 
-### Step 1 — Stop cutting new status tags
-
-In each acceptance / qa / staging / prod stage workflow, replace `publish-tag` (or equivalent) calls that emit status-suffixed tags with the corresponding API call:
-
-- Replace writing `*-acceptance-tested` git tag with:
-  - `gh api .../deployments` → Deployment Record on `acceptance` for the SHA, with `state=success`
-  - `gh api .../check-runs` → Check Run named `acceptance/tested`, `conclusion=success`, on the SHA, with workflow-run link in `output.summary`
-- Replace writing `*-qa-deployed` git tag with:
-  - `gh api .../deployments` → Deployment Record on `qa` for the SHA
-  - Status timeline updates as the deploy progresses (`in_progress` → `success` / `failure`)
-- Replace writing `*-qa-approved` git tag with:
-  - `gh api .../check-runs` → Check Run named `qa/signoff` written by a `workflow_dispatch` workflow (manual tester triggers it with `verdict ∈ {pass, fail}`), with `conclusion=success` for pass and `conclusion=failure` for reject
-  - Optionally: layer an Environment approval on the staging environment so the act of approving the staging deploy *is* the QA signoff (only if QA signoff is always coupled to a forward staging deploy)
-
-After this step, no new status-suffix git tags are created. Existing ones remain readable until step 2 retires consumers.
-
-**Per-flavor rollout:** start with one flavor (suggest `monolith-dotnet` since it's the one that surfaced the bug), validate end-to-end, then fan out across the other five flavors. Don't ship all six at once.
-
-### Step 2 — Migrate consumers off status-tag reads
-
-`grep` `optivem/shop/.github/workflows` for any workflow that reads `*-qa-deployed`, `*-qa-approved`, `*-acceptance-tested` tags (e.g. for "has this rc been QA-approved?" gates). Replace each with the equivalent API query:
-
-- `gh api repos/{repo}/deployments?environment=qa&sha=$SHA` for "deployed?"
-- `gh api repos/{repo}/commits/$SHA/check-runs` filtered by name (`acceptance/tested`, `qa/signoff`) for "tested?" / "signed-off?"
-- Branch-protection / required-checks for "must be signed-off before staging?"
-
-**Important ordering:** switch readers *before* writers in step 1 are removed for any given flavor — readers should gracefully fall back to the API while the producer side is still dual-writing or being migrated. Otherwise readers fail when the producer stops writing the tag.
-
-For each replaced consumer: include a unit/contract test that the API query returns the expected record shape on a representative SHA.
-
-### Step 3 — Audit & retire stop-gap
+### Step 3 — Audit & retire stop-gap — ⏳ Deferred
 
 Once no consumer reads status-suffix tags and no producer writes them, the post-resolve regex filter from the bug-fix plan becomes redundant safety. Remove it (or leave as defense-in-depth — low cost either way).
 
-### Step 4 — Optional historical cleanup
+⏳ Deferred — the regex filter lives in `_prerelease-pipeline.yml` (per `20260428-210716-resolve-latest-tag-from-sha-status-tag-collision.md`). Low priority since it's harmless defense-in-depth. Leave it; revisit if the file gets touched for another reason.
+
+### Step 4 — Optional historical cleanup — ⏳ Deferred
 
 Bulk-delete existing `*-acceptance-tested` / `*-qa-deployed` / `*-qa-approved` git tags from the repo. Tidies the namespace. Coordinate so no in-flight migration step still depends on reading them. Skip if there's any audit/legal reason to retain historical tags.
+
+⏳ Deferred — destructive (tag deletion). Needs explicit user approval before executing. The strict regex in the new actions/lookups already excludes legacy tags, so there's no functional reason to rush.
 
 ---
 
