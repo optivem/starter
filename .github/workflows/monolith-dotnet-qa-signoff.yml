@@ -24,17 +24,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      deployments: read
     outputs:
       version: ${{ inputs.version || steps.resolve-latest.outputs.ref }}
     steps:
-      - name: Ensure Environment Variables Defined
-        uses: optivem/actions/validate-env-vars-defined@v1
-        with:
-          names: |
-            WORKFLOW_TOKEN
-        env:
-          WORKFLOW_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
-
       - name: Resolve Latest QA-Deployed RC
         id: resolve-latest
         if: inputs.version == ''
@@ -43,7 +36,6 @@ jobs:
           environment: monolith-dotnet-qa
           ref-prefix: monolith-dotnet-v
           exclude-ref-prefix: monolith-dotnet-cloud-v
-          token: ${{ secrets.WORKFLOW_TOKEN }}
 
       - name: Check RC Exists
         if: inputs.version != ''
@@ -57,19 +49,18 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      statuses: write
     outputs:
       version: ${{ needs.check.outputs.version }}
       stage-result: ${{ inputs.result == 'approved' && 'success' || 'failure' }}
     steps:
-      - name: Record QA Signoff Check Run
-        uses: optivem/actions/create-check-run@v1
+      - name: Record QA Signoff Status
+        uses: optivem/actions/create-commit-status@v1
         with:
           ref: ${{ needs.check.outputs.version }}
-          name: qa/signoff
-          conclusion: ${{ inputs.result == 'approved' && 'success' || 'failure' }}
-          title: QA ${{ inputs.result == 'approved' && 'Approved' || 'Rejected' }}
-          summary: Manual QA tester ${{ inputs.result }} ${{ needs.check.outputs.version }}
-          token: ${{ secrets.WORKFLOW_TOKEN }}
+          context: qa/signoff
+          state: ${{ inputs.result == 'approved' && 'success' || 'failure' }}
+          description: Manual QA tester ${{ inputs.result }} ${{ needs.check.outputs.version }}
 
   summary:
     needs: [check, run]
