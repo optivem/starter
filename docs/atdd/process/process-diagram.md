@@ -9,7 +9,7 @@
 - `docs/atdd/process/acceptance-tests.md`
 - `docs/atdd/process/contract-tests.md`
 - `docs/atdd/process/glossary.md`
-- `docs/atdd/process/orchestrator.md`
+- `docs/atdd/process/cycles.md`
 
 ## Overview
 
@@ -54,7 +54,7 @@ flowchart TD
 ```mermaid
 flowchart TD
     TICKET([Ticket picked])
-    CLASSIFY{Ticket type classified by atdd-manager}
+    CLASSIFY{Ticket type classified by atdd-orchestrator}
     STORY[atdd-story — change-driven AC scenarios, one per acceptance criterion; optional legacy-coverage AC if the ticket has a Legacy Coverage section]
     BUG[atdd-bug — change-driven AC scenarios, one per distinct reproduction path; optional legacy-coverage AC if the ticket has a Legacy Coverage section]
     TASK_SYS_API[atdd-task-system-api — System API redesign, structural change; optional legacy-coverage AC if the ticket has a Legacy Coverage section]
@@ -320,5 +320,5 @@ flowchart TD
 
 ## Notes
 
-- `orchestrator.md` shows the AT cycle's external-driver branch as `External System Driver Interface Changed? — Yes → Contract Test Sub-Process → (then continue ↓)` returning into the System Driver Interface check. The AT Cycle diagram routes the CT return edge into the `System Driver Interface Changed?` decision to match this prose; the No branch from `External System Driver Interface Changed?` flows into the same decision.
+- `cycles.md` shows the AT cycle's external-driver branch as `External System Driver Interface Changed? — Yes → Contract Test Sub-Process → (then continue ↓)` returning into the System Driver Interface check. The AT Cycle diagram routes the CT return edge into the `System Driver Interface Changed?` decision to match this prose; the No branch from `External System Driver Interface Changed?` flows into the same decision.
 - `contract-tests.md` step 2 in CT - RED - TEST says "If they don't pass, ask the user for support. STOP." for the Real run, but for the Stub run only states "Verify that they fail" without an explicit branch for the unexpected case (Stub tests passing). The CT - RED - TEST detail diagram in `phase-details-diagram.md` routes that anomaly to `ASK_USER` for completeness; this is an inferred edge.

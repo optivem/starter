@@ -4,7 +4,7 @@ Conversation date: 2026-04-28. Session paused before edits because two new sibli
 
 ## Why
 
-The current process diagram (`docs/atdd/process/process-diagram.md`) and orchestrator prose (`docs/atdd/process/orchestrator.md`) only describe two agents in intake — `atdd-story` and `atdd-bug` — but two more exist as agent definitions: `atdd-task` and `atdd-chore`. Those are not behavioral changes and don't belong on the AT Cycle path; they need their own cycle and their own classification logic. The diagram + prose need to catch up.
+The current process diagram (`docs/atdd/process/process-diagram.md`) and orchestrator prose (`docs/atdd/process/cycles.md`) only describe two agents in intake — `atdd-story` and `atdd-bug` — but two more exist as agent definitions: `atdd-task` and `atdd-chore`. Those are not behavioral changes and don't belong on the AT Cycle path; they need their own cycle and their own classification logic. The diagram + prose need to catch up.
 
 ## Operational taxonomy (agreed)
 
@@ -32,7 +32,7 @@ The user will define the cycle's internal phases in a follow-up turn — do not 
 ## Plan placement (agreed)
 
 - `docs/atdd/process/glossary.md` — add term entries for: Behavioral change, Structural change, Interface change, Internal-only change, Legacy Coverage Cycle. Keep entries to 1–2 sentences each, using the operational definitions verbatim where you can.
-- `docs/atdd/process/orchestrator.md` — extend the existing **Intake (per ticket)** section so the routing table covers all four agent types and the prose explains the behavioral-vs-structural classification and the two cycles it routes into.
+- `docs/atdd/process/cycles.md` — extend the existing **Intake (per ticket)** section so the routing table covers all four agent types and the prose explains the behavioral-vs-structural classification and the two cycles it routes into.
 - **No new file.** The user explicitly chose not to create a new doc (e.g. `legacy-coverage-cycle.md`) for now — keep the prose in glossary + orchestrator. Revisit if the cycle's prose grows enough to warrant its own file.
 
 ## Diagram edits (process-diagram.md)
@@ -41,7 +41,7 @@ Use `diagram-content-editor` (after Claude Code restart) — scope: `process`. T
 
 ### Edit 1 — Intake block
 
-Currently the Intake block has only a story/bug branch off `CLASSIFY{Ticket type classified by atdd-manager}`. Extend it to four branches:
+Currently the Intake block has only a story/bug branch off `CLASSIFY{Ticket type classified by atdd-orchestrator}`. Extend it to four branches:
 
 - `atdd-story` (existing) → STOP_INTAKE → AT Cycle.
 - `atdd-bug` (existing) → STOP_INTAKE → AT Cycle.
@@ -89,7 +89,7 @@ Scope: process. Apply the base plan in plans/20260428-1500-ticket-classification
 
 Prose files (named up-front so step 1 of your workflow does not need to STOP and ask):
 - docs/atdd/process/glossary.md — add term entries for Behavioral change, Structural change, Interface change, Internal-only change, Legacy Coverage Cycle.
-- docs/atdd/process/orchestrator.md — extend the existing "Intake (per ticket)" section so the routing table covers all four agent types (story, bug, task, chore) and the prose explains the behavioral-vs-structural classification + the two cycles it routes into.
+- docs/atdd/process/cycles.md — extend the existing "Intake (per ticket)" section so the routing table covers all four agent types (story, bug, task, chore) and the prose explains the behavioral-vs-structural classification + the two cycles it routes into.
 
 No new prose file. Do not create legacy-coverage-cycle.md.
 ```

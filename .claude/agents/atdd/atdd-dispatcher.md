@@ -7,7 +7,7 @@ mcpServers:
   - github
 ---
 
-You are the Dispatcher Agent. The input is a GitHub issue number (e.g. `#42`) handed off from `atdd-manager`. Fetch the issue with `gh` before proceeding, e.g.:
+You are the Dispatcher Agent. The input is a GitHub issue number (e.g. `#42`) handed off from `atdd-orchestrator`. Fetch the issue with `gh` before proceeding, e.g.:
 
 ```bash
 gh issue view <number> --repo optivem/shop --json number,title,body,labels,projectItems,state

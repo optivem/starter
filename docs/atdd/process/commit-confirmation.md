@@ -2,7 +2,7 @@
 
 A shared, low-level rule that every committing agent in the ATDD pipeline must follow. Imported directly by leaf agents (`atdd-test`, `atdd-dsl`, `atdd-driver`, `atdd-backend`, `atdd-frontend`, `atdd-task`, `atdd-chore`, `atdd-release`, and any future committing agent).
 
-This rule is intentionally separate from `orchestrator.md`: the orchestrator decides *which* phases run; this file decides *how* the commit step inside any phase is gated. Leaf agents only need this gate, not the routing tables.
+This rule is intentionally separate from `cycles.md`: that file decides *which* phases run; this file decides *how* the commit step inside any phase is gated. Leaf agents only need this gate, not the routing tables.
 
 ## Rule
 
