@@ -17,9 +17,6 @@ on:
   workflow_call:
   workflow_dispatch:
 
-concurrency:
-  group: my-shop-bump-patch-version
-
 jobs:
   bump:
     runs-on: ubuntu-latest

@@ -267,7 +267,7 @@ The chore ticket carries a **checklist of refactor / upgrade steps** in its body
 | SYSTEM API REDESIGN - WRITE / COMMIT | `atdd-task` (subtype `system-api-redesign`) | WRITE = update System API + driver impl + STOP. COMMIT = shared structural-cycle COMMIT (compile, sample, commit, tick checklist). |
 | SYSTEM UI REDESIGN - WRITE / COMMIT | `atdd-task` (subtype `system-ui-redesign`) | WRITE = update System UI + driver impl + STOP. COMMIT = shared structural-cycle COMMIT. |
 | EXTERNAL API REDESIGN | `atdd-task` (subtype `external-system-api-change`) | No standalone WRITE/COMMIT — routes entirely through the Contract Test Sub-Process. |
-| CHORE - WRITE / COMMIT | `atdd-chore` _(see "Chore agent stops at intake" needs-decision in the audit plan)_ | WRITE = implement chore + STOP. COMMIT = shared structural-cycle COMMIT. |
+| CHORE - WRITE / COMMIT | `atdd-chore` | WRITE = implement chore + STOP. COMMIT = shared structural-cycle COMMIT. |
 
 ## STOP Behaviour
 

@@ -32,5 +32,6 @@
 2. If a GitHub issue was provided as input, tick the checkbox for each acceptance criterion completed by this ticket (local action; not CI-gated).
 3. Move the issue to **TICKET STATUS - IN ACCEPTANCE** — see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md). The cycle ends here; the agent is CI-unaware.
 
+## Legacy Coverage
 
-# TODO: VJ: Need to add insutrctions regarding handling legacy code...
+Legacy Coverage handling is defined in the Legacy Coverage Cycle (TBD). Behavioral AC and legacy-coverage AC are written into the same test class with the ordering rule from `at-red-test.md` step 1, and AT - GREEN - SYSTEM does not differentiate between them — when all tests are green the cycle ends.
