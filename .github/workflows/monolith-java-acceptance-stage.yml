@@ -144,6 +144,11 @@ jobs:
     permissions:
       contents: read
       packages: write
+    env:
+      # Job-level so every per-suite `gh optivem test system` step inherits.
+      # PropertyLoader falls back from -Denvironment system property to this
+      # env var to select Environment.ACCEPTANCE.
+      ENVIRONMENT: acceptance
     outputs:
       version: ${{ steps.rc-version.outputs.version }}
       image-urls: ${{ steps.tag-images.outputs.tagged-image-urls }}
@@ -257,15 +262,47 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh extension install optivem/gh-optivem
 
-      # Single CLI invocation replaces the per-suite gradle invocations.
-      # tests-latest.json is the source of truth for suites and per-suite -D
-      # flags; only ENVIRONMENT is overridden via shell env (PropertyLoader
-      # falls back from -Denvironment system property to the ENVIRONMENT env
-      # var, so the workflow drives it without per-command -D wiring).
-      - name: Run System Tests
-        env:
-          ENVIRONMENT: acceptance
-        run: gh optivem test system --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-latest.json
+      # Per-suite invocations of `gh optivem test system`. Each suite ID below
+      # matches an entry in tests-latest.json's suites[]. Splitting one step
+      # per suite restores the GitHub Actions UI's per-suite green/red
+      # checkmarks so a failure surfaces as a specific named step.
+      #
+      # The first step omits `--no-setup` so setupCommands (gradle compile)
+      # run once. Subsequent steps pass `--no-setup` to reuse the build
+      # outputs; without it each step would re-run the full compile pass —
+      # ~30-60s per step × 11 = unworkable.
+      - name: smoke-stub
+        run: gh optivem test system --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-latest.json --suite smoke-stub
+
+      - name: smoke-real
+        run: gh optivem test system --no-build --no-start --no-setup --system docker/java/monolith/system.json --tests system-test/java/tests-latest.json --suite smoke-real
+
+      - name: acceptance-api
+        run: gh optivem test system --no-build --no-start --no-setup --system docker/java/monolith/system.json --tests system-test/java/tests-latest.json --suite acceptance-api
+
+      - name: acceptance-ui
+        run: gh optivem test system --no-build --no-start --no-setup --system docker/java/monolith/system.json --tests system-test/java/tests-latest.json --suite acceptance-ui
+
+      - name: acceptance-isolated-api
+        run: gh optivem test system --no-build --no-start --no-setup --system docker/java/monolith/system.json --tests system-test/java/tests-latest.json --suite acceptance-isolated-api
+
+      - name: acceptance-isolated-ui
+        run: gh optivem test system --no-build --no-start --no-setup --system docker/java/monolith/system.json --tests system-test/java/tests-latest.json --suite acceptance-isolated-ui
+
+      - name: contract-stub
+        run: gh optivem test system --no-build --no-start --no-setup --system docker/java/monolith/system.json --tests system-test/java/tests-latest.json --suite contract-stub
+
+      - name: contract-stub-isolated
+        run: gh optivem test system --no-build --no-start --no-setup --system docker/java/monolith/system.json --tests system-test/java/tests-latest.json --suite contract-stub-isolated
+
+      - name: contract-real
+        run: gh optivem test system --no-build --no-start --no-setup --system docker/java/monolith/system.json --tests system-test/java/tests-latest.json --suite contract-real
+
+      - name: e2e-api
+        run: gh optivem test system --no-build --no-start --no-setup --system docker/java/monolith/system.json --tests system-test/java/tests-latest.json --suite e2e-api
+
+      - name: e2e-ui
+        run: gh optivem test system --no-build --no-start --no-setup --system docker/java/monolith/system.json --tests system-test/java/tests-latest.json --suite e2e-ui
 
       - name: Read Base System Version
         id: read-version
