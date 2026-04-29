@@ -274,37 +274,37 @@ jobs:
       # build outputs; without it each step would re-run the full clean +
       # build pass — ~20-40s per step × 11 = unworkable.
       - name: smoke-stub
-        run: gh optivem test system --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json --suite smoke-stub
+        run: gh optivem test system --suite smoke-stub --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: smoke-real
-        run: gh optivem test system --no-build --no-start --no-setup --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json --suite smoke-real
+        run: gh optivem test system --suite smoke-real --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: acceptance-api
-        run: gh optivem test system --no-build --no-start --no-setup --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json --suite acceptance-api
+        run: gh optivem test system --suite acceptance-api --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: acceptance-ui
-        run: gh optivem test system --no-build --no-start --no-setup --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json --suite acceptance-ui
+        run: gh optivem test system --suite acceptance-ui --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: acceptance-isolated-api
-        run: gh optivem test system --no-build --no-start --no-setup --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json --suite acceptance-isolated-api
+        run: gh optivem test system --suite acceptance-isolated-api --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: acceptance-isolated-ui
-        run: gh optivem test system --no-build --no-start --no-setup --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json --suite acceptance-isolated-ui
+        run: gh optivem test system --suite acceptance-isolated-ui --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: contract-stub
-        run: gh optivem test system --no-build --no-start --no-setup --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json --suite contract-stub
+        run: gh optivem test system --suite contract-stub --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: contract-stub-isolated
-        run: gh optivem test system --no-build --no-start --no-setup --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json --suite contract-stub-isolated
+        run: gh optivem test system --suite contract-stub-isolated --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: contract-real
-        run: gh optivem test system --no-build --no-start --no-setup --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json --suite contract-real
+        run: gh optivem test system --suite contract-real --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: e2e-api
-        run: gh optivem test system --no-build --no-start --no-setup --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json --suite e2e-api
+        run: gh optivem test system --suite e2e-api --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: e2e-ui
-        run: gh optivem test system --no-build --no-start --no-setup --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json --suite e2e-ui
+        run: gh optivem test system --suite e2e-ui --no-setup --no-build --no-start --system docker/dotnet/monolith/system.json --tests system-test/dotnet/tests-latest.json
 
       - name: Read Base System Version
         id: read-version
