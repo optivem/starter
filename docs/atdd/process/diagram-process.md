@@ -4,22 +4,22 @@
 
 ## Source docs
 
-- `docs/atdd/process/cycles.md`
 - `docs/atdd/process/at-cycle-conventions.md`
-- `docs/atdd/process/ct-cycle-conventions.md`
-- `docs/atdd/process/at-red-test.md`
+- `docs/atdd/process/at-green-system.md`
 - `docs/atdd/process/at-red-dsl.md`
 - `docs/atdd/process/at-red-system-driver.md`
-- `docs/atdd/process/at-green-system.md`
-- `docs/atdd/process/ct-red-test.md`
+- `docs/atdd/process/at-red-test.md`
+- `docs/atdd/process/ct-cycle-conventions.md`
+- `docs/atdd/process/ct-green-stubs.md`
 - `docs/atdd/process/ct-red-dsl.md`
 - `docs/atdd/process/ct-red-external-driver.md`
-- `docs/atdd/process/ct-green-stubs.md`
-- `docs/atdd/process/task-and-chore-cycles.md`
-- `docs/atdd/process/shared-phase-progression.md`
-- `docs/atdd/process/shared-commit-confirmation.md`
-- `docs/atdd/process/shared-ticket-status-in-acceptance.md`
+- `docs/atdd/process/ct-red-test.md`
+- `docs/atdd/process/cycles.md`
 - `docs/atdd/process/glossary.md`
+- `docs/atdd/process/shared-commit-confirmation.md`
+- `docs/atdd/process/shared-phase-progression.md`
+- `docs/atdd/process/shared-ticket-status-in-acceptance.md`
+- `docs/atdd/process/task-and-chore-cycles.md`
 
 ## Overview
 
@@ -28,80 +28,76 @@ flowchart TD
     INTAKE[Intake]
     LEGACY[Legacy Coverage Cycle]
     AT[AT Cycle]
-    SYS_API[System API Task Cycle]
-    SYS_UI[System UI Task Cycle]
-    EXT_API[External API Task Cycle]
+    SYSAPI[System API Task Cycle]
+    SYSUI[System UI Task Cycle]
+    EXTAPI[External API Task Cycle]
     CHORE[Chore Cycle]
     CT[Contract Test Sub-Process]
     ONBOARD[External System Onboarding Sub-Process]
-    IN_ACCEPTANCE[TICKET STATUS - IN ACCEPTANCE]
+    INACC[TICKET STATUS - IN ACCEPTANCE]
 
     INTAKE --> LEGACY
     INTAKE --> AT
-    INTAKE --> SYS_API
-    INTAKE --> SYS_UI
-    INTAKE --> EXT_API
+    INTAKE --> SYSAPI
+    INTAKE --> SYSUI
+    INTAKE --> EXTAPI
     INTAKE --> CHORE
     LEGACY --> AT
-    LEGACY --> SYS_API
-    LEGACY --> SYS_UI
-    LEGACY --> EXT_API
+    LEGACY --> SYSAPI
+    LEGACY --> SYSUI
+    LEGACY --> EXTAPI
     LEGACY --> CHORE
     AT --> CT
-    CT --> AT
-    EXT_API --> CT
+    EXTAPI --> CT
     CT --> ONBOARD
-    ONBOARD --> CT
-    AT --> IN_ACCEPTANCE
-    SYS_API --> IN_ACCEPTANCE
-    SYS_UI --> IN_ACCEPTANCE
-    EXT_API --> IN_ACCEPTANCE
-    CHORE --> IN_ACCEPTANCE
-    LEGACY --> IN_ACCEPTANCE
+    AT --> INACC
+    SYSAPI --> INACC
+    SYSUI --> INACC
+    EXTAPI --> INACC
+    CHORE --> INACC
+    LEGACY --> INACC
 ```
 
 ## Intake
 
+Per-phase mechanics for AT - RED - TEST, AT - RED - DSL, AT - RED - SYSTEM DRIVER, AT - GREEN - SYSTEM, CT - RED - TEST, CT - RED - DSL, CT - RED - EXTERNAL DRIVER, and CT - GREEN - STUBS are in [diagram-phase-details.md](diagram-phase-details.md).
+
 ```mermaid
 flowchart TD
-    TICKET[Pick Ticket]
+    PICK[Pick Ticket]
     CLASSIFY{Ticket Type?}
     STORY[atdd-story]
     BUG[atdd-bug]
     TASK[atdd-task]
     CHORE_AGENT[atdd-chore]
-    PRODUCE_AC[Produce change-driven + legacy-coverage AC]
-    STOP_INTAKE[STOP - HUMAN REVIEW — Approve scenarios]
-    LEGACY_GATE{Legacy Coverage section?}
+    STOP_INTAKE["STOP - HUMAN REVIEW — approve scenarios"]
+    GATE_LEGACY{Legacy Coverage section present?}
+    GATE_CHANGE{Change-driven AC produced?}
     LEGACY_CYCLE[Legacy Coverage Cycle — see § Legacy Coverage Cycle]
-    CHANGE_GATE{Change-driven AC produced?}
-    SUBTYPE{Task subtype?}
     AT_CYCLE[AT Cycle — see § AT Cycle]
-    SYS_API_CYCLE[System API Task Cycle — see § System API Task Cycle]
-    SYS_UI_CYCLE[System UI Task Cycle — see § System UI Task Cycle]
-    EXT_API_CYCLE[External API Task Cycle — see § External API Task Cycle]
+    SYSAPI_CYCLE[System API Task Cycle — see § System API Task Cycle]
+    SYSUI_CYCLE[System UI Task Cycle — see § System UI Task Cycle]
+    EXTAPI_CYCLE[External API Task Cycle — see § External API Task Cycle]
     CHORE_CYCLE[Chore Cycle — see § Chore Cycle]
 
-    TICKET --> CLASSIFY
+    PICK --> CLASSIFY
     CLASSIFY -->|story| STORY
     CLASSIFY -->|bug| BUG
-    CLASSIFY -->|task| TASK
+    CLASSIFY -->|system-api/system-ui/external-api task| TASK
     CLASSIFY -->|chore| CHORE_AGENT
-    STORY --> PRODUCE_AC
-    BUG --> PRODUCE_AC
-    TASK --> PRODUCE_AC
-    CHORE_AGENT --> PRODUCE_AC
-    PRODUCE_AC --> STOP_INTAKE
-    STOP_INTAKE --> LEGACY_GATE
-    LEGACY_GATE -->|No| CHANGE_GATE
-    LEGACY_GATE -->|Yes| LEGACY_CYCLE
-    LEGACY_CYCLE --> CHANGE_GATE
-    CHANGE_GATE -->|Yes| AT_CYCLE
-    CHANGE_GATE -->|No| SUBTYPE
-    SUBTYPE -->|system-api-task| SYS_API_CYCLE
-    SUBTYPE -->|system-ui-task| SYS_UI_CYCLE
-    SUBTYPE -->|external-api-task| EXT_API_CYCLE
-    SUBTYPE -->|chore| CHORE_CYCLE
+    STORY --> STOP_INTAKE
+    BUG --> STOP_INTAKE
+    TASK --> STOP_INTAKE
+    CHORE_AGENT --> STOP_INTAKE
+    STOP_INTAKE --> GATE_LEGACY
+    GATE_LEGACY -->|Yes| LEGACY_CYCLE
+    GATE_LEGACY -->|No| GATE_CHANGE
+    LEGACY_CYCLE --> GATE_CHANGE
+    GATE_CHANGE -->|Yes — story/bug| AT_CYCLE
+    GATE_CHANGE -->|No — system-api-task| SYSAPI_CYCLE
+    GATE_CHANGE -->|No — system-ui-task| SYSUI_CYCLE
+    GATE_CHANGE -->|No — external-api-task| EXTAPI_CYCLE
+    GATE_CHANGE -->|No — chore| CHORE_CYCLE
 
     classDef humanReviewNode fill:#ffeb3b,stroke:#fbc02d,stroke-width:2px,color:#000
     class STOP_INTAKE humanReviewNode
@@ -109,56 +105,56 @@ flowchart TD
 
 ## AT Cycle
 
-Per-phase mechanics for AT - RED - TEST, AT - RED - DSL, AT - RED - SYSTEM DRIVER, AT - GREEN - SYSTEM are in [diagram-phase-details.md](diagram-phase-details.md).
+Per-phase mechanics for AT - RED - TEST, AT - RED - DSL, AT - RED - SYSTEM DRIVER, and AT - GREEN - SYSTEM are in [diagram-phase-details.md](diagram-phase-details.md).
 
 ```mermaid
 flowchart TD
     AT_RED_TEST[AT - RED - TEST]
-    DSL_GATE{DSL Interface Changed?}
+    GATE_DSL_AT{DSL Interface Changed?}
     AT_RED_DSL[AT - RED - DSL]
-    EXT_GATE{External System Driver Interface Changed?}
+    GATE_EXT{External System Driver Interface Changed?}
     CT_SUB[Contract Test Sub-Process — see § Contract Test Sub-Process]
-    SYS_GATE{System Driver Interface Changed?}
+    GATE_SYS{System Driver Interface Changed?}
     AT_RED_SYS_DRIVER[AT - RED - SYSTEM DRIVER]
     AT_GREEN_SYS[AT - GREEN - SYSTEM]
-    IN_ACCEPTANCE[TICKET STATUS - IN ACCEPTANCE]
+    INACC[TICKET STATUS - IN ACCEPTANCE]
 
-    AT_RED_TEST --> DSL_GATE
-    DSL_GATE -->|No| AT_GREEN_SYS
-    DSL_GATE -->|Yes| AT_RED_DSL
-    AT_RED_DSL --> EXT_GATE
-    EXT_GATE -->|Yes| CT_SUB
-    EXT_GATE -->|No| SYS_GATE
-    CT_SUB --> SYS_GATE
-    SYS_GATE -->|No| AT_GREEN_SYS
-    SYS_GATE -->|Yes| AT_RED_SYS_DRIVER
+    AT_RED_TEST --> GATE_DSL_AT
+    GATE_DSL_AT -->|No| AT_GREEN_SYS
+    GATE_DSL_AT -->|Yes| AT_RED_DSL
+    AT_RED_DSL --> GATE_EXT
+    GATE_EXT -->|Yes| CT_SUB
+    CT_SUB --> GATE_SYS
+    GATE_EXT -->|No| GATE_SYS
+    GATE_SYS -->|No| AT_GREEN_SYS
+    GATE_SYS -->|Yes| AT_RED_SYS_DRIVER
     AT_RED_SYS_DRIVER --> AT_GREEN_SYS
-    AT_GREEN_SYS --> IN_ACCEPTANCE
+    AT_GREEN_SYS --> INACC
 ```
 
 ## Contract Test Sub-Process
 
-Per-phase mechanics for CT - RED - TEST, CT - RED - DSL, CT - RED - EXTERNAL DRIVER, CT - GREEN - STUBS are in [diagram-phase-details.md](diagram-phase-details.md).
+Per-phase mechanics for CT - RED - TEST, CT - RED - DSL, CT - RED - EXTERNAL DRIVER, and CT - GREEN - STUBS are in [diagram-phase-details.md](diagram-phase-details.md).
 
 ```mermaid
 flowchart TD
-    ONBOARD[External System Onboarding — see § External System Onboarding Sub-Process]
+    ONBOARD[External System Onboarding Sub-Process — see § External System Onboarding Sub-Process]
     CT_RED_TEST[CT - RED - TEST]
-    DSL_GATE{DSL Interface Changed?}
+    GATE_DSL_CT{DSL Interface Changed?}
     CT_RED_DSL[CT - RED - DSL]
-    EXT_GATE{External System Driver Interface Changed?}
-    CT_RED_EXT_DRIVER[CT - RED - EXTERNAL DRIVER]
+    GATE_EXT_CT{External System Driver Interface Changed?}
+    CT_RED_EXT[CT - RED - EXTERNAL DRIVER]
     CT_GREEN_STUBS[CT - GREEN - STUBS]
-    RETURN[Return to AT Cycle]
+    RETURN[Return to AT cycle / EXTERNAL API REDESIGN]
 
     ONBOARD --> CT_RED_TEST
-    CT_RED_TEST --> DSL_GATE
-    DSL_GATE -->|No| CT_GREEN_STUBS
-    DSL_GATE -->|Yes| CT_RED_DSL
-    CT_RED_DSL --> EXT_GATE
-    EXT_GATE -->|No| CT_GREEN_STUBS
-    EXT_GATE -->|Yes| CT_RED_EXT_DRIVER
-    CT_RED_EXT_DRIVER --> CT_GREEN_STUBS
+    CT_RED_TEST --> GATE_DSL_CT
+    GATE_DSL_CT -->|No| CT_GREEN_STUBS
+    GATE_DSL_CT -->|Yes| CT_RED_DSL
+    CT_RED_DSL --> GATE_EXT_CT
+    GATE_EXT_CT -->|No| CT_GREEN_STUBS
+    GATE_EXT_CT -->|Yes| CT_RED_EXT
+    CT_RED_EXT --> CT_GREEN_STUBS
     CT_GREEN_STUBS --> RETURN
 ```
 
@@ -166,35 +162,35 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    DRIVER_GATE{Driver exists?}
-    INSTANCE_GATE{Test Instance accessible?}
+    GATE_DRIVER{External System Driver exists?}
+    RETURN_EARLY[Return to Contract Test Sub-Process]
+    GATE_INSTANCE{Test Instance accessible?}
     PROVISION[Provision dockerized stand-in]
     DEFINE_IFACE[Define minimal Driver interface]
-    IMPL_DRIVER[Implement Driver impl]
-    WRITE_SMOKE[Write Smoke Test]
+    IMPL_DRIVER[Implement Driver impl for Smoke Test]
+    WRITE_SMOKE[Write single Smoke Test]
     RUN_SMOKE[Run Smoke Test]
-    SMOKE_PASS{Passes?}
-    ASK_SUPPORT[Ask user for support — STOP]
-    STOP_REVIEW[STOP - HUMAN REVIEW — Approve onboarding]
-    COMMIT[COMMIT: External System Onboarding]
-    RETURN_EARLY[Return to CT Sub-Process]
-    RETURN[Return to CT - RED - TEST]
+    SMOKE_PASS{Smoke Test passes?}
+    ASK_STOP[Ask user for support and STOP]
+    STOP_REVIEW["STOP - HUMAN REVIEW — approve onboarding artifacts"]
+    COMMIT_ONBOARD["COMMIT: External System Onboarding | External System Name"]
+    RETURN_CT[Return to CT - RED - TEST]
 
-    DRIVER_GATE -->|Yes| RETURN_EARLY
-    DRIVER_GATE -->|No| INSTANCE_GATE
-    INSTANCE_GATE -->|Yes| DEFINE_IFACE
-    INSTANCE_GATE -->|No| PROVISION
+    GATE_DRIVER -->|Yes| RETURN_EARLY
+    GATE_DRIVER -->|No| GATE_INSTANCE
+    GATE_INSTANCE -->|Yes| DEFINE_IFACE
+    GATE_INSTANCE -->|No| PROVISION
     PROVISION --> DEFINE_IFACE
     DEFINE_IFACE --> IMPL_DRIVER
     IMPL_DRIVER --> WRITE_SMOKE
     WRITE_SMOKE --> RUN_SMOKE
     RUN_SMOKE --> SMOKE_PASS
-    SMOKE_PASS -->|No| ASK_SUPPORT
+    SMOKE_PASS -->|No| ASK_STOP
     SMOKE_PASS -->|Yes| STOP_REVIEW
-    STOP_REVIEW --> COMMIT
-    COMMIT --> RETURN
+    STOP_REVIEW --> COMMIT_ONBOARD
+    COMMIT_ONBOARD --> RETURN_CT
 
-    classDef effortNode fill:#cce5ff,stroke:#004085,stroke-width:2px
+    classDef effortNode fill:#004085,stroke:#002752,stroke-width:2px,color:#ffffff
     class PROVISION,DEFINE_IFACE,IMPL_DRIVER,WRITE_SMOKE effortNode
     classDef humanReviewNode fill:#ffeb3b,stroke:#fbc02d,stroke-width:2px,color:#000
     class STOP_REVIEW humanReviewNode
@@ -202,76 +198,127 @@ flowchart TD
 
 ## System API Task Cycle
 
-Per-phase mechanics for SYSTEM API REDESIGN are in [diagram-phase-details.md](diagram-phase-details.md).
-
 ```mermaid
 flowchart TD
-    WRITE[SYSTEM API REDESIGN - WRITE]
-    REVIEW[SYSTEM API REDESIGN - REVIEW]
-    TEST[SYSTEM API REDESIGN - TEST]
-    COMMIT[SYSTEM API REDESIGN - COMMIT]
-    IN_ACCEPTANCE[TICKET STATUS - IN ACCEPTANCE]
+    WRITE["SYSTEM API REDESIGN - WRITE — update System API + driver impl"]
+    REVIEW["STOP - HUMAN REVIEW — approve implementation"]
+    TEST_GATE{TEST mode?}
+    COMPILE[Compile in-scope projects]
+    SAMPLE["Run sample suite"]
+    DRIFT[Print drift warning if applicable]
+    STOP_TEST["STOP - HUMAN REVIEW — review TEST results"]
+    ASK_COMMIT["Ask: Can I commit?"]
+    COMMIT["COMMIT: Ticket | SYSTEM API REDESIGN"]
+    TICK[Tick checklist items]
+    INACC[TICKET STATUS - IN ACCEPTANCE]
 
     WRITE --> REVIEW
-    REVIEW --> TEST
-    TEST --> COMMIT
-    COMMIT --> IN_ACCEPTANCE
+    REVIEW --> TEST_GATE
+    TEST_GATE -->|skip| ASK_COMMIT
+    TEST_GATE -->|compile| COMPILE
+    TEST_GATE -->|full| COMPILE
+    COMPILE --> SAMPLE
+    SAMPLE --> DRIFT
+    DRIFT --> STOP_TEST
+    STOP_TEST --> ASK_COMMIT
+    ASK_COMMIT --> COMMIT
+    COMMIT --> TICK
+    TICK --> INACC
+
+    classDef humanReviewNode fill:#ffeb3b,stroke:#fbc02d,stroke-width:2px,color:#000
+    class REVIEW,STOP_TEST humanReviewNode
 ```
 
 ## System UI Task Cycle
 
-Per-phase mechanics for SYSTEM UI REDESIGN are in [diagram-phase-details.md](diagram-phase-details.md).
-
 ```mermaid
 flowchart TD
-    WRITE[SYSTEM UI REDESIGN - WRITE]
-    REVIEW[SYSTEM UI REDESIGN - REVIEW]
-    TEST[SYSTEM UI REDESIGN - TEST]
-    COMMIT[SYSTEM UI REDESIGN - COMMIT]
-    IN_ACCEPTANCE[TICKET STATUS - IN ACCEPTANCE]
+    WRITE["SYSTEM UI REDESIGN - WRITE — update System UI + driver impl"]
+    REVIEW["STOP - HUMAN REVIEW — approve implementation"]
+    TEST_GATE{TEST mode?}
+    COMPILE[Compile in-scope projects]
+    SAMPLE["Run sample suite"]
+    DRIFT[Print drift warning if applicable]
+    STOP_TEST["STOP - HUMAN REVIEW — review TEST results"]
+    ASK_COMMIT["Ask: Can I commit?"]
+    COMMIT["COMMIT: Ticket | SYSTEM UI REDESIGN"]
+    TICK[Tick checklist items]
+    INACC[TICKET STATUS - IN ACCEPTANCE]
 
     WRITE --> REVIEW
-    REVIEW --> TEST
-    TEST --> COMMIT
-    COMMIT --> IN_ACCEPTANCE
+    REVIEW --> TEST_GATE
+    TEST_GATE -->|skip| ASK_COMMIT
+    TEST_GATE -->|compile| COMPILE
+    TEST_GATE -->|full| COMPILE
+    COMPILE --> SAMPLE
+    SAMPLE --> DRIFT
+    DRIFT --> STOP_TEST
+    STOP_TEST --> ASK_COMMIT
+    ASK_COMMIT --> COMMIT
+    COMMIT --> TICK
+    TICK --> INACC
+
+    classDef humanReviewNode fill:#ffeb3b,stroke:#fbc02d,stroke-width:2px,color:#000
+    class REVIEW,STOP_TEST humanReviewNode
 ```
 
 ## External API Task Cycle
 
 ```mermaid
 flowchart TD
+    ENTRY[Triggered: ticket type = external-api-task]
     CT_SUB[Contract Test Sub-Process — see § Contract Test Sub-Process]
-    IN_ACCEPTANCE[TICKET STATUS - IN ACCEPTANCE]
+    INACC[TICKET STATUS - IN ACCEPTANCE]
 
-    CT_SUB --> IN_ACCEPTANCE
+    ENTRY --> CT_SUB
+    CT_SUB --> INACC
 ```
 
 ## Chore Cycle
 
-Per-phase mechanics for CHORE are in [diagram-phase-details.md](diagram-phase-details.md).
-
 ```mermaid
 flowchart TD
-    WRITE[CHORE - WRITE]
-    REVIEW[CHORE - REVIEW]
-    TEST[CHORE - TEST]
-    COMMIT[CHORE - COMMIT]
-    IN_ACCEPTANCE[TICKET STATUS - IN ACCEPTANCE]
+    WRITE["CHORE - WRITE — implement chore"]
+    REVIEW["STOP - HUMAN REVIEW — approve implementation"]
+    TEST_GATE{TEST mode?}
+    COMPILE[Compile in-scope projects]
+    SAMPLE["Run sample suite"]
+    DRIFT[Print drift warning if applicable]
+    STOP_TEST["STOP - HUMAN REVIEW — review TEST results"]
+    ASK_COMMIT["Ask: Can I commit?"]
+    COMMIT["COMMIT: Ticket | CHORE"]
+    TICK[Tick checklist items]
+    INACC[TICKET STATUS - IN ACCEPTANCE]
 
     WRITE --> REVIEW
-    REVIEW --> TEST
-    TEST --> COMMIT
-    COMMIT --> IN_ACCEPTANCE
+    REVIEW --> TEST_GATE
+    TEST_GATE -->|skip| ASK_COMMIT
+    TEST_GATE -->|compile| COMPILE
+    TEST_GATE -->|full| COMPILE
+    COMPILE --> SAMPLE
+    SAMPLE --> DRIFT
+    DRIFT --> STOP_TEST
+    STOP_TEST --> ASK_COMMIT
+    ASK_COMMIT --> COMMIT
+    COMMIT --> TICK
+    TICK --> INACC
+
+    classDef humanReviewNode fill:#ffeb3b,stroke:#fbc02d,stroke-width:2px,color:#000
+    class REVIEW,STOP_TEST humanReviewNode
 ```
 
 ## Legacy Coverage Cycle
 
 ```mermaid
 flowchart TD
-    ENTER[Enter Legacy Coverage Cycle]
+    ENTRY[Triggered: ticket has Legacy Coverage section]
     TBD[Internal phases TBD — see glossary.md]
-    EXIT[Continue to type-specific cycle]
+    NEXT[Continue to type-specific cycle]
 
-    ENTER --> TBD
-    TBD --> EXIT
+    ENTRY --> TBD
+    TBD --> NEXT
 ```
+
+## Notes
+
+The Legacy Coverage Cycle's internal phases are explicitly marked TBD in `glossary.md` ("The Legacy Coverage Cycle's own internal phases are TBD") and in `at-green-system.md` ("Legacy Coverage handling is defined in the Legacy Coverage Cycle (TBD)"); only the entry trigger and ordering relative to the type-specific cycle are diagrammed.
