@@ -1,0 +1,41 @@
+name: bump-patch-version-multirepo
+
+# Cross-repo dispatcher for multirepo student repos.
+#
+# Used by gh-optivem during `gh optivem init` to provide bump-patch-version.yml
+# in the ROOT repo of a multirepo student (monolith-multirepo or multitier-multirepo).
+# Triggered automatically at the end of each prod-stage when a release has
+# been cut. Fires the bump-patch-version.yml workflow in each sibling repo
+# via cross-repo `gh workflow run` so siblings bump their own VERSION files
+# locally — fully aligned with the per-component pattern that cleanup also uses.
+#
+# Sibling repo list is rewritten by gh-optivem at scaffold time:
+#   __SIBLING_REPOS__ -> "<owner>/<system-repo>"  (monolith-multirepo)
+#   __SIBLING_REPOS__ -> "<owner>/<backend> <owner>/<frontend>"  (multitier-multirepo)
+#
+# Token: WORKFLOW_TOKEN must have `actions:write` on each sibling repo. This
+# token is already provisioned for multirepo scaffolds (used by prod-stage
+# cross-repo tagging).
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+concurrency:
+  group: bump-patch-version-multirepo
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch sibling bumpers
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          siblings="__SIBLING_REPOS__"
+          for repo in $siblings; do
+            echo "Dispatching bump-patch-version.yml on $repo"
+            gh workflow run bump-patch-version.yml --repo "$repo"
+          done

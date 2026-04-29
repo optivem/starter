@@ -1,0 +1,65 @@
+name: multitier-backend-dotnet-bump-patch-version
+
+# Per-flavor scaffold source for bump-patch-version (multitier-multirepo backend dotnet).
+#
+# Used by gh-optivem during `gh optivem init` to provide bump-patch-version.yml
+# for the BACKEND repo of a multitier-multirepo student. Bumps the backend's
+# own VERSION based on its own image's GHCR tag — fully self-contained, no
+# cross-repo coordination from the workflow itself. The trigger comes via
+# workflow_dispatch from the root repo's `bump-patch-version-multirepo.yml`
+# dispatcher after a release.
+#
+# After scaffold, this file is renamed to `bump-patch-version.yml` in the
+# backend repo and content rewrites collapse `multitier-backend-{lang}` to
+# `backend` (image and VERSION path).
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+concurrency:
+  group: multitier-backend-dotnet-bump-patch-version
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Compute Patch Bumps
+        id: bump
+        uses: optivem/actions/bump-patch-versions@v1
+        with:
+          version-files: |
+            [
+              {"path": "system/multitier/backend-dotnet/VERSION", "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/multitier-backend-dotnet"}
+            ]
+
+      - name: Build Commit Payload
+        id: payload
+        if: steps.bump.outputs.bumped == 'true'
+        shell: bash
+        env:
+          BUMPS: ${{ steps.bump.outputs.bumps }}
+        run: |
+          set -euo pipefail
+          files=$(jq -c '[.[] | {
+            path: .path,
+            content: ("\(.["new-version"])\n"),
+            message: "Bump \(.path) \(.["old-version"]) -> \(.["new-version"]) (post \(.["release-signal"]))"
+          }]' <<< "$BUMPS")
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+
+      - name: Commit Bumped VERSION Files
+        if: steps.bump.outputs.bumped == 'true'
+        uses: optivem/actions/commit-files@v1
+        with:
+          files: ${{ steps.payload.outputs.files }}
+          branch: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
