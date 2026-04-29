@@ -43,6 +43,10 @@ on:
         required: false
         type: string
         default: '14400'
+    outputs:
+      commit_sha:
+        description: 'SHA the verification ran against. Equals the trigger SHA unless the check job auto-bumped via meta-bump-all, in which case it is the post-bump main HEAD. Callers that tag artifacts (e.g. meta-prerelease-stage tagging meta-rc) should use this rather than github.sha so the tag lands on the SHA that was actually verified.'
+        value: ${{ jobs.check.outputs.commit_sha }}
 
 jobs:
   # Single gate before any downstream jobs:
@@ -65,8 +69,17 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      # Required so the Verify step can dispatch + wait on meta-bump-all when
+      # a version slot is already taken — auto-bumps the VERSION files so this
+      # in-flight run can recover and proceed without a fresh trigger.
+      actions: write
     outputs:
       should_run: ${{ steps.decide.outputs.should_run }}
+      # SHA that downstream jobs should pin to. Equals the original github.sha
+      # if no bump was needed; otherwise the post-bump main HEAD pushed by
+      # meta-bump-all. Threaded out via the workflow_call's `commit_sha` output
+      # so the calling stage workflow can tag meta-rc against the bumped SHA.
+      commit_sha: ${{ steps.resolve-sha.outputs.commit_sha }}
     steps:
       - name: Print input parameters
         run: |
@@ -191,7 +204,8 @@ jobs:
             echo "results=${results}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Verify System Release + Component Images Not Yet Published
+      - name: Verify Versions Not Yet Released (Pre-Bump)
+        id: verify-pre-bump
         if: ${{ steps.decide.outputs.should_run == 'true' }}
         shell: bash
         env:
@@ -223,19 +237,160 @@ jobs:
           if [[ "$(jq 'length' <<< "$found")" -gt 0 ]]; then
             BUMP_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/workflows/meta-bump-all.yml"
             {
-              echo "## Version already released"
+              echo "## Version slot taken — auto-bumping"
               echo ""
               echo "The following artifacts already exist:"
               echo ""
               jq -r '.[] | "- `\(.)`"' <<< "$found"
               echo ""
-              echo "Run the [meta-bump-all workflow](${BUMP_URL}) to advance every VERSION file (meta + monolith × 3 + multitier — each child is idempotent), then re-run this workflow."
+              echo "Auto-dispatching the [meta-bump-all workflow](${BUMP_URL}) to advance every VERSION file (meta + monolith × 3 + multitier — each child is idempotent), then re-checking before fanning out to local/commit/pipeline."
             } >> "$GITHUB_STEP_SUMMARY"
             found_flat=$(jq -r 'join(", ")' <<< "$found")
-            echo "::error::Version already released: ${found_flat}. Run the meta-bump-all workflow to advance every VERSION file, then re-run this workflow: ${BUMP_URL}"
+            echo "::notice::Version slot taken: ${found_flat}. Auto-dispatching meta-bump-all and re-checking."
+            echo "needs_bump=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "All artifacts available for current VERSION values across meta + monoliths + components + per-flavor tags. OK to proceed."
+            echo "needs_bump=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Auto-recovery: dispatch meta-bump-all (idempotent — children that have
+      # nothing to bump exit clean) and wait for it to finish pushing the bump
+      # commits, then re-probe everything against the new HEAD. Only fires when
+      # the pre-bump verify found a collision.
+      - name: Auto-Dispatch meta-bump-all And Wait
+        if: ${{ steps.verify-pre-bump.outputs.needs_bump == 'true' }}
+        uses: optivem/actions/trigger-and-wait-for-workflow@v1
+        with:
+          workflow: meta-bump-all.yml
+          timeout-seconds: '900'
+          poll-interval: '30'
+
+      - name: Re-Checkout After Bump
+        if: ${{ steps.verify-pre-bump.outputs.needs_bump == 'true' }}
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Re-Read VERSION Values
+        id: read-versions-post-bump
+        if: ${{ steps.verify-pre-bump.outputs.needs_bump == 'true' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "meta=$(tr -d '[:space:]' < VERSION)"
+            echo "mt_be_dotnet=$(tr -d '[:space:]' < system/multitier/backend-dotnet/VERSION)"
+            echo "mt_be_java=$(tr -d '[:space:]' < system/multitier/backend-java/VERSION)"
+            echo "mt_be_typescript=$(tr -d '[:space:]' < system/multitier/backend-typescript/VERSION)"
+            echo "mt_fe_react=$(tr -d '[:space:]' < system/multitier/frontend-react/VERSION)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Re-Probe Meta System Release
+        id: probe-release-post-bump
+        if: ${{ steps.verify-pre-bump.outputs.needs_bump == 'true' }}
+        uses: optivem/actions/check-tag-exists@v1
+        with:
+          tag: meta-v${{ steps.read-versions-post-bump.outputs.meta }}
+
+      - name: Re-Probe Component + Monolith Image Tags
+        id: probe-images-post-bump
+        if: ${{ steps.verify-pre-bump.outputs.needs_bump == 'true' }}
+        uses: optivem/actions/check-ghcr-packages-exist@v1
+        with:
+          image-urls: |
+            ghcr.io/${{ github.repository }}/monolith-system-dotnet:v${{ steps.read-versions-post-bump.outputs.meta }}
+            ghcr.io/${{ github.repository }}/monolith-system-java:v${{ steps.read-versions-post-bump.outputs.meta }}
+            ghcr.io/${{ github.repository }}/monolith-system-typescript:v${{ steps.read-versions-post-bump.outputs.meta }}
+            ghcr.io/${{ github.repository }}/multitier-backend-dotnet:v${{ steps.read-versions-post-bump.outputs.mt_be_dotnet }}
+            ghcr.io/${{ github.repository }}/multitier-backend-java:v${{ steps.read-versions-post-bump.outputs.mt_be_java }}
+            ghcr.io/${{ github.repository }}/multitier-backend-typescript:v${{ steps.read-versions-post-bump.outputs.mt_be_typescript }}
+            ghcr.io/${{ github.repository }}/multitier-frontend-react:v${{ steps.read-versions-post-bump.outputs.mt_fe_react }}
+
+      - name: Re-Probe Per-Flavor Final Release Tags
+        id: probe-flavor-tags-post-bump
+        if: ${{ steps.verify-pre-bump.outputs.needs_bump == 'true' }}
+        shell: bash
+        env:
+          META: ${{ steps.read-versions-post-bump.outputs.meta }}
+        run: |
+          set -euo pipefail
+          found=()
+          for prefix in monolith-java monolith-dotnet monolith-typescript multitier-java multitier-dotnet multitier-typescript; do
+            tag="${prefix}-v${META}"
+            if git rev-parse --verify --quiet "refs/tags/${tag}" >/dev/null; then
+              found+=("${tag} (from VERSION)")
+            fi
+          done
+          if [ "${#found[@]}" -eq 0 ]; then
+            echo "results=[]" >> "$GITHUB_OUTPUT"
+          else
+            results=$(printf '%s\n' "${found[@]}" | jq -R . | jq -sc '.')
+            echo "results=${results}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify Versions Not Yet Released (Post-Bump)
+        if: ${{ steps.verify-pre-bump.outputs.needs_bump == 'true' }}
+        shell: bash
+        env:
+          META_EXISTS: ${{ steps.probe-release-post-bump.outputs.exists }}
+          META_KEY: meta-v${{ steps.read-versions-post-bump.outputs.meta }} (from VERSION)
+          IMAGE_RESULTS: ${{ steps.probe-images-post-bump.outputs.results }}
+          FLAVOR_TAG_RESULTS: ${{ steps.probe-flavor-tags-post-bump.outputs.results }}
+        run: |
+          set -euo pipefail
+          found=$(jq -c '
+            [
+              .[] | select(.exists == true) |
+              (.image | sub("^ghcr.io/[^/]+/[^/]+/"; "")) as $suffix |
+              (if ($suffix | startswith("monolith-"))
+               then "VERSION"
+               else "system/multitier/" + ($suffix | sub("^multitier-"; "")) + "/VERSION"
+               end) as $provenance |
+              "\($suffix):\(.tag) (from \($provenance))"
+            ]
+          ' <<< "$IMAGE_RESULTS")
+          if [[ "$META_EXISTS" == "true" ]]; then
+            found=$(jq -c --arg k "$META_KEY" '. + [$k]' <<< "$found")
+          fi
+          found=$(jq -c --argjson extra "$FLAVOR_TAG_RESULTS" '. + $extra' <<< "$found")
+          if [[ "$(jq 'length' <<< "$found")" -gt 0 ]]; then
+            BUMP_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/workflows/meta-bump-all.yml"
+            {
+              echo "## Version slots STILL taken after auto-bump"
+              echo ""
+              echo "The following artifacts existed both before and after meta-bump-all ran:"
+              echo ""
+              jq -r '.[] | "- `\(.)`"' <<< "$found"
+              echo ""
+              echo "meta-bump-all did not advance the relevant VERSION files. Investigate manually: ${BUMP_URL}"
+            } >> "$GITHUB_STEP_SUMMARY"
+            found_flat=$(jq -r 'join(", ")' <<< "$found")
+            echo "::error::Version slot STILL taken after auto-bump: ${found_flat}. Investigate meta-bump-all: ${BUMP_URL}"
             exit 1
           fi
-          echo "All artifacts available for current VERSION values across meta + monoliths + components. OK to proceed."
+          echo "All artifacts available after auto-bump. OK to proceed."
+
+      # Resolve the SHA downstream jobs should pin to. If we bumped, this is the
+      # post-bump main HEAD (which contains the new VERSION files); otherwise it's
+      # the original github.sha so behavior is unchanged on the no-bump path.
+      - name: Resolve Downstream commit_sha
+        id: resolve-sha
+        if: ${{ steps.decide.outputs.should_run == 'true' }}
+        shell: bash
+        env:
+          NEEDS_BUMP: ${{ steps.verify-pre-bump.outputs.needs_bump }}
+          ORIGINAL_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [[ "$NEEDS_BUMP" == "true" ]]; then
+            sha=$(git rev-parse HEAD)
+            echo "Post-bump HEAD: $sha"
+          else
+            sha="$ORIGINAL_SHA"
+            echo "No bump needed; reusing original SHA: $sha"
+          fi
+          echo "commit_sha=$sha" >> "$GITHUB_OUTPUT"
 
   # Phase 0/1a: Run all local stages in parallel — independent of `commit` (Phase 1b)
   # and runs alongside it. fail-fast (input, default true) cancels siblings on first failure.
@@ -252,7 +407,7 @@ jobs:
         uses: optivem/actions/trigger-and-wait-for-workflow@v1
         with:
           workflow: prerelease-pipeline-${{ matrix.variant }}.yml
-          workflow-inputs: '{"level": "local", "skip-commit-stage": "true", "skip-acceptance-legacy": "${{ inputs.skip-acceptance-legacy }}", "commit-sha": "${{ github.sha }}"}'
+          workflow-inputs: '{"level": "local", "skip-commit-stage": "true", "skip-acceptance-legacy": "${{ inputs.skip-acceptance-legacy }}", "commit-sha": "${{ needs.check.outputs.commit_sha }}"}'
 
   # Phase 1b: Run all commit stages in parallel (deduplicated — frontend-react is shared
   # across multitier variants). Independent of `local` (Phase 1a) — both gate only on `check`
@@ -292,7 +447,7 @@ jobs:
         uses: optivem/actions/trigger-and-wait-for-workflow@v1
         with:
           workflow: ${{ matrix.workflow }}
-          workflow-inputs: '{"commit-sha": "${{ github.sha }}"}'
+          workflow-inputs: '{"commit-sha": "${{ needs.check.outputs.commit_sha }}"}'
 
   # Phase 2: Run all pipelines in parallel. Each pipeline produces RC tags namespaced
   # by its prefix (e.g. monolith-java-v1.0.0-rc.N), so there are no shared-counter collisions.
@@ -301,7 +456,7 @@ jobs:
   # via the workflow_call's aggregate result.
   # fail-fast (input, default true) cancels siblings on first failure.
   pipeline:
-    needs: commit
+    needs: [check, commit]
     if: ${{ always() && !failure() && !cancelled() && contains(fromJSON('["acceptance","qa"]'), inputs.level) }}
     strategy:
       fail-fast: ${{ inputs.fail-fast }}
@@ -314,7 +469,7 @@ jobs:
         with:
           workflow: prerelease-pipeline-${{ matrix.variant }}.yml
           timeout-seconds: ${{ inputs.pipeline-timeout-seconds }}
-          workflow-inputs: '{"level": "${{ inputs.level }}", "skip-local-stage": "true", "skip-commit-stage": "true", "skip-acceptance-legacy": "${{ inputs.skip-acceptance-legacy }}", "commit-sha": "${{ github.sha }}", "debug-skip-tests": "${{ inputs.debug-skip-tests }}"}'
+          workflow-inputs: '{"level": "${{ inputs.level }}", "skip-local-stage": "true", "skip-commit-stage": "true", "skip-acceptance-legacy": "${{ inputs.skip-acceptance-legacy }}", "commit-sha": "${{ needs.check.outputs.commit_sha }}", "debug-skip-tests": "${{ inputs.debug-skip-tests }}"}'
 
   # Cross-language behavior-parity regression check. Runs in parallel with `pipeline`
   # above — both need `commit` because cross-lang pulls the `sha-<sha>` images that
@@ -326,9 +481,9 @@ jobs:
   # against each other; a single-variant run only publishes one SUT image set, so the
   # other matrix entries would 404 on digest resolution.
   cross-lang:
-    needs: commit
+    needs: [check, commit]
     if: ${{ always() && !failure() && !cancelled() && !inputs.debug-skip-tests && inputs.variant == 'all' && contains(fromJSON('["acceptance","qa"]'), inputs.level) }}
     uses: ./.github/workflows/cross-lang-system-verification.yml
     secrets: inherit
     with:
-      commit-sha: ${{ github.sha }}
+      commit-sha: ${{ needs.check.outputs.commit_sha }}

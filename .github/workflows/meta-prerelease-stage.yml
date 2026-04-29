@@ -160,30 +160,50 @@ jobs:
     # Uses !failure() && !cancelled() so a clean skip (e.g. cross-lang skipped
     # by debug-skip-tests) still permits tagging, while any failure inside
     # `run` blocks it.
+    #
+    # We tag `needs.run.outputs.commit_sha`, not `github.sha`, because
+    # `_meta-prerelease-pipeline.yml`'s check job may have auto-bumped via
+    # meta-bump-all and re-pinned downstream verification to the post-bump
+    # main HEAD. github.sha would be the pre-bump trigger SHA, which is no
+    # longer the SHA that was actually verified.
     needs: [check, run]
     if: ${{ !failure() && !cancelled() && needs.check.outputs.should-run == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
+      - name: Resolve Verified SHA
+        id: sha
+        shell: bash
+        env:
+          VERIFIED_SHA: ${{ needs.run.outputs.commit_sha }}
+          ORIGINAL_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          sha="${VERIFIED_SHA:-$ORIGINAL_SHA}"
+          echo "value=$sha" >> "$GITHUB_OUTPUT"
+          echo "Tagging meta-rc against SHA: $sha (original github.sha=$ORIGINAL_SHA)"
       - uses: actions/checkout@v6
         with:
           token: ${{ secrets.VERIFY_TOKEN }}
+          ref: ${{ steps.sha.outputs.value }}
       - name: Tag meta-rc
+        env:
+          VERIFIED_SHA: ${{ steps.sha.outputs.value }}
         run: |
           set -euo pipefail
           VERSION=$(tr -d '[:space:]' < VERSION)
           TAG="meta-v${VERSION}-rc.${{ github.run_number }}"
-          echo "Creating tag ${TAG} on ${{ github.sha }}"
+          echo "Creating tag ${TAG} on ${VERIFIED_SHA}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag "$TAG" "${{ github.sha }}"
+          git tag "$TAG" "${VERIFIED_SHA}"
           git push origin "$TAG"
-          echo "Tagged ${{ github.sha }} as ${TAG}"
+          echo "Tagged ${VERIFIED_SHA} as ${TAG}"
           TAG_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
           {
             echo "## Meta RC tagged"
             echo ""
             echo "- Tag: [\`${TAG}\`](${TAG_URL})"
-            echo "- Commit: [\`${GITHUB_SHA::7}\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA})"
+            echo "- Commit: [\`${VERIFIED_SHA::7}\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${VERIFIED_SHA})"
           } >> "$GITHUB_STEP_SUMMARY"
