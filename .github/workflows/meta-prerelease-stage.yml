@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       skip-tests:
-        description: 'Bypass ALL test phases and tag the meta-rc directly. RECOVERY-ONLY: meta-release-stage requires all 6 <flavor>-v<VERSION>-rc.*-qa-approved git tags to already exist. Use this only when those approvals exist from a previous run but the meta-rc tag itself was never created (e.g. a transient failure after qa-approved was set). Without those flavor approvals the meta-rc will be tagged but meta-release-stage will fail.'
+        description: 'Bypass ALL test phases and tag the meta-rc directly. RECOVERY-ONLY: meta-release-stage requires all 6 flavor rcs to already have a successful qa/signoff Check Run. Use this only when those approvals exist from a previous run but the meta-rc tag itself was never created (e.g. a transient failure after the qa-signoff Check Run was written). Without those flavor approvals the meta-rc will be tagged but meta-release-stage will fail.'
         required: false
         type: boolean
         default: false
@@ -69,12 +69,25 @@ jobs:
           set -euo pipefail
           # Find the most recent final meta release tag (excluding -rc.* prereleases).
           # If none exists (bootstrap), leave the output empty and let the next step run.
-          if last=$(git describe --tags --abbrev=0 --match='meta-v*' --exclude='*-rc.*' 2>/dev/null); then
+          # Capture stderr so a real git failure (corrupt repo, missing remote)
+          # doesn't get conflated with the legitimate "no matching tag" case.
+          err_file=$(mktemp)
+          if last=$(git describe --tags --abbrev=0 --match='meta-v*' --exclude='*-rc.*' 2>"$err_file"); then
+            rm -f "$err_file"
             echo "Last meta release tag: $last"
             echo "tag=$last" >> "$GITHUB_OUTPUT"
           else
-            echo "No prior meta-v* release tag found — bootstrap mode, will run."
-            echo "tag=" >> "$GITHUB_OUTPUT"
+            rc=$?
+            err=$(cat "$err_file")
+            rm -f "$err_file"
+            if [[ "$err" == *"No names found"* ]] || [[ "$err" == *"No annotated tags"* ]] || [[ "$err" == *"cannot describe"* ]]; then
+              echo "No prior meta-v* release tag found — bootstrap mode, will run."
+              echo "tag=" >> "$GITHUB_OUTPUT"
+            else
+              echo "::error::'git describe' failed (exit $rc) with unexpected error:"
+              echo "$err" >&2
+              exit "$rc"
+            fi
           fi
 
       - name: Detect Real Source Changes Since Last Release

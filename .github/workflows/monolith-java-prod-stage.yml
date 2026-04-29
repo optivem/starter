@@ -33,13 +33,20 @@ jobs:
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           WORKFLOW_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
 
+      - name: Checkout Repository
+        if: inputs.version == ''
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
       - name: Resolve Latest QA-Approved RC
         id: resolve-latest
         if: inputs.version == ''
-        uses: optivem/actions/resolve-latest-prerelease-tag@v1
+        uses: optivem/actions/resolve-latest-prerelease-with-check@v1
         with:
           tag-prefix: monolith-java-v
-          tag-suffix: -qa-approved
+          check-name: qa/signoff
+          token: ${{ secrets.WORKFLOW_TOKEN }}
 
       - name: Check RC Exists
         if: inputs.version != ''
@@ -49,9 +56,11 @@ jobs:
 
       - name: Check QA Approved
         if: inputs.version != ''
-        uses: optivem/actions/validate-tag-exists@v1
+        uses: optivem/actions/check-run-exists@v1
         with:
-          tag: ${{ inputs.version }}-qa-approved
+          ref: ${{ inputs.version }}
+          check-name: qa/signoff
+          token: ${{ secrets.WORKFLOW_TOKEN }}
 
       - name: Generate Release Version
         id: release-version

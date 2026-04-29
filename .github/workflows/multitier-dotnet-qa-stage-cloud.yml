@@ -209,51 +209,18 @@ jobs:
     permissions:
       contents: read
     outputs:
-      version: ${{ steps.promote.outputs.status-tag }}
+      version: ${{ needs.check.outputs.version }}
       image-urls: ${{ needs.check.outputs.image-urls }}
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v6
+      - name: Record QA Deployment
+        uses: optivem/actions/create-deployment@v1
         with:
           ref: ${{ needs.check.outputs.version }}
-
-      - name: Log in to Docker Hub
-        uses: Wandalen/wretry.action@v3
-        with:
-          action: docker/login-action@v4
-          attempt_limit: 3
-          attempt_delay: 10000
-          with: |
-            username: ${{ vars.DOCKERHUB_USERNAME }}
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Generate QA Deployed Tag
-        id: promote
-        uses: optivem/actions/compose-prerelease-status@v1
-        with:
-          prerelease-version: ${{ needs.check.outputs.version }}
-          environment: qa
-          status: deployed
-
-  publish-tag:
-    needs: promote
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ inputs.version }}
-
-      - name: Publish Git Tag
-        uses: optivem/actions/publish-tag@v1
-        with:
-          tag: ${{ needs.promote.outputs.version }}
+          environment: multitier-dotnet-qa-cloud
           token: ${{ secrets.WORKFLOW_TOKEN }}
 
   summary:
-    needs: [check, promote, publish-tag]
+    needs: [check, promote]
     if: always()
     runs-on: ubuntu-latest
     permissions:
@@ -263,7 +230,7 @@ jobs:
       uses: optivem/actions/render-system-stage-summary@v1
       with:
         stage-name: 'QA Stage (Cloud Run)'
-        stage-result: ${{ needs.publish-tag.result == 'failure' && 'failure' || needs.promote.result }}
+        stage-result: ${{ needs.promote.result }}
         environment: qa
         success-version: ${{ needs.promote.outputs.version }}
         success-artifact-ids: ${{ needs.promote.outputs.image-urls }}

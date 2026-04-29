@@ -106,7 +106,14 @@ jobs:
           RC_TAG: ${{ steps.rc.outputs.rc_tag }}
         run: |
           set -euo pipefail
-          git fetch origin "refs/tags/${RC_TAG}:refs/tags/${RC_TAG}" || true
+          # Fetch the RC tag; failure is non-fatal because the tag may already be
+          # local, but we still surface the stderr so a real fetch issue is visible.
+          fetch_err=$(mktemp)
+          if ! git fetch origin "refs/tags/${RC_TAG}:refs/tags/${RC_TAG}" 2>"$fetch_err"; then
+            echo "::notice::git fetch of tag ${RC_TAG} failed (continuing in case the tag is already local):"
+            cat "$fetch_err" >&2
+          fi
+          rm -f "$fetch_err"
           SHA=$(git rev-list -n 1 "${RC_TAG}")
           if [[ -z "${SHA}" ]]; then
             echo "::error::Could not resolve SHA for tag ${RC_TAG}"
@@ -130,43 +137,67 @@ jobs:
         run: |
           set -euo pipefail
           source "$GITHUB_WORKSPACE/.github/workflows/scripts/gh-retry.sh"
-          if gh_retry api "repos/${{ github.repository }}/git/ref/tags/${RELEASE_TAG}" >/dev/null 2>&1; then
+          # Existence probe — 200 = tag exists (fail), 404 = available, anything
+          # else (auth, scope, network) = real error and must not be conflated
+          # with "available" or we'd silently proceed and overwrite later.
+          probe_err=$(mktemp)
+          if gh_retry api "repos/${{ github.repository }}/git/ref/tags/${RELEASE_TAG}" >/dev/null 2>"$probe_err"; then
+            rm -f "$probe_err"
             echo "::error::Release tag ${RELEASE_TAG} already exists — cannot overwrite"
             exit 1
           fi
-          echo "Release tag ${RELEASE_TAG} is available"
+          rc=$?
+          err=$(cat "$probe_err")
+          rm -f "$probe_err"
+          if grep -Eqi 'HTTP 404|Not Found' <<<"$err"; then
+            echo "Release tag ${RELEASE_TAG} is available"
+          else
+            echo "::error::Existence probe for tag ${RELEASE_TAG} failed (exit $rc) with non-404 error:"
+            echo "$err" >&2
+            exit "$rc"
+          fi
 
       - name: Find flavor RCs to promote
         id: flavor-rcs
         env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
           VERSION: ${{ steps.resolve.outputs.version }}
           SKIP_QA: ${{ inputs.skip-qa }}
         run: |
           set -euo pipefail
-          # Default mode: require the *-qa-approved suffix (QA gate).
-          # skip-qa mode: accept any <flavor>-v<VERSION>-rc.* tag (the RC published by meta-prerelease's
-          # per-flavor acceptance stages, before QA approval). Filter out any -qa-approved variants
-          # that happen to match the glob so they don't get picked over the bare RC.
+          source "$GITHUB_WORKSPACE/.github/workflows/scripts/gh-retry.sh"
+          # Default mode: require a successful `qa/signoff` Check Run on the rc (QA gate).
+          # skip-qa mode: accept the latest <flavor>-v<VERSION>-rc.<N> regardless of QA verdict.
+          # The strict regex on rc tags excludes any legacy status-suffix tags
+          # (-qa-approved, -qa-deployed, etc.) that may still be in the repo from before
+          # the migration.
           if [[ "$SKIP_QA" == "true" ]]; then
-            echo "skip-qa=true — using latest <flavor>-v<VERSION>-rc.* (QA approval not required)"
+            echo "skip-qa=true — using latest <flavor>-v<VERSION>-rc.<N> regardless of qa/signoff"
           fi
+          escaped_version="${VERSION//./\\.}"
           for flavor in monolith-java monolith-dotnet monolith-typescript multitier-java multitier-dotnet multitier-typescript; do
+            mapfile -t rc_tags < <(git tag --list "${flavor}-v${VERSION}-rc.*" \
+              | awk -v p="^${flavor}-v${escaped_version}-rc\\.[0-9]+$" '$0 ~ p' \
+              | awk -F'-rc[.]' '{print $NF " " $0}' \
+              | sort -k1,1 -nr \
+              | awk '{print $2}')
+
+            rc=""
             if [[ "$SKIP_QA" == "true" ]]; then
-              rc=$(git tag --list "${flavor}-v${VERSION}-rc.*" \
-                | awk '!/-qa-approved$/' \
-                | awk -F'-rc[.]' '{print $2 " " $0}' \
-                | sort -k1,1 -n \
-                | tail -n 1 \
-                | awk '{print $2}')
-              missing="No RC tag matching ${flavor}-v${VERSION}-rc.* — was meta-prerelease run to completion?"
+              rc="${rc_tags[0]:-}"
+              missing="No RC tag matching ${flavor}-v${VERSION}-rc.<N> — was meta-prerelease run to completion?"
             else
-              rc=$(git tag --list "${flavor}-v${VERSION}-rc.*-qa-approved" \
-                | sed -E 's/-qa-approved$//' \
-                | awk -F'-rc[.]' '{print $2 " " $0}' \
-                | sort -k1,1 -n \
-                | tail -n 1 \
-                | awk '{print $2}')
-              missing="No QA-approved RC found for ${flavor} at v${VERSION}. Was the acceptance pipeline run to completion? (Re-dispatch with skip-qa=true to bypass the QA gate and use the latest unapproved RC.)"
+              for tag in "${rc_tags[@]}"; do
+                sha=$(git rev-parse "${tag}^{}" 2>/dev/null || git rev-parse "${tag}")
+                approved=$(gh_retry api "repos/${REPO}/commits/${sha}/check-runs?check_name=qa%2Fsignoff&per_page=100" \
+                  --jq '[.check_runs[]? | select(.conclusion=="success")] | length')
+                if [[ "${approved:-0}" -gt 0 ]]; then
+                  rc="${tag}"
+                  break
+                fi
+              done
+              missing="No QA-approved RC (qa/signoff Check Run with conclusion=success) found for ${flavor} at v${VERSION}. Was the acceptance pipeline run to completion and qa-signoff dispatched? (Re-dispatch with skip-qa=true to bypass the QA gate and use the latest unapproved RC.)"
             fi
             if [[ -z "$rc" ]]; then
               echo "::error::${missing}"
@@ -282,9 +313,21 @@ jobs:
             cat "$create_err" >&2
           else
             rc=$?
-            if grep -Eqi 'already_exists|already exists' "$create_err" \
-               && gh_retry release view "$RELEASE_TAG" >/dev/null 2>&1; then
-              echo "::notice::Release ${RELEASE_TAG} already exists (likely created by an earlier attempt) — treating as success"
+            if grep -Eqi 'already_exists|already exists' "$create_err"; then
+              # Confirm the release actually exists. Any non-success here (incl.
+              # transient network) is a real error and must not be conflated
+              # with "exists".
+              view_err=$(mktemp)
+              if gh_retry release view "$RELEASE_TAG" >/dev/null 2>"$view_err"; then
+                rm -f "$view_err"
+                echo "::notice::Release ${RELEASE_TAG} already exists (likely created by an earlier attempt) — treating as success"
+              else
+                view_rc=$?
+                echo "::error::release create reported already-exists but 'gh release view ${RELEASE_TAG}' failed (exit $view_rc):" >&2
+                cat "$view_err" >&2
+                rm -f "$view_err" "$create_err"
+                exit "$view_rc"
+              fi
             else
               cat "$create_err" >&2
               rm -f "$create_err"

@@ -51,7 +51,11 @@ echo ""
 
 # Get GitHub repo and billing account (needed for terraform destroy)
 REPO=$(gh repo view --json nameWithOwner -q '.nameWithOwner')
-BILLING_ACCOUNT=$(gcloud billing accounts list --format="value(name)" --limit=1 2>/dev/null || true)
+BILLING_ACCOUNT=$(gcloud billing accounts list --format="value(name)" --limit=1) || {
+  rc=$?
+  echo "  ⚠️  'gcloud billing accounts list' failed (exit $rc) — see stderr above; continuing without billing account" >&2
+  BILLING_ACCOUNT=""
+}
 
 # Terraform destroy
 echo "Step 1/3: Destroying infrastructure with Terraform..."
@@ -66,11 +70,25 @@ echo ""
 
 # Remove GitHub variables and secrets
 echo "Step 2/3: Removing GitHub repo variables and secrets..."
-gh variable delete GCP_PROJECT_ID --yes 2>/dev/null || true
-gh variable delete GCP_REGION --yes 2>/dev/null || true
-gh variable delete GCP_WORKLOAD_IDENTITY_PROVIDER --yes 2>/dev/null || true
-gh variable delete GCP_SERVICE_ACCOUNT --yes 2>/dev/null || true
-gh secret delete NEON_DATABASE_URL --yes 2>/dev/null || true
+# Best-effort deletes — variable/secret may already be gone. Soft-fail but
+# surface any non-"not found" stderr so auth/scope issues stay visible.
+delete_gh_thing() {
+  local kind="$1"  # "variable" or "secret"
+  local name="$2"
+  local err rc
+  err=$(gh "$kind" delete "$name" --yes 2>&1) && return 0
+  rc=$?
+  if [[ "$err" == *"could not find"* || "$err" == *"not found"* || "$err" == *"HTTP 404"* ]]; then
+    echo "  (skipped $kind $name: not present)"
+  else
+    echo "  ⚠️  failed to delete $kind $name (exit $rc): $err" >&2
+  fi
+}
+delete_gh_thing variable GCP_PROJECT_ID
+delete_gh_thing variable GCP_REGION
+delete_gh_thing variable GCP_WORKLOAD_IDENTITY_PROVIDER
+delete_gh_thing variable GCP_SERVICE_ACCOUNT
+delete_gh_thing secret NEON_DATABASE_URL
 echo "  ✅ GitHub variables and secrets removed"
 echo ""
 

@@ -25,7 +25,7 @@ jobs:
     permissions:
       contents: read
     outputs:
-      version: ${{ inputs.version || steps.resolve-latest.outputs.base-tag }}
+      version: ${{ inputs.version || steps.resolve-latest.outputs.ref }}
     steps:
       - name: Ensure Environment Variables Defined
         uses: optivem/actions/validate-env-vars-defined@v1
@@ -38,10 +38,11 @@ jobs:
       - name: Resolve Latest QA-Deployed RC
         id: resolve-latest
         if: inputs.version == ''
-        uses: optivem/actions/resolve-latest-prerelease-tag@v1
+        uses: optivem/actions/resolve-latest-deployed-prerelease@v1
         with:
-          tag-prefix: monolith-typescript-v
-          tag-suffix: -qa-deployed
+          environment: monolith-typescript-qa
+          ref-prefix: monolith-typescript-v
+          token: ${{ secrets.WORKFLOW_TOKEN }}
 
       - name: Check RC Exists
         if: inputs.version != ''
@@ -56,41 +57,21 @@ jobs:
     permissions:
       contents: read
     outputs:
-      version: ${{ steps.promote.outputs.status-tag }}
+      version: ${{ needs.check.outputs.version }}
       stage-result: ${{ inputs.result == 'approved' && 'success' || 'failure' }}
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v6
+      - name: Record QA Signoff Check Run
+        uses: optivem/actions/create-check-run@v1
         with:
           ref: ${{ needs.check.outputs.version }}
-
-      - name: Generate QA Signoff Tag
-        id: promote
-        uses: optivem/actions/compose-prerelease-status@v1
-        with:
-          prerelease-version: ${{ needs.check.outputs.version }}
-          environment: qa
-          status: ${{ inputs.result }}
-
-  publish-tag:
-    needs: run
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v6
-        with:
-          ref: ${{ inputs.version }}
-
-      - name: Publish Git Tag
-        uses: optivem/actions/publish-tag@v1
-        with:
-          tag: ${{ needs.run.outputs.version }}
+          name: qa/signoff
+          conclusion: ${{ inputs.result == 'approved' && 'success' || 'failure' }}
+          title: QA ${{ inputs.result == 'approved' && 'Approved' || 'Rejected' }}
+          summary: Manual QA tester ${{ inputs.result }} ${{ needs.check.outputs.version }}
           token: ${{ secrets.WORKFLOW_TOKEN }}
 
   summary:
-    needs: [check, run, publish-tag]
+    needs: [check, run]
     if: always()
     runs-on: ubuntu-latest
     permissions:
@@ -103,6 +84,6 @@ jobs:
       uses: optivem/actions/render-system-stage-summary@v1
       with:
         stage-name: 'QA Signoff'
-        stage-result: ${{ needs.publish-tag.result == 'failure' && 'failure' || needs.run.outputs.stage-result }}
+        stage-result: ${{ needs.run.outputs.stage-result }}
         environment: qa
         success-version: ${{ needs.run.outputs.version }}

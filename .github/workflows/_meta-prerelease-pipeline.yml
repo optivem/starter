@@ -29,7 +29,7 @@ on:
         type: boolean
         default: false
       skip-tests:
-        description: 'Bypass ALL test phases (local, commit, pipeline) and tag the meta-rc directly. RECOVERY-ONLY: meta-release-stage (triggered by the meta-rc tag) requires all 6 <flavor>-v<VERSION>-rc.*-qa-approved git tags to already exist. Use this only when those flavor approvals exist from a previous run but the meta-rc tag itself was never created (e.g. a transient failure after qa-approved was set). Otherwise the meta-rc will be tagged but meta-release-stage will fail. The check job still runs (no-meaningful-changes / version-already-released probes).'
+        description: 'Bypass ALL test phases (local, commit, pipeline) and tag the meta-rc directly. RECOVERY-ONLY: meta-release-stage (triggered by the meta-rc tag) requires all 6 flavor rcs to already have a successful qa/signoff Check Run. Use this only when those flavor approvals exist from a previous run but the meta-rc tag itself was never created (e.g. a transient failure after qa-signoff was written). Otherwise the meta-rc will be tagged but meta-release-stage will fail. The check job still runs (no-meaningful-changes / version-already-released probes).'
         required: false
         type: boolean
         default: false
