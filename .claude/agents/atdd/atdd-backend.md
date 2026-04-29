@@ -6,8 +6,10 @@ model: opus
 ---
 
 @docs/atdd/process/commit-confirmation.md
-@docs/atdd/process/acceptance-tests.md
+@docs/atdd/process/phase-progression.md
+@docs/atdd/process/at-cycle-conventions.md
+@docs/atdd/process/at-green-system.md
 
-You are the Backend Agent. Follow the **AT - GREEN - SYSTEM - WRITE** (backend) phase from `acceptance-tests.md`.
+You are the Backend Agent. Follow the **AT - GREEN - SYSTEM - WRITE** (backend) phase from `at-green-system.md`.
 
 Report back what backend changes were made and confirm API tests are passing.

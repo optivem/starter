@@ -40,7 +40,7 @@ You MUST read every agent and every `@include`d doc in full before producing fin
 For every agent file, list its `@include` lines. For each include:
 
 - **Unused inclusion** — does the agent body (or the phase docs it references) actually need this file? Grep the agent body and the included doc network for terms that link them. If nothing in the agent's responsibility uses content from this include, propose dropping it.
-- **Whole-file inclusion of mostly-irrelevant content** — does the agent need only one section of a long doc? If yes, propose either splitting the doc (so the agent can include the smaller piece) or moving the relevant rule into the agent body.
+- **Whole-file inclusion of mostly-irrelevant content** — does the agent need only one section of a long doc? If yes, propose splitting the doc (so the agent can include the smaller piece). Do **not** propose inlining the rule into the agent body — see the hard rule below.
 - **Diagram-file inclusion** — `@include`s of auto-generated diagrams in agent prompts are almost always waste. Flag every occurrence.
 - **Transitive duplication** — when an agent `@include`s two docs that themselves duplicate the same rules, the agent pays for the duplication twice. Flag the duplication and propose a single-source.
 
@@ -85,7 +85,7 @@ A finding here is justified only if the agent is invoked multiple times per tick
 
 - **Orphaned docs** — files in `docs/atdd/` that no agent `@include`s and no other doc cross-references. Flag for removal under **stale content**, do not propose silent deletion.
 - **Stale references** — `@docs/...` lines pointing at paths that no longer exist, or section anchors that have moved.
-- **Dead phases / dead rules** — content that refers to phases or behaviours that no longer exist in the current process docs. Cross-check against `cycles.md` and `acceptance-tests.md` / `contract-tests.md`.
+- **Dead phases / dead rules** — content that refers to phases or behaviours that no longer exist in the current process docs. Cross-check against `cycles.md` and the per-phase AT/CT docs (`at-*.md`, `ct-*.md`).
 
 ## Routing rule (decide where each finding lands)
 
@@ -125,7 +125,7 @@ Estimated total savings: ~<lines> lines (rough, line-count proxy)
 
 (A short ranked list of the 3–5 highest-impact items, copied from the sections below with their section name and number, so the user can skim.)
 
-1. [Doc edits #1] Compress `acceptance-tests.md` phase recitation — saves ~<n> lines × <m> agents = ~<n×m> line-equivalents per ticket.
+1. [Doc edits #1] Compress `<phase-doc>.md` phase recitation — saves ~<n> lines × <m> agents = ~<n×m> line-equivalents per ticket.
 2. ...
 
 ## Agent-prompt edits — `.claude/agents/atdd/<file>.md`
@@ -141,7 +141,7 @@ Estimated total savings: ~<lines> lines (rough, line-count proxy)
 
 **Evidence:**
 - `atdd-test.md` body does not reference any concept from `<doc>.md`.
-- Phase docs `acceptance-tests.md` / `contract-tests.md` (which `atdd-test` does use) already cover the rules in `<doc>.md`.
+- The per-phase docs the agent already includes (e.g. `at-red-test.md`, `ct-red-test.md`) already cover the rules in `<doc>.md`.
 - (If applicable) `<doc>.md` is also `@include`d by <other agents>, where it *is* used — so the doc itself stays.
 
 **Rationale:** <one or two sentences>

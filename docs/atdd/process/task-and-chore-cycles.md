@@ -2,7 +2,7 @@
 
 This file defines the **WRITE** and **COMMIT** mechanics for the structural-change cycles — the cycles triggered by ticket types `system-api-task`, `system-ui-task`, `external-api-task`, and `chore`. The high-level flow / placement of each cycle inside the overall pipeline is defined in `cycles.md`; this file defines what happens *inside* each phase.
 
-It mirrors the role of `acceptance-tests.md` (AT phases) and `contract-tests.md` (CT phases) for behavioral-change cycles. Together, those three files define every WRITE + COMMIT phase in the pipeline.
+It mirrors the role of the AT per-phase docs (`at-red-test.md`, `at-red-dsl.md`, `at-red-system-driver.md`, `at-green-system.md`) and the CT per-phase docs (`ct-red-test.md`, `ct-red-dsl.md`, `ct-red-external-driver.md`, `ct-green-stubs.md`) for behavioral-change cycles. Together, those files define every WRITE + COMMIT phase in the pipeline.
 
 ## Phase Progression
 
@@ -10,7 +10,7 @@ Proceed to the next phase automatically **unless** the current phase ends with *
 
 ## Commit Message Format
 
-Same as `acceptance-tests.md`: every commit message follows the pattern `<Ticket> | <Phase>`. If a GitHub issue number was provided as input, prefix every commit message with `#<issue-number> | `. Example: `#59 | Redesigning Order Controller | SYSTEM API REDESIGN`.
+Same as `at-cycle-conventions.md`: every commit message follows the pattern `<Ticket> | <Phase>`. If a GitHub issue number was provided as input, prefix every commit message with `#<issue-number> | `. Example: `#59 | Redesigning Order Controller | SYSTEM API REDESIGN`.
 
 The phase suffix in the message is the phase *prefix only* (e.g. `SYSTEM API REDESIGN`). Do **NOT** append `- COMMIT` or `- WRITE` to the phase in the commit message — those suffixes identify the section header only, not the commit message.
 
@@ -62,7 +62,7 @@ The COMMIT step itself is gated by the universal rule in `commit-confirmation.md
 
 ## EXTERNAL API REDESIGN
 
-The External API Task Cycle has **no standalone WRITE or COMMIT phase of its own.** The work routes entirely through the **Contract Test Sub-Process**, whose four-commit sequence (`CT - RED - TEST`, `CT - RED - DSL`, `CT - RED - EXTERNAL DRIVER`, `CT - GREEN - STUBS`) is defined in `contract-tests.md`. See `cycles.md` for cycle placement and `contract-tests.md` for per-phase mechanics.
+The External API Task Cycle has **no standalone WRITE or COMMIT phase of its own.** The work routes entirely through the **Contract Test Sub-Process**, whose four-commit sequence (`CT - RED - TEST`, `CT - RED - DSL`, `CT - RED - EXTERNAL DRIVER`, `CT - GREEN - STUBS`) is defined in the per-phase docs `ct-red-test.md`, `ct-red-dsl.md`, `ct-red-external-driver.md`, `ct-green-stubs.md`. See `cycles.md` for cycle placement and those per-phase docs (plus `ct-cycle-conventions.md`) for mechanics.
 
 ---
 

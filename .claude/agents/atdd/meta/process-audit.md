@@ -12,8 +12,9 @@ You audit the *process* (decision flow, phases, agent mapping, commit/disabled m
 ## Inputs (the docs you audit)
 
 - `docs/atdd/process/cycles.md` — the master decision flow.
-- `docs/atdd/process/acceptance-tests.md` — per-phase rules for the AT cycle.
-- `docs/atdd/process/contract-tests.md` — per-phase rules for the CT sub-process.
+- `docs/atdd/process/phase-progression.md` — the universal STOP / wait-for-approval rule.
+- `docs/atdd/process/at-cycle-conventions.md` and `docs/atdd/process/at-*.md` (`at-red-test.md`, `at-red-dsl.md`, `at-red-system-driver.md`, `at-green-system.md`) — per-phase rules for the AT cycle.
+- `docs/atdd/process/ct-cycle-conventions.md` and `docs/atdd/process/ct-*.md` (`ct-red-test.md`, `ct-red-dsl.md`, `ct-red-external-driver.md`, `ct-green-stubs.md`) — per-phase rules for the CT sub-process.
 - `docs/atdd/process/glossary.md` — shared definitions.
 
 You MUST read every file before producing findings. Never conclude "no findings" from a quick read — per the project consistency-check rule, enumerate concretely first.
@@ -34,10 +35,10 @@ For every decision diamond / yes-no question in `cycles.md` and the per-phase do
 ### 2. Internal cross-doc consistency
 
 - Phase names and casing (`AT - RED - TEST`, `CT - RED - DSL`, etc.) must be identical across all four docs. Spot variants (`AT-RED-TEST`, `at - red - test`, missing spaces) are findings.
-- Commit-message phase suffixes specified in `acceptance-tests.md` / `contract-tests.md` must match the phase names used in `cycles.md`. The "do NOT append `- COMMIT` or `- WRITE`" rule must be stated identically (or referenced from one place).
+- Commit-message phase suffixes specified in the per-phase docs (`at-*.md`, `ct-*.md`) and the cycle-conventions docs (`at-cycle-conventions.md`, `ct-cycle-conventions.md`) must match the phase names used in `cycles.md`. The "do NOT append `- COMMIT` or `- WRITE`" rule must be stated identically (or referenced from one place).
 - Disabled-reason strings (`"AT - RED - TEST"`, `"CT - RED - DSL"`, etc.) must match between WRITE/COMMIT phases that set them and resume-detection rows that read them.
 - Test-suite placeholders (`<acceptance-api>`, `<acceptance-ui>`, `<suite-contract-real>`, `<suite-contract-stub>`) must be defined exactly once and used consistently. Flag duplicates, missing definitions, or unused placeholders.
-- Cross-references (`see glossary.md`, `see language-equivalents.md`, `see contract-tests.md`) must point to existing files and existing sections.
+- Cross-references (`see glossary.md`, `see language-equivalents.md`, `see ct-cycle-conventions.md`) must point to existing files and existing sections.
 - Glossary terms used in process docs (e.g. *Interface Change*, `shop/` package vs `shop` repo) must be defined in `glossary.md`. Conversely, every glossary term should be used somewhere — flag orphans.
 
 ### 3. Logical gaps and ambiguities
@@ -56,7 +57,7 @@ Compare against widely-accepted public references for ATDD, BDD, and double-loop
 
 Things to compare:
 - Outer loop = failing acceptance test → make pass; inner loop = TDD on units. Where is unit-level TDD in the documented cycle? If the docs intentionally omit it (the agents focus on AT + CT and treat unit TDD as inside-the-agent detail), say so explicitly under needs-decision rather than asserting a gap.
-- The role of contract tests (CDC / Pact-style) is typically an *additional* layer beyond the double-loop — `contract-tests.md` here is positioned as a **sub-process triggered by external interface changes**, which is a deliberate design choice. Flag any wording that confuses CT with the canonical "inner TDD loop" or that implies CT replaces unit testing.
+- The role of contract tests (CDC / Pact-style) is typically an *additional* layer beyond the double-loop — the CT sub-process docs (`ct-cycle-conventions.md`, `ct-*.md`) here position CT as a **sub-process triggered by external interface changes**, which is a deliberate design choice. Flag any wording that confuses CT with the canonical "inner TDD loop" or that implies CT replaces unit testing.
 - "TODO stubs" approach: the documented flow uses staged disabling/enabling with `@Disabled` markers as cycle checkpoints. This is a project-specific convention; canonical ATDD doesn't prescribe it. If the docs claim it as canonical, flag it; if they claim it as project convention, that's fine.
 
 When the docs deviate from canon, the question is *intentional design choice* vs *accidental gap*. Default to listing under **Needs-decision**, not under actionable changes.
@@ -89,7 +90,7 @@ The plan must be directly executable by `/execute-plan`. Each actionable item na
 ```markdown
 # {YYYYMMDD-HHMMSS} — ATDD Process Audit Plan
 
-Docs analysed: cycles.md, acceptance-tests.md, contract-tests.md, glossary.md
+Docs analysed: cycles.md, phase-progression.md, at-cycle-conventions.md, at-*.md, ct-cycle-conventions.md, ct-*.md, glossary.md
 
 ## Process rule changes — `docs/atdd/process/<file>.md`
 

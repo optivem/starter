@@ -1,6 +1,6 @@
 # ATDD Cycles
 
-This document defines the decision flow for the ATDD pipeline. Each phase is defined in detail in `acceptance-tests.md` and `contract-tests.md` — this file controls **which phases run and in what order**.
+This document defines the decision flow for the ATDD pipeline. Each phase is defined in detail in its own per-phase file (`at-red-test.md`, `at-red-dsl.md`, `at-red-system-driver.md`, `at-green-system.md`, `ct-red-test.md`, `ct-red-dsl.md`, `ct-red-external-driver.md`, `ct-green-stubs.md`), with cycle-wide conventions in `at-cycle-conventions.md` / `ct-cycle-conventions.md` and the universal STOP rule in `phase-progression.md` — this file controls **which phases run and in what order**.
 
 > **Naming note**: The word *shop* appears in two distinct senses in ATDD content — `shop/` (with slash) is a package/folder convention inside the driver layer; `shop` (without slash) is the SUT repository name. See `glossary.md` for details.
 
@@ -239,7 +239,7 @@ _Triggered when ticket type = external-api-task (an external system changed its 
 
 An external system updated its API — new version, breaking change, deprecated endpoint, or similar. We update the External System Driver to match the new external surface. The work routes through the **Contract Test Sub-Process** (which itself routes through the **External System Onboarding Sub-Process** if no Driver yet exists). Single-driver scope by construction (single-boundary ticket); multi-boundary work is split into multiple coordinated tickets at creation. After CT completes its four-commit sequence, the Acceptance Stage of the pipeline runs to verify nothing else broke; on red, fix-loop until green.
 
-This cycle has no standalone WRITE / COMMIT phases of its own — all WRITE and COMMIT mechanics live in [`contract-tests.md`](contract-tests.md). See [`task-and-chore-cycles.md`](task-and-chore-cycles.md) for the cross-reference.
+This cycle has no standalone WRITE / COMMIT phases of its own — all WRITE and COMMIT mechanics live in the per-phase CT docs (`ct-red-test.md`, `ct-red-dsl.md`, `ct-red-external-driver.md`, `ct-green-stubs.md`) plus `ct-cycle-conventions.md`. See [`task-and-chore-cycles.md`](task-and-chore-cycles.md) for the cross-reference.
 
 The external-api-task ticket carries a **checklist of structural change items** in its body; the agent ticks them off as the work is done, and once all are ticked the issue moves to DONE.
 

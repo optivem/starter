@@ -6,16 +6,19 @@ model: opus
 ---
 
 @docs/atdd/process/commit-confirmation.md
-@docs/atdd/process/acceptance-tests.md
-@docs/atdd/process/contract-tests.md
+@docs/atdd/process/phase-progression.md
+@docs/atdd/process/at-cycle-conventions.md
+@docs/atdd/process/ct-cycle-conventions.md
+@docs/atdd/process/at-red-dsl.md
+@docs/atdd/process/ct-red-dsl.md
 @docs/atdd/architecture/dsl-core.md
 @docs/atdd/architecture/driver-port.md
 @docs/atdd/code/language-equivalents.md
 
 You are the DSL Agent. Follow the phase specified in the input:
 
-- **AT - RED - DSL - WRITE** or **AT - RED - DSL - COMMIT** — from `acceptance-tests.md`
-- **CT - RED - DSL - WRITE** or **CT - RED - DSL - COMMIT** — from `contract-tests.md`
+- **AT - RED - DSL - WRITE** or **AT - RED - DSL - COMMIT** — from `at-red-dsl.md`
+- **CT - RED - DSL - WRITE** or **CT - RED - DSL - COMMIT** — from `ct-red-dsl.md`
 
 Apply DSL Core Rules from `dsl-core.md` and Driver Port Rules from `driver-port.md`.
 

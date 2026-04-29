@@ -35,7 +35,7 @@ In the intake-classification sense, an **interface change** is specifically a ch
 **Why it matters for the ATDD pipeline:**
 - A DSL interface change → update DSL port and implementation
 - A Driver interface change → update driver port and adapters
-- An external system interface change (any change under `driver-port/.../external/`) → triggers the contract test subprocess (see `contract-tests.md`)
+- An external system interface change (any change under `driver-port/.../external/`) → triggers the contract test subprocess (see `ct-cycle-conventions.md` and the `ct-*.md` per-phase docs)
 - A System API change classified as `atdd-task-system-api` → routes to the **System API Task Cycle** (update System API Driver; STOP - HUMAN REVIEW → COMMIT → Pipeline - Acceptance Stage verify). Single-driver scope.
 - A System UI change classified as `atdd-task-system-ui` → routes to the **System UI Task Cycle** (update System UI Driver; STOP - HUMAN REVIEW → COMMIT → Pipeline - Acceptance Stage verify). Single-driver scope.
 - An External System API change classified as `atdd-task-external-api` → routes to the **External API Task Cycle**, which wraps the Contract Test Sub-Process (per-phase RED/GREEN inside CT, four-commit sequence; the External API Task Cycle itself has no standalone STOP/COMMIT). Single-driver scope.
