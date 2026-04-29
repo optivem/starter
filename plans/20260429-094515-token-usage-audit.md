@@ -2,6 +2,26 @@
 
 Auto-applicable items (Agent-prompt edits #1–#2, Doc edits #1–#7) executed on 2026-04-29. Remaining items below all require a user decision and were not auto-applied.
 
+## Next steps (read this first)
+
+> **Stale section note:** The `Out-of-scope findings (route elsewhere)` section at the bottom of this plan (items #1–#4) was fully resolved by the process-audit commit `ab3eeb7f` (2026-04-29). All four `cycles.md` topology-disagreement findings have been addressed. The section can be deleted whenever this plan is next touched.
+
+The two open audit plans (`plans/20260429-094515-token-usage-audit.md` + `plans/20260429-100633-process-audit.md`) have overlapping decision items. The cleanest order to clear them is:
+
+**(A) Cross-cutting design decisions** — each unblocks multiple plan items:
+
+1. `atdd-chore` intake-only vs full-cycle? (token-usage **NDC #1** + process-audit **NDC #2**)
+2. Who owns `CT - GREEN - STUBS`? Create `atdd-stub`, fold into `atdd-driver`, or fold into `atdd-test`? (process-audit **NDC #1**)
+3. `<Ticket>` vs `<Scenario>` in CT commit messages — does CT batch per ticket or loop per scenario? (process-audit **NDC #5** + deferred process-rule-change **#10**)
+4. Dangling TODO at `at-green-system.md:36` — delete or fill with the legacy-handling rule (token-usage **stale #2** + process-audit deferred **#9**)
+
+**(B) Mechanical follow-ups** — no design decision needed:
+
+5. Update `.claude/commands/atdd/atdd-implement-ticket.md:51–59` — it still uses the fictitious agent names (`test-agent`, `dsl-agent`, `driver-agent`, `system-agent`, `stub-agent`) that the process-audit commit fixed in `cycles.md`.
+6. Update `.claude/agents/atdd/meta/process-audit.md` — it still references `orchestrator.md`, `acceptance-tests.md`, `contract-tests.md` which were split into per-phase files in commit `d7464f7`.
+
+**Recommended order:** start with **A1** — highest leverage. Answering it unblocks the structural-cycle Phase-to-Agent rows in `cycles.md` (currently punting to a needs-decision), lets the token-usage `@include` cleanup finally land (~112 LE/ticket if intake-only), and frames the answer to **A3** by making the unit-of-work explicit. If you'd rather warm up: **B5 + B6** are 5-minute mechanical edits that close both bonus follow-ups in one commit.
+
 ## Needs-decision — tradeoffs (NOT auto-applied)
 
 ### 1. Is `atdd-chore.md` an intake-only agent or does it execute the Chore Cycle?
