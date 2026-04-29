@@ -55,8 +55,12 @@ jobs:
   #   3. Fail fast if any VERSION file's version has already been released.
   #      Each VERSION file has one release signal (matching bump-versions.yml):
   #      top-level VERSION probes the meta GitHub Release; every other VERSION
-  #      file probes its corresponding GHCR image tag. Otherwise we'd only
-  #      discover the collision deep into the downstream pipeline acceptance stages.
+  #      file probes its corresponding GHCR image tag. We also probe the six
+  #      per-flavor git tags `<prefix>-v<top-level-VERSION>` (which the per-
+  #      flavor `*-prod-stage.yml` workflows mint independently of meta-release),
+  #      since otherwise the per-pipeline `check-version` job in `_prerelease-
+  #      pipeline.yml` only catches the collision in Phase 2 — after Phase 0
+  #      (local stages) and Phase 1 (commit stages) have already burned ~30 min.
   check:
     runs-on: ubuntu-latest
     permissions:
@@ -160,6 +164,33 @@ jobs:
             ghcr.io/${{ github.repository }}/multitier-backend-typescript:v${{ steps.read-versions.outputs.mt_be_typescript }}
             ghcr.io/${{ github.repository }}/multitier-frontend-react:v${{ steps.read-versions.outputs.mt_fe_react }}
 
+      # Per-flavor final-release git tags `<prefix>-v<top-level-VERSION>` are
+      # minted independently of meta-release by the per-flavor `*-prod-stage.yml`
+      # workflows, so a slot can be taken without `meta-v<n>` existing yet. Probe
+      # all six up-front so we fail before Phase 0/1 instead of in Phase 2.
+      # Tags were fetched by the checkout above (fetch-depth: 0).
+      - name: Probe Per-Flavor Final Release Tags
+        id: probe-flavor-tags
+        if: ${{ steps.decide.outputs.should_run == 'true' }}
+        shell: bash
+        env:
+          META: ${{ steps.read-versions.outputs.meta }}
+        run: |
+          set -euo pipefail
+          found=()
+          for prefix in monolith-java monolith-dotnet monolith-typescript multitier-java multitier-dotnet multitier-typescript; do
+            tag="${prefix}-v${META}"
+            if git rev-parse --verify --quiet "refs/tags/${tag}" >/dev/null; then
+              found+=("${tag} (from VERSION)")
+            fi
+          done
+          if [ "${#found[@]}" -eq 0 ]; then
+            echo "results=[]" >> "$GITHUB_OUTPUT"
+          else
+            results=$(printf '%s\n' "${found[@]}" | jq -R . | jq -sc '.')
+            echo "results=${results}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Verify System Release + Component Images Not Yet Published
         if: ${{ steps.decide.outputs.should_run == 'true' }}
         shell: bash
@@ -167,6 +198,7 @@ jobs:
           META_EXISTS: ${{ steps.probe-release.outputs.exists }}
           META_KEY: meta-v${{ steps.read-versions.outputs.meta }} (from VERSION)
           IMAGE_RESULTS: ${{ steps.probe-images.outputs.results }}
+          FLAVOR_TAG_RESULTS: ${{ steps.probe-flavor-tags.outputs.results }}
         run: |
           set -euo pipefail
           # Rebuild "<image-suffix>:<tag> (from <VERSION-path>)" display strings client-side.
@@ -186,6 +218,8 @@ jobs:
           if [[ "$META_EXISTS" == "true" ]]; then
             found=$(jq -c --arg k "$META_KEY" '. + [$k]' <<< "$found")
           fi
+          # Merge per-flavor git-tag findings (already formatted as display strings).
+          found=$(jq -c --argjson extra "$FLAVOR_TAG_RESULTS" '. + $extra' <<< "$found")
           if [[ "$(jq 'length' <<< "$found")" -gt 0 ]]; then
             BUMP_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/workflows/meta-bump-all.yml"
             {
