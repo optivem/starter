@@ -9,6 +9,11 @@ on:
         description: 'Git SHA to test (leave empty for latest image)'
         required: false
         type: string
+      debug-skip-tests:
+        description: 'DEBUG ONLY: bypass deployments + acceptance tests and tag the RC anyway. Produces an RC tag indistinguishable from a tested one. Use only when iterating on the meta-prerelease pipeline plumbing — never on a real release path.'
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: monolith-typescript-acceptance-stage
@@ -181,6 +186,7 @@ jobs:
             password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Simulate Deployment (Real External Systems)
+        if: ${{ !inputs.debug-skip-tests }}
         uses: optivem/actions/deploy-docker-compose@v1
         with:
           environment: acceptance
@@ -191,6 +197,7 @@ jobs:
           working-directory: docker/typescript/monolith
 
       - name: Wait for Systems (Simulate Deployment (Real External Systems))
+        if: ${{ !inputs.debug-skip-tests }}
         uses: optivem/actions/wait-for-endpoints@v1
         with:
           endpoints: |
@@ -204,6 +211,7 @@ jobs:
           working-directory: docker/typescript/monolith
 
       - name: Simulate Deployment (Stub External Systems)
+        if: ${{ !inputs.debug-skip-tests }}
         uses: optivem/actions/deploy-docker-compose@v1
         with:
           environment: acceptance
@@ -214,6 +222,7 @@ jobs:
           working-directory: docker/typescript/monolith
 
       - name: Wait for Systems (Simulate Deployment (Stub External Systems))
+        if: ${{ !inputs.debug-skip-tests }}
         uses: optivem/actions/wait-for-endpoints@v1
         with:
           endpoints: |
@@ -227,6 +236,7 @@ jobs:
           working-directory: docker/typescript/monolith
 
       - name: Setup Node
+        if: ${{ !inputs.debug-skip-tests }}
         uses: actions/setup-node@v6
         with:
           node-version: 22.x
@@ -234,12 +244,14 @@ jobs:
           cache-dependency-path: system-test/typescript/package-lock.json
 
       - name: Cache Playwright Browsers
+        if: ${{ !inputs.debug-skip-tests }}
         uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('system-test/typescript/package-lock.json') }}
 
       - name: Install Playwright System Dependencies
+        if: ${{ !inputs.debug-skip-tests }}
         timeout-minutes: 5
         working-directory: system-test/typescript
         # Linux-only system packages (apt-get) for Chromium. Browser binaries
@@ -248,6 +260,7 @@ jobs:
         run: npx playwright install-deps
 
       - name: Install gh-optivem CLI extension
+        if: ${{ !inputs.debug-skip-tests }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh extension install optivem/gh-optivem
@@ -263,36 +276,47 @@ jobs:
       # already-prepared workspace; without it each step would re-run the full
       # setup block.
       - name: smoke-stub
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite smoke-stub --no-build --no-start --system docker/typescript/monolith/system.json --tests system-test/typescript/tests-latest.json
 
       - name: smoke-real
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite smoke-real --no-setup --no-build --no-start --system docker/typescript/monolith/system.json --tests system-test/typescript/tests-latest.json
 
       - name: acceptance-api
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite acceptance-api --no-setup --no-build --no-start --system docker/typescript/monolith/system.json --tests system-test/typescript/tests-latest.json
 
       - name: acceptance-ui
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite acceptance-ui --no-setup --no-build --no-start --system docker/typescript/monolith/system.json --tests system-test/typescript/tests-latest.json
 
       - name: acceptance-isolated-api
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite acceptance-isolated-api --no-setup --no-build --no-start --system docker/typescript/monolith/system.json --tests system-test/typescript/tests-latest.json
 
       - name: acceptance-isolated-ui
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite acceptance-isolated-ui --no-setup --no-build --no-start --system docker/typescript/monolith/system.json --tests system-test/typescript/tests-latest.json
 
       - name: contract-stub
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite contract-stub --no-setup --no-build --no-start --system docker/typescript/monolith/system.json --tests system-test/typescript/tests-latest.json
 
       - name: contract-isolated-stub
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite contract-isolated-stub --no-setup --no-build --no-start --system docker/typescript/monolith/system.json --tests system-test/typescript/tests-latest.json
 
       - name: contract-real
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite contract-real --no-setup --no-build --no-start --system docker/typescript/monolith/system.json --tests system-test/typescript/tests-latest.json
 
       - name: e2e-api
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite e2e-api --no-setup --no-build --no-start --system docker/typescript/monolith/system.json --tests system-test/typescript/tests-latest.json
 
       - name: e2e-ui
+        if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite e2e-ui --no-setup --no-build --no-start --system docker/typescript/monolith/system.json --tests system-test/typescript/tests-latest.json
 
       - name: Read Base System Version

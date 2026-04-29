@@ -9,6 +9,11 @@ on:
         description: 'Git SHA to test (leave empty for latest image)'
         required: false
         type: string
+      debug-skip-tests:
+        description: 'DEBUG ONLY: skip the legacy run job entirely. Use only when iterating on the meta-prerelease pipeline plumbing — never on a real release path.'
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: multitier-typescript-acceptance-stage-legacy
@@ -118,7 +123,7 @@ jobs:
 
   run:
     needs: check
-    if: needs.check.outputs.should-run == 'true'
+    if: needs.check.outputs.should-run == 'true' && !inputs.debug-skip-tests
     runs-on: ubuntu-latest
     permissions:
       contents: read

@@ -25,11 +25,6 @@ on:
         required: false
         default: ''
         type: string
-      skip-qa:
-        description: 'Bypass the per-flavor QA approval gate AND skip the 6 promote-<flavor> jobs. For each flavor, the latest <flavor>-v<VERSION>-rc.* tag (published by meta-prerelease) is resolved for the summary, but no flavor prod-stage is dispatched. The meta-v tag/release is created directly. Use only when the per-flavor prod-stages already ran in a prior attempt and only the meta-v tag is missing — otherwise the meta-v release will reference flavor releases that do not exist.'
-        required: false
-        default: false
-        type: boolean
 
 concurrency:
   group: meta-release-stage
@@ -163,18 +158,13 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
           VERSION: ${{ steps.resolve.outputs.version }}
-          SKIP_QA: ${{ inputs.skip-qa }}
         run: |
           set -euo pipefail
           source "$GITHUB_WORKSPACE/.github/workflows/scripts/gh-retry.sh"
-          # Default mode: require a successful `qa/signoff` commit-status on the rc (QA gate).
-          # skip-qa mode: accept the latest <flavor>-v<VERSION>-rc.<N> regardless of QA verdict.
-          # The strict regex on rc tags excludes any legacy status-suffix tags
-          # (-qa-approved, -qa-deployed, etc.) that may still be in the repo from before
-          # the migration.
-          if [[ "$SKIP_QA" == "true" ]]; then
-            echo "skip-qa=true — using latest <flavor>-v<VERSION>-rc.<N> regardless of qa/signoff"
-          fi
+          # Require a successful `qa/signoff` commit-status on the rc (QA gate). The
+          # strict regex on rc tags excludes any legacy status-suffix tags
+          # (-qa-approved, -qa-deployed, etc.) that may still be in the repo from
+          # before the migration.
           escaped_version="${VERSION//./\\.}"
           for flavor in monolith-java monolith-dotnet monolith-typescript multitier-java multitier-dotnet multitier-typescript; do
             mapfile -t rc_tags < <(git tag --list "${flavor}-v${VERSION}-rc.*" \
@@ -184,23 +174,17 @@ jobs:
               | awk '{print $2}')
 
             rc=""
-            if [[ "$SKIP_QA" == "true" ]]; then
-              rc="${rc_tags[0]:-}"
-              missing="No RC tag matching ${flavor}-v${VERSION}-rc.<N> — was meta-prerelease run to completion?"
-            else
-              for tag in "${rc_tags[@]}"; do
-                sha=$(git rev-parse "${tag}^{}" 2>/dev/null || git rev-parse "${tag}")
-                statuses=$(gh_retry api "repos/${REPO}/commits/${sha}/statuses" --paginate)
-                approved=$(echo "$statuses" | jq '[.[] | select(.context=="qa/signoff" and .state=="success")] | length')
-                if [[ "${approved:-0}" -gt 0 ]]; then
-                  rc="${tag}"
-                  break
-                fi
-              done
-              missing="No QA-approved RC (qa/signoff commit-status with state=success) found for ${flavor} at v${VERSION}. Was the acceptance pipeline run to completion and qa-signoff dispatched? (Re-dispatch with skip-qa=true to bypass the QA gate and use the latest unapproved RC.)"
-            fi
+            for tag in "${rc_tags[@]}"; do
+              sha=$(git rev-parse "${tag}^{}" 2>/dev/null || git rev-parse "${tag}")
+              statuses=$(gh_retry api "repos/${REPO}/commits/${sha}/statuses" --paginate)
+              approved=$(echo "$statuses" | jq '[.[] | select(.context=="qa/signoff" and .state=="success")] | length')
+              if [[ "${approved:-0}" -gt 0 ]]; then
+                rc="${tag}"
+                break
+              fi
+            done
             if [[ -z "$rc" ]]; then
-              echo "::error::${missing}"
+              echo "::error::No QA-approved RC (qa/signoff commit-status with state=success) found for ${flavor} at v${VERSION}. Was the acceptance pipeline run to completion and qa-signoff dispatched?"
               exit 1
             fi
             echo "${flavor}-rc=${rc}" >> "$GITHUB_OUTPUT"
@@ -209,7 +193,6 @@ jobs:
 
   promote-monolith-java:
     needs: check
-    if: ${{ !inputs.skip-qa }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
@@ -220,7 +203,6 @@ jobs:
 
   promote-monolith-dotnet:
     needs: check
-    if: ${{ !inputs.skip-qa }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
@@ -231,7 +213,6 @@ jobs:
 
   promote-monolith-typescript:
     needs: check
-    if: ${{ !inputs.skip-qa }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
@@ -242,7 +223,6 @@ jobs:
 
   promote-multitier-java:
     needs: check
-    if: ${{ !inputs.skip-qa }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
@@ -253,7 +233,6 @@ jobs:
 
   promote-multitier-dotnet:
     needs: check
-    if: ${{ !inputs.skip-qa }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
@@ -264,7 +243,6 @@ jobs:
 
   promote-multitier-typescript:
     needs: check
-    if: ${{ !inputs.skip-qa }}
     runs-on: ubuntu-latest
     steps:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
@@ -273,9 +251,6 @@ jobs:
           timeout-seconds: '3600'
           workflow-inputs: '{"version": "${{ needs.check.outputs.multitier-typescript-rc }}"}'
 
-  # When skip-qa=true, the 6 promote jobs above are skipped and tag-meta-release
-  # runs straight after check. !failure() && !cancelled() lets the job proceed
-  # whether the promotes succeeded or were skipped.
   tag-meta-release:
     needs: [check, promote-monolith-java, promote-monolith-dotnet, promote-monolith-typescript, promote-multitier-java, promote-multitier-dotnet, promote-multitier-typescript]
     if: ${{ !failure() && !cancelled() }}
@@ -342,7 +317,6 @@ jobs:
           RC_TAG: ${{ needs.check.outputs.meta_rc_tag }}
           RELEASE_TAG: ${{ needs.check.outputs.release_tag }}
           SHA: ${{ needs.check.outputs.commit-sha }}
-          SKIP_QA: ${{ inputs.skip-qa }}
           MONOLITH_JAVA_RC: ${{ needs.check.outputs.monolith-java-rc }}
           MONOLITH_DOTNET_RC: ${{ needs.check.outputs.monolith-dotnet-rc }}
           MONOLITH_TYPESCRIPT_RC: ${{ needs.check.outputs.monolith-typescript-rc }}
@@ -352,11 +326,6 @@ jobs:
         run: |
           BASE="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
           tag_link() { echo "[\`$1\`](${BASE}/releases/tag/$1)"; }
-          if [[ "$SKIP_QA" == "true" ]]; then
-            FLAVOR_HEADING="### Flavor RCs (promote jobs skipped — skip-qa=true)"
-          else
-            FLAVOR_HEADING="### Flavor RCs promoted"
-          fi
           {
             echo "## Meta release promoted"
             echo ""
@@ -365,9 +334,8 @@ jobs:
             echo "| RC tag | $(tag_link "${RC_TAG}") |"
             echo "| Release tag | $(tag_link "${RELEASE_TAG}") |"
             echo "| Commit | [\`${SHA::7}\`](${BASE}/commit/${SHA}) |"
-            echo "| skip-qa | ${SKIP_QA:-false} |"
             echo ""
-            echo "$FLAVOR_HEADING"
+            echo "### Flavor RCs promoted"
             echo "| Flavor | RC version |"
             echo "|---|---|"
             echo "| monolith-java | $(tag_link "${MONOLITH_JAVA_RC}") |"
@@ -378,13 +346,9 @@ jobs:
             echo "| multitier-typescript | $(tag_link "${MULTITIER_TYPESCRIPT_RC}") |"
           } >> "$GITHUB_STEP_SUMMARY"
 
-  # Explicit if: required because GitHub's implicit success() propagates skipped
-  # status through transitive needs — when skip-qa=true the 6 promote-<flavor>
-  # jobs are skipped, and the implicit check would skip this job too even though
-  # tag-meta-release succeeded.
   bump-patch-version:
     needs: tag-meta-release
-    if: ${{ !failure() && !cancelled() && needs.tag-meta-release.result == 'success' }}
+    if: ${{ needs.tag-meta-release.result == 'success' }}
     uses: ./.github/workflows/bump-patch-version-meta.yml
     secrets: inherit
 
@@ -392,10 +356,9 @@ jobs:
   # against the just-published meta-v* tag. We do not wait for it to finish —
   # gh-acceptance-stage verifies the release, it does not gate it. The target
   # workflow idempotently skips already-verified SHAs, so re-dispatches are safe.
-  # Explicit if: required for the same reason as bump-patch-version above.
   trigger-gh-acceptance:
     needs: [check, tag-meta-release]
-    if: ${{ !failure() && !cancelled() && needs.tag-meta-release.result == 'success' }}
+    if: ${{ needs.tag-meta-release.result == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
