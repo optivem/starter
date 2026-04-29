@@ -106,7 +106,7 @@ jobs:
           echo
 
           # Anything whose basename is exactly "VERSION" is a bump-loop artifact
-          # produced by auto-bump-patch — ignore it. Anything else is real.
+          # produced by bump-patch-version — ignore it. Anything else is real.
           non_version=$(echo "$changed" | grep -v -E '(^|/)VERSION$' || true)
 
           if [[ -z "$non_version" ]]; then

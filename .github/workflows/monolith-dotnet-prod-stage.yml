@@ -202,10 +202,10 @@ jobs:
           image-tags: ${{ steps.compose-component-tags.outputs.tags }}
           token: ${{ secrets.GHCR_TOKEN }}
 
-  auto-bump-patch:
+  bump-patch-version:
     needs: run
     if: ${{ !failure() && !cancelled() && needs.run.result == 'success' }}
-    uses: ./.github/workflows/auto-bump-patch.yml
+    uses: ./.github/workflows/bump-patch-version.yml
     secrets: inherit
 
   summary:

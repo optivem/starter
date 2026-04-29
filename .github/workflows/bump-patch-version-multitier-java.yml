@@ -1,13 +1,13 @@
-name: auto-bump-patch-multitier-typescript
+name: bump-patch-version-multitier-java
 
-# Per-flavor scaffold source for auto-bump-patch (multitier-typescript, backend typescript + frontend react).
+# Per-flavor scaffold source for bump-patch-version (multitier-java, backend java + frontend react).
 #
-# Used by gh-optivem during `gh optivem init` to provide the auto-bump-patch
-# workflow for multitier-typescript student repos. After scaffold, this file
-# is renamed to `auto-bump-patch.yml` and content rewrites collapse the
-# flavor prefix and image names (`multitier-backend-typescript` -> `backend`,
+# Used by gh-optivem during `gh optivem init` to provide the bump-patch-version
+# workflow for multitier-java student repos. After scaffold, this file is
+# renamed to `bump-patch-version.yml` and content rewrites collapse the flavor
+# prefix and image names (`multitier-backend-java` -> `backend`,
 # `multitier-frontend-react` -> `frontend`), and the version-file paths
-# (`system/multitier/backend-typescript` -> `backend`,
+# (`system/multitier/backend-java` -> `backend`,
 # `system/multitier/frontend-react` -> `frontend`).
 #
 # Triggered automatically at the end of prod-stage when a release is cut, or
@@ -20,7 +20,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: multitier-typescript-auto-bump-patch
+  group: multitier-java-bump-patch-version
 
 jobs:
   bump:
@@ -38,8 +38,8 @@ jobs:
         with:
           version-files: |
             [
-              {"path": "system/multitier/backend-typescript/VERSION", "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/multitier-backend-typescript"},
-              {"path": "system/multitier/frontend-react/VERSION",     "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/multitier-frontend-react"}
+              {"path": "system/multitier/backend-java/VERSION",    "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/multitier-backend-java"},
+              {"path": "system/multitier/frontend-react/VERSION",  "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/multitier-frontend-react"}
             ]
 
       - name: Build Commit Payload

@@ -1,14 +1,14 @@
-name: auto-bump-patch
+name: bump-patch-version
 
 # Component-level VERSION bumper for shop's multitier flavors. Triggered automatically
 # at the end of each multitier flavor's prod-stage when a release has been cut, or
 # manually by a developer (workflow_dispatch) to recover from a missed auto-run.
 #
 # Meta-level (root VERSION via meta-v signal) bumps are handled separately by
-# `auto-bump-patch-meta.yml` (called from meta-release-stage). Monolith flavors in
+# `bump-patch-version-meta.yml` (called from meta-release-stage). Monolith flavors in
 # shop intentionally have no entries here — shop's monolith VERSION is the meta
 # version, owned by meta-release-stage. Student-repo monolith and multitier flavors
-# get their own per-flavor scaffold variants (`auto-bump-patch-{arch}-{lang}.yml`).
+# get their own per-flavor scaffold variants (`bump-patch-version-{arch}-{lang}.yml`).
 #
 # Uses the GitHub Contents API with SHA preconditions — no `git push`, no main-branch race.
 # Idempotent: only bumps a VERSION file if its matching release tag exists on the remote.
@@ -18,7 +18,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: my-shop-auto-bump-patch
+  group: my-shop-bump-patch-version
 
 jobs:
   bump:

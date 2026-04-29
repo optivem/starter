@@ -187,7 +187,7 @@ jobs:
             found=$(jq -c --arg k "$META_KEY" '. + [$k]' <<< "$found")
           fi
           if [[ "$(jq 'length' <<< "$found")" -gt 0 ]]; then
-            BUMP_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/workflows/auto-bump-patch.yml"
+            BUMP_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/workflows/bump-patch-version.yml"
             {
               echo "## Version already released"
               echo ""
@@ -195,10 +195,10 @@ jobs:
               echo ""
               jq -r '.[] | "- `\(.)`"' <<< "$found"
               echo ""
-              echo "Run the [auto-bump-patch workflow](${BUMP_URL}) to bump VERSION files, then re-run this workflow."
+              echo "Run the [bump-patch-version workflow](${BUMP_URL}) to bump VERSION files, then re-run this workflow."
             } >> "$GITHUB_STEP_SUMMARY"
             found_flat=$(jq -r 'join(", ")' <<< "$found")
-            echo "::error::Version already released: ${found_flat}. Run the auto-bump-patch workflow to bump VERSION files, then re-run this workflow: ${BUMP_URL}"
+            echo "::error::Version already released: ${found_flat}. Run the bump-patch-version workflow to bump VERSION files, then re-run this workflow: ${BUMP_URL}"
             exit 1
           fi
           echo "All artifacts available for current VERSION values across meta + monoliths + components. OK to proceed."

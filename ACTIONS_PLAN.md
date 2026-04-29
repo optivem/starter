@@ -109,13 +109,13 @@ Evidence: `meta-release-stage.yml:183,194,205,216,227,238`; `_meta-prerelease-pi
 
 ### H0d. VERSION-files-in-repo + bump commits as deployment ledger
 
-**Problem.** `auto-bump-patch.yml` writes a commit to `main` after each release that bumps `VERSION`, `system/multitier/backend-dotnet/VERSION`, etc. The recent `git log` is dominated by `Bump system/multitier/frontend-react/VERSION 1.3.41 -> 1.3.42` style entries.
+**Problem.** `bump-patch-version.yml` writes a commit to `main` after each release that bumps `VERSION`, `system/multitier/backend-dotnet/VERSION`, etc. The recent `git log` is dominated by `Bump system/multitier/frontend-react/VERSION 1.3.41 -> 1.3.42` style entries.
 
 **Why this is bad.**
 1. **Repo history pollution.** A semantic `git log` of "what changed" is drowned in mechanical bumps. `git blame` on functional code becomes harder.
 2. **Ledger lives in the working directory.** Anyone editing a VERSION file by hand can desync with reality. The `signal: ghcr-image` lookup is a workaround — the *real* version lives in the registry, but the file is treated as authoritative.
 3. **Each bump is a `main` commit** with `contents: write` permission needed by an automated actor — a permission you'd otherwise prefer not to grant.
-4. **Race-prone.** `auto-bump-patch.yml` already uses the Contents API with SHA preconditions (good — that detail wouldn't be necessary if VERSION wasn't a shared mutable file).
+4. **Race-prone.** `bump-patch-version.yml` already uses the Contents API with SHA preconditions (good — that detail wouldn't be necessary if VERSION wasn't a shared mutable file).
 
 **Fix — two options:**
 
@@ -287,8 +287,8 @@ concurrency:
 
 ## Low
 
-### L1. Drop redundant token in `auto-bump-patch.yml`
-`auto-bump-patch.yml:61-63` passes `secrets.GITHUB_TOKEN` both as `with.token` and `env.GITHUB_TOKEN`. Keep one.
+### L1. Drop redundant token in `bump-patch-version.yml`
+`bump-patch-version.yml:61-63` passes `secrets.GITHUB_TOKEN` both as `with.token` and `env.GITHUB_TOKEN`. Keep one.
 
 ### L2. Pin `runs-on: ubuntu-latest` → `ubuntu-24.04`
 Optional. Improves reproducibility; downside is manual bumps when GitHub deprecates the image. Skip unless we hit a reproducibility issue.

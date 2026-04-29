@@ -5,8 +5,8 @@ name: meta-release-stage
 #   2. Finding each flavor's latest QA-approved RC at that version
 #   3. Triggering all 6 flavor prod-stages in parallel to release each flavor
 #   4. After all flavor releases succeed, creating the final meta-v{VERSION} tag
-#   5. Calling auto-bump-patch-meta to bump the root VERSION for the next cycle
-#      (component VERSIONs are bumped by each flavor's prod-stage via auto-bump-patch.yml)
+#   5. Calling bump-patch-version-meta to bump the root VERSION for the next cycle
+#      (component VERSIONs are bumped by each flavor's prod-stage via bump-patch-version.yml)
 #
 # This is the single canonical release path. Pipeline workflows only run through QA;
 # actual production release happens here (or via direct dispatch on a flavor-prod-stage.yml).
@@ -339,17 +339,17 @@ jobs:
   # status through transitive needs — when skip-qa=true the 6 promote-<flavor>
   # jobs are skipped, and the implicit check would skip this job too even though
   # tag-meta-release succeeded.
-  auto-bump-patch:
+  bump-patch-version:
     needs: tag-meta-release
     if: ${{ !failure() && !cancelled() && needs.tag-meta-release.result == 'success' }}
-    uses: ./.github/workflows/auto-bump-patch-meta.yml
+    uses: ./.github/workflows/bump-patch-version-meta.yml
     secrets: inherit
 
   # Fire-and-forget: kick off post-release acceptance testing in optivem/gh-optivem
   # against the just-published meta-v* tag. We do not wait for it to finish —
   # gh-acceptance-stage verifies the release, it does not gate it. The target
   # workflow idempotently skips already-verified SHAs, so re-dispatches are safe.
-  # Explicit if: required for the same reason as auto-bump-patch above.
+  # Explicit if: required for the same reason as bump-patch-version above.
   trigger-gh-acceptance:
     needs: [check, tag-meta-release]
     if: ${{ !failure() && !cancelled() && needs.tag-meta-release.result == 'success' }}

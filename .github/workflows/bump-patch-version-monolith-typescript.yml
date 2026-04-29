@@ -1,14 +1,11 @@
-name: auto-bump-patch-multitier-java
+name: monolith-typescript-bump-patch-version
 
-# Per-flavor scaffold source for auto-bump-patch (multitier-java, backend java + frontend react).
+# Per-flavor scaffold source for bump-patch-version (monolith-typescript).
 #
-# Used by gh-optivem during `gh optivem init` to provide the auto-bump-patch
-# workflow for multitier-java student repos. After scaffold, this file is
-# renamed to `auto-bump-patch.yml` and content rewrites collapse the flavor
-# prefix and image names (`multitier-backend-java` -> `backend`,
-# `multitier-frontend-react` -> `frontend`), and the version-file paths
-# (`system/multitier/backend-java` -> `backend`,
-# `system/multitier/frontend-react` -> `frontend`).
+# Used by gh-optivem during `gh optivem init` to provide the bump-patch-version
+# workflow for monolith-typescript student repos. After scaffold, this file
+# is renamed to `bump-patch-version.yml` and content rewrites collapse the
+# flavor prefix and image name (`monolith-system-typescript` -> `system`).
 #
 # Triggered automatically at the end of prod-stage when a release is cut, or
 # manually via workflow_dispatch to recover from a missed auto-run.
@@ -20,7 +17,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: multitier-java-auto-bump-patch
+  group: monolith-typescript-bump-patch-version
 
 jobs:
   bump:
@@ -38,8 +35,7 @@ jobs:
         with:
           version-files: |
             [
-              {"path": "system/multitier/backend-java/VERSION",    "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/multitier-backend-java"},
-              {"path": "system/multitier/frontend-react/VERSION",  "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/multitier-frontend-react"}
+              {"path": "VERSION", "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/monolith-system-typescript"}
             ]
 
       - name: Build Commit Payload
