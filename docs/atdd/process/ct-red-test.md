@@ -25,5 +25,5 @@ STOP. Present the contract tests to the user and ask for approval. Do NOT contin
    a. Extend the DSL interfaces with the new methods.
    b. Implement the new methods by throwing a "TODO: DSL" not-implemented exception (see `language-equivalents.md`).
    c. Run the tests and verify they fail with a runtime error.
-2. COMMIT with message `<Scenario> | CT - RED - TEST`.
+2. COMMIT with message `<Ticket> | CT - RED - TEST`.
 3. STOP. Do not proceed further. Phase progression is controlled by the orchestrator, not by this agent.

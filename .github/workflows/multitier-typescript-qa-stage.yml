@@ -59,7 +59,6 @@ jobs:
     needs: check
     if: needs.check.result == 'success'
     runs-on: ubuntu-latest
-    environment: multitier-typescript-qa
     permissions:
       contents: read
       packages: read

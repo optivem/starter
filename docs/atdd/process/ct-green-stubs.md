@@ -18,5 +18,5 @@ STOP. Present the stub implementation to the user and ask for approval. Do NOT c
 
 1. Remove the disabled annotation (reason `"CT - RED - EXTERNAL DRIVER"`) from the tests.
 2. Run the tests and verify they pass.
-3. COMMIT with message `<Scenario> | CT - GREEN - STUBS`.
+3. COMMIT with message `<Ticket> | CT - GREEN - STUBS`.
 4. STOP. Do not proceed further. Phase progression is controlled by the orchestrator, not by this agent.

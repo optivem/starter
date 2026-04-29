@@ -75,6 +75,6 @@ jobs:
       uses: optivem/actions/render-system-stage-summary@v1
       with:
         stage-name: 'QA Signoff'
-        stage-result: ${{ needs.run.outputs.stage-result }}
+        stage-result: ${{ needs.run.outputs.stage-result || 'failure' }}
         environment: qa
         success-version: ${{ needs.run.outputs.version }}
