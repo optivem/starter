@@ -121,6 +121,8 @@ jobs:
     permissions:
       contents: read
       packages: read
+    env:
+      ENVIRONMENT: acceptance
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -212,130 +214,98 @@ jobs:
           command: cd system-test/java && ./gradlew --version
 
       - name: Cache Playwright Browsers
-        id: cache-playwright
         uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('system-test/java/build.gradle') }}
-
-      - name: Install Playwright Browsers
-        timeout-minutes: 5
-        if: steps.cache-playwright.outputs.cache-hit != 'true'
-        run: npx playwright install chromium
-        working-directory: system-test/java
 
       - name: Install Playwright System Dependencies
         timeout-minutes: 5
         run: npx playwright install-deps
         working-directory: system-test/java
 
-      - name: Compile System Tests
-        run: ./gradlew clean compileJava compileTestJava
-        working-directory: system-test/java
+      - name: Install gh-optivem CLI extension
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh extension install optivem/gh-optivem
 
-      - name: mod02 - Run Smoke Tests
-        run: ./gradlew test -Dversion=mod02 -Dtype=smoke -DexternalSystemMode=real -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod02-smoke
+        run: gh optivem test system --suite mod02-smoke --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod03 - Run E2E Tests
-        run: ./gradlew test -Dversion=mod03 -Dtype=e2e -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod03-e2e
+        run: gh optivem test system --suite mod03-e2e --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod04 - Run Smoke Tests
-        run: ./gradlew test -Dversion=mod04 -Dtype=smoke -DexternalSystemMode=real -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod04-smoke
+        run: gh optivem test system --suite mod04-smoke --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod04 - Run E2E Tests
-        run: ./gradlew test -Dversion=mod04 -Dtype=e2e -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod04-e2e
+        run: gh optivem test system --suite mod04-e2e --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod05 - Run Smoke Tests
-        run: ./gradlew test -Dversion=mod05 -Dtype=smoke -DexternalSystemMode=real -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod05-smoke
+        run: gh optivem test system --suite mod05-smoke --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod05 - Run E2E Tests
-        run: ./gradlew test -Dversion=mod05 -Dtype=e2e -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod05-e2e
+        run: gh optivem test system --suite mod05-e2e --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod06 - Run Smoke Tests
-        run: ./gradlew test -Dversion=mod06 -Dtype=smoke -DexternalSystemMode=real -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod06-smoke
+        run: gh optivem test system --suite mod06-smoke --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod06 - Run E2E Tests - API Channel
-        run: ./gradlew test -Dversion=mod06 -Dtype=e2e -Dchannel=API -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod06-e2e-api
+        run: gh optivem test system --suite mod06-e2e-api --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod06 - Run E2E Tests - UI Channel
-        run: ./gradlew test -Dversion=mod06 -Dtype=e2e -Dchannel=UI -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod06-e2e-ui
+        run: gh optivem test system --suite mod06-e2e-ui --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod07 - Run Smoke Tests
-        run: ./gradlew test -Dversion=mod07 -Dtype=smoke -DexternalSystemMode=real -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod07-smoke
+        run: gh optivem test system --suite mod07-smoke --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod07 - Run E2E Tests - API Channel
-        run: ./gradlew test -Dversion=mod07 -Dtype=e2e -Dchannel=API -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod07-e2e-api
+        run: gh optivem test system --suite mod07-e2e-api --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod07 - Run E2E Tests - UI Channel
-        run: ./gradlew test -Dversion=mod07 -Dtype=e2e -Dchannel=UI -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod07-e2e-ui
+        run: gh optivem test system --suite mod07-e2e-ui --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod08 - Run Smoke Tests
-        run: ./gradlew test -Dversion=mod08 -Dtype=smoke -DexternalSystemMode=real -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod08-smoke
+        run: gh optivem test system --suite mod08-smoke --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod08 - Run E2E Tests - API Channel
-        run: ./gradlew test -Dversion=mod08 -Dtype=e2e -Dchannel=API -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod08-e2e-api
+        run: gh optivem test system --suite mod08-e2e-api --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod08 - Run E2E Tests - UI Channel
-        run: ./gradlew test -Dversion=mod08 -Dtype=e2e -Dchannel=UI -DchannelMode=static -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod08-e2e-ui
+        run: gh optivem test system --suite mod08-e2e-ui --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod09 - Run Smoke Tests (Stub)
-        run: ./gradlew test -Dversion=mod09 -Dtype=smoke -DexternalSystemMode=stub -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod09-smoke-stub
+        run: gh optivem test system --suite mod09-smoke-stub --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod09 - Run Smoke Tests (Real)
-        run: ./gradlew test -Dversion=mod09 -Dtype=smoke -DexternalSystemMode=real -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod09-smoke-real
+        run: gh optivem test system --suite mod09-smoke-real --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod10 - Run Acceptance Tests - API Channel
-        run: ./gradlew test -Dversion=mod10 -Dtype=acceptance -DexcludeTags=isolated -Dchannel=API -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod10-acceptance-api
+        run: gh optivem test system --suite mod10-acceptance-api --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod10 - Run Acceptance Tests - UI Channel
-        run: ./gradlew test -Dversion=mod10 -Dtype=acceptance -DexcludeTags=isolated -Dchannel=UI -DchannelMode=static -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod10-acceptance-ui
+        run: gh optivem test system --suite mod10-acceptance-ui --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod10 - Run Acceptance Tests (Isolated) - API Channel
-        run: ./gradlew test -Dversion=mod10 -Dtype=acceptance -DincludeTags=isolated -Dchannel=API -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod10-acceptance-isolated-api
+        run: gh optivem test system --suite mod10-acceptance-isolated-api --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod10 - Run Acceptance Tests (Isolated) - UI Channel
-        run: ./gradlew test -Dversion=mod10 -Dtype=acceptance -DincludeTags=isolated -Dchannel=UI -DchannelMode=static -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod10-acceptance-isolated-ui
+        run: gh optivem test system --suite mod10-acceptance-isolated-ui --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod11 - Run Contract Tests (Stub)
-        run: ./gradlew test -Dversion=mod11 -Dtype=contract -DexcludeTags=isolated -DexternalSystemMode=stub -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod11-contract-stub
+        run: gh optivem test system --suite mod11-contract-stub --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod11 - Run Contract Tests (Stub) (Isolated)
-        run: ./gradlew test -Dversion=mod11 -Dtype=contract -DincludeTags=isolated -DexternalSystemMode=stub -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod11-contract-stub-isolated
+        run: gh optivem test system --suite mod11-contract-stub-isolated --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod11 - Run Contract Tests (Real)
-        run: ./gradlew test -Dversion=mod11 -Dtype=contract -DexternalSystemMode=real -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod11-contract-real
+        run: gh optivem test system --suite mod11-contract-real --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod11 - Run E2E Tests - API Channel
-        run: ./gradlew test -Dversion=mod11 -Dtype=e2e -Dchannel=API -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod11-e2e-api
+        run: gh optivem test system --suite mod11-e2e-api --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
-      - name: mod11 - Run E2E Tests - UI Channel
-        run: ./gradlew test -Dversion=mod11 -Dtype=e2e -Dchannel=UI -DchannelMode=static -Denvironment=acceptance
-        working-directory: system-test/java
+      - name: mod11-e2e-ui
+        run: gh optivem test system --suite mod11-e2e-ui --no-setup --no-build --no-start --system docker/java/monolith/system.json --tests system-test/java/tests-legacy.json
 
   summary:
     needs: [preflight, check, run]
