@@ -377,11 +377,13 @@ jobs:
           gh_retry workflow run gh-acceptance-stage.yml \
             --repo optivem/gh-optivem \
             -f shop-tag="${SHOP_TAG}" \
-            -f verify-level=release
+            -f verify-level=release \
+            -f acceptance-mode=condensed
           {
             echo "## Dispatched gh-acceptance-stage"
             echo ""
             echo "- Target repo: [optivem/gh-optivem](https://github.com/optivem/gh-optivem/actions/workflows/gh-acceptance-stage.yml)"
             echo "- shop-tag: \`${SHOP_TAG}\`"
             echo "- verify-level: \`release\`"
+            echo "- acceptance-mode: \`condensed\`"
           } >> "$GITHUB_STEP_SUMMARY"
