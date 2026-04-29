@@ -8,12 +8,13 @@ import type { ProblemDetailResponse } from '../dtos/errors/ProblemDetailResponse
 import { SystemErrorMapper } from '../../SystemErrorMapper.js';
 
 export class OrderController {
-  private static readonly ENDPOINT = '/api/orders';
+  private static readonly PLACE_ORDER_ENDPOINT = '/api/orders-go';
+  private static readonly ORDER_RESOURCE_ENDPOINT = '/api/orders';
 
   constructor(private readonly baseUrl: string) {}
 
   async placeOrder(request: PlaceOrderRequest): Promise<Result<PlaceOrderResponse, SystemError>> {
-    const response = await fetch(`${this.baseUrl}${OrderController.ENDPOINT}`, {
+    const response = await fetch(`${this.baseUrl}${OrderController.PLACE_ORDER_ENDPOINT}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
@@ -29,7 +30,7 @@ export class OrderController {
   }
 
   async viewOrder(orderNumber: string): Promise<Result<ViewOrderResponse, SystemError>> {
-    const response = await fetch(`${this.baseUrl}${OrderController.ENDPOINT}/${orderNumber}`);
+    const response = await fetch(`${this.baseUrl}${OrderController.ORDER_RESOURCE_ENDPOINT}/${orderNumber}`);
     if (response.ok) {
       const data = (await response.json()) as ViewOrderResponse;
       return success(data);
@@ -40,7 +41,7 @@ export class OrderController {
   }
 
   async cancelOrder(orderNumber: string): Promise<Result<void, SystemError>> {
-    const response = await fetch(`${this.baseUrl}${OrderController.ENDPOINT}/${orderNumber}/cancel`, {
+    const response = await fetch(`${this.baseUrl}${OrderController.ORDER_RESOURCE_ENDPOINT}/${orderNumber}/cancel`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({}),
@@ -53,7 +54,7 @@ export class OrderController {
   }
 
   async deliverOrder(orderNumber: string): Promise<Result<void, SystemError>> {
-    const response = await fetch(`${this.baseUrl}${OrderController.ENDPOINT}/${orderNumber}/deliver`, {
+    const response = await fetch(`${this.baseUrl}${OrderController.ORDER_RESOURCE_ENDPOINT}/${orderNumber}/deliver`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({}),

@@ -5,16 +5,24 @@ import type { PlaceOrderRequest, PlaceOrderResponse, ViewOrderDetailsResponse, B
 import type { Result } from '../types/result.types';
 
 class OrderService {
-  private readonly baseUrl: string;
+  private readonly placeOrderUrl: string;
+  private readonly browseOrderHistoryUrl: string;
+  private readonly orderResourceUrl: string;
 
-  constructor(baseUrl: string = '/api/orders') {
-    this.baseUrl = baseUrl;
+  constructor(
+    placeOrderUrl: string = '/api/orders-go',
+    browseOrderHistoryUrl: string = '/api/orders-lala',
+    orderResourceUrl: string = '/api/orders'
+  ) {
+    this.placeOrderUrl = placeOrderUrl;
+    this.browseOrderHistoryUrl = browseOrderHistoryUrl;
+    this.orderResourceUrl = orderResourceUrl;
   }
 
   async placeOrder(sku: string, quantity: number, country: string, couponCode?: string): Promise<Result<PlaceOrderResponse>> {
     const requestBody: PlaceOrderRequest = { sku, quantity, country, ...(couponCode ? { couponCode } : {}) };
 
-    return fetchJson<PlaceOrderResponse>(this.baseUrl, {
+    return fetchJson<PlaceOrderResponse>(this.placeOrderUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -24,27 +32,27 @@ class OrderService {
   }
 
   async getOrder(orderNumber: string): Promise<Result<ViewOrderDetailsResponse>> {
-    return fetchJson<ViewOrderDetailsResponse>(`${this.baseUrl}/${orderNumber}`, {
+    return fetchJson<ViewOrderDetailsResponse>(`${this.orderResourceUrl}/${orderNumber}`, {
       method: 'GET'
     });
   }
 
   async cancelOrder(orderNumber: string): Promise<Result<void>> {
-    return fetchJson<void>(`${this.baseUrl}/${orderNumber}/cancel`, {
+    return fetchJson<void>(`${this.orderResourceUrl}/${orderNumber}/cancel`, {
       method: 'POST'
     });
   }
 
   async deliverOrder(orderNumber: string): Promise<Result<void>> {
-    return fetchJson<void>(`${this.baseUrl}/${orderNumber}/deliver`, {
+    return fetchJson<void>(`${this.orderResourceUrl}/${orderNumber}/deliver`, {
       method: 'POST'
     });
   }
 
   async browseOrderHistory(orderNumberFilter?: string): Promise<Result<BrowseOrderHistoryResponse>> {
     const url = orderNumberFilter?.trim()
-      ? `${this.baseUrl}?orderNumber=${encodeURIComponent(orderNumberFilter.trim())}`
-      : this.baseUrl;
+      ? `${this.browseOrderHistoryUrl}?orderNumber=${encodeURIComponent(orderNumberFilter.trim())}`
+      : this.browseOrderHistoryUrl;
     return fetchJson<BrowseOrderHistoryResponse>(url, {
       method: 'GET'
     });

@@ -25,13 +25,13 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @GetMapping("/api/orders")
+    @GetMapping("/api/orders-lala")
     public ResponseEntity<BrowseOrderHistoryResponse> browseOrderHistory(@RequestParam(required = false) String orderNumber) {
         var response = orderService.browseOrderHistory(orderNumber);
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/api/orders")
+    @PostMapping("/api/orders-go")
     public ResponseEntity<PlaceOrderResponse> placeOrder(@Valid @RequestBody PlaceOrderRequest request) {
         var response = orderService.placeOrder(request);
         var location = URI.create("/api/orders/" + response.getOrderNumber());
