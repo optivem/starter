@@ -18,10 +18,24 @@ The COMMIT step itself is gated by the universal rule in `shared-commit-confirma
 
 Every structural-cycle TEST runs after WRITE and before COMMIT. Goal: verify the change compiles and the sample suite still passes locally before asking to commit. The sample run is **explicitly gated** because it spins up docker stacks and takes several minutes per language — never run it without user approval.
 
-1. Confirm affected components compile (per `CLAUDE.md`: run `./compile-all.sh` from the repo root, or a single-project command for narrow changes). Compile is fast and runs without prompting.
-2. Ask the user for explicit approval before running the sample suite: "About to run `gh optivem test system --sample` for <languages> — this takes a few minutes per language. Approve? (yes/no)". Wait for an explicit `yes` before proceeding. Never self-initiate; never run in parallel with other system-test commands without separately asking.
-3. On approval, run the sample suite for each affected language (per `CLAUDE.md`: `gh optivem test system --sample`) and verify it passes.
-4. STOP. Present the test results to the user. On failure, fix and re-enter TEST from step 1. On pass, proceed to COMMIT.
+The TEST procedure honours the **Scope** declared in pre-flight (see `.claude/commands/atdd/atdd-implement-ticket.md` "Scope Confirmation"): compile and sample-suite work is restricted to the in-scope architecture(s) and Test Lang(s).
+
+1. Confirm in-scope components compile (per `CLAUDE.md`: run `./compile-all.sh` from the repo root, or a single-project command for narrow changes). Compile is fast and runs without prompting.
+2. Ask the user for explicit approval before running the sample suite: "About to run `gh optivem test system --sample` for <in-scope test languages> — this takes a few minutes per language. Approve? (yes/no)". Wait for an explicit `yes` before proceeding. Never self-initiate; never run in parallel with other system-test commands without separately asking.
+3. On approval, run the sample suite for each in-scope Test Lang (per `CLAUDE.md`: `gh optivem test system --sample`) and verify it passes.
+4. Print a **drift warning** naming any out-of-scope implementations that were deliberately left untouched by this run, e.g.:
+
+   ```
+   Out-of-scope implementations not updated by this run:
+     - dotnet/monolith
+     - dotnet/multitier
+     - typescript/monolith
+     - typescript/multitier
+   Open follow-up tickets or rerun with --architecture both --system-lang all to propagate.
+   ```
+
+   If Scope was the broadest option (`Architecture=both`, `System Lang=all`, `Test Lang=all`), skip this step.
+5. STOP. Present the test results and drift warning (if any) to the user. On failure, fix and re-enter TEST from step 1. On pass, proceed to COMMIT.
 
 The EXTERNAL API REDESIGN cycle has no standalone TEST — its sample-run gating happens inside the CT sub-process.
 

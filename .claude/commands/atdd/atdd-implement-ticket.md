@@ -102,6 +102,58 @@ If the user wants to change:
 
 Only proceed past this gate after explicit confirmation (or in autonomous mode).
 
+#### Scope Confirmation
+
+After Run Mode is confirmed, determine and confirm the **scope** — which architecture(s), system implementation language(s), and test language(s) the pipeline will touch. Defaults are **rehearsal-aware**: single-implementation in rehearsal mode (fast iteration on one stack), full fan-out outside rehearsal (production runs touch all parallel implementations).
+
+**Defaults**:
+- Rehearsal mode (`Rehearsal: ON`): `Architecture=multitier`, `System Lang=java`, `Test Lang=typescript`.
+- Outside rehearsal (`Rehearsal: OFF`): `Architecture=both`, `System Lang=all`, `Test Lang=all`.
+
+**Flag overrides** — present in `$ARGUMENTS` to override the default for that axis (and skip the per-axis prompt for it):
+- `--architecture <monolith|multitier|both>`
+- `--system-lang <java|dotnet|typescript|all>`
+- `--test-lang <java|dotnet|typescript|all>`
+
+In autonomous mode, skip the confirmation prompt entirely and use the mode-appropriate defaults (still honouring any explicit flags). Print the resolved scope and proceed.
+
+Otherwise, print the resolved values and ask for confirmation. Use this exact shape:
+
+```
+Scope for issue #<N>:
+  Architecture: <value>   (other options: <full|tokens|comma|separated>)
+  System Lang:  <value>   (other options: <full|tokens|comma|separated>)
+  Test Lang:    <value>   (other options: <full|tokens|comma|separated>)
+
+Proceed with this scope? (yes / change / all)
+```
+
+Always spell options out fully (`monolith|multitier|both`, never `m|mt|both`).
+
+- `yes` → proceed with the displayed scope.
+- `change` → ask the user for each axis individually, then re-display the block and re-ask.
+- `all` → set every axis to the broadest option (`Architecture=both`, `System Lang=all`, `Test Lang=all`) and proceed.
+
+Only proceed past this gate after explicit confirmation (or in autonomous mode).
+
+**Propagation to sub-agents.** Once the scope is locked, include the resolved values in every sub-agent prompt as a literal block:
+
+```
+Scope: Architecture=<value>, System Lang=<value>, Test Lang=<value>
+Restrict all file edits, residual-reference greps, compile checks, and sample-suite runs to in-scope paths only. Out-of-scope implementations are NOT to be modified or tested in this run.
+```
+
+Sub-agents — notably `atdd-task` and `atdd-chore` — must obey this scope strictly. The shared structural-cycle TEST procedure (see `docs/atdd/process/task-and-chore-cycles.md`) runs the sample suite only for in-scope Test Lang(s). At the end of TEST, print a drift warning naming any implementations not updated by this run, e.g.:
+
+```
+Out-of-scope implementations not updated by this run:
+  - dotnet/monolith
+  - dotnet/multitier
+  - typescript/monolith
+  - typescript/multitier
+Open follow-up tickets or rerun with --architecture both --system-lang all to propagate.
+```
+
 #### Status Validation
 
 Check the issue's status on the GitHub project board:

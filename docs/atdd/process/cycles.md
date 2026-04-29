@@ -272,6 +272,14 @@ The chore ticket carries a **checklist of refactor / upgrade steps** in its body
 | EXTERNAL API REDESIGN | `atdd-task` (subtype `external-system-api-change`) | No standalone WRITE / TEST / COMMIT — routes entirely through the Contract Test Sub-Process. |
 | CHORE - WRITE / TEST / COMMIT | `atdd-chore` | WRITE = implement chore + STOP. TEST = shared structural-cycle TEST. COMMIT = shared structural-cycle COMMIT. |
 
+## Scope
+
+Every pipeline run is bounded by a **Scope** declared in pre-flight (see `.claude/commands/atdd/atdd-implement-ticket.md` "Scope Confirmation"). Scope has three axes — **Architecture** (`monolith|multitier|both`), **System Lang** (`java|dotnet|typescript|all`), and **Test Lang** (`java|dotnet|typescript|all`) — and is propagated into every dispatched sub-agent prompt.
+
+Defaults are rehearsal-aware: rehearsal mode defaults to a single implementation (`Architecture=multitier`, `System Lang=java`, `Test Lang=typescript`) for fast iteration; outside rehearsal the defaults fan out to all parallel implementations (`Architecture=both`, `System Lang=all`, `Test Lang=all`). The user confirms or overrides scope at the start of every run; flags `--architecture`, `--system-lang`, `--test-lang` skip the per-axis prompt.
+
+Sub-agents — notably `atdd-task` and `atdd-chore` — restrict ALL file edits, residual-reference greps, compile checks, and sample-suite runs to in-scope paths. The shared structural-cycle TEST procedure (see `task-and-chore-cycles.md`) runs the sample suite only for in-scope Test Lang(s) and prints a drift warning naming any out-of-scope implementations that were deliberately left untouched.
+
 ## STOP Behaviour
 
 Every WRITE phase ends with **STOP** — present results to the user and wait for explicit approval before proceeding. The orchestrator does not auto-approve; phase progression always requires a human decision at every STOP.

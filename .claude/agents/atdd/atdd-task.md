@@ -28,6 +28,10 @@ The subtype maps to one of:
 
 Implement the change and adapt the relevant driver **implementation** so existing acceptance and contract tests keep passing. Apply Driver Port Rules from `driver-port.md` and Driver Adapter Rules from `driver-adapter.md`.
 
+## Scope
+
+The orchestrator includes a `Scope:` block in your input prompt of the form `Scope: Architecture=<value>, System Lang=<value>, Test Lang=<value>`. Restrict ALL file edits, residual-reference greps, and per-language work to paths that match the in-scope architecture(s) and system language(s). Do NOT modify out-of-scope implementations. See `.claude/commands/atdd/atdd-implement-ticket.md` for the scope semantics; the shared structural-cycle TEST procedure (run by the orchestrator after your WRITE) honours the Test Lang axis.
+
 ## Process
 
 1. Identify the layer that is changing and the driver(s) that wrap it:
@@ -45,16 +49,9 @@ Implement the change and adapt the relevant driver **implementation** so existin
    - The proposed new signature(s).
    Wait for explicit user approval before editing any `driver-port/` file.
 
-5. Run the suites relevant to the layer you changed and verify they pass:
-   ```
-   gh optivem test system --suite <acceptance-api>
-   gh optivem test system --suite <acceptance-ui>
-   gh optivem test system --suite <contract>
-   ```
+5. Do NOT run the local sample suite or any `gh optivem test/run/stop system` commands yourself. The shared structural-cycle TEST procedure (see `task-and-chore-cycles.md`) is run by the orchestrator after your WRITE STOP and asks the user for explicit approval before invoking the sample suite. If TEST reports a failure, STOP and ask the user — do NOT modify tests, DSL, or driver interfaces to suppress failures; the failure is a real signal that the adapter has not absorbed the change.
 
-6. If a test fails after the adaptation, STOP and ask the user. Do NOT modify tests, DSL, or driver interfaces to suppress failures — the failure is a real signal that the adapter has not absorbed the change.
-
-7. Report back:
-   - Files changed (grouped by layer: system code, driver-adapter, driver-port if approved).
-   - Suites run and their results.
+6. Report back:
+   - Files changed (grouped by layer: system code, driver-adapter, driver-port if approved), restricted to the in-scope architecture(s) and system language(s).
    - Any driver interface change that was approved, with the reason.
+   - Out-of-scope implementations deliberately left untouched (so the orchestrator can surface them in the end-of-TEST drift warning).
