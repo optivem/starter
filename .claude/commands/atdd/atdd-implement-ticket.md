@@ -6,6 +6,8 @@ The input is a GitHub issue number (e.g. `#42`), optionally followed by flags. A
 
 **Autonomous mode:** if `--autonomous` is present in the input, skip all STOP/human-approval steps — agents self-approve and the pipeline runs end-to-end without waiting for the user.
 
+**Docs-only mode:** if `--no-memory` is present in the input, run the pipeline as if no auto-memory exists. The orchestrator must not apply any remembered preferences, feedback, or project context from `MEMORY.md` or its referenced files, and must instruct every dispatched sub-agent to do the same (include a literal "Ignore auto-memory; rely solely on `docs/atdd/**` and the ticket." line in each agent prompt). The intent is to validate that the docs are self-sufficient — if a run drifts or fails because guidance only existed in memory, that is a docs gap to surface, not a reason to consult memory.
+
 **Repositories:** optionally specify which repositories the pipeline operates on:
 - `--test-repos <repo1>,<repo2>,...` — the test repositories to implement in (e.g. `shop`)
 - `--system-repos <repo1>,<repo2>,...` — the system (backend/frontend) repositories (e.g. `shop`)
