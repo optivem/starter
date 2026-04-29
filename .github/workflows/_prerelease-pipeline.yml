@@ -221,8 +221,8 @@ jobs:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
         with:
           workflow: ${{ inputs.prefix }}-acceptance-stage.yml
-          poll-interval: '300'
-          timeout-seconds: '7200'
+          poll-interval: ${{ inputs.debug-skip-tests && '120' || '300' }}
+          timeout-seconds: ${{ inputs.debug-skip-tests && '900' || '7200' }}
           workflow-inputs: '{"commit-sha": "${{ inputs.commit-sha }}", "debug-skip-tests": "${{ inputs.debug-skip-tests }}"}'
 
       # Resolve the rc tag that actually points at the tested SHA — whether our
@@ -252,8 +252,8 @@ jobs:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
         with:
           workflow: ${{ inputs.prefix }}-acceptance-stage-legacy.yml
-          poll-interval: '300'
-          timeout-seconds: '7200'
+          poll-interval: ${{ inputs.debug-skip-tests && '30' || '300' }}
+          timeout-seconds: ${{ inputs.debug-skip-tests && '900' || '7200' }}
           workflow-inputs: '{"commit-sha": "${{ inputs.commit-sha }}", "debug-skip-tests": "${{ inputs.debug-skip-tests }}"}'
 
   qa-stage:
