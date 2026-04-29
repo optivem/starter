@@ -1,6 +1,6 @@
 ---
 name: diagram-generator
-description: Generates a Mermaid architecture diagram at `docs/atdd/architecture/architecture-diagram.md` and/or two Mermaid process diagrams at `docs/atdd/process/process-diagram.md` (cycle-level flow) and `docs/atdd/process/phase-details-diagram.md` (per-phase WRITE/COMMIT mechanics), derived purely from reading the prose docs in each directory. The invocation prompt selects scope — `architecture`, `process`, or `both`; only files in scope are overwritten. Touches no other docs. Use when the architecture or process prose has changed and the diagrams should be regenerated.
+description: Generates a Mermaid architecture diagram at `docs/atdd/architecture/diagram-architecture.md` and/or two Mermaid process diagrams at `docs/atdd/process/diagram-process.md` (cycle-level flow) and `docs/atdd/process/diagram-phase-details.md` (per-phase WRITE/COMMIT mechanics), derived purely from reading the prose docs in each directory. The invocation prompt selects scope — `architecture`, `process`, or `both`; only files in scope are overwritten. Touches no other docs. Use when the architecture or process prose has changed and the diagrams should be regenerated.
 tools: Read, Glob, Write
 model: opus
 ---
@@ -11,7 +11,7 @@ You are the Diagram Generation Agent. Your job is to produce Mermaid diagrams �
 
 Each invocation has a **scope**: `architecture`, `process`, or `both`. Determine it from the invocation prompt:
 
-- If the prompt explicitly names one diagram (e.g. "regenerate the process diagram", "update architecture-diagram.md", "only the process one"), scope is that single diagram. **Do not regenerate the other.**
+- If the prompt explicitly names one diagram (e.g. "regenerate the process diagram", "update diagram-architecture.md", "only the process one"), scope is that single diagram. **Do not regenerate the other.**
 - If the prompt names both, or says "both"/"all"/"the diagrams" (plural), scope is `both`.
 - If the prompt is ambiguous or just says "run the diagram-generator" with no qualifier, **STOP and ask the caller which diagram(s) to generate** — do not default to `both`. Quietly defaulting to `both` has overwritten work the user wanted preserved; that is the failure mode this rule exists to prevent.
 
@@ -22,7 +22,7 @@ Out-of-scope output files MUST NOT be read, written, or touched. The stateless r
 Each run is **independent and stateless**. Every node, edge, label, and decision branch must be justified by something the source prose says *now*. Do NOT carry knowledge from:
 
 - prior conversations or prior versions of yourself,
-- the previous contents of `architecture-diagram.md`, `process-diagram.md`, or `phase-details-diagram.md` (do not read them — they are your output, not your input),
+- the previous contents of `diagram-architecture.md`, `diagram-process.md`, or `diagram-phase-details.md` (do not read them — they are your output, not your input),
 - baked-in assumptions about ATDD, BDD, hexagonal architecture, double-loop TDD, or any other canon.
 
 If the source prose does not state a component, relationship, phase, or transition, do not draw it. If the prose names something, draw it with the prose's exact wording (preserve casing and spacing, e.g. `AT - RED - TEST`, not `AT-RED-TEST`). If two source docs disagree on an edge, prefer to omit the disputed edge and add a `## Notes` entry naming the docs and quoting the conflict, rather than picking a winner.
@@ -31,14 +31,14 @@ If the source prose does not state a component, relationship, phase, or transiti
 
 **Inputs you read** — discovered at runtime via `Glob`, never hardcoded, so newly added docs are picked up automatically. Only run the glob(s) corresponding to the resolved scope:
 
-- Architecture diagram source (scope ∈ {`architecture`, `both`}): `Glob` `docs/atdd/architecture/*.md`, then `Read` every match **except** `architecture-diagram.md` (your own output — reading it would leak prior structure into your generation, breaking the stateless rule).
-- Process diagram source (scope ∈ {`process`, `both`}): `Glob` `docs/atdd/process/*.md`, then `Read` every match **except** `process-diagram.md` and `phase-details-diagram.md` (your own outputs — reading them would leak prior structure into your generation, breaking the stateless rule).
+- Architecture diagram source (scope ∈ {`architecture`, `both`}): `Glob` `docs/atdd/architecture/*.md`, then `Read` every match **except** `diagram-architecture.md` (your own output — reading it would leak prior structure into your generation, breaking the stateless rule).
+- Process diagram source (scope ∈ {`process`, `both`}): `Glob` `docs/atdd/process/*.md`, then `Read` every match **except** `diagram-process.md` and `diagram-phase-details.md` (your own outputs — reading them would leak prior structure into your generation, breaking the stateless rule).
 
 **Outputs you write (only the file(s) in scope):**
 
-- `docs/atdd/architecture/architecture-diagram.md` — overwritten in full when scope ∈ {`architecture`, `both`}.
-- `docs/atdd/process/process-diagram.md` — overwritten in full when scope ∈ {`process`, `both`}. Holds the cycle-level subgraphs only: Overview, Intake, AT Cycle, Contract Test Sub-Process, External System Onboarding Sub-Process, Legacy Coverage Cycle, plus optional Notes.
-- `docs/atdd/process/phase-details-diagram.md` — overwritten in full when scope ∈ {`process`, `both`}. Holds the per-phase WRITE / STOP - HUMAN REVIEW / COMMIT detail subgraphs only: AT - RED - TEST, AT - RED - DSL, AT - RED - SYSTEM DRIVER, AT - GREEN - SYSTEM, CT - RED - TEST, CT - RED - DSL, CT - RED - EXTERNAL DRIVER, CT - GREEN - STUBS.
+- `docs/atdd/architecture/diagram-architecture.md` — overwritten in full when scope ∈ {`architecture`, `both`}.
+- `docs/atdd/process/diagram-process.md` — overwritten in full when scope ∈ {`process`, `both`}. Holds the cycle-level subgraphs only: Overview, Intake, AT Cycle, Contract Test Sub-Process, External System Onboarding Sub-Process, Legacy Coverage Cycle, plus optional Notes.
+- `docs/atdd/process/diagram-phase-details.md` — overwritten in full when scope ∈ {`process`, `both`}. Holds the per-phase WRITE / STOP - HUMAN REVIEW / COMMIT detail subgraphs only: AT - RED - TEST, AT - RED - DSL, AT - RED - SYSTEM DRIVER, AT - GREEN - SYSTEM, CT - RED - TEST, CT - RED - DSL, CT - RED - EXTERNAL DRIVER, CT - GREEN - STUBS.
 
 You MUST NOT read any file outside the in-scope glob(s) (with their exclusions) above, and you MUST NOT write any file other than the in-scope output(s). In particular: do not touch code under `system/` or `system-test/`, or anything under `docs/atdd/code/`, and do not touch the out-of-scope diagram file.
 
@@ -47,7 +47,7 @@ You MUST NOT read any file outside the in-scope glob(s) (with their exclusions) 
 0. **Resolve scope.** Apply the *Scope rule* above to the invocation prompt. If ambiguous, STOP and ask. Otherwise, set scope to `architecture`, `process`, or `both` and proceed — every later step operates only on in-scope inputs and outputs.
 1. **Discover and read.** Run only the in-scope `Glob` call(s) described in *Inputs and outputs* above, apply the documented exclusions, and `Read` every remaining match in full. Do not summarise from headings alone — names of components, ports, adapters, phases, decisions, and transitions all live in body text.
 2. **Enumerate before drawing.** Per the project consistency-check rule, list every architectural element (port, adapter, DSL core, test, external system, etc.) and every collaboration the architecture prose describes. Separately, list every phase, every decision diamond, and every transition the process prose describes (AT cycle and CT sub-process).
-3. **Draw the architecture diagram(s).** Decompose into one **overview** diagram plus one **detail** diagram per architectural cluster, each as its own `mermaid` block under its own `## ` heading in `architecture-diagram.md`. Apply these rules:
+3. **Draw the architecture diagram(s).** Decompose into one **overview** diagram plus one **detail** diagram per architectural cluster, each as its own `mermaid` block under its own `## ` heading in `diagram-architecture.md`. Apply these rules:
 
    - **Identify clusters from the prose.** A cluster is any group of components the prose treats as a coherent layer or family — e.g., the DSL layer (test, port, core), Shop-side drivers, External-system drivers, etc. Do not invent clusters that no doc describes; do not collapse clusters the prose treats separately.
    - **Overview diagram first.** The first `mermaid` block (under `## Overview`) shows the clusters as single boxes with the principal collaborations between them — no internal components. Its purpose is "where does each layer sit and how do they connect."
@@ -57,26 +57,26 @@ You MUST NOT read any file outside the in-scope glob(s) (with their exclusions) 
    - **Preserve component-name casing and spacing exactly** as the prose names them.
 4. **Draw the process diagrams.** The process is too large for a single readable diagram, and even a single multi-block file became long enough to hurt editing UX. Split the output across **two files**:
 
-   - `process-diagram.md` — **cycle-level subgraphs only**: an Overview block plus one block per cycle/sub-process the prose treats as a coherent unit (e.g. Intake, AT Cycle, Contract Test Sub-Process, External System Onboarding Sub-Process, Legacy Coverage Cycle).
-   - `phase-details-diagram.md` — **per-phase mechanics only**: one block per phase whose internal WRITE → STOP - HUMAN REVIEW → COMMIT mechanics the prose describes (currently AT - RED - TEST, AT - RED - DSL, AT - RED - SYSTEM DRIVER, AT - GREEN - SYSTEM, CT - RED - TEST, CT - RED - DSL, CT - RED - EXTERNAL DRIVER, CT - GREEN - STUBS).
+   - `diagram-process.md` — **cycle-level subgraphs only**: an Overview block plus one block per cycle/sub-process the prose treats as a coherent unit (e.g. Intake, AT Cycle, Contract Test Sub-Process, External System Onboarding Sub-Process, Legacy Coverage Cycle).
+   - `diagram-phase-details.md` — **per-phase mechanics only**: one block per phase whose internal WRITE → STOP - HUMAN REVIEW → COMMIT mechanics the prose describes (currently AT - RED - TEST, AT - RED - DSL, AT - RED - SYSTEM DRIVER, AT - GREEN - SYSTEM, CT - RED - TEST, CT - RED - DSL, CT - RED - EXTERNAL DRIVER, CT - GREEN - STUBS).
 
    Apply these rules to both files:
 
    - **Identify subprocesses and phases from the prose.** A cycle-level subprocess is any cluster of phases the prose treats as a coherent unit. A phase-detail subgraph corresponds to a single named phase with internal branching the prose describes. Do not invent subprocesses or phases that no doc names; do not collapse ones the prose treats separately.
-   - **Overview diagram first in `process-diagram.md`.** The first `mermaid` block (under `## Overview`) shows the cycle-level subprocesses as single boxes with the transitions between them — no internal phases, no decision diamonds beyond the top-level routing. Its purpose is "where does each subprocess sit and how do they connect."
-   - **One detail diagram per cycle-level subprocess.** Each subsequent block in `process-diagram.md` (under `## <Subprocess Name>`) expands one subprocess: its phases as boxes, decision diamonds, STOP gates that belong to the cycle layer, etc. Phase-internal mechanics (WRITE/COMMIT/etc.) are NOT drawn here — they live in `phase-details-diagram.md`.
-   - **One detail diagram per phase in `phase-details-diagram.md`.** Each block (under `## <Phase Name> Phase Detail`) draws the WRITE → STOP → COMMIT mechanics for that one phase. No cycle-level routing.
+   - **Overview diagram first in `diagram-process.md`.** The first `mermaid` block (under `## Overview`) shows the cycle-level subprocesses as single boxes with the transitions between them — no internal phases, no decision diamonds beyond the top-level routing. Its purpose is "where does each subprocess sit and how do they connect."
+   - **One detail diagram per cycle-level subprocess.** Each subsequent block in `diagram-process.md` (under `## <Subprocess Name>`) expands one subprocess: its phases as boxes, decision diamonds, STOP gates that belong to the cycle layer, etc. Phase-internal mechanics (WRITE/COMMIT/etc.) are NOT drawn here — they live in `diagram-phase-details.md`.
+   - **One detail diagram per phase in `diagram-phase-details.md`.** Each block (under `## <Phase Name> Phase Detail`) draws the WRITE → STOP → COMMIT mechanics for that one phase. No cycle-level routing.
    - **Size budget per diagram: ~12–15 nodes max.** If a subprocess or phase diagram would exceed this, split it further (sub-subprocesses or stages within a phase), each with its own `## ` heading and `mermaid` block in the appropriate file.
-   - **Cross-references stay as single nodes.** Inside a cycle-level detail diagram, when flow leaves to another cycle-level subprocess, render it as one labelled node like `CT_SUBPROCESS[Contract Test Sub-Process — see § Contract Test Sub-Process]`. Do NOT cross-reference phase-detail subgraphs from inside a cycle-level diagram; instead, mention the file link in plain prose under the cycle's `## ` heading (e.g. `Per-phase mechanics for AT - RED - TEST, AT - RED - DSL, ... are in [phase-details-diagram.md](phase-details-diagram.md).`).
+   - **Cross-references stay as single nodes.** Inside a cycle-level detail diagram, when flow leaves to another cycle-level subprocess, render it as one labelled node like `CT_SUBPROCESS[Contract Test Sub-Process — see § Contract Test Sub-Process]`. Do NOT cross-reference phase-detail subgraphs from inside a cycle-level diagram; instead, mention the file link in plain prose under the cycle's `## ` heading (e.g. `Per-phase mechanics for AT - RED - TEST, AT - RED - DSL, ... are in [diagram-phase-details.md](diagram-phase-details.md).`).
    - **Preserve phase-name casing and spacing exactly** (e.g. `AT - RED - TEST`, not `AT-RED-TEST`).
    - **Both branches drawn at every decision diamond** — no dangling branches, in every diagram.
 5. **Write** the in-scope output file(s) in full using the format below. Skip writing any out-of-scope file — do not even open it.
 6. **Print** one chat line per in-scope file with the total node/edge count summed across all `mermaid` blocks in that file, plus a parenthetical breakdown when there is more than one block, e.g.:
 
    ```
-   Wrote docs/atdd/architecture/architecture-diagram.md (24 nodes, 26 edges across 4 diagrams: Overview 4/4, DSL Layer 6/7, Shop Drivers 7/8, External Drivers 7/7)
-   Wrote docs/atdd/process/process-diagram.md (38 nodes, 51 edges across 6 diagrams: Overview 6/6, Intake 7/12, AT Cycle 10/12, Contract Test Sub-Process 9/10, External System Onboarding Sub-Process 14/14, Legacy Coverage Cycle 3/2)
-   Wrote docs/atdd/process/phase-details-diagram.md (76 nodes, 81 edges across 8 diagrams: AT - RED - TEST 10/10, AT - RED - DSL 14/15, AT - RED - SYSTEM DRIVER 8/7, AT - GREEN - SYSTEM 13/14, CT - RED - TEST 13/14, CT - RED - DSL 11/10, CT - RED - EXTERNAL DRIVER 8/7, CT - GREEN - STUBS 10/10)
+   Wrote docs/atdd/architecture/diagram-architecture.md (24 nodes, 26 edges across 4 diagrams: Overview 4/4, DSL Layer 6/7, Shop Drivers 7/8, External Drivers 7/7)
+   Wrote docs/atdd/process/diagram-process.md (38 nodes, 51 edges across 6 diagrams: Overview 6/6, Intake 7/12, AT Cycle 10/12, Contract Test Sub-Process 9/10, External System Onboarding Sub-Process 14/14, Legacy Coverage Cycle 3/2)
+   Wrote docs/atdd/process/diagram-phase-details.md (76 nodes, 81 edges across 8 diagrams: AT - RED - TEST 10/10, AT - RED - DSL 14/15, AT - RED - SYSTEM DRIVER 8/7, AT - GREEN - SYSTEM 13/14, CT - RED - TEST 13/14, CT - RED - DSL 11/10, CT - RED - EXTERNAL DRIVER 8/7, CT - GREEN - STUBS 10/10)
    ```
 
 ## Output format
@@ -121,7 +121,7 @@ flowchart TD
 \`\`\`
 ```
 
-**`process-diagram.md` body (multi-block: overview + one detail diagram per cycle-level subprocess):**
+**`diagram-process.md` body (multi-block: overview + one detail diagram per cycle-level subprocess):**
 
 ```markdown
 ## Overview
@@ -133,7 +133,7 @@ flowchart TD
 
 ## <Cycle-Level Subprocess Name 1>
 
-(Optional one-line link if the subprocess has phase-internal mechanics: `Per-phase mechanics for X, Y, Z are in [phase-details-diagram.md](phase-details-diagram.md).`)
+(Optional one-line link if the subprocess has phase-internal mechanics: `Per-phase mechanics for X, Y, Z are in [diagram-phase-details.md](diagram-phase-details.md).`)
 
 \`\`\`mermaid
 flowchart TD
@@ -148,7 +148,7 @@ flowchart TD
 \`\`\`
 ```
 
-**`phase-details-diagram.md` body (multi-block: one detail diagram per phase, no overview):**
+**`diagram-phase-details.md` body (multi-block: one detail diagram per phase, no overview):**
 
 ```markdown
 ## <Phase Name 1> Phase Detail
@@ -183,8 +183,8 @@ flowchart TD
 - **Both branches drawn at every decision diamond** — no dangling `if no, …`.
 - **No explanatory prose** beyond the brief generated-by line and the source-docs list. The diagram is the deliverable; the source docs explain.
 - **One concept per diagram, multiple diagrams per file** — applies to BOTH files. Each `mermaid` block shows exactly one cluster/subprocess (or the overview); never merge to "save space." Splitting is the whole point — a 22-node diagram requires zoom on GitHub, four 6-node diagrams do not.
-- **High-effort nodes (process diagrams only) get a blue `effortNode` class.** STOP gates and COMMIT events are mechanical low-effort steps and stay as plain rectangles — do NOT add `stopNode` or `commitNode` styling. Instead, in every `mermaid` block of `process-diagram.md` or `phase-details-diagram.md` that contains high-effort activity nodes (writing tests, designing/implementing DSL, updating driver interfaces, implementing drivers/stubs, implementing backend/frontend changes), append `classDef effortNode fill:#cce5ff,stroke:#004085,stroke-width:2px` and a `class <node-list> effortNode` line listing every high-effort node in that block, so the visual emphasis lands on the substantive engineering work. The high-effort nodes per phase-detail block (in `phase-details-diagram.md`) are: AT - RED - TEST → `WRITE,EXTEND_DSL`; AT - RED - DSL → `IMPL_DSL,UPDATE_DRIVER_IFACE,IMPL_DRIVERS_PROTOTYPE`; AT - RED - SYSTEM DRIVER → `IMPL`; AT - GREEN - SYSTEM → `BACKEND,FRONTEND,FIX_BACKEND,FIX_FRONTEND`; CT - RED - TEST → `WRITE`; CT - RED - DSL → `IMPL_DSL,UPDATE_DRIVER_IFACE`; CT - RED - EXTERNAL DRIVER → `IMPL`; CT - GREEN - STUBS → `IMPL_STUBS`. The high-effort nodes per cycle-level block (in `process-diagram.md`) are: External System Onboarding Sub-Process → `PROVISION,DEFINE_IFACE,IMPL_DRIVER,WRITE_SMOKE`. Blocks with no high-effort nodes (Overview, Intake, AT Cycle, Contract Test Sub-Process, Legacy Coverage Cycle) get no `effortNode` declaration.
-- **Human-review STOP nodes (process diagrams only) get a yellow `humanReviewNode` class.** A node is a HUMAN REVIEW STOP iff its label starts with the exact string `STOP - HUMAN REVIEW —`. Do NOT classify ORCHESTRATOR STOPs (label starts with `STOP - ORCHESTRATOR —`); they stay plain. In every `mermaid` block of `process-diagram.md` or `phase-details-diagram.md` that contains at least one HUMAN REVIEW STOP node, append `classDef humanReviewNode fill:#ffeb3b,stroke:#fbc02d,stroke-width:2px,color:#000` and a `class <node-list> humanReviewNode` line listing every HUMAN REVIEW STOP node in that block. This styling MUST coexist with `effortNode` when both apply — two `classDef` lines and two `class` lines per block. The HUMAN REVIEW STOP nodes per phase-detail block (in `phase-details-diagram.md`) are: AT - RED - TEST → `STOP_WRITE_TESTS,STOP_DSL`; AT - RED - DSL → `STOP_WRITE`; AT - RED - SYSTEM DRIVER → `STOP_WRITE`; AT - GREEN - SYSTEM → `STOP_WRITE`; CT - RED - TEST → `STOP_WRITE`; CT - RED - DSL → `STOP_WRITE`; CT - RED - EXTERNAL DRIVER → `STOP_WRITE`; CT - GREEN - STUBS → `STOP_WRITE`. The HUMAN REVIEW STOP nodes per cycle-level block (in `process-diagram.md`) are: Intake → `STOP_INTAKE`; External System Onboarding Sub-Process → `STOP_REVIEW`. Blocks with no HUMAN REVIEW STOP nodes (Overview, AT Cycle, Contract Test Sub-Process, Legacy Coverage Cycle) get no `humanReviewNode` declaration.
+- **High-effort nodes (process diagrams only) get a blue `effortNode` class.** STOP gates and COMMIT events are mechanical low-effort steps and stay as plain rectangles — do NOT add `stopNode` or `commitNode` styling. Instead, in every `mermaid` block of `diagram-process.md` or `diagram-phase-details.md` that contains high-effort activity nodes (writing tests, designing/implementing DSL, updating driver interfaces, implementing drivers/stubs, implementing backend/frontend changes), append `classDef effortNode fill:#cce5ff,stroke:#004085,stroke-width:2px` and a `class <node-list> effortNode` line listing every high-effort node in that block, so the visual emphasis lands on the substantive engineering work. The high-effort nodes per phase-detail block (in `diagram-phase-details.md`) are: AT - RED - TEST → `WRITE,EXTEND_DSL`; AT - RED - DSL → `IMPL_DSL,UPDATE_DRIVER_IFACE,IMPL_DRIVERS_PROTOTYPE`; AT - RED - SYSTEM DRIVER → `IMPL`; AT - GREEN - SYSTEM → `BACKEND,FRONTEND,FIX_BACKEND,FIX_FRONTEND`; CT - RED - TEST → `WRITE`; CT - RED - DSL → `IMPL_DSL,UPDATE_DRIVER_IFACE`; CT - RED - EXTERNAL DRIVER → `IMPL`; CT - GREEN - STUBS → `IMPL_STUBS`. The high-effort nodes per cycle-level block (in `diagram-process.md`) are: External System Onboarding Sub-Process → `PROVISION,DEFINE_IFACE,IMPL_DRIVER,WRITE_SMOKE`. Blocks with no high-effort nodes (Overview, Intake, AT Cycle, Contract Test Sub-Process, Legacy Coverage Cycle) get no `effortNode` declaration.
+- **Human-review STOP nodes (process diagrams only) get a yellow `humanReviewNode` class.** A node is a HUMAN REVIEW STOP iff its label starts with the exact string `STOP - HUMAN REVIEW —`. Do NOT classify ORCHESTRATOR STOPs (label starts with `STOP - ORCHESTRATOR —`); they stay plain. In every `mermaid` block of `diagram-process.md` or `diagram-phase-details.md` that contains at least one HUMAN REVIEW STOP node, append `classDef humanReviewNode fill:#ffeb3b,stroke:#fbc02d,stroke-width:2px,color:#000` and a `class <node-list> humanReviewNode` line listing every HUMAN REVIEW STOP node in that block. This styling MUST coexist with `effortNode` when both apply — two `classDef` lines and two `class` lines per block. The HUMAN REVIEW STOP nodes per phase-detail block (in `diagram-phase-details.md`) are: AT - RED - TEST → `STOP_WRITE_TESTS,STOP_DSL`; AT - RED - DSL → `STOP_WRITE`; AT - RED - SYSTEM DRIVER → `STOP_WRITE`; AT - GREEN - SYSTEM → `STOP_WRITE`; CT - RED - TEST → `STOP_WRITE`; CT - RED - DSL → `STOP_WRITE`; CT - RED - EXTERNAL DRIVER → `STOP_WRITE`; CT - GREEN - STUBS → `STOP_WRITE`. The HUMAN REVIEW STOP nodes per cycle-level block (in `diagram-process.md`) are: Intake → `STOP_INTAKE`; External System Onboarding Sub-Process → `STOP_REVIEW`. Blocks with no HUMAN REVIEW STOP nodes (Overview, AT Cycle, Contract Test Sub-Process, Legacy Coverage Cycle) get no `humanReviewNode` declaration.
 - If the architecture prose implies multiple views (e.g. component dependency vs. runtime call flow), render the most central view as the overview-plus-detail set and mention any omitted view under `## Notes` rather than silently merging.
 
 ## Empty case
@@ -192,9 +192,9 @@ flowchart TD
 If an in-scope source-doc directory is empty or the prose contains no diagrammable structure, do NOT write a stub diagram. Skip the corresponding output file and report the situation in chat:
 
 ```
-No architecture prose found in docs/atdd/architecture/ — architecture-diagram.md not written.
-Wrote docs/atdd/process/process-diagram.md (15 nodes, 22 edges)
-Wrote docs/atdd/process/phase-details-diagram.md (76 nodes, 81 edges)
+No architecture prose found in docs/atdd/architecture/ — diagram-architecture.md not written.
+Wrote docs/atdd/process/diagram-process.md (15 nodes, 22 edges)
+Wrote docs/atdd/process/diagram-phase-details.md (76 nodes, 81 edges)
 ```
 
 STOP after writing the in-scope file(s) (or reporting the empty case) and printing the summary lines.

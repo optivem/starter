@@ -28,8 +28,6 @@
 
 ## AT - GREEN - SYSTEM - COMMIT
 
-<!-- TODO(gh-optivem): multirepo support — in monorepo (shop) the COMMIT covers backend, frontend, and (re-enabled) test changes in the same repo. In multirepo scaffolds (`<repo>` + `<repo>-backend` + `<repo>-frontend`, or `<repo>` + `<repo>-system`) the changes span repos; install-time substitution must fan the single logical COMMIT out to one commit per affected repo. v1 install is monorepo-only. -->
-
 1. COMMIT all changes (backend, frontend, and the test re-enabling from AT - GREEN - SYSTEM - WRITE step 1) with message `<Ticket> | AT - GREEN - SYSTEM`.
 2. If a GitHub issue was provided as input, tick the checkbox for each acceptance criterion completed by this ticket.
 3. If all acceptance criteria in the issue are now ticked, and the issue belongs to a GitHub project, move the issue to the **DONE** status in that project.

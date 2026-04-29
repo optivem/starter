@@ -50,13 +50,13 @@ An **internal-only change** is a change inside the system that does not modify a
 
 The **Legacy Coverage Cycle** is the **test-last retroactive-AC cycle**. It is reachable from any ticket type (`atdd-story`, `atdd-bug`, `atdd-task-system-api`, `atdd-task-system-ui`, `atdd-task-external-api`, `atdd-chore`) whose ticket carries a [Legacy Coverage](#legacy-coverage) section. Because the behavior already exists, the retroactive acceptance tests written in this cycle should pass on first run; this is **not ATDD** (no Red → Green per scenario).
 
-Task tickets enter the matching task cycle — `system-api-task` → **System API Task Cycle**, `system-ui-task` → **System UI Task Cycle**, `external-api-task` → **External API Task Cycle** — and chore tickets enter the **Chore Cycle**. All four are structural cycles with no RED/GREEN per scenario, governed by the rule that **existing AC must stay green** (the **Acceptance Stage** of the CI pipeline at the end of each cycle is the verifier). All four cycles' phases are now defined; see `cycles.md` and `process-diagram.md` for the full flows. The Legacy Coverage Cycle's own internal phases are TBD.
+Task tickets enter the matching task cycle — `system-api-task` → **System API Task Cycle**, `system-ui-task` → **System UI Task Cycle**, `external-api-task` → **External API Task Cycle** — and chore tickets enter the **Chore Cycle**. All four are structural cycles with no RED/GREEN per scenario, governed by the rule that **existing AC must stay green** (the **Acceptance Stage** of the CI pipeline at the end of each cycle is the verifier). All four cycles' phases are now defined; see `cycles.md` and `diagram-process.md` for the full flows. The Legacy Coverage Cycle's own internal phases are TBD.
 
 ## `shop/` Package vs `shop` Repository
 
 ATDD content uses the word **shop** in two distinct ways. They look similar but mean different things:
 
 - **`shop/` (with trailing slash)** — a package/folder convention inside the testkit's driver layer (e.g. `driver-port/.../shop/api`, `driver-adapter/.../shop/ui`). This is the SUT-internal driver namespace, paired with `external/` (drivers for external systems). The name is part of ATDD doctrine and is **not** the repo name. Do not rename it.
-- **`shop` (no slash, used in repo context)** — the repository name of the system under test. When `gh optivem atdd install` copies these prompts into a student repo, this gets substituted with the student's repo name. The `shop/` package convention stays unchanged.
+- **`shop` (no slash, used in repo context)** — the repository name of the system under test.
 
-The two uses are kept textually distinct (slash vs. no-slash) so the install-time substitution can target one without disturbing the other.
+The two uses are kept textually distinct (slash vs. no-slash) so they can be reasoned about independently.
