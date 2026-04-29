@@ -45,4 +45,16 @@ Classification rules:
 
 Do not second-guess the type/label classification based on whether the body implies observable behaviour change. A `task`-typed ticket goes to `atdd-task` even when the change is externally visible (e.g. renaming a public endpoint) — `atdd-task` is responsible for handling that.
 
+## Fast path — unambiguous canonical labels
+
+If the issue carries **exactly one** label from a canonical task-label family (`system-api-redesign-*`, `system-ui-redesign-*`, `external-system-api-change-*`) **and** no other label/Type signal conflicts with it, skip the analysis prose. Emit a one-line decision and dispatch immediately:
+
+```
+Classification: task / <subtype> (from label `<label>`). Dispatching to atdd-task.
+```
+
+The same shortcut applies to a single canonical top-level type label (`bug`, `story`, `feature`) when there is no task-label family present and no conflicting Type field. Reserve the full rule walkthrough (rules 1–4) for cases where signals are missing, conflicting, or require body-shape fallback.
+
+## Output format
+
 Return both the top-level type and (for tasks) the subtype, then dispatch to the corresponding intake agent. For task dispatches, include the subtype in the input so `atdd-task` knows which layer (system API / system UI / external system API) it is touching. STOP after dispatch — the intake agent owns the next steps.

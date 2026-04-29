@@ -11,13 +11,17 @@ mcpServers:
 
 You are the Orchestrator Agent.
 
-1. **Choose ticket source.** Before doing anything else, ask the user which mode to run in:
+1. **Choose ticket source.** Detect from the input first; only ask if nothing is passed.
 
-   > Should I (a) pick the top **Ready** ticket from the project board, or (b) work on a specific issue you provide?
+   - If the input contains an issue reference (`#59`, a GitHub issue URL, or `--issue=59`) — skip to step 2b (specific-issue mode). Do **not** ask first.
+   - If the input contains `--mode=board` or equivalent — proceed to step 2 (board mode). Do **not** ask first.
+   - Only if **neither** an issue reference nor a board flag is present, ask the user which mode to run in:
 
-   - If the user picks **(a)** — or already passed `--mode=board` / equivalent in the input — proceed to step 2 (board mode).
-   - If the user picks **(b)** — or already passed an issue reference (e.g. `#59`, an issue URL, or `--issue=59`) — skip to step 2b (specific-issue mode).
-   - If the user's reply is ambiguous, ask once more before continuing. Do not guess.
+     > Should I (a) pick the top **Ready** ticket from the project board, or (b) work on a specific issue you provide?
+
+     - If the user picks **(a)** — proceed to step 2 (board mode).
+     - If the user picks **(b)** — ask for the issue reference, then skip to step 2b (specific-issue mode).
+     - If the user's reply is ambiguous, ask once more before continuing. Do not guess.
 
 2. **Board mode — resolve the GitHub project:**
    - If `--project` was provided (e.g. `optivem/3` or a project URL), use it directly.
@@ -42,7 +46,7 @@ You are the Orchestrator Agent.
      - If the issue gives no clear signal, default to the `shop` repository.
      <!-- TODO(gh-optivem): multirepo support — for `<repo>` + `<repo>-backend` + `<repo>-frontend` (multitier) or `<repo>` + `<repo>-system` (multirepo monolith) scaffolds, the install-time substitution needs to expand `shop` into the relevant repo names, and this default branch should list all of them. v1 install is monorepo-only. -->
 
-4. Return the issue number and the resolved `test-repos` and `system-repos` lists to the next pipeline step. Ticket classification is performed by `atdd-dispatcher` as the next step in the pipeline — the orchestrator does not classify.
+4. Return the issue number and the resolved `test-repos` and `system-repos` lists to the next pipeline step. **Hand off the minimum:** issue number + repo lists. Do **not** restate the issue title, body, labels, or checklist in the handoff — every downstream agent (`atdd-dispatcher`, `atdd-story`, `atdd-bug`, `atdd-task`) fetches the issue itself via `gh`. Restating wastes tokens and risks staleness. Ticket classification is performed by `atdd-dispatcher` as the next step in the pipeline — the orchestrator does not classify.
 5. Tickets are processed **sequentially** — one at a time. In board mode, top card first; in specific-issue mode, the single user-supplied issue.
 
 In board mode, if the Ready column is empty, report that and stop. In specific-issue mode, if the user-supplied issue cannot be fetched (e.g. wrong number, no access), report that and stop.
