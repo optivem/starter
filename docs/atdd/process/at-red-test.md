@@ -30,6 +30,6 @@ The unit of work is the **ticket** — all scenarios for the ticket are written 
    gh optivem test system --suite <acceptance-api> --test <TestMethodName>
    gh optivem test system --suite <acceptance-ui> --test <TestMethodName>
    ```
-4. Mark **all** the tests as disabled with reason `"AT - RED - TEST"` (see `language-equivalents.md` for syntax).
+4. Mark the tests as disabled with reason `"AT - RED - TEST"` (see `language-equivalents.md` for syntax). Disable **only the change-driven scenarios** (categories 2 and 3 from the WRITE-phase ordering). Legacy-coverage scenarios (category 1) are test-last — they should pass on first run and must NOT be disabled. If a legacy-coverage test fails on first run, STOP and ask the user before continuing — that's a real bug, not an expected RED.
 5. COMMIT with message `<Ticket> | AT - RED - TEST`.
 6. STOP. Do not proceed further. Phase progression is controlled by the orchestrator, not by this agent.
