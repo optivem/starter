@@ -7,7 +7,7 @@
     {
       "id": "mod02-smoke",
       "name": "mod02 (smoke) - Smoke (real)",
-      "command": ".\\gradlew.bat test -Dversion=mod02 -Dtype=smoke -DexternalSystemMode=real -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod02 -Dtype=smoke -DexternalSystemMode=real",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldBeAbleToGoToMyShop"
@@ -15,7 +15,7 @@
     {
       "id": "mod03-e2e",
       "name": "mod03 (e2e) - E2E (real)",
-      "command": ".\\gradlew.bat test -Dversion=mod03 -Dtype=e2e -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod03 -Dtype=e2e",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldPlaceOrderForValidInput"
@@ -23,7 +23,7 @@
     {
       "id": "mod04-smoke",
       "name": "mod04 (clients) - Smoke (real)",
-      "command": ".\\gradlew.bat test -Dversion=mod04 -Dtype=smoke -DexternalSystemMode=real -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod04 -Dtype=smoke -DexternalSystemMode=real",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldBeAbleToGoToMyShop"
@@ -31,7 +31,7 @@
     {
       "id": "mod04-e2e",
       "name": "mod04 (clients) - E2E (real)",
-      "command": ".\\gradlew.bat test -Dversion=mod04 -Dtype=e2e -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod04 -Dtype=e2e",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldPlaceOrderForValidInput"
@@ -39,7 +39,7 @@
     {
       "id": "mod05-smoke",
       "name": "mod05 (drivers) - Smoke (real)",
-      "command": ".\\gradlew.bat test -Dversion=mod05 -Dtype=smoke -DexternalSystemMode=real -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod05 -Dtype=smoke -DexternalSystemMode=real",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldBeAbleToGoToMyShop"
@@ -47,7 +47,7 @@
     {
       "id": "mod05-e2e",
       "name": "mod05 (drivers) - E2E (real)",
-      "command": ".\\gradlew.bat test -Dversion=mod05 -Dtype=e2e -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod05 -Dtype=e2e",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldPlaceOrderForValidInput"
@@ -55,7 +55,7 @@
     {
       "id": "mod06-smoke",
       "name": "mod06 (channels) - Smoke (real)",
-      "command": ".\\gradlew.bat test -Dversion=mod06 -Dtype=smoke -DexternalSystemMode=real -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod06 -Dtype=smoke -DexternalSystemMode=real",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldBeAbleToGoToMyShop"
@@ -63,7 +63,7 @@
     {
       "id": "mod06-e2e-api",
       "name": "mod06 (channels) - E2E (real) - API",
-      "command": ".\\gradlew.bat test -Dversion=mod06 -Dtype=e2e -Dchannel=API -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod06 -Dtype=e2e -Dchannel=API",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldPlaceOrderForValidInput"
@@ -71,7 +71,7 @@
     {
       "id": "mod06-e2e-ui",
       "name": "mod06 (channels) - E2E (real) - UI",
-      "command": ".\\gradlew.bat test -Dversion=mod06 -Dtype=e2e -Dchannel=UI -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod06 -Dtype=e2e -Dchannel=UI",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldPlaceOrderForValidInput"
@@ -79,7 +79,7 @@
     {
       "id": "mod07-smoke",
       "name": "mod07 (app dsl) - Smoke (real)",
-      "command": ".\\gradlew.bat test -Dversion=mod07 -Dtype=smoke -DexternalSystemMode=real -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod07 -Dtype=smoke -DexternalSystemMode=real",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldBeAbleToGoToMyShop"
@@ -87,7 +87,7 @@
     {
       "id": "mod07-e2e-api",
       "name": "mod07 (app dsl) - E2E (real) - API",
-      "command": ".\\gradlew.bat test -Dversion=mod07 -Dtype=e2e -Dchannel=API -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod07 -Dtype=e2e -Dchannel=API",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldPlaceOrderForValidInput"
@@ -95,7 +95,7 @@
     {
       "id": "mod07-e2e-ui",
       "name": "mod07 (app dsl) - E2E (real) - UI",
-      "command": ".\\gradlew.bat test -Dversion=mod07 -Dtype=e2e -Dchannel=UI -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod07 -Dtype=e2e -Dchannel=UI",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldPlaceOrderForValidInput"
@@ -103,7 +103,7 @@
     {
       "id": "mod08-smoke",
       "name": "mod08 (scenario dsl) - Smoke (real)",
-      "command": ".\\gradlew.bat test -Dversion=mod08 -Dtype=smoke -DexternalSystemMode=real -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod08 -Dtype=smoke -DexternalSystemMode=real",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldBeAbleToGoToMyShop"
@@ -111,7 +111,7 @@
     {
       "id": "mod08-e2e-api",
       "name": "mod08 (scenario dsl) - E2E (real) - API",
-      "command": ".\\gradlew.bat test -Dversion=mod08 -Dtype=e2e -Dchannel=API -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod08 -Dtype=e2e -Dchannel=API",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldPlaceOrderForValidInput"
@@ -119,7 +119,7 @@
     {
       "id": "mod08-e2e-ui",
       "name": "mod08 (scenario dsl) - E2E (real) - UI",
-      "command": ".\\gradlew.bat test -Dversion=mod08 -Dtype=e2e -Dchannel=UI -DchannelMode=static -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod08 -Dtype=e2e -Dchannel=UI -DchannelMode=static",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldPlaceOrderForValidInput"
@@ -127,7 +127,7 @@
     {
       "id": "mod09-smoke-stub",
       "name": "mod09 (external stubs) - Smoke (stub)",
-      "command": ".\\gradlew.bat test -Dversion=mod09 -Dtype=smoke -DexternalSystemMode=stub -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod09 -Dtype=smoke -DexternalSystemMode=stub",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldBeAbleToGoToClock"
@@ -135,7 +135,7 @@
     {
       "id": "mod09-smoke-real",
       "name": "mod09 (external stubs) - Smoke (real)",
-      "command": ".\\gradlew.bat test -Dversion=mod09 -Dtype=smoke -DexternalSystemMode=real -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod09 -Dtype=smoke -DexternalSystemMode=real",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldBeAbleToGoToClock"
@@ -143,7 +143,7 @@
     {
       "id": "mod10-acceptance-api",
       "name": "mod10 (acceptance) - Acceptance (stub) - API",
-      "command": ".\\gradlew.bat test -Dversion=mod10 -Dtype=acceptance -DexcludeTags=isolated -Dchannel=API -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod10 -Dtype=acceptance -DexcludeTags=isolated -Dchannel=API",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "orderNumberShouldStartWithORD"
@@ -151,7 +151,7 @@
     {
       "id": "mod10-acceptance-ui",
       "name": "mod10 (acceptance) - Acceptance (stub) - UI",
-      "command": ".\\gradlew.bat test -Dversion=mod10 -Dtype=acceptance -DexcludeTags=isolated -Dchannel=UI -DchannelMode=static -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod10 -Dtype=acceptance -DexcludeTags=isolated -Dchannel=UI -DchannelMode=static",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "orderNumberShouldStartWithORD"
@@ -159,7 +159,7 @@
     {
       "id": "mod10-acceptance-isolated-api",
       "name": "mod10 (acceptance) - Acceptance Isolated (stub) - API",
-      "command": ".\\gradlew.bat test -Dversion=mod10 -Dtype=acceptance -DincludeTags=isolated -Dchannel=API -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod10 -Dtype=acceptance -DincludeTags=isolated -Dchannel=API",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldRecordPlacementTimestamp"
@@ -167,7 +167,7 @@
     {
       "id": "mod10-acceptance-isolated-ui",
       "name": "mod10 (acceptance) - Acceptance Isolated (stub) - UI",
-      "command": ".\\gradlew.bat test -Dversion=mod10 -Dtype=acceptance -DincludeTags=isolated -Dchannel=UI -DchannelMode=static -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod10 -Dtype=acceptance -DincludeTags=isolated -Dchannel=UI -DchannelMode=static",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldRecordPlacementTimestamp"
@@ -175,7 +175,7 @@
     {
       "id": "mod11-contract-stub",
       "name": "mod11 (contract) - Contract (stub)",
-      "command": ".\\gradlew.bat test -Dversion=mod11 -Dtype=contract -DexcludeTags=isolated -DexternalSystemMode=stub -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod11 -Dtype=contract -DexcludeTags=isolated -DexternalSystemMode=stub",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldBeAbleToGetProduct"
@@ -183,7 +183,7 @@
     {
       "id": "mod11-contract-stub-isolated",
       "name": "mod11 (contract) - Contract Isolated (stub)",
-      "command": ".\\gradlew.bat test -Dversion=mod11 -Dtype=contract -DincludeTags=isolated -DexternalSystemMode=stub -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod11 -Dtype=contract -DincludeTags=isolated -DexternalSystemMode=stub",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldBeAbleToGetConfiguredTime"
@@ -191,7 +191,7 @@
     {
       "id": "mod11-contract-real",
       "name": "mod11 (contract) - Contract (real)",
-      "command": ".\\gradlew.bat test -Dversion=mod11 -Dtype=contract -DexternalSystemMode=real -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod11 -Dtype=contract -DexternalSystemMode=real",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldBeAbleToGetProduct"
@@ -199,7 +199,7 @@
     {
       "id": "mod11-e2e-api",
       "name": "mod11 (contract) - E2E (real) - API",
-      "command": ".\\gradlew.bat test -Dversion=mod11 -Dtype=e2e -Dchannel=API -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod11 -Dtype=e2e -Dchannel=API",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldPlaceOrder"
@@ -207,7 +207,7 @@
     {
       "id": "mod11-e2e-ui",
       "name": "mod11 (contract) - E2E (real) - UI",
-      "command": ".\\gradlew.bat test -Dversion=mod11 -Dtype=e2e -Dchannel=UI -DchannelMode=static -Denvironment=local",
+      "command": ".\\gradlew.bat test -Dversion=mod11 -Dtype=e2e -Dchannel=UI -DchannelMode=static",
       "path": ".",
       "testReportPath": "build\\reports\\tests\\test\\index.html",
       "sampleTest": "shouldPlaceOrder"

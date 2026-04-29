@@ -104,10 +104,16 @@ tasks.named('test') {
 
 	jvmArgs '-Duser.timezone=UTC', '-Xmx512m'
 
-	systemProperty 'environment',        System.getProperty('environment')
-	systemProperty 'externalSystemMode', System.getProperty('externalSystemMode')
-	systemProperty 'channel',            System.getProperty('channel')
-	systemProperty 'channelMode',        System.getProperty('channelMode')
+	// Forward -D properties only when set so the test JVM falls through to its
+	// own env-var fallbacks (PropertyLoader) when the workflow drives values via
+	// shell env instead of -D. Passing null here would surface in the test JVM
+	// as a literal "null" string and break enum parsing.
+	['environment', 'externalSystemMode', 'channel', 'channelMode'].each { name ->
+		def value = System.getProperty(name)
+		if (value != null) {
+			systemProperty name, value
+		}
+	}
 
 	def includeTags = System.getProperty('includeTags')
 	if (includeTags?.contains('isolated')) {

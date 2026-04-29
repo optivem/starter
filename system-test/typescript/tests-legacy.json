@@ -9,7 +9,7 @@
       "id": "mod02-smoke",
       "name": "mod02 - Smoke (real)",
       "command": "npx playwright test --project=smoke-test tests/legacy/mod02/smoke",
-      "env": { "EXTERNAL_SYSTEM_MODE": "real", "ENVIRONMENT": "local" },
+      "env": { "EXTERNAL_SYSTEM_MODE": "real" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldBeAbleToGoToMyShop"
@@ -18,7 +18,7 @@
       "id": "mod03-e2e",
       "name": "mod03 - E2E",
       "command": "npx playwright test --project=e2e-test tests/legacy/mod03/e2e",
-      "env": { "ENVIRONMENT": "local" },
+      "env": {  },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldPlaceOrder"
@@ -27,7 +27,7 @@
       "id": "mod04-smoke",
       "name": "mod04 - Smoke (real)",
       "command": "npx playwright test --project=smoke-test tests/legacy/mod04/smoke",
-      "env": { "EXTERNAL_SYSTEM_MODE": "real", "ENVIRONMENT": "local" },
+      "env": { "EXTERNAL_SYSTEM_MODE": "real" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldBeAbleToGoToMyShop"
@@ -36,7 +36,7 @@
       "id": "mod04-e2e",
       "name": "mod04 - E2E",
       "command": "npx playwright test --project=e2e-test tests/legacy/mod04/e2e",
-      "env": { "ENVIRONMENT": "local" },
+      "env": {  },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldPlaceOrder"
@@ -45,7 +45,7 @@
       "id": "mod05-smoke",
       "name": "mod05 - Smoke (real)",
       "command": "npx playwright test --project=smoke-test tests/legacy/mod05/smoke",
-      "env": { "EXTERNAL_SYSTEM_MODE": "real", "ENVIRONMENT": "local" },
+      "env": { "EXTERNAL_SYSTEM_MODE": "real" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldBeAbleToGoToMyShop"
@@ -54,7 +54,7 @@
       "id": "mod05-e2e",
       "name": "mod05 - E2E",
       "command": "npx playwright test --project=e2e-test tests/legacy/mod05/e2e",
-      "env": { "ENVIRONMENT": "local" },
+      "env": {  },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldPlaceOrder"
@@ -63,7 +63,7 @@
       "id": "mod06-smoke",
       "name": "mod06 - Smoke (real)",
       "command": "npx playwright test --project=smoke-test tests/legacy/mod06/smoke",
-      "env": { "EXTERNAL_SYSTEM_MODE": "real", "ENVIRONMENT": "local" },
+      "env": { "EXTERNAL_SYSTEM_MODE": "real" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldBeAbleToGoToMyShop"
@@ -72,7 +72,7 @@
       "id": "mod06-e2e-api",
       "name": "mod06 - E2E - API",
       "command": "npx playwright test --project=e2e-test tests/legacy/mod06/e2e",
-      "env": { "CHANNEL": "API", "ENVIRONMENT": "local" },
+      "env": { "CHANNEL": "API" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldPlaceOrder"
@@ -81,7 +81,7 @@
       "id": "mod06-e2e-ui",
       "name": "mod06 - E2E - UI",
       "command": "npx playwright test --project=e2e-test tests/legacy/mod06/e2e",
-      "env": { "CHANNEL": "UI", "ENVIRONMENT": "local" },
+      "env": { "CHANNEL": "UI" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldPlaceOrder"
@@ -90,7 +90,7 @@
       "id": "mod07-smoke",
       "name": "mod07 - Smoke (real)",
       "command": "npx playwright test --project=smoke-test tests/legacy/mod07/smoke",
-      "env": { "EXTERNAL_SYSTEM_MODE": "real", "ENVIRONMENT": "local" },
+      "env": { "EXTERNAL_SYSTEM_MODE": "real" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldBeAbleToGoToMyShop"
@@ -99,7 +99,7 @@
       "id": "mod07-e2e-api",
       "name": "mod07 - E2E - API",
       "command": "npx playwright test --project=e2e-test tests/legacy/mod07/e2e",
-      "env": { "CHANNEL": "API", "ENVIRONMENT": "local" },
+      "env": { "CHANNEL": "API" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldPlaceOrder"
@@ -108,7 +108,7 @@
       "id": "mod07-e2e-ui",
       "name": "mod07 - E2E - UI",
       "command": "npx playwright test --project=e2e-test tests/legacy/mod07/e2e",
-      "env": { "CHANNEL": "UI", "ENVIRONMENT": "local" },
+      "env": { "CHANNEL": "UI" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldPlaceOrder"
@@ -117,7 +117,7 @@
       "id": "mod08-smoke",
       "name": "mod08 - Smoke (real)",
       "command": "npx playwright test --project=smoke-test tests/legacy/mod08/smoke",
-      "env": { "EXTERNAL_SYSTEM_MODE": "real", "ENVIRONMENT": "local" },
+      "env": { "EXTERNAL_SYSTEM_MODE": "real" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldBeAbleToGoToMyShop"
@@ -126,7 +126,7 @@
       "id": "mod08-e2e-api",
       "name": "mod08 - E2E - API",
       "command": "npx playwright test --project=e2e-test tests/legacy/mod08/e2e",
-      "env": { "CHANNEL": "API", "ENVIRONMENT": "local" },
+      "env": { "CHANNEL": "API" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldPlaceOrder"
@@ -135,7 +135,7 @@
       "id": "mod08-e2e-ui",
       "name": "mod08 - E2E - UI",
       "command": "npx playwright test --project=e2e-test tests/legacy/mod08/e2e",
-      "env": { "CHANNEL": "UI", "CHANNEL_MODE": "static", "ENVIRONMENT": "local" },
+      "env": { "CHANNEL": "UI", "CHANNEL_MODE": "static" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldPlaceOrder"
@@ -144,7 +144,7 @@
       "id": "mod09-smoke-stub",
       "name": "mod09 - Smoke (stub)",
       "command": "npx playwright test --project=smoke-test tests/legacy/mod09/smoke",
-      "env": { "EXTERNAL_SYSTEM_MODE": "stub", "ENVIRONMENT": "local" },
+      "env": { "EXTERNAL_SYSTEM_MODE": "stub" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldBeAbleToGoToMyShop"
@@ -153,7 +153,7 @@
       "id": "mod09-smoke-real",
       "name": "mod09 - Smoke (real)",
       "command": "npx playwright test --project=smoke-test tests/legacy/mod09/smoke",
-      "env": { "EXTERNAL_SYSTEM_MODE": "real", "ENVIRONMENT": "local" },
+      "env": { "EXTERNAL_SYSTEM_MODE": "real" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldBeAbleToGoToMyShop"
@@ -162,7 +162,7 @@
       "id": "mod10-acceptance-api",
       "name": "mod10 - Acceptance (stub) - API",
       "command": "npx playwright test --project=acceptance-test --grep-invert '@isolated' tests/legacy/mod10/acceptance",
-      "env": { "CHANNEL": "API", "EXTERNAL_SYSTEM_MODE": "stub", "ENVIRONMENT": "local" },
+      "env": { "CHANNEL": "API", "EXTERNAL_SYSTEM_MODE": "stub" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "orderNumberShouldStartWithORD"
@@ -171,7 +171,7 @@
       "id": "mod10-acceptance-ui",
       "name": "mod10 - Acceptance (stub) - UI",
       "command": "npx playwright test --project=acceptance-test --grep-invert '@isolated' tests/legacy/mod10/acceptance",
-      "env": { "CHANNEL": "UI", "CHANNEL_MODE": "static", "EXTERNAL_SYSTEM_MODE": "stub", "ENVIRONMENT": "local" },
+      "env": { "CHANNEL": "UI", "CHANNEL_MODE": "static", "EXTERNAL_SYSTEM_MODE": "stub" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "orderNumberShouldStartWithORD"
@@ -180,7 +180,7 @@
       "id": "mod10-acceptance-isolated-api",
       "name": "mod10 - Acceptance Isolated (stub) - API",
       "command": "npx playwright test --project=acceptance-test --workers=1 --grep '@isolated' tests/legacy/mod10/acceptance",
-      "env": { "CHANNEL": "API", "EXTERNAL_SYSTEM_MODE": "stub", "ENVIRONMENT": "local" },
+      "env": { "CHANNEL": "API", "EXTERNAL_SYSTEM_MODE": "stub" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldRecordPlacementTimestamp"
@@ -189,7 +189,7 @@
       "id": "mod10-acceptance-isolated-ui",
       "name": "mod10 - Acceptance Isolated (stub) - UI",
       "command": "npx playwright test --project=acceptance-test --workers=1 --grep '@isolated' tests/legacy/mod10/acceptance",
-      "env": { "CHANNEL": "UI", "CHANNEL_MODE": "static", "EXTERNAL_SYSTEM_MODE": "stub", "ENVIRONMENT": "local" },
+      "env": { "CHANNEL": "UI", "CHANNEL_MODE": "static", "EXTERNAL_SYSTEM_MODE": "stub" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldRecordPlacementTimestamp"
@@ -198,7 +198,7 @@
       "id": "mod11-contract-stub",
       "name": "mod11 - Contract (stub)",
       "command": "npx playwright test --project=external-system-contract-test --workers=1 --grep-invert '@isolated' 'tests/legacy/mod11/contract/.*-stub-.*\\.spec\\.ts'",
-      "env": { "EXTERNAL_SYSTEM_MODE": "stub", "ENVIRONMENT": "local" },
+      "env": { "EXTERNAL_SYSTEM_MODE": "stub" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldBeAbleToGetTime"
@@ -207,7 +207,7 @@
       "id": "mod11-contract-stub-isolated",
       "name": "mod11 - Contract Isolated (stub)",
       "command": "npx playwright test --project=external-system-contract-test --workers=1 --grep '@isolated' 'tests/legacy/mod11/contract/.*-stub-.*\\.spec\\.ts'",
-      "env": { "EXTERNAL_SYSTEM_MODE": "stub", "ENVIRONMENT": "local" },
+      "env": { "EXTERNAL_SYSTEM_MODE": "stub" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldBeAbleToGetTime"
@@ -216,7 +216,7 @@
       "id": "mod11-contract-real",
       "name": "mod11 - Contract (real)",
       "command": "npx playwright test --project=external-system-contract-test --workers=1 'tests/legacy/mod11/contract/.*-real-.*\\.spec\\.ts'",
-      "env": { "EXTERNAL_SYSTEM_MODE": "real", "ENVIRONMENT": "local" },
+      "env": { "EXTERNAL_SYSTEM_MODE": "real" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldBeAbleToGetTime"
@@ -225,7 +225,7 @@
       "id": "mod11-e2e-api",
       "name": "mod11 - E2E - API",
       "command": "npx playwright test --project=e2e-test tests/legacy/mod11/e2e",
-      "env": { "CHANNEL": "API", "ENVIRONMENT": "local" },
+      "env": { "CHANNEL": "API" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldPlaceOrder"
@@ -234,7 +234,7 @@
       "id": "mod11-e2e-ui",
       "name": "mod11 - E2E - UI",
       "command": "npx playwright test --project=e2e-test tests/legacy/mod11/e2e",
-      "env": { "CHANNEL": "UI", "CHANNEL_MODE": "static", "ENVIRONMENT": "local" },
+      "env": { "CHANNEL": "UI", "CHANNEL_MODE": "static" },
       "path": ".",
       "testReportPath": "playwright-report\\index.html",
       "sampleTest": "shouldPlaceOrder"

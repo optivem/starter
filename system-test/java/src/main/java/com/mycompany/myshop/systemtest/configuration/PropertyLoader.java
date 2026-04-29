@@ -11,8 +11,19 @@ public class PropertyLoader {
             return fixedEnvironment;
         }
 
-        var environmentMode = getRequiredSystemProperty("environment", "local|acceptance|qa|production");
-        return Environment.valueOf(environmentMode.toUpperCase());
+        // Resolve in order: -Denvironment system property (used by JSON commands like
+        // gradle test -Denvironment=local), then ENVIRONMENT env var (set at workflow
+        // shell level for acceptance/qa stages), then default LOCAL. This lets one
+        // tests-*.json drive every environment without per-suite -D wiring.
+        var fromProperty = System.getProperty("environment");
+        if (fromProperty != null && !fromProperty.isBlank()) {
+            return Environment.valueOf(fromProperty.toUpperCase());
+        }
+        var fromEnv = System.getenv("ENVIRONMENT");
+        if (fromEnv != null && !fromEnv.isBlank()) {
+            return Environment.valueOf(fromEnv.toUpperCase());
+        }
+        return Environment.LOCAL;
     }
 
     public static ExternalSystemMode getExternalSystemMode(ExternalSystemMode fixedExternalSystemMode) {

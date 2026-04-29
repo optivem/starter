@@ -12,8 +12,14 @@ public static class PropertyLoader
             return fixedEnvironment.Value;
         }
 
-        var environmentMode = GetRequiredEnvironmentVariable("ENVIRONMENT", "local|acceptance|qa|production");
-        return Enum.Parse<Environment>(environmentMode, ignoreCase: true);
+        // Resolve from ENVIRONMENT env var, defaulting to Local. The workflow drives
+        // the value via shell env (acceptance/qa stages) and the JSON tests-*.json
+        // commands no longer hardcode -e ENVIRONMENT=local — see local stage and
+        // cross-lang, which both rely on this default.
+        var environmentMode = System.Environment.GetEnvironmentVariable("ENVIRONMENT");
+        return string.IsNullOrEmpty(environmentMode)
+            ? Environment.Local
+            : Enum.Parse<Environment>(environmentMode, ignoreCase: true);
     }
 
     public static ExternalSystemMode GetExternalSystemMode(ExternalSystemMode? fixedExternalSystemMode)
