@@ -27,6 +27,39 @@ Follow the decision flow defined in `docs/atdd/process/cycles.md`. That document
 
 ### Pre-flight
 
+#### Run Mode Confirmation
+
+Before any other work, detect the current run mode along two axes and present it to the user for confirmation. **Skip this entire confirmation in autonomous mode** — just print the detected mode and proceed.
+
+**Memory mode** — whether auto-memory will be applied:
+- `OFF` if `--no-memory` is in `$ARGUMENTS`
+- `ON`  otherwise (this is the default)
+
+**Rehearsal mode** — whether commits land in a throwaway worktree or in the real repo. Detect by checking BOTH:
+- The current working directory: does the repo root basename match `shop-rehearsal-*`? (Run `basename "$(git rev-parse --show-toplevel)"`.)
+- The current branch: does it match `rehearsal/*`? (Run `git rev-parse --abbrev-ref HEAD`.)
+
+If either matches → `ON` (rehearsal). If neither matches → `OFF` (real repo). The default is `OFF` — rehearsal mode is only entered by explicitly running `scripts/atdd-rehearsal-start.sh <name>` and starting a fresh Claude Code session inside the resulting worktree.
+
+Output a confirmation block of this exact shape, filled with the detected values:
+
+```
+Run mode for issue #<N>:
+  Memory:    <ON|OFF>   (default: ON  — applies MEMORY.md preferences; --no-memory to disable)
+  Rehearsal: <ON|OFF>   (default: OFF — commits land in <repo-root> on branch <current-branch>)
+```
+
+When `Rehearsal: ON`, change the parenthetical on that line to `commits land in <worktree-path> on branch <rehearsal-branch>` so the user can see the throwaway location.
+
+Then ask: **"Proceed with this mode? (yes to start, or cancel to change mode)"**.
+
+If the user wants to change:
+- Memory: cancel, re-invoke the skill with or without `--no-memory`.
+- Rehearsal ON → OFF: cancel, exit this Claude Code session, start a new one in the real shop checkout.
+- Rehearsal OFF → ON: cancel, run `scripts/atdd-rehearsal-start.sh <name>`, then start a fresh Claude Code session inside `../shop-rehearsal-<name>` and re-invoke the skill there.
+
+Only proceed past this gate after explicit confirmation (or in autonomous mode).
+
 #### Status Validation
 
 Check the issue's status on the GitHub project board:
