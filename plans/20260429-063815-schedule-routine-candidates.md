@@ -52,11 +52,18 @@ Selection criteria:
   that drifts every time someone fixes one language and forgets the
   others.
 
-### Stderr-swallow sweep (already being created in this session)
+### Stderr-swallow sweep — CREATED 2026-04-29
 
-- **Cadence:** weekly, Mondays 09:00 Europe/Belgrade.
-- See `feedback_never_swallow_stderr.md` and the routine being created
-  via /schedule for the full prompt.
+- **Routine ID:** `trig_017M2gynFB5ppY25HTMaXUau`
+- **Manage:** https://claude.ai/code/routines/trig_017M2gynFB5ppY25HTMaXUau
+- **Cadence:** weekly, Mondays 07:00 UTC = 09:00 Europe/Belgrade (cron `0 7 * * 1`).
+- **Owner:** Valentina (Anthropic account, per-account scope).
+- **Storage:** server-side at Anthropic's `/v1/code/triggers` API — not
+  in this repo, not on the laptop. This file is just a discoverability
+  pointer; editing the routine itself is done via the web UI or the
+  RemoteTrigger API, not via git.
+- See `feedback_never_swallow_stderr.md` (in user-level memory) for the
+  underlying principle.
 
 ## Tier 2 — useful but situational
 
