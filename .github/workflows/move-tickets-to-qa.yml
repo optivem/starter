@@ -11,7 +11,7 @@ name: move-tickets-to-qa
 # for devs to investigate.
 #
 # The default GITHUB_TOKEN cannot write to organization-level projects,
-# so this workflow uses WORKFLOW_TOKEN (PAT). The PAT needs `project`
+# so this workflow uses PROJECT_TOKEN (PAT). The PAT needs `project`
 # scope (read+write) on the optivem org.
 
 on:
@@ -26,99 +26,65 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  PROJECT_TITLE: "Shop Project"
+  STATUS_FIELD: "Status"
+  FROM_OPTION: "In Acceptance"
+  TO_OPTION: "In QA"
+
 jobs:
   move:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Advance "In Acceptance" tickets to "In QA"
+      - name: Resolve project / field / option IDs
+        id: resolve
+        uses: optivem/actions/resolve-project-status-field@v1
+        with:
+          project-title: ${{ env.PROJECT_TITLE }}
+          field-name: ${{ env.STATUS_FIELD }}
+          token: ${{ secrets.PROJECT_TOKEN }}
+
+      - name: Pick from/to option IDs
+        id: pick
         env:
-          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
-          PROJECT_ID: PVT_kwDOAMwK8c4BT1wk
-          STATUS_FIELD_ID: PVTSSF_lADOAMwK8c4BT1wkzhBB4qY
-          IN_ACCEPTANCE_OPTION_ID: ea49776a
-          IN_QA_OPTION_ID: 6c7ccd07
+          OPTIONS_JSON: ${{ steps.resolve.outputs.options-json }}
+          FROM_OPTION: ${{ env.FROM_OPTION }}
+          TO_OPTION: ${{ env.TO_OPTION }}
+        run: |
+          set -euo pipefail
+          from=$(echo "$OPTIONS_JSON" | jq -r --arg n "$FROM_OPTION" '.[$n] // empty')
+          to=$(echo "$OPTIONS_JSON" | jq -r --arg n "$TO_OPTION"   '.[$n] // empty')
+          if [[ -z "$from" ]]; then
+            echo "::error::No option named '$FROM_OPTION' on field '$STATUS_FIELD'."
+            exit 1
+          fi
+          if [[ -z "$to" ]]; then
+            echo "::error::No option named '$TO_OPTION' on field '$STATUS_FIELD'."
+            exit 1
+          fi
+          echo "from-option-id=$from" >> "$GITHUB_OUTPUT"
+          echo "to-option-id=$to" >> "$GITHUB_OUTPUT"
+
+      - name: Advance "In Acceptance" tickets to "In QA"
+        id: advance
+        uses: optivem/actions/bulk-update-project-item-status@v1
+        with:
+          project-id: ${{ steps.resolve.outputs.project-id }}
+          field-id: ${{ steps.resolve.outputs.field-id }}
+          from-option-id: ${{ steps.pick.outputs.from-option-id }}
+          to-option-id: ${{ steps.pick.outputs.to-option-id }}
+          token: ${{ secrets.PROJECT_TOKEN }}
+
+      - name: Summary
+        env:
+          MOVED: ${{ steps.advance.outputs.items-moved }}
           SOURCE_RUN_NUMBER: ${{ github.event.workflow_run.run_number }}
           SOURCE_RUN_URL: ${{ github.event.workflow_run.html_url }}
         run: |
-          set -euo pipefail
-
-          moved=0
-          cursor=""
-
-          while :; do
-            if [[ -z "$cursor" ]]; then
-              AFTER='null'
-            else
-              AFTER="\"$cursor\""
-            fi
-
-            response=$(gh api graphql -f query="
-              query {
-                node(id: \"$PROJECT_ID\") {
-                  ... on ProjectV2 {
-                    items(first: 100, after: $AFTER) {
-                      pageInfo { hasNextPage endCursor }
-                      nodes {
-                        id
-                        content {
-                          ... on Issue       { number title }
-                          ... on PullRequest { number title }
-                        }
-                        fieldValueByName(name: \"Status\") {
-                          ... on ProjectV2ItemFieldSingleSelectValue {
-                            optionId
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            ")
-
-            mapfile -t to_move < <(
-              echo "$response" | jq -r \
-                --arg opt "$IN_ACCEPTANCE_OPTION_ID" '
-                  .data.node.items.nodes[]
-                  | select(.fieldValueByName.optionId == $opt)
-                  | "\(.id)\t#\(.content.number // "?") \(.content.title // "(untitled)")"
-                '
-            )
-
-            for entry in "${to_move[@]}"; do
-              [[ -z "$entry" ]] && continue
-              item_id="${entry%%$'\t'*}"
-              label="${entry#*$'\t'}"
-              echo "Advancing $label  (item $item_id)"
-              gh api graphql \
-                -F projectId="$PROJECT_ID" \
-                -F itemId="$item_id" \
-                -F fieldId="$STATUS_FIELD_ID" \
-                -F optionId="$IN_QA_OPTION_ID" \
-                -f query='
-                  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
-                    updateProjectV2ItemFieldValue(input: {
-                      projectId: $projectId,
-                      itemId: $itemId,
-                      fieldId: $fieldId,
-                      value: { singleSelectOptionId: $optionId }
-                    }) {
-                      projectV2Item { id }
-                    }
-                  }' > /dev/null
-              moved=$((moved + 1))
-            done
-
-            has_next=$(echo "$response" | jq -r '.data.node.items.pageInfo.hasNextPage')
-            cursor=$(echo "$response" | jq -r '.data.node.items.pageInfo.endCursor')
-            [[ "$has_next" == "true" ]] || break
-          done
-
-          echo "Moved $moved ticket(s) from 'In Acceptance' to 'In QA'."
           {
-            echo "## Tickets advanced to In QA"
+            echo "## Tickets advanced to ${TO_OPTION}"
             echo ""
             echo "- Source: meta-prerelease-stage run [#${SOURCE_RUN_NUMBER}](${SOURCE_RUN_URL}) (success)"
-            echo "- Tickets moved: **${moved}**"
+            echo "- Tickets moved: **${MOVED}**"
           } >> "$GITHUB_STEP_SUMMARY"
