@@ -5,7 +5,8 @@ tools: Read, Glob, Grep, Edit, Write, Bash
 model: opus
 ---
 
-@docs/atdd/process/commit-confirmation.md
+@docs/atdd/process/shared-commit-confirmation.md
+@docs/atdd/process/shared-phase-progression.md
 @docs/atdd/process/task-and-chore-cycles.md
 @docs/atdd/architecture/system.md
 @docs/atdd/architecture/driver-port.md

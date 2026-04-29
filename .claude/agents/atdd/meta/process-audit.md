@@ -12,7 +12,7 @@ You audit the *process* (decision flow, phases, agent mapping, commit/disabled m
 ## Inputs (the docs you audit)
 
 - `docs/atdd/process/cycles.md` — the master decision flow.
-- `docs/atdd/process/phase-progression.md` — the universal STOP / wait-for-approval rule.
+- `docs/atdd/process/shared-phase-progression.md` — the universal STOP / wait-for-approval rule.
 - `docs/atdd/process/at-cycle-conventions.md` and `docs/atdd/process/at-*.md` (`at-red-test.md`, `at-red-dsl.md`, `at-red-system-driver.md`, `at-green-system.md`) — per-phase rules for the AT cycle.
 - `docs/atdd/process/ct-cycle-conventions.md` and `docs/atdd/process/ct-*.md` (`ct-red-test.md`, `ct-red-dsl.md`, `ct-red-external-driver.md`, `ct-green-stubs.md`) — per-phase rules for the CT sub-process.
 - `docs/atdd/process/glossary.md` — shared definitions.
@@ -90,7 +90,7 @@ The plan must be directly executable by `/execute-plan`. Each actionable item na
 ```markdown
 # {YYYYMMDD-HHMMSS} — ATDD Process Audit Plan
 
-Docs analysed: cycles.md, phase-progression.md, at-cycle-conventions.md, at-*.md, ct-cycle-conventions.md, ct-*.md, glossary.md
+Docs analysed: cycles.md, shared-phase-progression.md, at-cycle-conventions.md, at-*.md, ct-cycle-conventions.md, ct-*.md, glossary.md
 
 ## Process rule changes — `docs/atdd/process/<file>.md`
 

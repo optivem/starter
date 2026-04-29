@@ -1,6 +1,6 @@
 # ATDD Cycles
 
-This document defines the decision flow for the ATDD pipeline. Each phase is defined in detail in its own per-phase file (`at-red-test.md`, `at-red-dsl.md`, `at-red-system-driver.md`, `at-green-system.md`, `ct-red-test.md`, `ct-red-dsl.md`, `ct-red-external-driver.md`, `ct-green-stubs.md`), with cycle-wide conventions in `at-cycle-conventions.md` / `ct-cycle-conventions.md` and the universal STOP rule in `phase-progression.md` — this file controls **which phases run and in what order**.
+This document defines the decision flow for the ATDD pipeline. Each phase is defined in detail in its own per-phase file (`at-red-test.md`, `at-red-dsl.md`, `at-red-system-driver.md`, `at-green-system.md`, `ct-red-test.md`, `ct-red-dsl.md`, `ct-red-external-driver.md`, `ct-green-stubs.md`), with cycle-wide conventions in `at-cycle-conventions.md` / `ct-cycle-conventions.md` and the universal STOP rule in `shared-phase-progression.md` — this file controls **which phases run and in what order**.
 
 > **Naming note**: The word *shop* appears in two distinct senses in ATDD content — `shop/` (with slash) is a package/folder convention inside the driver layer; `shop` (without slash) is the SUT repository name. See `glossary.md` for details.
 
@@ -324,7 +324,7 @@ Every WRITE phase ends with **STOP** — present results to the user and wait fo
 
 ## Commit Confirmation
 
-Every COMMIT step in every cycle is gated by the rule defined in [`commit-confirmation.md`](commit-confirmation.md): the agent must ask "Can I commit?" and receive an explicit yes before running `git commit` (or `gh issue close`, or any other GitHub state mutation). The rule lives in its own file because it is a shared, low-level gate that leaf committing agents import directly — independent of the routing flow defined here.
+Every COMMIT step in every cycle is gated by the rule defined in [`shared-commit-confirmation.md`](shared-commit-confirmation.md): the agent must ask "Can I commit?" and receive an explicit yes before running `git commit` (or `gh issue close`, or any other GitHub state mutation). The rule lives in its own file because it is a shared, low-level gate that leaf committing agents import directly — independent of the routing flow defined here.
 
 ## Resume Detection
 

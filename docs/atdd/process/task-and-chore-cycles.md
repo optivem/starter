@@ -4,17 +4,13 @@ This file defines the **WRITE** and **COMMIT** mechanics for the structural-chan
 
 It mirrors the role of the AT per-phase docs (`at-red-test.md`, `at-red-dsl.md`, `at-red-system-driver.md`, `at-green-system.md`) and the CT per-phase docs (`ct-red-test.md`, `ct-red-dsl.md`, `ct-red-external-driver.md`, `ct-green-stubs.md`) for behavioral-change cycles. Together, those files define every WRITE + COMMIT phase in the pipeline.
 
-## Phase Progression
-
-Proceed to the next phase automatically **unless** the current phase ends with **STOP**. When a phase ends with STOP, wait for the user to explicitly approve before continuing. If the user says something other than approval after a STOP, ask clarifying questions — do not execute the next phase.
-
 ## Commit Message Format
 
 Same as `at-cycle-conventions.md`: every commit message follows the pattern `<Ticket> | <Phase>`. If a GitHub issue number was provided as input, prefix every commit message with `#<issue-number> | `. Example: `#59 | Redesigning Order Controller | SYSTEM API REDESIGN`.
 
 The phase suffix in the message is the phase *prefix only* (e.g. `SYSTEM API REDESIGN`). Do **NOT** append `- COMMIT` or `- WRITE` to the phase in the commit message — those suffixes identify the section header only, not the commit message.
 
-The COMMIT step itself is gated by the universal rule in `commit-confirmation.md` — ask the user "Can I commit?" with the proposed message and staged changes, and wait for explicit approval before running `git commit`.
+The COMMIT step itself is gated by the universal rule in `shared-commit-confirmation.md` — ask the user "Can I commit?" with the proposed message and staged changes, and wait for explicit approval before running `git commit`.
 
 ---
 
@@ -32,7 +28,7 @@ The COMMIT step itself is gated by the universal rule in `commit-confirmation.md
 
 1. Confirm affected components compile (per `CLAUDE.md`: `./gradlew build` / `npx tsc --noEmit` / `dotnet build`).
 2. Run the sample suite for each affected language (per `CLAUDE.md`: `gh optivem test system --sample`) and verify it passes.
-3. Apply the gate in `commit-confirmation.md` — ask "Can I commit?" with the proposed message and staged file list, and wait for explicit approval.
+3. Apply the gate in `shared-commit-confirmation.md` — ask "Can I commit?" with the proposed message and staged file list, and wait for explicit approval.
 4. COMMIT with message `<Ticket> | SYSTEM API REDESIGN`.
 5. If a GitHub issue was provided, tick any checklist items in the issue completed by this commit.
 6. STOP. The CI **Acceptance Stage** is the verifier from here on; phase progression is controlled by the orchestrator.
@@ -53,7 +49,7 @@ The COMMIT step itself is gated by the universal rule in `commit-confirmation.md
 
 1. Confirm affected components compile (per `CLAUDE.md`).
 2. Run the sample suite for each affected language and verify it passes.
-3. Apply the gate in `commit-confirmation.md` — ask "Can I commit?" with the proposed message and staged file list, and wait for explicit approval.
+3. Apply the gate in `shared-commit-confirmation.md` — ask "Can I commit?" with the proposed message and staged file list, and wait for explicit approval.
 4. COMMIT with message `<Ticket> | SYSTEM UI REDESIGN`.
 5. If a GitHub issue was provided, tick any checklist items completed by this commit.
 6. STOP. The CI **Acceptance Stage** is the verifier from here on; phase progression is controlled by the orchestrator.
@@ -79,7 +75,7 @@ The External API Task Cycle has **no standalone WRITE or COMMIT phase of its own
 
 1. Confirm affected components compile (per `CLAUDE.md`).
 2. Run the sample suite for each affected language and verify it passes.
-3. Apply the gate in `commit-confirmation.md` — ask "Can I commit?" with the proposed message and staged file list, and wait for explicit approval.
+3. Apply the gate in `shared-commit-confirmation.md` — ask "Can I commit?" with the proposed message and staged file list, and wait for explicit approval.
 4. COMMIT with message `<Ticket> | CHORE`.
 5. If a GitHub issue was provided, tick any checklist items completed by this commit.
 6. STOP. The CI **Acceptance Stage** is the verifier from here on; phase progression is controlled by the orchestrator.

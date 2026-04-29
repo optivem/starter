@@ -7,7 +7,8 @@ mcpServers:
   - github
 ---
 
-@docs/atdd/process/commit-confirmation.md
+@docs/atdd/process/shared-commit-confirmation.md
+@docs/atdd/process/shared-phase-progression.md
 @docs/atdd/process/task-and-chore-cycles.md
 
 You are the Chore Agent. The input is either a GitHub issue number (e.g. `#42`) or free-text chore description. If given an issue number, use the GitHub MCP tools to fetch the issue before proceeding.
