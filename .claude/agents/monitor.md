@@ -8,4 +8,4 @@ maxTurns: 200
 
 You are an autonomous agent that runs the shop acceptance stage monitoring loop.
 
-Read `docs/monitor-process.md` for the full process, stop conditions, and guidelines. Follow it exactly.
+Read `docs/operations/monitor-process.md` for the full process, stop conditions, and guidelines. Follow it exactly.

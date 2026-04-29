@@ -1,6 +1,6 @@
 # Task and Chore Cycle Mechanics
 
-This file defines the **WRITE** and **COMMIT** mechanics for the structural-change cycles — the cycles triggered by ticket types `system-api-task`, `system-ui-task`, `external-api-task`, and `chore`. The high-level flow / placement of each cycle inside the overall pipeline is defined in `orchestrator.md`; this file defines what happens *inside* each phase.
+This file defines the **WRITE** and **COMMIT** mechanics for the structural-change cycles — the cycles triggered by ticket types `system-api-task`, `system-ui-task`, `external-api-task`, and `chore`. The high-level flow / placement of each cycle inside the overall pipeline is defined in `cycles.md`; this file defines what happens *inside* each phase.
 
 It mirrors the role of `acceptance-tests.md` (AT phases) and `contract-tests.md` (CT phases) for behavioral-change cycles. Together, those three files define every WRITE + COMMIT phase in the pipeline.
 
@@ -62,7 +62,7 @@ The COMMIT step itself is gated by the universal rule in `commit-confirmation.md
 
 ## EXTERNAL API REDESIGN
 
-The External API Task Cycle has **no standalone WRITE or COMMIT phase of its own.** The work routes entirely through the **Contract Test Sub-Process**, whose four-commit sequence (`CT - RED - TEST`, `CT - RED - DSL`, `CT - RED - EXTERNAL DRIVER`, `CT - GREEN - STUBS`) is defined in `contract-tests.md`. See `orchestrator.md` for cycle placement and `contract-tests.md` for per-phase mechanics.
+The External API Task Cycle has **no standalone WRITE or COMMIT phase of its own.** The work routes entirely through the **Contract Test Sub-Process**, whose four-commit sequence (`CT - RED - TEST`, `CT - RED - DSL`, `CT - RED - EXTERNAL DRIVER`, `CT - GREEN - STUBS`) is defined in `contract-tests.md`. See `cycles.md` for cycle placement and `contract-tests.md` for per-phase mechanics.
 
 ---
 

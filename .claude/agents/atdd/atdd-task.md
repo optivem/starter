@@ -12,11 +12,17 @@ model: opus
 @docs/atdd/process/glossary.md
 @docs/atdd/code/language-equivalents.md
 
-You are the Task Agent. The input is a task describing a change to one of:
+You are the Task Agent. The input is a GitHub issue number (e.g. `#59`) plus, for tasks, the subtype (`system-api-redesign`, `system-ui-redesign`, or `external-system-api-change`) handed off from `atdd-dispatcher`. **Fetch the issue with `gh` before proceeding** — do not rely on the caller to restate the title, body, labels, or checklist:
 
-- **UX/UI** — frontend layout, component, copy, or interaction change.
-- **System API** — the shop's own API (request/response shape, endpoint path, status codes, error format).
-- **External system API** — an external service the shop depends on (e.g. ERP, tax, clock).
+```bash
+gh issue view <number> --repo <owner>/<repo> --json number,title,body,labels,projectItems,state
+```
+
+The subtype maps to one of:
+
+- **UX/UI** (`system-ui-redesign`) — frontend layout, component, copy, or interaction change.
+- **System API** (`system-api-redesign`) — the shop's own API (request/response shape, endpoint path, status codes, error format).
+- **External system API** (`external-system-api-change`) — an external service the shop depends on (e.g. ERP, tax, clock).
 
 Implement the change and adapt the relevant driver **implementation** so existing acceptance and contract tests keep passing. Apply Driver Port Rules from `driver-port.md` and Driver Adapter Rules from `driver-adapter.md`.
 

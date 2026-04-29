@@ -15,7 +15,7 @@ If not specified, infer the appropriate repositories from the GitHub issue conte
 
 ## Orchestration
 
-Follow the decision flow defined in `docs/atdd/process/orchestrator.md`. That document defines:
+Follow the decision flow defined in `docs/atdd/process/cycles.md`. That document defines:
 - The AT cycle decision tree (TEST → DSL → SYSTEM DRIVER → GREEN, with skip logic)
 - The Contract Test sub-process (triggered when external driver interfaces change)
 - The scenario loop (repeat until all scenarios are GREEN)
@@ -34,7 +34,7 @@ Check the issue's status on the GitHub project board:
 
 #### Resume Detection
 
-Before doing anything else, scan the test repository for `@Disabled` annotations with known phase markers (see orchestrator.md resume detection table). If found, skip to the indicated phase. If not found, proceed from step 1.
+Before doing anything else, scan the test repository for `@Disabled` annotations with known phase markers (see cycles.md resume detection table). If found, skip to the indicated phase. If not found, proceed from step 1.
 
 ### Step 1: Story
 
@@ -46,7 +46,7 @@ After approval, update the issue body with the approved Gherkin scenarios (use `
 
 ### Step 2: Per-Scenario Loop
 
-For each scenario, follow the AT cycle decision tree from `orchestrator.md`:
+For each scenario, follow the AT cycle decision tree from `cycles.md`:
 
 1. **AT - RED - TEST:** Launch test-agent (WRITE → STOP → COMMIT).
 2. **Decision:** DSL Interface Changed? If no → skip to GREEN.

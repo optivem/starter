@@ -11,7 +11,7 @@ You audit the *process* (decision flow, phases, agent mapping, commit/disabled m
 
 ## Inputs (the docs you audit)
 
-- `docs/atdd/process/orchestrator.md` — the master decision flow.
+- `docs/atdd/process/cycles.md` — the master decision flow.
 - `docs/atdd/process/acceptance-tests.md` — per-phase rules for the AT cycle.
 - `docs/atdd/process/contract-tests.md` — per-phase rules for the CT sub-process.
 - `docs/atdd/process/glossary.md` — shared definitions.
@@ -22,19 +22,19 @@ You MUST read every file before producing findings. Never conclude "no findings"
 
 ### 1. Branch completeness — every decision has every branch, every branch lands somewhere
 
-For every decision diamond / yes-no question in `orchestrator.md` and the per-phase docs:
+For every decision diamond / yes-no question in `cycles.md` and the per-phase docs:
 
 - Does it explicitly handle BOTH `Yes` and `No`?
 - Does each branch lead to a named next phase, a STOP, or an escalation? Dangling branches ("if no, …") are gaps.
 - Are combined conditions enumerated? E.g. *DSL Interface Changed = yes* AND *External System Driver Interface Changed = yes* AND *System Driver Interface Changed = yes* — is the intended order (CT sub-process before driver write?) explicit, or implicit?
-- Does the **Resume Detection** table in `orchestrator.md` cover every WRITE phase that produces a `@Disabled` marker? Cross-check the disabled-reason strings used in each COMMIT phase against the resume table — every reason string emitted by a COMMIT phase must appear as a row in resume detection, and vice versa.
+- Does the **Resume Detection** table in `cycles.md` cover every WRITE phase that produces a `@Disabled` marker? Cross-check the disabled-reason strings used in each COMMIT phase against the resume table — every reason string emitted by a COMMIT phase must appear as a row in resume detection, and vice versa.
 - Does the **Phase-to-Agent Mapping** table cover every phase named in the cycle (AT and CT)? No phase should appear in the flow diagram without a row here.
 - Does the **Scenario Loop** describe what happens when the loop terminates — is the ticket considered "done" at that point, and does anything need to happen at done (close issue, final commit, etc.)?
 
 ### 2. Internal cross-doc consistency
 
 - Phase names and casing (`AT - RED - TEST`, `CT - RED - DSL`, etc.) must be identical across all four docs. Spot variants (`AT-RED-TEST`, `at - red - test`, missing spaces) are findings.
-- Commit-message phase suffixes specified in `acceptance-tests.md` / `contract-tests.md` must match the phase names used in `orchestrator.md`. The "do NOT append `- COMMIT` or `- WRITE`" rule must be stated identically (or referenced from one place).
+- Commit-message phase suffixes specified in `acceptance-tests.md` / `contract-tests.md` must match the phase names used in `cycles.md`. The "do NOT append `- COMMIT` or `- WRITE`" rule must be stated identically (or referenced from one place).
 - Disabled-reason strings (`"AT - RED - TEST"`, `"CT - RED - DSL"`, etc.) must match between WRITE/COMMIT phases that set them and resume-detection rows that read them.
 - Test-suite placeholders (`<acceptance-api>`, `<acceptance-ui>`, `<suite-contract-real>`, `<suite-contract-stub>`) must be defined exactly once and used consistently. Flag duplicates, missing definitions, or unused placeholders.
 - Cross-references (`see glossary.md`, `see language-equivalents.md`, `see contract-tests.md`) must point to existing files and existing sections.
@@ -44,7 +44,7 @@ For every decision diamond / yes-no question in `orchestrator.md` and the per-ph
 
 - Pre-conditions: does each phase state what it expects to be true on entry (which tests are disabled, what state of the code), so an agent resuming mid-cycle has an unambiguous starting point?
 - Post-conditions: does each WRITE phase state what must be true before STOP (compile errors converted to `TODO`, exactly one real test method, runtime-failing test disabled, etc.)?
-- Failure modes: what happens when a test fails unexpectedly mid-phase, when a commit fails, when the issue number is absent, when the user denies approval at a STOP? Is escalation behaviour the same in autonomous and normal mode? `orchestrator.md` says escalation is "even in autonomous mode" — is that consistent with how each phase doc describes autonomous behaviour?
+- Failure modes: what happens when a test fails unexpectedly mid-phase, when a commit fails, when the issue number is absent, when the user denies approval at a STOP? Is escalation behaviour the same in autonomous and normal mode? `cycles.md` says escalation is "even in autonomous mode" — is that consistent with how each phase doc describes autonomous behaviour?
 - Loops and termination: the Scenario Loop says "Continue until all scenarios are GREEN" — but what if a scenario is impossible to make green (legacy bug, deferred)? Is there an explicit deferral path?
 - Idempotence: re-running a phase that has already been completed — what happens? Is it a no-op, an error, or does it overwrite?
 - Timing of side effects: posting a GitHub issue comment in `AT - RED - DSL - COMMIT` — is the same step also defined for the corresponding CT phase, and are the wording rules aligned?
@@ -89,13 +89,13 @@ The plan must be directly executable by `/execute-plan`. Each actionable item na
 ```markdown
 # {YYYYMMDD-HHMMSS} — ATDD Process Audit Plan
 
-Docs analysed: orchestrator.md, acceptance-tests.md, contract-tests.md, glossary.md
+Docs analysed: cycles.md, acceptance-tests.md, contract-tests.md, glossary.md
 
 ## Process rule changes — `docs/atdd/process/<file>.md`
 
 (Omit this section entirely if there are no items.)
 
-### 1. [orchestrator.md] <one-line summary of fix>
+### 1. [cycles.md] <one-line summary of fix>
 
 **Section:** "<existing section header, or proposed new section title>"
 
@@ -103,7 +103,7 @@ Docs analysed: orchestrator.md, acceptance-tests.md, contract-tests.md, glossary
 > <exact markdown to add or replace, in the doc's existing tone>
 
 **Evidence:**
-- `docs/atdd/process/orchestrator.md:<lines>` — <what the current text says>
+- `docs/atdd/process/cycles.md:<lines>` — <what the current text says>
 - `docs/atdd/process/<other-doc>.md:<lines>` — <how it conflicts or what it depends on>
 
 **Rationale:** <one or two sentences>

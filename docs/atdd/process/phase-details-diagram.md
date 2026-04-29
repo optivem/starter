@@ -9,7 +9,7 @@
 - `docs/atdd/process/acceptance-tests.md`
 - `docs/atdd/process/contract-tests.md`
 - `docs/atdd/process/glossary.md`
-- `docs/atdd/process/orchestrator.md`
+- `docs/atdd/process/cycles.md`
 
 ## AT - RED - TEST Phase Detail
 

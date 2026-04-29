@@ -1,4 +1,4 @@
-# ATDD Orchestrator
+# ATDD Cycles
 
 This document defines the decision flow for the ATDD pipeline. Each phase is defined in detail in `acceptance-tests.md` and `contract-tests.md` — this file controls **which phases run and in what order**.
 
@@ -6,7 +6,7 @@ This document defines the decision flow for the ATDD pipeline. Each phase is def
 
 ## Intake (per ticket)
 
-Before any cycle runs, the picked ticket is classified by `atdd-manager` into one of six ticket types: **story**, **bug**, **system-api-task**, **system-ui-task**, **external-api-task**, or **chore**. Classification by ticket type happens first; cycle routing is decided afterwards by two orthogonal gates (see below). See `glossary.md` for the full definitions of *behavioral change*, *structural change*, and *Legacy Coverage*.
+Before any cycle runs, the picked ticket is classified by `atdd-orchestrator` into one of six ticket types: **story**, **bug**, **system-api-task**, **system-ui-task**, **external-api-task**, or **chore**. Classification by ticket type happens first; cycle routing is decided afterwards by two orthogonal gates (see below). See `glossary.md` for the full definitions of *behavioral change*, *structural change*, and *Legacy Coverage*.
 
 Each of the six intake agents reads the ticket, processes the type-specific content, AND processes the **optional Legacy Coverage section** if it appears in the ticket schema:
 
