@@ -40,7 +40,7 @@ Before doing anything else, scan the test repository for `@Disabled` annotations
 
 ### Step 1: Story
 
-Launch **story-agent** with the issue number. It will read the GitHub issue and produce Gherkin scenarios.
+Launch **atdd-story** with the issue number. It will read the GitHub issue and produce Gherkin scenarios.
 - **Normal mode:** Present the Gherkin scenarios and wait for human approval.
 - **Autonomous mode:** Auto-approve and proceed immediately.
 
@@ -50,13 +50,13 @@ After approval, update the issue body with the approved Gherkin scenarios (use `
 
 For each scenario, follow the AT cycle decision tree from `cycles.md`:
 
-1. **AT - RED - TEST:** Launch test-agent (WRITE → STOP → COMMIT).
+1. **AT - RED - TEST:** Launch atdd-test (WRITE → STOP → COMMIT).
 2. **Decision:** DSL Interface Changed? If no → skip to GREEN.
-3. **AT - RED - DSL:** Launch dsl-agent (WRITE → STOP → COMMIT).
+3. **AT - RED - DSL:** Launch atdd-dsl (WRITE → STOP → COMMIT).
 4. **Decision:** External System Driver Interface Changed? If yes → run Contract Test Sub-Process.
 5. **Decision:** System Driver Interface Changed? If no → skip to GREEN.
-6. **AT - RED - SYSTEM DRIVER:** Launch driver-agent (WRITE → STOP → COMMIT).
-7. **AT - GREEN - SYSTEM:** Launch backend-agent → frontend-agent → release-agent.
+6. **AT - RED - SYSTEM DRIVER:** Launch atdd-driver (WRITE → STOP → COMMIT).
+7. **AT - GREEN - SYSTEM:** Launch atdd-backend → atdd-frontend → atdd-release.
 8. If remaining `// TODO:` scenarios exist, loop back to step 1.
 
 ### Escalation
