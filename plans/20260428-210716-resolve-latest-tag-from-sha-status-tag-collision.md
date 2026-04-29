@@ -2,7 +2,7 @@
 
 **Date:** 2026-04-28
 **Trigger:** Failing run [25057820020](https://github.com/optivem/shop/actions/runs/25057820020) — `meta-prerelease-stage` → `run / pipeline (monolith-dotnet)` → inner `verify / qa-stage` (run 25065077412) failed at "Simulate Deployment (QA Environment)" with `manifest unknown` from GHCR.
-**Scope:** Bug in the way the prerelease pipeline resolves the rc tag for a tested SHA when status-suffixed promotion tags also exist on that SHA. Affects all flavors (monolith/multitier × dotnet/java/typescript), not just monolith-dotnet.
+**Scope:** Stop-gap fix to unblock the prerelease pipeline when status-suffixed promotion tags exist on a tested SHA. Affects all flavors (monolith/multitier × dotnet/java/typescript). The durable answer — moving promotion / verification state out of git tags entirely — is tracked separately in [`20260429-070355-migrate-promotion-state-out-of-git-tags.md`](20260429-070355-migrate-promotion-state-out-of-git-tags.md). This plan ships the immediate stop-gap and closes; the migration plan is the long-term work.
 
 ---
 
@@ -55,46 +55,13 @@ The pattern `<prefix>-v<version>-rc.*` was meant to capture **release candidates
 
 The author's mental model: "for a given SHA, there's one bare rc tag matching `-rc.*`." Correct on a virgin SHA; broken once promotion has occurred. Bash glob does not have a way to express "ends with `rc.<digits>` and no further suffix", so the pattern silently widens the moment status tags appear.
 
-The race-tolerance comment at `_prerelease-pipeline.yml:222-225` — "resolve the rc tag that actually points at the tested SHA — whether our dispatched run created it or a concurrent scheduled run did" — also reveals the assumption: only rc-creating workflows tag the SHA. The status-tag-creating workflow (qa-stage publish-tag) violates that assumption.
+The deeper issue — git tags being used to store mutable lifecycle state — is what the migration plan addresses. This plan only stops the immediate bleeding.
 
 ---
 
-## Proposed fix
+## Stop-gap fix
 
-The rc-tag pattern needs to mean **"`rc.<digits>`, with no further suffix"**. The four candidates, ranked:
-
-### A. (Preferred) Add regex support to `resolve-latest-tag-from-sha`
-
-Add a `pattern-format: glob|regex` input (default `glob` for back-compat). Callers needing anchored matches use regex:
-
-```yaml
-- id: get-version
-  uses: optivem/actions/resolve-latest-tag-from-sha@v1
-  with:
-    commit-sha: ${{ env.COMMIT_SHA }}
-    pattern: '^${{ inputs.prefix }}-v${{ needs.check-version.outputs.base-version }}-rc\.[0-9]+$'
-    pattern-format: regex
-```
-
-**Pros:** clean, expressive, future-proof. Fixes the same trap for every other current and future caller of this action — glob is structurally too weak for tag schemes that use `-` as a structural separator.
-**Cons:** small API surface change in the shared action; needs a release of `optivem/actions`.
-**Risk:** low — back-compat preserved by default-glob.
-
-### B. Add an `exclude-pattern` input to `resolve-latest-tag-from-sha`
-
-Action filters out tags matching `exclude-pattern` after the include-match:
-
-```yaml
-exclude-pattern: '*-rc.*-*'
-```
-
-**Pros:** smaller change than (A); preserves glob semantics.
-**Cons:** denylist; every new status suffix risks drift between this caller and `compose-prerelease-status` which owns the suffix vocabulary. Subtler to reason about.
-**Risk:** medium — easy to forget to update when adding a new promotion stage.
-
-### C. Post-filter in the pipeline (stop-gap)
-
-Leave the action unchanged; in `_prerelease-pipeline.yml` after the resolve step, run a tighter regex filter on the captured tag and override `outputs.version` if it contains anything past `rc.<digits>`. One-liner:
+Add a post-resolve regex filter in `_prerelease-pipeline.yml` after the existing `get-version` step:
 
 ```yaml
 - id: get-version-strict
@@ -110,42 +77,33 @@ Leave the action unchanged; in `_prerelease-pipeline.yml` after the resolve step
     fi
 ```
 
-Then read `steps.get-version-strict.outputs.tag` instead. If the resolve action returned `…-qa-deployed`, this drops it to empty and the downstream "Fail If No RC Tag On SHA" guard fires correctly.
+Read `steps.get-version-strict.outputs.tag` instead of `steps.get-version.outputs.tag` for the rest of the pipeline.
 
-**Pros:** zero changes to the shared action; ships immediately, unblocks the pipeline.
-**Cons:** does not fix the bug for any other caller of the same action; pushes domain knowledge out of the shared action and into the caller. **Also has a subtle false-negative**: when a single SHA carries both `rc.712` and `rc.712-qa-deployed`, the action returns `…-qa-deployed`, the post-filter rejects it, and the guard fires — even though `rc.712` is right there and would have been correct. So (C) on its own can fail-loud where (A)/(B) succeed-correct. Acceptable for a stop-gap because failing loud is better than wrong-image-pull, but not acceptable as the long-term answer.
-**Risk:** low — strictly narrows what the pipeline accepts.
+### Behavior after fix
 
-### D. Stop using git tags for promotion state
+If `resolve-latest-tag-from-sha` returns `…-qa-deployed`, the strict filter drops it to empty and the downstream "Fail If No RC Tag On SHA" guard fires correctly. That is the right behavior — the SHA has already been QA-promoted; re-running the verification pipeline on it is meaningless and should refuse to proceed.
 
-Move promotion markers (`-qa-deployed`, `-qa-approved`, `-acceptance-tested`) out of git tags entirely — into GitHub Deployments, GHCR labels, or a dedicated state file.
+### Known false-negative
 
-**Pros:** removes the entire class of collision; matches industry practice (git tags = immutable artifact identity, not mutable lifecycle state).
-**Cons:** large blast radius — every workflow that reads or filters tags would need to change; new infrastructure for state. Not the right fix for *this* bug.
+When a SHA carries both `rc.712` and `rc.712-qa-deployed`, the action returns `…-qa-deployed`, the post-filter rejects it, and the guard fires — even though `rc.712` is right there and would have been correct.
+
+Acceptable for a stop-gap because failing loud is better than wrong-image-pull. Goes away once the migration plan stops new status-suffix tags from being written (no SHA will carry both anymore).
+
+### Verification
+
+Re-dispatch `meta-prerelease-stage` against the failing SHA. Expectation: pipeline now fails at "Fail If No RC Tag On SHA" instead of pulling a non-existent image.
 
 ---
 
-## Recommendation
-
-**Apply (A) in `optivem/actions` as the durable fix; ship (C) in `optivem/shop` immediately as a stop-gap so the pipeline isn't blocked while (A) is reviewed and released.**
-
-Sequencing:
-
-1. **Stop-gap, today** — patch `_prerelease-pipeline.yml:226-230` per (C). Verify by re-dispatching `meta-prerelease-stage` against the same SHA. Expectation: pipeline now fails loudly at "Fail If No RC Tag On SHA" because `…-qa-deployed` is rejected and no bare rc tag points at this SHA. That is correct behavior — the SHA has already been QA-promoted; re-running the verification pipeline on it is meaningless and should refuse to proceed.
-
-2. **Durable fix** — add `pattern-format: regex` support to `optivem/actions/resolve-latest-tag-from-sha`. Cover with a unit case where the same SHA carries `rc.N`, `rc.N-qa-approved`, `rc.N-qa-deployed` and the regex `^…-rc\.[0-9]+$` returns `rc.N`.
-
-3. **Migrate callers** — switch `_prerelease-pipeline.yml` (and any other call site of `resolve-latest-tag-from-sha` that wants strict matching) to `pattern-format: regex` with anchored patterns. Remove the (C) stop-gap once the action is updated.
-
-4. **Audit other call sites** — grep `optivem/shop/.github/workflows` for `resolve-latest-tag-from-sha` and verify each pattern is robust against status-tag aliasing on the same SHA. Patterns that currently look like `…-rc.*` are all suspect.
-
 ## Out of scope
 
-- Why `meta-prerelease-stage` re-targets a SHA that is already QA-promoted instead of refusing up-front. That is a separate question — possibly a desirable behavior (re-verification) and possibly a misconfiguration. Track separately.
-- Whether status tags should remain in git at all (option D above). Track separately if the question matters; not blocking for this fix.
+- Moving promotion / verification state out of git tags entirely. Tracked in [`20260429-070355-migrate-promotion-state-out-of-git-tags.md`](20260429-070355-migrate-promotion-state-out-of-git-tags.md).
+- Why `meta-prerelease-stage` re-targets a SHA that is already QA-promoted instead of refusing up-front. Possibly desirable (re-verification), possibly a misconfiguration. Track separately.
+- Adding regex / exclude-pattern support to `resolve-latest-tag-from-sha` itself (originally proposed as options A/B in this plan). Becomes redundant once the migration plan completes — no new status-suffix tags will be written, so the glob has nothing to collide with. Discardable.
+
+---
 
 ## Risk assessment
 
-- **(C) stop-gap**: very low. Strictly narrows accepted output. Worst case: pipeline fails loudly on a SHA where it would otherwise have done the wrong thing.
-- **(A) durable**: low. Back-compat default keeps existing callers working; only callers that opt into `pattern-format: regex` get the new behavior. Needs a test for the new code path.
-- **Doing nothing**: high. Any future re-run of `meta-prerelease-stage` against an already-promoted SHA reproduces the failure for any flavor, blocking the meta-prerelease-stage tag-meta-rc job and silently confusing operators.
+- **Stop-gap:** very low. Strictly narrows accepted output. Worst case: pipeline fails loudly on a SHA where it would otherwise have done the wrong thing. Reversible by removing one step.
+- **Doing nothing:** high. Any future re-run of `meta-prerelease-stage` against an already-promoted SHA reproduces the failure for any flavor, blocking the meta-prerelease-stage tag-meta-rc job and silently confusing operators.
