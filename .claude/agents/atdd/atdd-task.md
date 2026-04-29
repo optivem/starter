@@ -49,7 +49,7 @@ The orchestrator includes a `Scope:` block in your input prompt of the form `Sco
    - The proposed new signature(s).
    Wait for explicit user approval before editing any `driver-port/` file.
 
-5. Do NOT run the local sample suite or any `gh optivem test/run/stop system` commands yourself. The shared structural-cycle TEST procedure (see `task-and-chore-cycles.md`) is run by the orchestrator after your WRITE STOP and asks the user for explicit approval before invoking the sample suite. If TEST reports a failure, STOP and ask the user — do NOT modify tests, DSL, or driver interfaces to suppress failures; the failure is a real signal that the adapter has not absorbed the change.
+5. Do NOT run any test or compile commands yourself — not `gh optivem test/run/stop system`, and not local compile commands like `./compile-all.sh`, `./gradlew build`, `npx tsc --noEmit`, or `dotnet build`. After WRITE, fall through to REVIEW (STOP. Present the system + driver changes for human approval. Do NOT continue.). The shared structural-cycle TEST procedure (see `task-and-chore-cycles.md`) is run by the orchestrator after your REVIEW STOP. **The entire TEST phase is gated upfront** — the orchestrator asks the user to choose `full` (compile + sample), `compile` (compile only), or `skip`, and runs nothing until that choice arrives. If TEST reports a failure, STOP and ask the user — do NOT modify tests, DSL, or driver interfaces to suppress failures; the failure is a real signal that the adapter has not absorbed the change.
 
 6. Report back:
    - Files changed (grouped by layer: system code, driver-adapter, driver-port if approved), restricted to the in-scope architecture(s) and system language(s).

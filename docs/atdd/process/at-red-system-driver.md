@@ -1,6 +1,6 @@
 # AT - RED - SYSTEM DRIVER
 
-## AT - RED - SYSTEM DRIVER - WRITE (STOP)
+## AT - RED - SYSTEM DRIVER - WRITE
 
 **Notes:**
 - Implement **System Drivers only** — only look at files in the `driver-adapter` and `driver-port` directories under `shop/` (e.g. `shop/api`, `shop/ui`).
@@ -14,7 +14,10 @@
    gh optivem test system --suite <acceptance-api> --test <TestMethodName>
    gh optivem test system --suite <acceptance-ui> --test <TestMethodName>
    ```
-4. STOP. Present the Driver implementation to the user and ask for approval. Do NOT continue.
+
+## AT - RED - SYSTEM DRIVER - REVIEW (STOP)
+
+STOP. Present the Driver implementation to the user and ask for approval. Do NOT continue.
 
 ## AT - RED - SYSTEM DRIVER - COMMIT
 

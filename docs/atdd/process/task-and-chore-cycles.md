@@ -1,6 +1,6 @@
 # Task and Chore Cycle Mechanics
 
-This file defines the **WRITE**, **TEST**, and **COMMIT** mechanics for the structural-change cycles — the cycles triggered by ticket types `system-api-task`, `system-ui-task`, `external-api-task`, and `chore`. The high-level flow / placement of each cycle inside the overall pipeline is defined in `cycles.md`; this file defines what happens *inside* each phase.
+This file defines the **WRITE**, **REVIEW**, **TEST**, and **COMMIT** mechanics for the structural-change cycles — the cycles triggered by ticket types `system-api-task`, `system-ui-task`, `external-api-task`, and `chore`. The high-level flow / placement of each cycle inside the overall pipeline is defined in `cycles.md`; this file defines what happens *inside* each phase.
 
 It mirrors the role of the AT per-phase docs (`at-red-test.md`, `at-red-dsl.md`, `at-red-system-driver.md`, `at-green-system.md`) and the CT per-phase docs (`ct-red-test.md`, `ct-red-dsl.md`, `ct-red-external-driver.md`, `ct-green-stubs.md`) for behavioral-change cycles. Together, those files define every WRITE + COMMIT phase in the pipeline.
 
@@ -8,7 +8,7 @@ It mirrors the role of the AT per-phase docs (`at-red-test.md`, `at-red-dsl.md`,
 
 Same as `at-cycle-conventions.md`: every commit message follows the pattern `<Ticket> | <Phase>`. If a GitHub issue number was provided as input, prefix every commit message with `#<issue-number> | `. Example: `#59 | Redesigning Order Controller | SYSTEM API REDESIGN`.
 
-The phase suffix in the message is the phase *prefix only* (e.g. `SYSTEM API REDESIGN`). Do **NOT** append `- COMMIT` or `- WRITE` to the phase in the commit message — those suffixes identify the section header only, not the commit message.
+The phase suffix in the message is the phase *prefix only* (e.g. `SYSTEM API REDESIGN`). Do **NOT** append `- WRITE`, `- REVIEW`, `- TEST`, or `- COMMIT` to the phase in the commit message — those suffixes identify the section header only, not the commit message. (REVIEW and TEST do not commit at all; only the WRITE work + TEST verification + housekeeping are bundled into the single COMMIT step.)
 
 The COMMIT step itself is gated by the universal rule in `shared-commit-confirmation.md` — ask the user "Can I commit?" with the proposed message and staged changes, and wait for explicit approval before running `git commit`.
 
@@ -16,14 +16,29 @@ The COMMIT step itself is gated by the universal rule in `shared-commit-confirma
 
 ## Structural-cycle TEST (shared procedure)
 
-Every structural-cycle TEST runs after WRITE and before COMMIT. Goal: verify the change compiles and the sample suite still passes locally before asking to commit. The sample run is **explicitly gated** because it spins up docker stacks and takes several minutes per language — never run it without user approval.
+Every structural-cycle TEST runs after REVIEW (which itself runs after WRITE) and before COMMIT. Goal: verify the change compiles and the sample suite still passes locally before asking to commit. **The entire TEST phase is gated upfront** — nothing inside TEST runs until the user explicitly approves. This includes compile checks (`./compile-all.sh`, `./gradlew build`, `npx tsc --noEmit`, `dotnet build`) as well as the sample suite (`gh optivem test system --sample`). Never run any of these commands without explicit user approval, even compile-only ones — the user may want to skip TEST entirely, or only compile, or only sample, and the agent must not pre-empt that decision.
 
 The TEST procedure honours the **Scope** declared in pre-flight (see `.claude/commands/atdd/atdd-implement-ticket.md` "Scope Confirmation"): compile and sample-suite work is restricted to the in-scope architecture(s) and Test Lang(s).
 
-1. Confirm in-scope components compile (per `CLAUDE.md`: run `./compile-all.sh` from the repo root, or a single-project command for narrow changes). Compile is fast and runs without prompting.
-2. Ask the user for explicit approval before running the sample suite: "About to run `gh optivem test system --sample` for <in-scope test languages> — this takes a few minutes per language. Approve? (yes/no)". Wait for an explicit `yes` before proceeding. Never self-initiate; never run in parallel with other system-test commands without separately asking.
-3. On approval, run the sample suite for each in-scope Test Lang (per `CLAUDE.md`: `gh optivem test system --sample`) and verify it passes.
-4. Print a **drift warning** naming any out-of-scope implementations that were deliberately left untouched by this run, e.g.:
+1. **Ask the user upfront which checks to run.** Use this exact prompt, substituting in-scope languages:
+
+   ```
+   About to run TEST for <in-scope test languages>. Choose one:
+     - full      → compile in-scope projects, then run sample suite (`gh optivem test system --sample`). Sample run takes a few minutes per language.
+     - compile   → compile in-scope projects only, no sample suite.
+     - skip      → skip TEST entirely, go straight to COMMIT (you accept the risk that compile or sample may fail in CI).
+   Choice?
+   ```
+
+   Wait for an explicit `full`, `compile`, or `skip`. Never self-initiate; never run any compile or sample command before this answer arrives. Never run multiple test/run/stop system commands in parallel without separately asking.
+
+2. **If `skip`:** record that TEST was skipped (note in the post-TEST summary), print the drift warning if applicable, and proceed to COMMIT.
+
+3. **If `compile` or `full`:** confirm in-scope components compile (per `CLAUDE.md`: `./compile-all.sh` from the repo root, or a single-project command like `./gradlew build` / `npx tsc --noEmit` / `dotnet build` for narrow changes). On compile failure, STOP and report — do not attempt to run the sample suite.
+
+4. **If `full` and compile passed:** run the sample suite for each in-scope Test Lang (per `CLAUDE.md`: `gh optivem test system --sample`) and verify it passes.
+
+5. Print a **drift warning** naming any out-of-scope implementations that were deliberately left untouched by this run, e.g.:
 
    ```
    Out-of-scope implementations not updated by this run:
@@ -35,7 +50,8 @@ The TEST procedure honours the **Scope** declared in pre-flight (see `.claude/co
    ```
 
    If Scope was the broadest option (`Architecture=both`, `System Lang=all`, `Test Lang=all`), skip this step.
-5. STOP. Present the test results and drift warning (if any) to the user. On failure, fix and re-enter TEST from step 1. On pass, proceed to COMMIT.
+
+6. STOP. Present the chosen mode (`full` / `compile` / `skip`), the test results (if any were run), and the drift warning (if any) to the user. On failure, fix and re-enter TEST from step 1. On pass, proceed to COMMIT.
 
 The EXTERNAL API REDESIGN cycle has no standalone TEST — its sample-run gating happens inside the CT sub-process.
 
@@ -54,9 +70,9 @@ The EXTERNAL API REDESIGN cycle has no standalone COMMIT — see "EXTERNAL API R
 
 ---
 
-## SYSTEM \<boundary\> REDESIGN - WRITE (STOP)
+## SYSTEM \<boundary\> REDESIGN - WRITE
 
-Where *boundary* ∈ {`API`, `UI`}. The same five steps apply; only the boundary-specific files change.
+Where *boundary* ∈ {`API`, `UI`}. The same four steps apply; only the boundary-specific files change.
 
 **Goal:** the System \<boundary\> Driver (interface + impl under `driver-port/.../shop/<api|ui>` and `driver-adapter/.../shop/<api|ui>`) reflects the new System \<boundary\> surface; the system code under `system/` reflects the new \<boundary\>; existing acceptance and contract tests still compile.
 
@@ -66,7 +82,10 @@ Where *boundary* ∈ {`API`, `UI`}. The same five steps apply; only the boundary
 2. Update the matching System \<boundary\> Driver implementation (`driver-adapter/.../shop/<api|ui>`) to absorb the change. Prefer adapter-only changes — keep behaviour observable through the **existing** driver interface.
 3. **Driver interface guardrail.** Do NOT modify any file under `driver-port/` casually. If you believe an interface change is unavoidable, STOP separately at that boundary and present to the user: the method(s) you want to change, why the adapter alone cannot absorb the change, the proposed new signature(s). Wait for explicit user approval before editing any `driver-port/` file. (Such changes have no contract-test fallout because this is `shop/`, not `external/` — but they still touch the test surface and must be approved.)
 4. Do not modify acceptance tests, DSL, Gherkin, or any code outside the System \<boundary\> layer + its driver. `system-test/<lang>/.../Legacy/` is read-only course-reference material — leave it untouched.
-5. STOP. Present the system + driver changes to the user and ask for approval. Do NOT continue.
+
+## SYSTEM \<boundary\> REDESIGN - REVIEW (STOP)
+
+STOP. Present the system + driver changes (system code, driver-adapter, any approved driver-port changes) to the user and ask for approval. Do NOT continue.
 
 Then proceed via the shared structural-cycle TEST, then the shared structural-cycle COMMIT procedure with phase suffix `SYSTEM API REDESIGN` or `SYSTEM UI REDESIGN`.
 
@@ -78,13 +97,16 @@ The External API Task Cycle has **no standalone WRITE or COMMIT phase of its own
 
 ---
 
-## CHORE - WRITE (STOP)
+## CHORE - WRITE
 
 **Goal:** the structural change (refactor / rename / move / dependency upgrade / build tweak / dead-code removal / internal abstraction change) is implemented inside `system/`; drivers and tests are untouched; existing acceptance and contract tests still compile.
 
 1. Implement the chore as described in the ticket's checklist of refactor / upgrade steps.
 2. Drivers — interfaces (`driver-port/`) and implementations (`driver-adapter/`) — are untouched. If the chore turns out to require driver changes, STOP and reclassify the ticket as a task — chores by definition do not change boundaries.
 3. Tests, DSL, and Gherkin are untouched. If the chore turns out to require behavioral test changes, STOP and reclassify the ticket as a story or bug.
-4. STOP. Present the implementation to the user and ask for approval. Do NOT continue.
+
+## CHORE - REVIEW (STOP)
+
+STOP. Present the implementation to the user and ask for approval. Do NOT continue.
 
 Then proceed via the shared structural-cycle TEST, then the shared structural-cycle COMMIT procedure with phase suffix `CHORE`.

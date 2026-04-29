@@ -1,6 +1,6 @@
 # CT - GREEN - STUBS
 
-## CT - GREEN - STUBS - WRITE (STOP)
+## CT - GREEN - STUBS - WRITE
 
 1. Enable the tests marked disabled with reason `"CT - RED - EXTERNAL DRIVER"`.
 2. Implement the External System Stubs.
@@ -9,7 +9,10 @@
    gh optivem test system --rebuild --suite <suite-contract-stub> --test <TestMethodName>
    ```
 4. Verify that the tests pass. If they fail, ask the user. STOP. Do NOT continue.
-5. STOP. Present the stub implementation to the user and ask for approval. Do NOT continue.
+
+## CT - GREEN - STUBS - REVIEW (STOP)
+
+STOP. Present the stub implementation to the user and ask for approval. Do NOT continue.
 
 ## CT - GREEN - STUBS - COMMIT
 

@@ -1,6 +1,6 @@
 # AT - GREEN - SYSTEM
 
-## AT - GREEN - SYSTEM - WRITE (STOP)
+## AT - GREEN - SYSTEM - WRITE
 
 **Rules for this phase:**
 - Backend and frontend are implemented in a single COMMIT — the agent has full-stack access and there is no per-layer commit split.
@@ -24,7 +24,10 @@
    c. If tests fail, fix the frontend until the tests pass.
    d. If you have challenges making the tests pass, ask the user.
 4. By now, all acceptance tests should be passing.
-5. STOP. Present the implementation to the user and ask for approval. Do NOT continue.
+
+## AT - GREEN - SYSTEM - REVIEW (STOP)
+
+STOP. Present the implementation to the user and ask for approval. Do NOT continue.
 
 ## AT - GREEN - SYSTEM - COMMIT
 

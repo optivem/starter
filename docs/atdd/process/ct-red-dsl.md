@@ -1,12 +1,15 @@
 # CT - RED - DSL
 
-## CT - RED - DSL - WRITE (STOP)
+## CT - RED - DSL - WRITE
 
 1. Enable the tests marked disabled with reason `"CT - RED - TEST"`.
 2. Implement the DSL for real — replace the "TODO: DSL" stub with actual logic.
 3. Update the Driver interfaces as needed.
 4. Check whether any interface changes affect files under an `external/` package. Set a flag: **External System Driver Interface Changed = yes/no**. (No recursive triggering — this flag is used only for the CT cycle's own skip logic.)
-5. STOP. Present the DSL implementation, Driver interface changes, and the flag to the user and ask for approval. Do NOT continue.
+
+## CT - RED - DSL - REVIEW (STOP)
+
+STOP. Present the DSL implementation, Driver interface changes, and the flag to the user and ask for approval. Do NOT continue.
 
 ## CT - RED - DSL - COMMIT
 

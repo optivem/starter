@@ -1,6 +1,6 @@
 # AT - RED - TEST
 
-## AT - RED - TEST - WRITE (STOP)
+## AT - RED - TEST - WRITE
 
 **Goal:** every test in the scenario set compiles and fails only with runtime failure, then is marked as known-failing for the next phase.
 
@@ -16,7 +16,10 @@ The unit of work is the **ticket** — all scenarios for the ticket are written 
      2. New feature scenarios that use only existing DSL
      3. New feature scenarios that need new DSL
    - After writing each test, verify it matches the acceptance criteria exactly — Given maps to Given, When maps to When, Then maps to Then. Every precondition stated in the scenario must appear in the test. If anything is unclear, ask before proceeding.
-2. STOP. Present the tests to the user for review (the user may revise DSL usage). Do NOT continue.
+
+## AT - RED - TEST - REVIEW (STOP)
+
+STOP. Present the tests to the user for review (the user may revise DSL usage). Do NOT continue.
 
 ## AT - RED - TEST - COMMIT
 

@@ -163,27 +163,27 @@ The three structural cycles (`system-api-task`, `system-ui-task`, `chore`) share
 Triggered: ticket type ∈ {system-api-task, system-ui-task, chore}
     │
     ▼
-Implement change for this cycle:
+WRITE — implement change for this cycle:
     - system-api-task → Update System API Driver (interface + impl)
     - system-ui-task  → Update System UI Driver  (interface + impl)
     - chore           → Implement chore (refactor / upgrade / rename / etc.)
     │
     ▼
-STOP - HUMAN REVIEW (present implementation for approval)
+REVIEW — STOP, present implementation for human approval
     │
     ▼
-TEST: compile + sample suite (sample run is gated — ask user before running locally)
+TEST — compile + sample suite (entire phase gated upfront — ask user to choose full / compile / skip; run nothing until the choice arrives)
     │
     ▼
-COMMIT: <Ticket> | <PHASE> where PHASE ∈ {SYSTEM API REDESIGN, SYSTEM UI REDESIGN, CHORE}
+COMMIT — <Ticket> | <PHASE> where PHASE ∈ {SYSTEM API REDESIGN, SYSTEM UI REDESIGN, CHORE}
     │
     ▼
 TICKET STATUS - IN ACCEPTANCE (see shared-ticket-status-in-acceptance.md)
 ```
 
-All three are governed by the rule that **existing AC must stay green** locally before the final ticket commit.[^green] There is no per-scenario RED/GREEN (no change-driven AC is produced); the sample suite runs locally during the TEST phase (after WRITE, before COMMIT) to verify the change, gated by explicit user approval. The post-commit CI Acceptance Stage is human-watched, not agent-watched — see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md).
+All three are governed by the rule that **existing AC must stay green** locally before the final ticket commit.[^green] There is no per-scenario RED/GREEN (no change-driven AC is produced); the sample suite runs locally during the TEST phase (after REVIEW, before COMMIT) to verify the change, gated by explicit user approval. The post-commit CI Acceptance Stage is human-watched, not agent-watched — see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md).
 
-The External API Task Cycle is structurally similar but routes through the Contract Test Sub-Process instead of a direct Implement → Review → COMMIT step; see "External API Task Cycle" below.
+The External API Task Cycle is structurally similar but routes through the Contract Test Sub-Process instead of a direct WRITE → REVIEW → TEST → COMMIT sequence; see "External API Task Cycle" below.
 
 ---
 
@@ -257,20 +257,21 @@ The chore ticket carries a **checklist of refactor / upgrade steps** in its body
 | Intake (system-ui-task) | `atdd-task` (subtype `system-ui-redesign`) | Structural. System UI redesign at the system boundary; single-driver scope; no change-driven AC. Optional legacy-coverage AC if the ticket has a Legacy Coverage section. STOP for approval. Routes to System UI Task Cycle (always); Legacy Coverage Cycle first if the ticket has a Legacy Coverage section.[^green] |
 | Intake (external-api-task) | `atdd-task` (subtype `external-system-api-change`) | Structural. External System API change at the system boundary; single-driver scope; no change-driven AC. Optional legacy-coverage AC if the ticket has a Legacy Coverage section. STOP for approval. Routes to External API Task Cycle (always); Legacy Coverage Cycle first if the ticket has a Legacy Coverage section.[^green] |
 | Intake (chore) | `atdd-chore` | Structural. Internal-only change; no change-driven AC. Optional legacy-coverage AC if the ticket has a Legacy Coverage section. STOP for approval. Routes to Chore Cycle (always); Legacy Coverage Cycle first if the ticket has a Legacy Coverage section.[^green] |
-| AT - RED - TEST | `atdd-test` | All scenarios for the ticket batched. WRITE = STOP (review tests). COMMIT = compile, conditional DSL-prototype STOP, run, disable, commit. |
-| AT - RED - DSL | `atdd-dsl` | WRITE = STOP (review DSL + Driver-interface-changed flags). COMMIT = conditional Driver-prototype impl, commit. |
-| AT - RED - SYSTEM DRIVER | `atdd-driver` | System Drivers only (`shop/`). WRITE = STOP, COMMIT = commit. |
-| AT - GREEN - SYSTEM (backend) | `atdd-backend` | Implements backend changes for API channel. |
-| AT - GREEN - SYSTEM (frontend) | `atdd-frontend` | Implements frontend changes for UI channel. |
-| AT - GREEN - SYSTEM (commit + close) | `atdd-release` | Removes `@Disabled`, COMMITs the final GREEN, ticks AC checkboxes, moves the issue to **IN ACCEPTANCE** (see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md)). |
-| CT - RED - TEST | `atdd-test` | WRITE = STOP, COMMIT = commit + push |
-| CT - RED - DSL | `atdd-dsl` | WRITE = STOP, COMMIT = commit + push |
-| CT - RED - EXTERNAL DRIVER | `atdd-driver` | External Drivers only (`external/`). WRITE = STOP, COMMIT = commit + push. |
-| CT - GREEN - STUBS | _no dedicated agent — see "Stubs ownership" needs-decision in the audit plan_ | Implement External System Stubs; commit. |
-| SYSTEM API REDESIGN - WRITE / TEST / COMMIT | `atdd-task` (subtype `system-api-redesign`) | WRITE = update System API + driver impl + STOP. TEST = shared structural-cycle TEST (compile, ask-then-sample, STOP). COMMIT = shared structural-cycle COMMIT (commit + tick checklist + status move). |
-| SYSTEM UI REDESIGN - WRITE / TEST / COMMIT | `atdd-task` (subtype `system-ui-redesign`) | WRITE = update System UI + driver impl + STOP. TEST = shared structural-cycle TEST. COMMIT = shared structural-cycle COMMIT. |
-| EXTERNAL API REDESIGN | `atdd-task` (subtype `external-system-api-change`) | No standalone WRITE / TEST / COMMIT — routes entirely through the Contract Test Sub-Process. |
-| CHORE - WRITE / TEST / COMMIT | `atdd-chore` | WRITE = implement chore + STOP. TEST = shared structural-cycle TEST. COMMIT = shared structural-cycle COMMIT. |
+| AT - RED - TEST | `atdd-test` | All scenarios for the ticket batched. WRITE = write tests. REVIEW = STOP for human approval. COMMIT = compile, conditional DSL-prototype STOP, run, disable, commit. |
+| AT - RED - DSL | `atdd-dsl` | WRITE = implement DSL + Driver-interface-changed flags. REVIEW = STOP for human approval. COMMIT = conditional Driver-prototype impl, commit. |
+| AT - RED - SYSTEM DRIVER | `atdd-driver` | System Drivers only (`shop/`). WRITE = implement System Drivers, run tests. REVIEW = STOP. COMMIT = commit. |
+| AT - GREEN - SYSTEM - WRITE (backend) | `atdd-backend` | Implements backend changes for API channel; one slice of the WRITE phase. |
+| AT - GREEN - SYSTEM - WRITE (frontend) | `atdd-frontend` | Implements frontend changes for UI channel; the other slice of the WRITE phase. |
+| AT - GREEN - SYSTEM - REVIEW | _orchestrator_ | STOP for human approval after both backend and frontend slices of WRITE complete. No agent invoked; the orchestrator runs the gate directly. |
+| AT - GREEN - SYSTEM - COMMIT | `atdd-release` | Removes `@Disabled`, COMMITs the final GREEN, ticks AC checkboxes, moves the issue to **IN ACCEPTANCE** (see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md)). |
+| CT - RED - TEST | `atdd-test` | WRITE = write contract tests, run real (pass) + stub (fail), disable. REVIEW = STOP. COMMIT = commit + push. |
+| CT - RED - DSL | `atdd-dsl` | WRITE = implement DSL + flag. REVIEW = STOP. COMMIT = commit + push. |
+| CT - RED - EXTERNAL DRIVER | `atdd-driver` | External Drivers only (`external/`). WRITE = implement External Drivers, run tests. REVIEW = STOP. COMMIT = commit + push. |
+| CT - GREEN - STUBS | _no dedicated agent — see "Stubs ownership" needs-decision in the audit plan_ | WRITE = implement Stubs, run tests. REVIEW = STOP. COMMIT = commit. |
+| SYSTEM API REDESIGN - WRITE / REVIEW / TEST / COMMIT | `atdd-task` (subtype `system-api-redesign`) | WRITE = update System API + driver impl. REVIEW = STOP for human approval. TEST = shared structural-cycle TEST (compile, ask-then-sample, STOP). COMMIT = shared structural-cycle COMMIT (commit + tick checklist + status move). |
+| SYSTEM UI REDESIGN - WRITE / REVIEW / TEST / COMMIT | `atdd-task` (subtype `system-ui-redesign`) | WRITE = update System UI + driver impl. REVIEW = STOP. TEST = shared structural-cycle TEST. COMMIT = shared structural-cycle COMMIT. |
+| EXTERNAL API REDESIGN | `atdd-task` (subtype `external-system-api-change`) | No standalone WRITE / REVIEW / TEST / COMMIT — routes entirely through the Contract Test Sub-Process. |
+| CHORE - WRITE / REVIEW / TEST / COMMIT | `atdd-chore` | WRITE = implement chore. REVIEW = STOP. TEST = shared structural-cycle TEST. COMMIT = shared structural-cycle COMMIT. |
 
 ## Scope
 
@@ -282,9 +283,9 @@ Sub-agents — notably `atdd-task` and `atdd-chore` — restrict ALL file edits,
 
 ## STOP Behaviour
 
-Every WRITE phase ends with **STOP** — present results to the user and wait for explicit approval before proceeding. The orchestrator does not auto-approve; phase progression always requires a human decision at every STOP.
+Every cycle separates the work step (**WRITE**) from the human-approval step (**REVIEW**). REVIEW is a STOP-only phase: the agent does no further work, just presents what WRITE produced and waits for explicit approval. The orchestrator does not auto-approve; phase progression always requires a human decision at every STOP.
 
-Structural cycles add a second STOP at the end of **TEST** (after compile + sample suite, before COMMIT) so the user can review the test results before commit confirmation. The TEST phase also contains an internal approval gate before invoking the local sample suite — see `task-and-chore-cycles.md`.
+Structural cycles add a second STOP at the end of **TEST** (after the chosen checks complete, before COMMIT) so the user can review the test results before commit confirmation. **The entire TEST phase is gated upfront** — the agent asks the user to choose `full` (compile + sample), `compile` (compile only), or `skip` before running anything. Compile is not silent; even single-project compile commands like `./gradlew build` or `npx tsc --noEmit` require approval. See `task-and-chore-cycles.md` for the procedure. AT and CT cycles do not have a standalone TEST phase — test execution is folded into WRITE (the agent runs the tests as part of doing the work) and the relevant verification is repeated inside COMMIT.
 
 ## Commit Confirmation
 

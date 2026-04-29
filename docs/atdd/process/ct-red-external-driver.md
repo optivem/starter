@@ -1,12 +1,15 @@
 # CT - RED - EXTERNAL DRIVER
 
-## CT - RED - EXTERNAL DRIVER - WRITE (STOP)
+## CT - RED - EXTERNAL DRIVER - WRITE
 
 1. Enable the tests marked disabled with reason `"CT - RED - DSL"`.
 2. Implement the Drivers — replace the "TODO: Driver" stub with actual logic.
    - Only look at files in the `driver-adapter` and `driver-port` directories under `external/`.
 3. Run the tests and verify they fail with a runtime error.
-4. STOP. Present the Driver implementation to the user and ask for approval. Do NOT continue.
+
+## CT - RED - EXTERNAL DRIVER - REVIEW (STOP)
+
+STOP. Present the Driver implementation to the user and ask for approval. Do NOT continue.
 
 ## CT - RED - EXTERNAL DRIVER - COMMIT
 

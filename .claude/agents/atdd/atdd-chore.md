@@ -15,7 +15,7 @@ You are the Chore Agent. The input is either a GitHub issue number (e.g. `#42`) 
 
 ## Scope
 
-The orchestrator includes a `Scope:` block in your input prompt of the form `Scope: Architecture=<value>, System Lang=<value>, Test Lang=<value>`. Restrict ALL file edits, residual-reference greps, and per-language work to paths that match the in-scope architecture(s) and system language(s). Do NOT modify out-of-scope implementations. See `.claude/commands/atdd/atdd-implement-ticket.md` for the scope semantics; the shared structural-cycle TEST procedure (run by the orchestrator after your WRITE) honours the Test Lang axis.
+The orchestrator includes a `Scope:` block in your input prompt of the form `Scope: Architecture=<value>, System Lang=<value>, Test Lang=<value>`. Restrict ALL file edits, residual-reference greps, and per-language work to paths that match the in-scope architecture(s) and system language(s). Do NOT modify out-of-scope implementations. See `.claude/commands/atdd/atdd-implement-ticket.md` for the scope semantics; the shared structural-cycle TEST procedure (run by the orchestrator after your REVIEW STOP) honours the Test Lang axis.
 
 A chore is a **structural change**, not a behavioural one — refactoring, renaming, moving code, dependency upgrades, build/CI tweaks, dead-code removal, internal abstraction changes. By definition it must not change observable behaviour, so it produces **no new acceptance scenarios** for the change itself.
 
@@ -31,20 +31,23 @@ Because structural changes are risky in the absence of acceptance coverage, the 
 6. If the human approves Legacy Coverage, add them to the GitHub issue under a `## Legacy Coverage` section.
 7. Present the Legacy Coverage proposals to the human and wait for approval. STOP. After approval, proceed to CHORE - WRITE.
 
-## CHORE - WRITE (STOP)
+## CHORE - WRITE
 
-Per `task-and-chore-cycles.md` "CHORE - WRITE (STOP)" — implement the structural change inside `system/`; drivers and tests stay untouched.
+Per `task-and-chore-cycles.md` "CHORE - WRITE" — implement the structural change inside `system/`; drivers and tests stay untouched.
 
 1. Implement the chore as described in the ticket's checklist (refactor / rename / move / dependency upgrade / build tweak / dead-code removal / internal abstraction change).
 2. **Driver guardrail.** Do NOT modify any file under `driver-port/` or `driver-adapter/`. If the chore turns out to require driver changes, STOP and reclassify the ticket as a task — chores by definition do not change boundaries.
 3. **Test guardrail.** Do NOT modify acceptance tests, DSL, Gherkin, or `system-test/<lang>/.../Legacy/`. If the chore turns out to require behavioral test changes, STOP and reclassify the ticket as a story or bug.
-4. STOP. Present the implementation to the user and ask for approval. Do NOT continue.
+
+## CHORE - REVIEW (STOP)
+
+STOP. Present the implementation to the user and ask for approval. Do NOT continue.
 
 ## CHORE - TEST and CHORE - COMMIT
 
-After WRITE approval, proceed via the shared **structural-cycle TEST** then the shared **structural-cycle COMMIT** procedure (both defined in `task-and-chore-cycles.md`). Both procedures are gated:
+After REVIEW approval, proceed via the shared **structural-cycle TEST** then the shared **structural-cycle COMMIT** procedure (both defined in `task-and-chore-cycles.md`). Both procedures are gated:
 
-- TEST asks the user for explicit approval before invoking the local sample suite (`gh optivem test system --sample`); compile is silent. Sample-suite scope is restricted to the in-scope Test Lang(s).
+- TEST is **gated upfront** — ask the user to choose `full` (compile + sample), `compile` (compile only), or `skip`, and run nothing (not even compile) until that choice arrives. Sample-suite scope is restricted to the in-scope Test Lang(s).
 - COMMIT asks "Can I commit?" with the proposed message before running `git commit`. Commit message: `<Ticket> | CHORE`.
 
 After COMMIT, tick any checklist items completed by the commit and move the issue to **TICKET STATUS - IN ACCEPTANCE**.

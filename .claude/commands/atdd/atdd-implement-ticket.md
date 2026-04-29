@@ -52,7 +52,13 @@ Now look for `--rehearsal` in `$ARGUMENTS` and resolve the rehearsal `<id>`:
 3. Otherwise (no token, or the next token is another flag): set `<id>` = `<ts>`.
 
 Then act:
-- If `--rehearsal` is present AND `in_rehearsal = false` → **print the setup commands and EXIT immediately**, doing nothing else (no status validation, no story, nothing). Print the block below, substituting the resolved `<id>`, `<N>`, and `<other-flags>` (every flag from `$ARGUMENTS` except `--rehearsal` and its optional `<label>` value).
+- If `--rehearsal` is present AND `in_rehearsal = false` → **print the setup commands plus a read-only preview of the Run Mode and Scope as they will resolve inside the worktree, then EXIT immediately**. Do nothing else (no status validation, no story, nothing). The preview is advisory — actual confirmation still happens in the fresh session, where Claude's CWD is the worktree. Showing it here lets the user spot a wrong default before bothering to spin up the worktree.
+
+Resolve the preview values exactly as the inner session would resolve them at its own gates:
+- **Memory**: `OFF` if `--no-memory` is in `$ARGUMENTS`, else `ON`.
+- **Rehearsal**: always `ON` (the inner session will be inside the worktree).
+- **Architecture / System Lang / Test Lang**: honour any `--architecture` / `--system-lang` / `--test-lang` flags from `$ARGUMENTS`; otherwise use the rehearsal defaults (`Architecture=multitier`, `System Lang=java`, `Test Lang=typescript`). For each axis, "other options" lists the remaining values for that axis (always spelled out fully, never abbreviated).
+- **Worktree path**: `<parent>/rehearsal-<id>`, where `<parent>` is the parent directory of the current repo root.
 
 Render the block flush-left in your reply (no leading whitespace, no indentation, no list markers around the code fence) so the commands paste cleanly into a shell. Keep the three setup commands on three separate lines — short lines won't wrap in the terminal, and the user can still select all three and paste in one go (newlines act as Enter). Do NOT join them with `&&` into a single long line; the wrap is worse than the multi-line. Use this exact shape:
 
@@ -66,6 +72,17 @@ claude
 Then in the new Claude Code session, re-invoke the skill (without --rehearsal):
 
 /atdd:atdd-implement-ticket #<N> <other-flags>
+
+Preview of how the inner session will resolve mode and scope (confirmation still happens there):
+
+Run mode for issue #<N>:
+  Memory:    <ON|OFF>   (default: ON  — applies MEMORY.md preferences; --no-memory to disable)
+  Rehearsal: ON          (commits land in <worktree-path> on branch rehearsal/<id>; scripts/atdd-rehearsal-end.sh <id> to discard)
+
+Scope for issue #<N>:
+  Architecture: <value>   (other options: <full|tokens|comma|separated>)
+  System Lang:  <value>   (other options: <full|tokens|comma|separated>)
+  Test Lang:    <value>   (other options: <full|tokens|comma|separated>)
 
 Nothing has been done in this session. The fresh session is required so Claude Code's working directory becomes the rehearsal worktree — otherwise sub-agents would commit into your real repo.
 ```
@@ -175,16 +192,26 @@ After approval, update the issue body with the approved Gherkin scenarios (use `
 
 ### Step 2: Per-Scenario Loop
 
-For each scenario, follow the AT cycle decision tree from `cycles.md`:
+For each scenario, follow the AT cycle decision tree from `cycles.md`. Every cycle now has the four-phase shape **WRITE → REVIEW → TEST → COMMIT**, where REVIEW is a STOP-only phase for human approval (the agent presents what WRITE produced and waits). For AT and CT cycles there is no standalone TEST phase — test execution is folded into WRITE — so the shape collapses to **WRITE → REVIEW → COMMIT**.
 
-1. **AT - RED - TEST:** Launch atdd-test (WRITE → STOP → COMMIT).
+1. **AT - RED - TEST:** Launch atdd-test (WRITE → REVIEW STOP → COMMIT).
 2. **Decision:** DSL Interface Changed? If no → skip to GREEN.
-3. **AT - RED - DSL:** Launch atdd-dsl (WRITE → STOP → COMMIT).
+3. **AT - RED - DSL:** Launch atdd-dsl (WRITE → REVIEW STOP → COMMIT).
 4. **Decision:** External System Driver Interface Changed? If yes → run Contract Test Sub-Process.
 5. **Decision:** System Driver Interface Changed? If no → skip to GREEN.
-6. **AT - RED - SYSTEM DRIVER:** Launch atdd-driver (WRITE → STOP → COMMIT).
-7. **AT - GREEN - SYSTEM:** Launch atdd-backend → atdd-frontend → atdd-release.
+6. **AT - RED - SYSTEM DRIVER:** Launch atdd-driver (WRITE → REVIEW STOP → COMMIT).
+7. **AT - GREEN - SYSTEM:** Launch atdd-backend → atdd-frontend → REVIEW STOP (orchestrator-run) → atdd-release.
 8. If remaining `// TODO:` scenarios exist, loop back to step 1.
+
+### Phase Task Tracking
+
+Maintain a TaskCreate list of the phases for the current ticket so the user can see progress at a glance. **Tick off each phase task the moment it completes** — never leave a finished phase pending while moving on to the next one. Concretely:
+
+- When entering a phase, create or claim its task and set status `in_progress`.
+- The instant the phase finishes — including phases the user explicitly skips ("don't run TEST"), STOPs that the user approves, or COMMITs that succeed — set the task to `completed` before invoking the next agent or running the next phase. Skipped phases are completed too: if the user says "skip TEST", mark TEST completed (with a note in the description that it was skipped) and proceed.
+- Never start the next phase's task while the previous phase's task is still `in_progress`. If you discover a stale `in_progress` from earlier (e.g. after a STOP/resume), reconcile it first — set it to `completed` if the work actually finished, or keep it `in_progress` if it didn't.
+
+This rule is non-negotiable: the task list is the user's truth view of pipeline state, and a stale `in_progress` while you're working on the next phase is a bug.
 
 ### Escalation
 

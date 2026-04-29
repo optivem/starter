@@ -1,6 +1,6 @@
 # CT - RED - TEST
 
-## CT - RED - TEST - WRITE (STOP)
+## CT - RED - TEST - WRITE
 
 1. Write External System Contract Tests.
    - If new DSL methods are needed, call them directly as if they exist — compile errors are expected.
@@ -14,7 +14,10 @@
    gh optivem test system --suite <suite-contract-stub> --test <TestMethodName>
    ```
 4. Mark the tests as disabled with reason `"CT - RED - TEST"` (see `language-equivalents.md` for syntax).
-5. STOP. Present the contract tests to the user and ask for approval. Do NOT continue.
+
+## CT - RED - TEST - REVIEW (STOP)
+
+STOP. Present the contract tests to the user and ask for approval. Do NOT continue.
 
 ## CT - RED - TEST - COMMIT
 

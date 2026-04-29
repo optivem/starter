@@ -4,41 +4,41 @@
 
 ## Source docs
 
-- `docs/atdd/process/at-cycle-conventions.md`
-- `docs/atdd/process/at-green-system.md`
+- `docs/atdd/process/at-red-test.md`
 - `docs/atdd/process/at-red-dsl.md`
 - `docs/atdd/process/at-red-system-driver.md`
-- `docs/atdd/process/at-red-test.md`
-- `docs/atdd/process/ct-cycle-conventions.md`
-- `docs/atdd/process/ct-green-stubs.md`
+- `docs/atdd/process/at-green-system.md`
+- `docs/atdd/process/ct-red-test.md`
 - `docs/atdd/process/ct-red-dsl.md`
 - `docs/atdd/process/ct-red-external-driver.md`
-- `docs/atdd/process/ct-red-test.md`
-- `docs/atdd/process/cycles.md`
-- `docs/atdd/process/glossary.md`
-- `docs/atdd/process/shared-commit-confirmation.md`
+- `docs/atdd/process/ct-green-stubs.md`
+- `docs/atdd/process/at-cycle-conventions.md`
+- `docs/atdd/process/ct-cycle-conventions.md`
 - `docs/atdd/process/shared-phase-progression.md`
+- `docs/atdd/process/shared-commit-confirmation.md`
 
 ## AT - RED - TEST Phase Detail
 
 ```mermaid
 flowchart TD
-    WRITE[Write all scenario tests as batch]
-    STOP_WRITE_TESTS[STOP - HUMAN REVIEW — review tests]
-    COMPILE[Attempt to compile]
-    GATE{Compiles?}
-    EXTEND_DSL[Extend DSL interfaces add TODO DSL prototypes]
-    STOP_DSL[STOP - HUMAN REVIEW — approve DSL prototypes]
-    RUN[Run tests verify runtime failure]
-    DISABLE[Mark tests disabled AT - RED - TEST]
-    COMMIT[COMMIT — Ticket AT - RED - TEST]
+    WRITE[WRITE: write all scenario tests]
+    EXTEND_DSL[Call new DSL methods as if they exist]
+    STOP_WRITE_TESTS[STOP - HUMAN REVIEW — Approve tests]
+    COMPILE[Attempt to compile tests]
+    COMPILE_OK{Compiles?}
+    ADD_DSL[Add DSL interfaces + TODO: DSL prototypes]
+    STOP_DSL[STOP - HUMAN REVIEW — Approve DSL prototypes]
+    RUN[Run tests — verify runtime failure]
+    DISABLE[Disable change-driven scenarios as AT - RED - TEST]
+    COMMIT[COMMIT: Ticket | AT - RED - TEST]
 
-    WRITE --> STOP_WRITE_TESTS
+    WRITE --> EXTEND_DSL
+    EXTEND_DSL --> STOP_WRITE_TESTS
     STOP_WRITE_TESTS --> COMPILE
-    COMPILE --> GATE
-    GATE -->|Yes| RUN
-    GATE -->|No| EXTEND_DSL
-    EXTEND_DSL --> STOP_DSL
+    COMPILE --> COMPILE_OK
+    COMPILE_OK -->|Yes| RUN
+    COMPILE_OK -->|No| ADD_DSL
+    ADD_DSL --> STOP_DSL
     STOP_DSL --> RUN
     RUN --> DISABLE
     DISABLE --> COMMIT
@@ -53,31 +53,31 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    ENABLE[Enable AT - RED - TEST disabled tests]
-    IMPL_DSL[Implement DSL replace TODO DSL prototypes]
+    ENABLE[Enable tests disabled as AT - RED - TEST]
+    IMPL_DSL[Implement DSL — replace TODO: DSL prototypes]
     UPDATE_DRIVER_IFACE[Update Driver interfaces as needed]
-    SET_EXT_FLAG[Set External System Driver Interface Changed flag]
+    SET_EXT_FLAG[Set External Driver Interface Changed flag]
     SET_SYS_FLAG[Set System Driver Interface Changed flag]
-    STOP_WRITE[STOP - HUMAN REVIEW — DSL impl driver changes flags]
-    GATE{Any Driver interface changed?}
-    IMPL_DRIVERS_PROTOTYPE[Implement Driver prototypes throw TODO Driver]
-    RUN[Run tests verify runtime failure]
-    DISABLE[Mark tests disabled AT - RED - DSL]
-    GUARD[Ensure no test files in change list]
-    COMMIT[COMMIT — Ticket AT - RED - DSL]
+    STOP_WRITE[STOP - HUMAN REVIEW — Approve DSL + flags]
+    DRIVER_CHANGED{Any Driver interface changed?}
+    IMPL_DRIVERS_PROTOTYPE[Implement TODO: Driver prototypes]
+    RUN[Run tests — verify runtime failure]
+    DISABLE[Disable tests as AT - RED - DSL]
+    NO_TESTS_CHECK[Verify no test files in changed-files list]
+    COMMIT[COMMIT: Ticket | AT - RED - DSL]
 
     ENABLE --> IMPL_DSL
     IMPL_DSL --> UPDATE_DRIVER_IFACE
     UPDATE_DRIVER_IFACE --> SET_EXT_FLAG
     SET_EXT_FLAG --> SET_SYS_FLAG
     SET_SYS_FLAG --> STOP_WRITE
-    STOP_WRITE --> GATE
-    GATE -->|Yes| IMPL_DRIVERS_PROTOTYPE
-    GATE -->|No| RUN
+    STOP_WRITE --> DRIVER_CHANGED
+    DRIVER_CHANGED -->|No| RUN
+    DRIVER_CHANGED -->|Yes| IMPL_DRIVERS_PROTOTYPE
     IMPL_DRIVERS_PROTOTYPE --> RUN
     RUN --> DISABLE
-    DISABLE --> GUARD
-    GUARD --> COMMIT
+    DISABLE --> NO_TESTS_CHECK
+    NO_TESTS_CHECK --> COMMIT
 
     classDef effortNode fill:#cce5ff,stroke:#004085,stroke-width:2px
     class IMPL_DSL,UPDATE_DRIVER_IFACE,IMPL_DRIVERS_PROTOTYPE effortNode
@@ -89,20 +89,20 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    ENABLE[Enable AT - RED - DSL disabled tests]
-    IMPL[Implement System Drivers replace TODO Driver]
-    RUN[Run tests verify runtime failure]
-    STOP_WRITE[STOP - HUMAN REVIEW — present driver impl]
-    DISABLE[Mark tests disabled AT - RED - SYSTEM DRIVER]
-    GUARD[Ensure no test files in change list]
-    COMMIT[COMMIT — Ticket AT - RED - SYSTEM DRIVER]
+    ENABLE[Enable tests disabled as AT - RED - DSL]
+    IMPL[Implement System Drivers — replace TODO: Driver]
+    RUN[Run tests — verify runtime failure]
+    STOP_WRITE[STOP - HUMAN REVIEW — Approve Driver impl]
+    DISABLE[Disable tests as AT - RED - SYSTEM DRIVER]
+    NO_TESTS_CHECK[Verify no test files in changed-files list]
+    COMMIT[COMMIT: Ticket | AT - RED - SYSTEM DRIVER]
 
     ENABLE --> IMPL
     IMPL --> RUN
     RUN --> STOP_WRITE
     STOP_WRITE --> DISABLE
-    DISABLE --> GUARD
-    GUARD --> COMMIT
+    DISABLE --> NO_TESTS_CHECK
+    NO_TESTS_CHECK --> COMMIT
 
     classDef effortNode fill:#cce5ff,stroke:#004085,stroke-width:2px
     class IMPL effortNode
@@ -114,32 +114,34 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    ENABLE[Enable AT - RED - SYSTEM DRIVER disabled tests]
+    ENABLE[Enable tests disabled as AT - RED - SYSTEM DRIVER]
     BACKEND[Implement backend changes]
-    RUN_API[Run acceptance-api tests]
-    GATE_API{API tests pass?}
-    FIX_BACKEND[Fix backend]
+    RUN_API[Run API acceptance tests]
+    API_OK{API tests pass?}
+    FIX_BACKEND[Fix backend until tests pass]
     FRONTEND[Implement frontend changes]
-    RUN_UI[Run acceptance-ui tests]
-    GATE_UI{UI tests pass?}
-    FIX_FRONTEND[Fix frontend]
-    STOP_WRITE[STOP - HUMAN REVIEW — present implementation]
-    COMMIT[COMMIT — Ticket AT - GREEN - SYSTEM]
-    IN_ACCEPTANCE[TICKET STATUS - IN ACCEPTANCE — tick AC checkboxes and set status; see shared-ticket-status-in-acceptance.md]
+    RUN_UI[Run UI acceptance tests]
+    UI_OK{UI tests pass?}
+    FIX_FRONTEND[Fix frontend until tests pass]
+    STOP_WRITE[STOP - HUMAN REVIEW — Approve impl]
+    COMMIT[COMMIT: Ticket | AT - GREEN - SYSTEM]
+    TICK[Tick AC checkboxes]
+    IN_ACCEPTANCE[Move to TICKET STATUS - IN ACCEPTANCE]
 
     ENABLE --> BACKEND
     BACKEND --> RUN_API
-    RUN_API --> GATE_API
-    GATE_API -->|No| FIX_BACKEND
+    RUN_API --> API_OK
+    API_OK -->|Yes| FRONTEND
+    API_OK -->|No| FIX_BACKEND
     FIX_BACKEND --> RUN_API
-    GATE_API -->|Yes| FRONTEND
     FRONTEND --> RUN_UI
-    RUN_UI --> GATE_UI
-    GATE_UI -->|No| FIX_FRONTEND
+    RUN_UI --> UI_OK
+    UI_OK -->|Yes| STOP_WRITE
+    UI_OK -->|No| FIX_FRONTEND
     FIX_FRONTEND --> RUN_UI
-    GATE_UI -->|Yes| STOP_WRITE
     STOP_WRITE --> COMMIT
-    COMMIT --> IN_ACCEPTANCE
+    COMMIT --> TICK
+    TICK --> IN_ACCEPTANCE
 
     classDef effortNode fill:#cce5ff,stroke:#004085,stroke-width:2px
     class BACKEND,FRONTEND,FIX_BACKEND,FIX_FRONTEND effortNode
@@ -151,32 +153,32 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    WRITE[Write External System Contract Tests]
+    WRITE[WRITE: write contract tests]
     RUN_REAL[Run against Real External System]
-    GATE_REAL{Pass against Real?}
-    ASK_USER[Ask user for support and STOP]
+    REAL_OK{Passes?}
+    ASK_REAL[Ask user for support — STOP]
     RUN_STUB[Run against Stub External System]
-    GATE_STUB{Fail against Stub?}
-    DISABLE[Mark tests disabled CT - RED - TEST]
-    STOP_WRITE[STOP - HUMAN REVIEW — present contract tests]
-    GATE_COMPILE{Compile errors during WRITE?}
-    EXTEND_DSL[Extend DSL interfaces add TODO DSL prototypes]
-    RUN_RUNTIME[Run tests verify runtime failure]
-    COMMIT[COMMIT — Scenario CT - RED - TEST]
+    STUB_FAILS{Fails?}
+    DISABLE[Disable tests as CT - RED - TEST]
+    STOP_WRITE[STOP - HUMAN REVIEW — Approve contract tests]
+    COMPILE_ERR{Compile errors in WRITE?}
+    EXTEND_DSL[Extend DSL + TODO: DSL prototypes]
+    RUN_RUNTIME[Run tests — verify runtime failure]
+    COMMIT[COMMIT: Scenario | CT - RED - TEST]
 
     WRITE --> RUN_REAL
-    RUN_REAL --> GATE_REAL
-    GATE_REAL -->|No| ASK_USER
-    GATE_REAL -->|Yes| RUN_STUB
-    RUN_STUB --> GATE_STUB
-    GATE_STUB -->|No| ASK_USER
-    GATE_STUB -->|Yes| DISABLE
+    RUN_REAL --> REAL_OK
+    REAL_OK -->|No| ASK_REAL
+    REAL_OK -->|Yes| RUN_STUB
+    RUN_STUB --> STUB_FAILS
+    STUB_FAILS -->|Yes| DISABLE
+    STUB_FAILS -->|No| ASK_REAL
     DISABLE --> STOP_WRITE
-    STOP_WRITE --> GATE_COMPILE
-    GATE_COMPILE -->|Yes| EXTEND_DSL
+    STOP_WRITE --> COMPILE_ERR
+    COMPILE_ERR -->|No| COMMIT
+    COMPILE_ERR -->|Yes| EXTEND_DSL
     EXTEND_DSL --> RUN_RUNTIME
     RUN_RUNTIME --> COMMIT
-    GATE_COMPILE -->|No| COMMIT
 
     classDef effortNode fill:#cce5ff,stroke:#004085,stroke-width:2px
     class WRITE effortNode
@@ -188,17 +190,16 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    ENABLE[Enable CT - RED - TEST disabled tests]
-    IMPL_DSL[Implement DSL replace TODO DSL stub]
+    ENABLE[Enable tests disabled as CT - RED - TEST]
+    IMPL_DSL[Implement DSL — replace TODO: DSL stub]
     UPDATE_DRIVER_IFACE[Update Driver interfaces as needed]
-    SET_FLAG[Set External System Driver Interface Changed flag]
-    STOP_WRITE[STOP - HUMAN REVIEW — DSL impl driver changes flag]
-    IMPL_PROTOTYPES[Implement Drivers throw TODO Driver]
-    RUN[Run tests verify runtime failure]
-    DISABLE[Mark tests disabled CT - RED - DSL]
-    COMMIT[COMMIT — Scenario CT - RED - DSL]
-    COMMENT[Post DSL change summary on issue if provided]
-    NEXT[Proceed to CT - RED - EXTERNAL DRIVER - WRITE]
+    SET_FLAG[Set External Driver Interface Changed flag]
+    STOP_WRITE[STOP - HUMAN REVIEW — Approve DSL + flag]
+    IMPL_PROTOTYPES[Implement TODO: Driver prototypes]
+    RUN[Run tests — verify runtime failure]
+    DISABLE[Disable tests as CT - RED - DSL]
+    COMMIT[COMMIT: Scenario | CT - RED - DSL]
+    POST_COMMENT[Post issue comment summarising DSL changes]
 
     ENABLE --> IMPL_DSL
     IMPL_DSL --> UPDATE_DRIVER_IFACE
@@ -208,8 +209,7 @@ flowchart TD
     IMPL_PROTOTYPES --> RUN
     RUN --> DISABLE
     DISABLE --> COMMIT
-    COMMIT --> COMMENT
-    COMMENT --> NEXT
+    COMMIT --> POST_COMMENT
 
     classDef effortNode fill:#cce5ff,stroke:#004085,stroke-width:2px
     class IMPL_DSL,UPDATE_DRIVER_IFACE effortNode
@@ -221,20 +221,20 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    ENABLE[Enable CT - RED - DSL disabled tests]
-    IMPL[Implement External Drivers replace TODO Driver]
-    RUN[Run tests verify runtime failure]
-    STOP_WRITE[STOP - HUMAN REVIEW — present driver impl]
-    DISABLE[Mark tests disabled CT - RED - EXTERNAL DRIVER]
-    COMMIT[COMMIT — Scenario CT - RED - EXTERNAL DRIVER]
-    COMMENT[Post Driver change summary on issue if provided]
+    ENABLE[Enable tests disabled as CT - RED - DSL]
+    IMPL[Implement External Drivers — replace TODO: Driver]
+    RUN[Run tests — verify runtime failure]
+    STOP_WRITE[STOP - HUMAN REVIEW — Approve Driver impl]
+    DISABLE[Disable tests as CT - RED - EXTERNAL DRIVER]
+    COMMIT[COMMIT: Scenario | CT - RED - EXTERNAL DRIVER]
+    POST_COMMENT[Post issue comment summarising Driver changes]
 
     ENABLE --> IMPL
     IMPL --> RUN
     RUN --> STOP_WRITE
     STOP_WRITE --> DISABLE
     DISABLE --> COMMIT
-    COMMIT --> COMMENT
+    COMMIT --> POST_COMMENT
 
     classDef effortNode fill:#cce5ff,stroke:#004085,stroke-width:2px
     class IMPL effortNode
@@ -246,24 +246,24 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    ENABLE[Enable CT - RED - EXTERNAL DRIVER disabled tests]
+    ENABLE[Enable tests disabled as CT - RED - EXTERNAL DRIVER]
     IMPL_STUBS[Implement External System Stubs]
-    RUN[Run External System Contract Tests]
-    GATE{Pass?}
-    ASK_USER[Ask user STOP]
-    STOP_WRITE[STOP - HUMAN REVIEW — present stub impl]
+    RUN[Run contract tests — Stub suite]
+    PASS{Passes?}
+    ASK_SUPPORT[Ask user — STOP]
+    STOP_WRITE[STOP - HUMAN REVIEW — Approve stubs]
     REMOVE_DISABLE[Remove disabled annotation]
-    RUN_VERIFY[Run tests verify pass]
-    COMMIT[COMMIT — Scenario CT - GREEN - STUBS]
+    RUN_FINAL[Run tests — verify pass]
+    COMMIT[COMMIT: Scenario | CT - GREEN - STUBS]
 
     ENABLE --> IMPL_STUBS
     IMPL_STUBS --> RUN
-    RUN --> GATE
-    GATE -->|No| ASK_USER
-    GATE -->|Yes| STOP_WRITE
+    RUN --> PASS
+    PASS -->|No| ASK_SUPPORT
+    PASS -->|Yes| STOP_WRITE
     STOP_WRITE --> REMOVE_DISABLE
-    REMOVE_DISABLE --> RUN_VERIFY
-    RUN_VERIFY --> COMMIT
+    REMOVE_DISABLE --> RUN_FINAL
+    RUN_FINAL --> COMMIT
 
     classDef effortNode fill:#cce5ff,stroke:#004085,stroke-width:2px
     class IMPL_STUBS effortNode
