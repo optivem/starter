@@ -14,45 +14,36 @@ The COMMIT step itself is gated by the universal rule in `shared-commit-confirma
 
 ---
 
-## SYSTEM API REDESIGN - WRITE (STOP)
+## Structural-cycle COMMIT (shared procedure)
 
-**Goal:** the System API Driver (interface + impl under `driver-port/.../shop/api` and `driver-adapter/.../shop/api`) reflects the new System API surface; the system code under `system/` reflects the new API; existing acceptance and contract tests still compile.
-
-1. Update the System API itself (controllers, request/response DTOs, routes, status codes, error format) under `system/` to match the ticket's checklist. Apply the change across **all parallel implementations** — see `docs/atdd/architecture/system.md` for the layout (Java/.NET/TS × monolith/multitier) and for where API URLs and their consumers live in each implementation. After editing the source of truth, grep the system tree for residual references (e.g. the old URL string) before moving on.
-2. Update the System API Driver implementation (`driver-adapter/.../shop/api`) to absorb the change. Prefer adapter-only changes — keep behaviour observable through the **existing** driver interface.
-3. **Driver interface guardrail.** Do NOT modify any file under `driver-port/` casually. If you believe an interface change is unavoidable, STOP separately at that boundary and present to the user: the method(s) you want to change, why the adapter alone cannot absorb the change, the proposed new signature(s). Wait for explicit user approval before editing any `driver-port/` file. (Such changes have no contract-test fallout because this is `shop/`, not `external/` — but they still touch the test surface and must be approved.)
-4. Do not modify acceptance tests, DSL, Gherkin, or any code outside the System API layer + its driver. Note: `system-test/<lang>/.../Legacy/` is read-only course-reference material — leave it untouched even when it references the old surface directly.
-5. STOP. Present the system + driver changes to the user and ask for approval. Do NOT continue.
-
-## SYSTEM API REDESIGN - COMMIT
+Every structural-cycle COMMIT (`SYSTEM API REDESIGN`, `SYSTEM UI REDESIGN`, `CHORE`) follows the same six steps, with only the commit-message phase suffix varying:
 
 1. Confirm affected components compile (per `CLAUDE.md`: `./gradlew build` / `npx tsc --noEmit` / `dotnet build`).
 2. Run the sample suite for each affected language (per `CLAUDE.md`: `gh optivem test system --sample`) and verify it passes.
 3. Apply the gate in `shared-commit-confirmation.md` — ask "Can I commit?" with the proposed message and staged file list, and wait for explicit approval.
-4. COMMIT with message `<Ticket> | SYSTEM API REDESIGN`.
-5. If a GitHub issue was provided, tick any checklist items in the issue completed by this commit.
+4. COMMIT with message `<Ticket> | <PHASE>` where `<PHASE>` is `SYSTEM API REDESIGN`, `SYSTEM UI REDESIGN`, or `CHORE` per the cycle.
+5. If a GitHub issue was provided, tick any checklist items completed by this commit.
 6. STOP. The CI **Acceptance Stage** is the verifier from here on; phase progression is controlled by the orchestrator.
+
+The EXTERNAL API REDESIGN cycle has no standalone COMMIT — see "EXTERNAL API REDESIGN" below for the CT-sub-process redirect.
 
 ---
 
-## SYSTEM UI REDESIGN - WRITE (STOP)
+## SYSTEM \<boundary\> REDESIGN - WRITE (STOP)
 
-**Goal:** the System UI Driver (interface + impl under `driver-port/.../shop/ui` and `driver-adapter/.../shop/ui`) reflects the new System UI surface; the system code under `system/` reflects the new UI; existing acceptance and contract tests still compile.
+Where *boundary* ∈ {`API`, `UI`}. The same five steps apply; only the boundary-specific files change.
 
-1. Update the System UI itself (page structure, form fields, navigation, copy, selectors) under `system/` to match the ticket's checklist.
-2. Update the System UI Driver implementation (`driver-adapter/.../shop/ui`) to absorb the change. Prefer adapter-only changes — keep behaviour observable through the **existing** driver interface.
-3. **Driver interface guardrail.** Same rule as `SYSTEM API REDESIGN - WRITE` — do not modify `driver-port/` casually; if unavoidable, STOP separately and get user approval before editing.
-4. Do not modify acceptance tests, DSL, Gherkin, or any code outside the System UI layer + its driver.
+**Goal:** the System \<boundary\> Driver (interface + impl under `driver-port/.../shop/<api|ui>` and `driver-adapter/.../shop/<api|ui>`) reflects the new System \<boundary\> surface; the system code under `system/` reflects the new \<boundary\>; existing acceptance and contract tests still compile.
+
+1. Update the System \<boundary\> itself under `system/` to match the ticket's checklist:
+   - For API: controllers, request/response DTOs, routes, status codes, error format. Apply across **all parallel implementations** — see `docs/atdd/architecture/system.md` for the layout (Java/.NET/TS × monolith/multitier) and for where API URLs and their consumers live in each implementation. After editing the source of truth, grep the system tree for residual references (e.g. the old URL string) before moving on.
+   - For UI: page structure, form fields, navigation, copy, selectors.
+2. Update the matching System \<boundary\> Driver implementation (`driver-adapter/.../shop/<api|ui>`) to absorb the change. Prefer adapter-only changes — keep behaviour observable through the **existing** driver interface.
+3. **Driver interface guardrail.** Do NOT modify any file under `driver-port/` casually. If you believe an interface change is unavoidable, STOP separately at that boundary and present to the user: the method(s) you want to change, why the adapter alone cannot absorb the change, the proposed new signature(s). Wait for explicit user approval before editing any `driver-port/` file. (Such changes have no contract-test fallout because this is `shop/`, not `external/` — but they still touch the test surface and must be approved.)
+4. Do not modify acceptance tests, DSL, Gherkin, or any code outside the System \<boundary\> layer + its driver. `system-test/<lang>/.../Legacy/` is read-only course-reference material — leave it untouched.
 5. STOP. Present the system + driver changes to the user and ask for approval. Do NOT continue.
 
-## SYSTEM UI REDESIGN - COMMIT
-
-1. Confirm affected components compile (per `CLAUDE.md`).
-2. Run the sample suite for each affected language and verify it passes.
-3. Apply the gate in `shared-commit-confirmation.md` — ask "Can I commit?" with the proposed message and staged file list, and wait for explicit approval.
-4. COMMIT with message `<Ticket> | SYSTEM UI REDESIGN`.
-5. If a GitHub issue was provided, tick any checklist items completed by this commit.
-6. STOP. The CI **Acceptance Stage** is the verifier from here on; phase progression is controlled by the orchestrator.
+Then proceed via the shared structural-cycle COMMIT procedure with phase suffix `SYSTEM API REDESIGN` or `SYSTEM UI REDESIGN`.
 
 ---
 
@@ -71,11 +62,4 @@ The External API Task Cycle has **no standalone WRITE or COMMIT phase of its own
 3. Tests, DSL, and Gherkin are untouched. If the chore turns out to require behavioral test changes, STOP and reclassify the ticket as a story or bug.
 4. STOP. Present the implementation to the user and ask for approval. Do NOT continue.
 
-## CHORE - COMMIT
-
-1. Confirm affected components compile (per `CLAUDE.md`).
-2. Run the sample suite for each affected language and verify it passes.
-3. Apply the gate in `shared-commit-confirmation.md` — ask "Can I commit?" with the proposed message and staged file list, and wait for explicit approval.
-4. COMMIT with message `<Ticket> | CHORE`.
-5. If a GitHub issue was provided, tick any checklist items completed by this commit.
-6. STOP. The CI **Acceptance Stage** is the verifier from here on; phase progression is controlled by the orchestrator.
+Then proceed via the shared structural-cycle COMMIT procedure with phase suffix `CHORE`.

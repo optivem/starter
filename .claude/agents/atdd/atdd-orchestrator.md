@@ -7,8 +7,6 @@ mcpServers:
   - github
 ---
 
-@docs/atdd/process/cycles.md
-
 You are the Orchestrator Agent.
 
 1. **Choose ticket source.** Detect from the input first; only ask if nothing is passed.

@@ -32,20 +32,11 @@ After STOP, two **orthogonal gates** are evaluated per ticket:
 
 **Order when both gates fire: Legacy Coverage Cycle first, then AT Cycle.** Rationale: fill the coverage gap before piling new behavior on top.
 
-The ten possible per-ticket flows:
+The full per-ticket flow is captured by the table below. The combinatorics are: **{6 ticket types} × {Legacy Coverage section: yes/no}** = **12 flows**, all of which collapse to the rule "Legacy Coverage Cycle first (if present), then the type-specific cycle, then DONE."
 
-- story/bug + Legacy Coverage section → Legacy Coverage Cycle → AT Cycle → DONE
-- story/bug, no Legacy Coverage section → AT Cycle → DONE
-- system-api-task + Legacy Coverage section → Legacy Coverage Cycle → System API Task Cycle → DONE
-- system-api-task, no Legacy Coverage section → System API Task Cycle → DONE
-- system-ui-task + Legacy Coverage section → Legacy Coverage Cycle → System UI Task Cycle → DONE
-- system-ui-task, no Legacy Coverage section → System UI Task Cycle → DONE
-- external-api-task + Legacy Coverage section → Legacy Coverage Cycle → External API Task Cycle → DONE
-- external-api-task, no Legacy Coverage section → External API Task Cycle → DONE
-- chore + Legacy Coverage section → Legacy Coverage Cycle → Chore Cycle → DONE
-- chore, no Legacy Coverage section → Chore Cycle → DONE
+The three Task Cycles and the Chore Cycle are all governed by the rule that **existing AC must stay green**; the **Acceptance Stage** of the CI pipeline at the end of each cycle is the verifier.[^green]
 
-The three Task Cycles and the Chore Cycle are all governed by the rule that **existing AC must stay green**; the **Acceptance Stage** of the CI pipeline at the end of each cycle is the verifier.
+[^green]: "Existing AC must stay green" + "Acceptance Stage is the verifier" — referenced from each structural-cycle row in the table below as `[^green]`.
 
 **Output asymmetry — change-driven AC vs legacy-coverage AC.** The two artifact streams are produced under different rules:
 
@@ -54,12 +45,12 @@ The three Task Cycles and the Chore Cycle are all governed by the rule that **ex
 
 | Ticket type | Agent | Class | Change-driven AC | Legacy-coverage AC | Routes to |
 |-------------|-------|-------|------------------|--------------------|-----------|
-| `story` | `atdd-story` | Behavioral | One scenario per acceptance criterion | 0+ scenarios if the ticket has a Legacy Coverage section | AT Cycle (always); Legacy Coverage Cycle if the ticket has a Legacy Coverage section (Legacy first, then AT) |
-| `bug` | `atdd-bug` | Behavioral | One scenario per distinct reproduction path (default: one) | 0+ scenarios if the ticket has a Legacy Coverage section | AT Cycle (always); Legacy Coverage Cycle if the ticket has a Legacy Coverage section (Legacy first, then AT) |
-| `system-api-task` | `atdd-task-system-api` | Structural | None | 0+ scenarios if the ticket has a Legacy Coverage section | System API Task Cycle (always); Legacy Coverage Cycle first if the ticket has a Legacy Coverage section. Governed by "existing AC must stay green"; the Acceptance Stage of the CI pipeline is the verifier. |
-| `system-ui-task` | `atdd-task-system-ui` | Structural | None | 0+ scenarios if the ticket has a Legacy Coverage section | System UI Task Cycle (always); Legacy Coverage Cycle first if the ticket has a Legacy Coverage section. Governed by "existing AC must stay green"; the Acceptance Stage of the CI pipeline is the verifier. |
-| `external-api-task` | `atdd-task-external-api` | Structural | None | 0+ scenarios if the ticket has a Legacy Coverage section | External API Task Cycle (always); Legacy Coverage Cycle first if the ticket has a Legacy Coverage section. Governed by "existing AC must stay green"; the Acceptance Stage of the CI pipeline is the verifier. |
-| `chore` | `atdd-chore` | Structural | None | 0+ scenarios if the ticket has a Legacy Coverage section | Chore Cycle (always); Legacy Coverage Cycle first if the ticket has a Legacy Coverage section. Governed by "existing AC must stay green"; the Acceptance Stage of the CI pipeline is the verifier. |
+| `story` | `atdd-story` | Behavioral | One scenario per acceptance criterion | 0+ scenarios if the ticket has a Legacy Coverage section | AT Cycle (always); Legacy Coverage Cycle first if the ticket has a Legacy Coverage section. |
+| `bug` | `atdd-bug` | Behavioral | One scenario per distinct reproduction path (default: one) | 0+ scenarios if the ticket has a Legacy Coverage section | AT Cycle (always); Legacy Coverage Cycle first if the ticket has a Legacy Coverage section. |
+| `system-api-task` | `atdd-task-system-api` | Structural | None | 0+ scenarios if the ticket has a Legacy Coverage section | System API Task Cycle (always); Legacy Coverage Cycle first if the ticket has a Legacy Coverage section.[^green] |
+| `system-ui-task` | `atdd-task-system-ui` | Structural | None | 0+ scenarios if the ticket has a Legacy Coverage section | System UI Task Cycle (always); Legacy Coverage Cycle first if the ticket has a Legacy Coverage section.[^green] |
+| `external-api-task` | `atdd-task-external-api` | Structural | None | 0+ scenarios if the ticket has a Legacy Coverage section | External API Task Cycle (always); Legacy Coverage Cycle first if the ticket has a Legacy Coverage section.[^green] |
+| `chore` | `atdd-chore` | Structural | None | 0+ scenarios if the ticket has a Legacy Coverage section | Chore Cycle (always); Legacy Coverage Cycle first if the ticket has a Legacy Coverage section.[^green] |
 
 From AT - RED - TEST onward the AT Cycle pipeline is identical regardless of which behavioral intake variant produced the scenarios. The Legacy Coverage Cycle's internal phases are TBD; see `glossary.md`.
 
@@ -161,27 +152,24 @@ The Onboarding sub-process internally handles the "Driver already exists" early 
 
 ---
 
-## System API Task Cycle
+## Structural Cycle Flow (shared)
 
-_Triggered when ticket type = system-api-task (System API Driver redesign at the system boundary, no change-driven AC, no other boundaries touched)._
-
-A System API task changes the System API at the boundary — request/response DTOs, endpoints, status codes, and the like. The System API Driver is updated to match. Driver *interfaces* may grow or change; existing acceptance tests must keep passing through them. Single-driver scope by construction (single-boundary ticket); multi-boundary work is split into multiple coordinated tickets at creation. The cycle ends with a **single COMMIT** covering the driver update.
-
-WRITE and COMMIT mechanics (`SYSTEM API REDESIGN - WRITE` and `SYSTEM API REDESIGN - COMMIT`) live in [`task-and-chore-cycles.md`](task-and-chore-cycles.md).
-
-The system-api-task ticket carries a **checklist of structural change items** in its body; the agent ticks them off as the work is done, and once all are ticked the issue moves to DONE.
+The three structural cycles (`system-api-task`, `system-ui-task`, `chore`) share one flow, parameterised by the **cycle-specific implementation step** in step 1:
 
 ```
-Triggered: ticket type = system-api-task
+Triggered: ticket type ∈ {system-api-task, system-ui-task, chore}
     │
     ▼
-Update System API Driver (interface + impl)
+Implement change for this cycle:
+    - system-api-task → Update System API Driver (interface + impl)
+    - system-ui-task  → Update System UI Driver  (interface + impl)
+    - chore           → Implement chore (refactor / upgrade / rename / etc.)
     │
     ▼
-STOP - HUMAN REVIEW (present driver changes for approval)
+STOP - HUMAN REVIEW (present implementation for approval)
     │
     ▼
-COMMIT: <Ticket> | SYSTEM API REDESIGN
+COMMIT: <Ticket> | <PHASE> where PHASE ∈ {SYSTEM API REDESIGN, SYSTEM UI REDESIGN, CHORE}
     │
     ▼
 Wait for Pipeline - Acceptance Stage
@@ -193,7 +181,21 @@ Wait for Pipeline - Acceptance Stage
 Fix breakage ──→ Wait for Pipeline - Acceptance Stage (loop until green)
 ```
 
-The cycle is governed by the rule that **existing AC must stay green**. There is no per-scenario RED/GREEN (no new change-driven AC is produced); the verifier is the **Acceptance Stage** of the CI pipeline, which runs the existing acceptance, contract, and unit suites against the changed driver code. A red Acceptance Stage routes back through Fix → Wait until green.
+All three are governed by the rule that **existing AC must stay green**.[^green] There is no per-scenario RED/GREEN (no change-driven AC is produced); the **Acceptance Stage** of the CI pipeline runs the existing acceptance, contract, and unit suites against the changed code; a red stage routes back through Fix → Wait until green.
+
+The External API Task Cycle is structurally similar but routes through the Contract Test Sub-Process instead of a direct Implement → Review → COMMIT step; see "External API Task Cycle" below.
+
+---
+
+## System API Task Cycle
+
+_Triggered when ticket type = system-api-task (System API Driver redesign at the system boundary, no change-driven AC, no other boundaries touched)._
+
+A System API task changes the System API at the boundary — request/response DTOs, endpoints, status codes, and the like. The System API Driver is updated to match. Driver *interfaces* may grow or change; existing acceptance tests must keep passing through them. Single-driver scope by construction (single-boundary ticket); multi-boundary work is split into multiple coordinated tickets at creation. The cycle ends with a **single COMMIT** covering the driver update.
+
+WRITE and COMMIT mechanics (`SYSTEM API REDESIGN - WRITE` and the shared structural-cycle COMMIT with phase suffix `SYSTEM API REDESIGN`) live in [`task-and-chore-cycles.md`](task-and-chore-cycles.md). Flow: see **Structural Cycle Flow (shared)** above.
+
+The system-api-task ticket carries a **checklist of structural change items** in its body; the agent ticks them off as the work is done, and once all are ticked the issue moves to DONE.
 
 ---
 
@@ -203,33 +205,9 @@ _Triggered when ticket type = system-ui-task (System UI Driver redesign at the s
 
 A System UI task changes the System UI at the boundary — page structure, form fields, navigation, and the like. The System UI Driver is updated to match. Driver *interfaces* may grow or change; existing acceptance tests must keep passing through them. Single-driver scope by construction (single-boundary ticket); multi-boundary work is split into multiple coordinated tickets at creation. The cycle ends with a **single COMMIT** covering the driver update.
 
-WRITE and COMMIT mechanics (`SYSTEM UI REDESIGN - WRITE` and `SYSTEM UI REDESIGN - COMMIT`) live in [`task-and-chore-cycles.md`](task-and-chore-cycles.md).
+WRITE and COMMIT mechanics (`SYSTEM UI REDESIGN - WRITE` and the shared structural-cycle COMMIT with phase suffix `SYSTEM UI REDESIGN`) live in [`task-and-chore-cycles.md`](task-and-chore-cycles.md). Flow: see **Structural Cycle Flow (shared)** above.
 
 The system-ui-task ticket carries a **checklist of structural change items** in its body; the agent ticks them off as the work is done, and once all are ticked the issue moves to DONE.
-
-```
-Triggered: ticket type = system-ui-task
-    │
-    ▼
-Update System UI Driver (interface + impl)
-    │
-    ▼
-STOP - HUMAN REVIEW (present driver changes for approval)
-    │
-    ▼
-COMMIT: <Ticket> | SYSTEM UI REDESIGN
-    │
-    ▼
-Wait for Pipeline - Acceptance Stage
-    │
-    ├── Acceptance Stage passes? ──── Yes ──→ Tick checklist items; if all ticked move issue to DONE ──→ Mark Ticket DONE ──→ DONE
-    │
-    No
-    ▼
-Fix breakage ──→ Wait for Pipeline - Acceptance Stage (loop until green)
-```
-
-The cycle is governed by the rule that **existing AC must stay green**. There is no per-scenario RED/GREEN (no new change-driven AC is produced); the verifier is the **Acceptance Stage** of the CI pipeline, which runs the existing acceptance, contract, and unit suites against the changed driver code. A red Acceptance Stage routes back through Fix → Wait until green.
 
 ---
 
@@ -269,33 +247,9 @@ _Triggered when ticket type = chore (internal-only structural change, drivers un
 
 A chore changes nothing at the boundary — it's an internal refactor, rename, dependency upgrade, or similar. Drivers (interfaces and implementations) are untouched. The cycle is therefore a single-step implementation followed by review, commit, and Acceptance Stage verify.
 
-WRITE and COMMIT mechanics (`CHORE - WRITE` and `CHORE - COMMIT`) live in [`task-and-chore-cycles.md`](task-and-chore-cycles.md).
+WRITE and COMMIT mechanics (`CHORE - WRITE` and the shared structural-cycle COMMIT with phase suffix `CHORE`) live in [`task-and-chore-cycles.md`](task-and-chore-cycles.md). Flow: see **Structural Cycle Flow (shared)** above.
 
 The chore ticket carries a **checklist of refactor / upgrade steps** in its body; the agent ticks them off as the work is done, and once all are ticked the issue moves to DONE.
-
-```
-Triggered: ticket type = chore
-    │
-    ▼
-Implement chore (refactor / upgrade / rename / etc.)
-    │
-    ▼
-STOP - HUMAN REVIEW (present implementation for approval)
-    │
-    ▼
-COMMIT: <Ticket> | CHORE
-    │
-    ▼
-Wait for Pipeline - Acceptance Stage
-    │
-    ├── Acceptance Stage passes? ──── Yes ──→ Tick checklist items; if all ticked move issue to DONE ──→ Mark Ticket DONE ──→ DONE
-    │
-    No
-    ▼
-Fix breakage ──→ Wait for Pipeline - Acceptance Stage (loop until green)
-```
-
-Like the three Task Cycles, the Chore Cycle is governed by the rule that **existing AC must stay green**. There is no RED/GREEN per scenario; the **Acceptance Stage** of the CI pipeline is the verifier, running the existing suites against the changed code. A red Acceptance Stage routes back through Fix → Wait until green.
 
 ---
 

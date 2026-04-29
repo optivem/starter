@@ -14,9 +14,9 @@ This rule applies universally — to every COMMIT step in every cycle (AT, CT, S
 
 A COMMIT step proceeds as:
 
-1. Stage the intended changes and show the user the exact commit message and a summary of what will be committed (files touched, commands to be run).
+1. Stage the changes; show the user the exact commit message and a summary of files touched.
 2. Ask: **"Can I commit?"**
-3. Wait for an explicit affirmative reply (e.g. "yes", "go ahead", "approved"). Silence, ambiguous replies, or anything other than a clear yes counts as **no** — do not commit.
+3. Wait for an explicit affirmative ("yes", "go ahead", "approved"). Silence or anything ambiguous = **no**.
 4. Only after explicit approval, run `git commit`.
 
 ## Relationship to STOP
@@ -25,4 +25,4 @@ The STOP at the end of a WRITE phase is **not** a substitute for this confirmati
 
 ## Bypass
 
-This rule cannot be bypassed by `--no-verify`, `--amend`, scripts, or wrapping the commit inside another command. If the user wants to grant a blanket approval for a single cycle, they must say so explicitly — and even then, the agent should re-confirm before each commit boundary it can name in advance.
+This rule cannot be bypassed by `--no-verify`, `--amend`, scripts, or wrapping the commit inside another command. Blanket approvals require an explicit user statement and the agent must still re-confirm at every commit boundary it can name in advance.

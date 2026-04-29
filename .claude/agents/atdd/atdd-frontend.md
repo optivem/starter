@@ -7,7 +7,6 @@ model: opus
 
 @docs/atdd/process/shared-commit-confirmation.md
 @docs/atdd/process/shared-phase-progression.md
-@docs/atdd/process/at-cycle-conventions.md
 @docs/atdd/process/at-green-system.md
 
 You are the Frontend Agent. Follow the **AT - GREEN - SYSTEM - WRITE** (frontend) phase from `at-green-system.md`.

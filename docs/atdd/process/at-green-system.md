@@ -2,9 +2,9 @@
 
 ## AT - GREEN - SYSTEM - WRITE (STOP)
 
-**Notes / Assumptions:**
-- The agent has access to both backend and frontend code and works across the full stack — no silos like a human team. A single COMMIT therefore covers all implementation changes; the workflow does not split backend and frontend into separate commits.
-- When fixing backend or frontend code, do NOT change tests, DSL, or drivers — change only the system implementation.
+**Rules for this phase:**
+- Backend and frontend are implemented in a single COMMIT — the agent has full-stack access and there is no per-layer commit split.
+- When fixing backend or frontend code, change only the system implementation — never tests, DSL, or drivers.
 
 1. Enable the tests marked disabled with reason `"AT - RED - SYSTEM DRIVER"`. (This is the only "remove disabled annotation" step in this phase — there is no second one at the end.)
 2. Implement the backend:
