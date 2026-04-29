@@ -26,7 +26,7 @@ export function OrderForm({ formData, onFormChange, onSubmit, isSubmitting }: Re
             value={formData.sku}
             onChange={(e) => onFormChange({ sku: e.target.value })}
             placeholder="Enter product SKU"
-            ariaLabel="SKU"
+            ariaLabel="Product SKU"
           />
           <FormInput
             label="Quantity"

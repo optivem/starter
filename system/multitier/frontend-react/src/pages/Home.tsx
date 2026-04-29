@@ -13,11 +13,11 @@ export function Home() {
         <hr className="my-4" />
         <div className="row mt-4">
           <FeatureCard
-            icon="New Order"
-            title="New Order"
+            icon="Place Order"
+            title="Place Order"
             description="Place a new order with our easy-to-use interface"
             linkTo="/new-order"
-            linkText="New Order"
+            linkText="Place Order"
           />
           <FeatureCard
             icon="Order History"

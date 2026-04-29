@@ -2,7 +2,7 @@ import { BasePage, PAGE_TIMEOUT_MS } from './BasePage.js';
 
 export class NewOrderPage extends BasePage {
   async inputSku(sku: string): Promise<void> {
-    await this.page.locator('[aria-label="SKU"]').fill(sku, { timeout: PAGE_TIMEOUT_MS });
+    await this.page.locator('[aria-label="Product SKU"]').fill(sku, { timeout: PAGE_TIMEOUT_MS });
   }
 
   async inputQuantity(quantity: string): Promise<void> {
