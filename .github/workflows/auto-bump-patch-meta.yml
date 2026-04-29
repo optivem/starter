@@ -1,0 +1,60 @@
+name: auto-bump-patch-meta
+
+# Meta-level VERSION bumper. Triggered by meta-release-stage after the
+# meta-v{VERSION} tag is cut, to advance shop's root VERSION (the meta version)
+# to the next dev cycle. Component-level VERSION bumps are handled separately
+# by `auto-bump-patch.yml` (called from each flavor's prod-stage).
+#
+# Uses the GitHub Contents API with SHA preconditions — no `git push`, no main-branch race.
+# Idempotent: only bumps if the latest meta-v* tag is greater than the VERSION file value.
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+concurrency:
+  group: my-shop-auto-bump-patch-meta
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Compute Patch Bumps
+        id: bump
+        uses: optivem/actions/bump-patch-versions@v1
+        with:
+          version-files: |
+            [
+              {"path": "VERSION", "signal": "git-tag", "value": "meta-v"}
+            ]
+
+      - name: Build Commit Payload
+        id: payload
+        if: steps.bump.outputs.bumped == 'true'
+        shell: bash
+        env:
+          BUMPS: ${{ steps.bump.outputs.bumps }}
+        run: |
+          set -euo pipefail
+          files=$(jq -c '[.[] | {
+            path: .path,
+            content: ("\(.["new-version"])\n"),
+            message: "Bump \(.path) \(.["old-version"]) -> \(.["new-version"]) (post \(.["release-signal"]))"
+          }]' <<< "$BUMPS")
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+
+      - name: Commit Bumped VERSION Files
+        if: steps.bump.outputs.bumped == 'true'
+        uses: optivem/actions/commit-files@v1
+        with:
+          files: ${{ steps.payload.outputs.files }}
+          branch: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

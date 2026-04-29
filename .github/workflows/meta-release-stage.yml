@@ -5,7 +5,8 @@ name: meta-release-stage
 #   2. Finding each flavor's latest QA-approved RC at that version
 #   3. Triggering all 6 flavor prod-stages in parallel to release each flavor
 #   4. After all flavor releases succeed, creating the final meta-v{VERSION} tag
-#   5. Calling auto-bump-patch to bump all VERSION files for the next cycle
+#   5. Calling auto-bump-patch-meta to bump the root VERSION for the next cycle
+#      (component VERSIONs are bumped by each flavor's prod-stage via auto-bump-patch.yml)
 #
 # This is the single canonical release path. Pipeline workflows only run through QA;
 # actual production release happens here (or via direct dispatch on a flavor-prod-stage.yml).
@@ -341,7 +342,7 @@ jobs:
   auto-bump-patch:
     needs: tag-meta-release
     if: ${{ !failure() && !cancelled() && needs.tag-meta-release.result == 'success' }}
-    uses: ./.github/workflows/auto-bump-patch.yml
+    uses: ./.github/workflows/auto-bump-patch-meta.yml
     secrets: inherit
 
   # Fire-and-forget: kick off post-release acceptance testing in optivem/gh-optivem
