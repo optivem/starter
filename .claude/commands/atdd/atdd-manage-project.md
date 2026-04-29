@@ -25,6 +25,8 @@ If not specified, pass them through to the manager-agent and let it determine th
 
 2. Pass the issue number, resolved repository lists, and `--autonomous` (if provided) to `/atdd-implement-ticket` and run the full pipeline to completion.
 
+   Note: `/atdd-implement-ticket` runs its own Run Mode Confirmation gate (memory ON/OFF, rehearsal ON/OFF) at the start, so the run mode is surfaced for user approval there — this skill does not duplicate that confirmation.
+
 ## Rules
 
 - If the Ready column is empty, stop and report it to the user.
