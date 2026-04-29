@@ -48,7 +48,7 @@ gh optivem stop system --system docker/<language>/monolith/system.json
 ```
 
 Use this when iterating on a single language, or for the `--sample`
-pre-commit verification described in [CLAUDE.md](../CLAUDE.md).
+pre-commit verification described in [CLAUDE.md](../../CLAUDE.md).
 
 Substitute `docker/<language>/multitier/system.json` for the multitier architecture.
 

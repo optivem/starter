@@ -227,15 +227,15 @@ For each layer, flag:
 - **Be concrete** — always name the specific file, class, and method when reporting a difference.
 - **Group by category** — organize findings by test category (acceptance, contract, e2e, smoke).
 - **Architectural layer first** — for legacy comparisons, always check the abstraction layer before comparing test details. An architectural mismatch is the most critical type of difference.
-- **Respect the Universal Architectural Conventions.** Before proposing any rename or restructure across languages, read `.claude/agents/docs/testkit-architecture-rules.md`. These rules apply equally to Java, .NET, and TypeScript — a violation in any language is always an actionable mismatch.
-- **Respect the Language-Specific Exceptions.** Before flagging a class/file/pattern as a cross-language mismatch, read `.claude/agents/docs/testkit-language-exceptions.md`. If the item is listed there, do not flag it and do not include it in any plan — it is an accepted, language-specific divergence. Still include it in the report under an "Exceptions (known divergences)" subsection so its state remains visible.
+- **Respect the Universal Architectural Conventions.** Before proposing any rename or restructure across languages, read `docs/atdd/code/testkit-architecture-rules.md`. These rules apply equally to Java, .NET, and TypeScript — a violation in any language is always an actionable mismatch.
+- **Respect the Language-Specific Exceptions.** Before flagging a class/file/pattern as a cross-language mismatch, read `docs/atdd/code/testkit-language-exceptions.md`. If the item is listed there, do not flag it and do not include it in any plan — it is an accepted, language-specific divergence. Still include it in the report under an "Exceptions (known divergences)" subsection so its state remains visible.
 
 ## Referenced Rule Documents
 
 The agent's cross-language rules live in separate docs. Read them before running a comparison:
 
-- `.claude/agents/docs/testkit-architecture-rules.md` — **universal** testkit rules that apply equally to Java, .NET, and TypeScript (DTO naming, etc.). Violations in any language are actionable mismatches.
-- `.claude/agents/docs/testkit-language-exceptions.md` — **per-language** accepted divergences (.NET, Java, TypeScript idioms that should not be aligned). Violations here are *not* mismatches; flag for the report's Exceptions subsection only.
+- `docs/atdd/code/testkit-architecture-rules.md` — **universal** testkit rules that apply equally to Java, .NET, and TypeScript (DTO naming, etc.). Violations in any language are actionable mismatches.
+- `docs/atdd/code/testkit-language-exceptions.md` — **per-language** accepted divergences (.NET, Java, TypeScript idioms that should not be aligned). Violations here are *not* mismatches; flag for the report's Exceptions subsection only.
 
 ## Workflow
 
