@@ -1,4 +1,4 @@
-name: bump-patch-version-multitier-dotnet
+name: multitier-dotnet-bump-patch-version
 
 # Per-flavor scaffold source for bump-patch-version (multitier-dotnet, backend dotnet + frontend react).
 #
