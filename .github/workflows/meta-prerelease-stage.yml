@@ -6,11 +6,6 @@ on:
     - cron: '0 7 * * 1'    # Mondays 07:00 UTC — weekly heartbeat, runs unconditionally
   workflow_dispatch:
     inputs:
-      skip-tests:
-        description: 'RECOVERY ONLY: bypass ALL test phases and tag the meta-rc directly. Requires all 6 flavor rcs to already exist (with successful qa/signoff) from a prior run; otherwise meta-release-stage will fail because no flavor rcs are produced. Use only when a transient failure prevented the meta-rc tag from being created after the flavor pipelines already succeeded. For DEBUG mode (workflow plumbing, no flavor rcs needed yet) use `debug-skip-tests` instead — that runs all stages but skips the slow acceptance tests so flavor rcs are still minted.'
-        required: false
-        type: boolean
-        default: false
       debug-skip-tests:
         description: 'DEBUG ONLY: run the full meta pipeline (commit + pipeline + per-flavor prereleases) but bypass the slow acceptance-stage tests, the acceptance-stage-legacy run, and cross-lang regression. Flavor rcs and meta-rc are still minted, so meta-release-stage can promote afterward. Use only when iterating on the meta-prerelease pipeline plumbing — never on a real release path.'
         required: false
@@ -154,7 +149,6 @@ jobs:
       level: qa
       variant: all
       skip-local: false
-      skip-tests: ${{ inputs.skip-tests || false }}
       debug-skip-tests: ${{ inputs.debug-skip-tests || false }}
       fail-fast: ${{ inputs.fail-fast || false }}
       pipeline-timeout-seconds: ${{ inputs.pipeline-timeout-seconds || '14400' }}
@@ -163,8 +157,9 @@ jobs:
     # Tag SHA as meta-rc once `run` (per-flavor pipeline + cross-lang regression
     # check, both gated on commit inside `_meta-prerelease-pipeline.yml`) has
     # settled successfully — produces the tag that triggers meta-release-stage.
-    # Uses !failure() && !cancelled() so a clean skip (e.g. skip-tests bypass)
-    # still permits tagging, while any failure inside `run` blocks it.
+    # Uses !failure() && !cancelled() so a clean skip (e.g. cross-lang skipped
+    # by debug-skip-tests) still permits tagging, while any failure inside
+    # `run` blocks it.
     needs: [check, run]
     if: ${{ !failure() && !cancelled() && needs.check.outputs.should-run == 'true' }}
     runs-on: ubuntu-latest

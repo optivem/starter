@@ -28,13 +28,8 @@ on:
         required: false
         type: boolean
         default: false
-      skip-tests:
-        description: 'RECOVERY ONLY: bypass ALL test phases (local, commit, pipeline, cross-lang) and tag the meta-rc directly. Requires all 6 flavor rcs to already exist (with successful qa/signoff) from a prior run; otherwise meta-release-stage will fail because no flavor rcs are produced. Use only when a transient failure prevented the meta-rc tag from being created after the flavor pipelines already succeeded. For DEBUG mode (workflow plumbing, no flavor rcs needed yet) use `debug-skip-tests` instead — that runs all stages but skips the slow acceptance tests.'
-        required: false
-        type: boolean
-        default: false
       debug-skip-tests:
-        description: 'DEBUG ONLY: run the full meta pipeline (commit + pipeline + per-flavor prereleases) but bypass the slow acceptance-stage tests, the acceptance-stage-legacy run, and cross-lang regression. Flavor rcs and meta-rc are still minted. Use only when iterating on the meta-prerelease pipeline plumbing — never on a real release path. Unlike `skip-tests`, this still produces flavor rcs so meta-release-stage can promote.'
+        description: 'DEBUG ONLY: run the full meta pipeline (commit + pipeline + per-flavor prereleases) but bypass the slow acceptance-stage tests, the acceptance-stage-legacy run, and cross-lang regression. Flavor rcs and meta-rc are still minted, so meta-release-stage can promote afterward. Use only when iterating on the meta-prerelease pipeline plumbing — never on a real release path.'
         required: false
         type: boolean
         default: false
@@ -77,7 +72,6 @@ jobs:
           echo "Skip local: ${{ inputs.skip-local }}"
           echo "Skip commit: ${{ inputs.skip-commit }}"
           echo "Skip acceptance-legacy: ${{ inputs.skip-acceptance-legacy }}"
-          echo "Skip tests: ${{ inputs.skip-tests }}"
           echo "Debug skip tests: ${{ inputs.debug-skip-tests }}"
           echo "Fail-fast: ${{ inputs.fail-fast }}"
           echo "Pipeline timeout (seconds): ${{ inputs.pipeline-timeout-seconds }}"
@@ -213,7 +207,7 @@ jobs:
   # and runs alongside it. fail-fast (input, default true) cancels siblings on first failure.
   local:
     needs: check
-    if: ${{ needs.check.outputs.should_run == 'true' && !inputs.skip-local && !inputs.skip-tests }}
+    if: ${{ needs.check.outputs.should_run == 'true' && !inputs.skip-local }}
     strategy:
       fail-fast: ${{ inputs.fail-fast }}
       matrix:
@@ -232,7 +226,7 @@ jobs:
   # fail-fast (input, default true) cancels siblings on first failure.
   commit:
     needs: check
-    if: ${{ always() && !failure() && !cancelled() && !inputs.skip-tests && !inputs.skip-commit && contains(fromJSON('["commit","acceptance","qa"]'), inputs.level) }}
+    if: ${{ always() && !failure() && !cancelled() && !inputs.skip-commit && contains(fromJSON('["commit","acceptance","qa"]'), inputs.level) }}
     strategy:
       fail-fast: ${{ inputs.fail-fast }}
       matrix:
@@ -274,7 +268,7 @@ jobs:
   # fail-fast (input, default true) cancels siblings on first failure.
   pipeline:
     needs: commit
-    if: ${{ always() && !failure() && !cancelled() && !inputs.skip-tests && contains(fromJSON('["acceptance","qa"]'), inputs.level) }}
+    if: ${{ always() && !failure() && !cancelled() && contains(fromJSON('["acceptance","qa"]'), inputs.level) }}
     strategy:
       fail-fast: ${{ inputs.fail-fast }}
       matrix:
@@ -299,7 +293,7 @@ jobs:
   # other matrix entries would 404 on digest resolution.
   cross-lang:
     needs: commit
-    if: ${{ always() && !failure() && !cancelled() && !inputs.skip-tests && !inputs.debug-skip-tests && inputs.variant == 'all' && contains(fromJSON('["acceptance","qa"]'), inputs.level) }}
+    if: ${{ always() && !failure() && !cancelled() && !inputs.debug-skip-tests && inputs.variant == 'all' && contains(fromJSON('["acceptance","qa"]'), inputs.level) }}
     uses: ./.github/workflows/cross-lang-system-verification.yml
     secrets: inherit
     with:
