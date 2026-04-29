@@ -22,10 +22,10 @@ The COMMIT step itself is gated by the universal rule in `commit-confirmation.md
 
 **Goal:** the System API Driver (interface + impl under `driver-port/.../shop/api` and `driver-adapter/.../shop/api`) reflects the new System API surface; the system code under `system/` reflects the new API; existing acceptance and contract tests still compile.
 
-1. Update the System API itself (controllers, request/response DTOs, routes, status codes, error format) under `system/` to match the ticket's checklist.
+1. Update the System API itself (controllers, request/response DTOs, routes, status codes, error format) under `system/` to match the ticket's checklist. Apply the change across **all parallel implementations** — see `docs/atdd/architecture/system.md` for the layout (Java/.NET/TS × monolith/multitier) and for where API URLs and their consumers live in each implementation. After editing the source of truth, grep the system tree for residual references (e.g. the old URL string) before moving on.
 2. Update the System API Driver implementation (`driver-adapter/.../shop/api`) to absorb the change. Prefer adapter-only changes — keep behaviour observable through the **existing** driver interface.
 3. **Driver interface guardrail.** Do NOT modify any file under `driver-port/` casually. If you believe an interface change is unavoidable, STOP separately at that boundary and present to the user: the method(s) you want to change, why the adapter alone cannot absorb the change, the proposed new signature(s). Wait for explicit user approval before editing any `driver-port/` file. (Such changes have no contract-test fallout because this is `shop/`, not `external/` — but they still touch the test surface and must be approved.)
-4. Do not modify acceptance tests, DSL, Gherkin, or any code outside the System API layer + its driver.
+4. Do not modify acceptance tests, DSL, Gherkin, or any code outside the System API layer + its driver. Note: `system-test/<lang>/.../Legacy/` is read-only course-reference material — leave it untouched even when it references the old surface directly.
 5. STOP. Present the system + driver changes to the user and ask for approval. Do NOT continue.
 
 ## SYSTEM API REDESIGN - COMMIT

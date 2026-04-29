@@ -8,6 +8,7 @@
 - `docs/atdd/architecture/driver-port.md`
 - `docs/atdd/architecture/dsl-core.md`
 - `docs/atdd/architecture/dsl-port.md`
+- `docs/atdd/architecture/system.md`
 - `docs/atdd/architecture/test.md`
 
 ## Overview

@@ -7,6 +7,7 @@ model: opus
 
 @docs/atdd/process/commit-confirmation.md
 @docs/atdd/process/task-and-chore-cycles.md
+@docs/atdd/architecture/system.md
 @docs/atdd/architecture/driver-port.md
 @docs/atdd/architecture/driver-adapter.md
 @docs/atdd/process/glossary.md

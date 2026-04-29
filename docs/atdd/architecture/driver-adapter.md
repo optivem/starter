@@ -27,6 +27,10 @@ All DTOs used by driver adapters to communicate with external systems use an `Ex
 
 The shop API driver uses a controller-per-resource pattern. `ShopApiClient` composes multiple controllers (e.g. `OrderController`, `CouponController`, `ProductController`), each managing one API endpoint group.
 
+Endpoint URLs are encoded as **constants** inside each resource controller. When a system route is renamed, update the constant — that is the one place in the test layer that needs to change. The driver port interface stays untouched, so existing acceptance and contract tests keep compiling.
+
+Not every system endpoint has a method on the API driver. Some operations are exercised through the UI driver only, so a rename of those endpoints is absorbed entirely by the system-side fetch URLs and never reaches the API adapter. Check both drivers when scoping a system-side change.
+
 Error responses from the shop API (e.g. `ProblemDetailResponse`) are mapped to the domain `ErrorResponse` via a `SystemErrorMapper`. Never expose API-specific error formats beyond the adapter layer.
 
 ## Shop UI Driver
