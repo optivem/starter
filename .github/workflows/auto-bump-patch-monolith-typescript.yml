@@ -1,0 +1,64 @@
+name: auto-bump-patch-monolith-typescript
+
+# Per-flavor scaffold source for auto-bump-patch (monolith-typescript).
+#
+# Used by gh-optivem during `gh optivem init` to provide the auto-bump-patch
+# workflow for monolith-typescript student repos. After scaffold, this file
+# is renamed to `auto-bump-patch.yml` and content rewrites collapse the
+# flavor prefix and image name (`monolith-system-typescript` -> `system`).
+#
+# Triggered automatically at the end of prod-stage when a release is cut, or
+# manually via workflow_dispatch to recover from a missed auto-run.
+# Race-safe (Contents API with SHA preconditions). Idempotent: only bumps a
+# VERSION file if its matching image tag is greater than the file's value.
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+concurrency:
+  group: monolith-typescript-auto-bump-patch
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Compute Patch Bumps
+        id: bump
+        uses: optivem/actions/bump-patch-versions@v1
+        with:
+          version-files: |
+            [
+              {"path": "VERSION", "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/monolith-system-typescript"}
+            ]
+
+      - name: Build Commit Payload
+        id: payload
+        if: steps.bump.outputs.bumped == 'true'
+        shell: bash
+        env:
+          BUMPS: ${{ steps.bump.outputs.bumps }}
+        run: |
+          set -euo pipefail
+          files=$(jq -c '[.[] | {
+            path: .path,
+            content: ("\(.["new-version"])\n"),
+            message: "Bump \(.path) \(.["old-version"]) -> \(.["new-version"]) (post \(.["release-signal"]))"
+          }]' <<< "$BUMPS")
+          echo "files=$files" >> "$GITHUB_OUTPUT"
+
+      - name: Commit Bumped VERSION Files
+        if: steps.bump.outputs.bumped == 'true'
+        uses: optivem/actions/commit-files@v1
+        with:
+          files: ${{ steps.payload.outputs.files }}
+          branch: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
