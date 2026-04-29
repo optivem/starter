@@ -1,6 +1,6 @@
 # Task and Chore Cycle Mechanics
 
-This file defines the **WRITE** and **COMMIT** mechanics for the structural-change cycles — the cycles triggered by ticket types `system-api-task`, `system-ui-task`, `external-api-task`, and `chore`. The high-level flow / placement of each cycle inside the overall pipeline is defined in `cycles.md`; this file defines what happens *inside* each phase.
+This file defines the **WRITE**, **TEST**, and **COMMIT** mechanics for the structural-change cycles — the cycles triggered by ticket types `system-api-task`, `system-ui-task`, `external-api-task`, and `chore`. The high-level flow / placement of each cycle inside the overall pipeline is defined in `cycles.md`; this file defines what happens *inside* each phase.
 
 It mirrors the role of the AT per-phase docs (`at-red-test.md`, `at-red-dsl.md`, `at-red-system-driver.md`, `at-green-system.md`) and the CT per-phase docs (`ct-red-test.md`, `ct-red-dsl.md`, `ct-red-external-driver.md`, `ct-green-stubs.md`) for behavioral-change cycles. Together, those files define every WRITE + COMMIT phase in the pipeline.
 
@@ -14,16 +14,27 @@ The COMMIT step itself is gated by the universal rule in `shared-commit-confirma
 
 ---
 
+## Structural-cycle TEST (shared procedure)
+
+Every structural-cycle TEST runs after WRITE and before COMMIT. Goal: verify the change compiles and the sample suite still passes locally before asking to commit. The sample run is **explicitly gated** because it spins up docker stacks and takes several minutes per language — never run it without user approval.
+
+1. Confirm affected components compile (per `CLAUDE.md`: run `./compile-all.sh` from the repo root, or a single-project command for narrow changes). Compile is fast and runs without prompting.
+2. Ask the user for explicit approval before running the sample suite: "About to run `gh optivem test system --sample` for <languages> — this takes a few minutes per language. Approve? (yes/no)". Wait for an explicit `yes` before proceeding. Never self-initiate; never run in parallel with other system-test commands without separately asking.
+3. On approval, run the sample suite for each affected language (per `CLAUDE.md`: `gh optivem test system --sample`) and verify it passes.
+4. STOP. Present the test results to the user. On failure, fix and re-enter TEST from step 1. On pass, proceed to COMMIT.
+
+The EXTERNAL API REDESIGN cycle has no standalone TEST — its sample-run gating happens inside the CT sub-process.
+
+---
+
 ## Structural-cycle COMMIT (shared procedure)
 
-Every structural-cycle COMMIT (`SYSTEM API REDESIGN`, `SYSTEM UI REDESIGN`, `CHORE`) follows the same six steps, with only the commit-message phase suffix varying:
+Every structural-cycle COMMIT (`SYSTEM API REDESIGN`, `SYSTEM UI REDESIGN`, `CHORE`) follows the same four steps, with only the commit-message phase suffix varying. TEST must have passed before entering COMMIT.
 
-1. Confirm affected components compile (per `CLAUDE.md`: run `./compile-all.sh` from the repo root, or a single-project command for narrow changes).
-2. Run the sample suite for each affected language (per `CLAUDE.md`: `gh optivem test system --sample`) and verify it passes.
-3. Apply the gate in `shared-commit-confirmation.md` — ask "Can I commit?" with the proposed message and staged file list, and wait for explicit approval.
-4. COMMIT with message `<Ticket> | <PHASE>` where `<PHASE>` is `SYSTEM API REDESIGN`, `SYSTEM UI REDESIGN`, or `CHORE` per the cycle.
-5. If a GitHub issue was provided, tick any checklist items completed by this commit (local action; not CI-gated).
-6. Move the issue to **TICKET STATUS - IN ACCEPTANCE** — see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md). The cycle ends here; the agent is CI-unaware.
+1. Apply the gate in `shared-commit-confirmation.md` — ask "Can I commit?" with the proposed message and staged file list, and wait for explicit approval.
+2. COMMIT with message `<Ticket> | <PHASE>` where `<PHASE>` is `SYSTEM API REDESIGN`, `SYSTEM UI REDESIGN`, or `CHORE` per the cycle.
+3. If a GitHub issue was provided, tick any checklist items completed by this commit (local action; not CI-gated).
+4. Move the issue to **TICKET STATUS - IN ACCEPTANCE** — see [`shared-ticket-status-in-acceptance.md`](shared-ticket-status-in-acceptance.md). The cycle ends here; the agent is CI-unaware.
 
 The EXTERNAL API REDESIGN cycle has no standalone COMMIT — see "EXTERNAL API REDESIGN" below for the CT-sub-process redirect.
 
@@ -43,7 +54,7 @@ Where *boundary* ∈ {`API`, `UI`}. The same five steps apply; only the boundary
 4. Do not modify acceptance tests, DSL, Gherkin, or any code outside the System \<boundary\> layer + its driver. `system-test/<lang>/.../Legacy/` is read-only course-reference material — leave it untouched.
 5. STOP. Present the system + driver changes to the user and ask for approval. Do NOT continue.
 
-Then proceed via the shared structural-cycle COMMIT procedure with phase suffix `SYSTEM API REDESIGN` or `SYSTEM UI REDESIGN`.
+Then proceed via the shared structural-cycle TEST, then the shared structural-cycle COMMIT procedure with phase suffix `SYSTEM API REDESIGN` or `SYSTEM UI REDESIGN`.
 
 ---
 
@@ -62,4 +73,4 @@ The External API Task Cycle has **no standalone WRITE or COMMIT phase of its own
 3. Tests, DSL, and Gherkin are untouched. If the chore turns out to require behavioral test changes, STOP and reclassify the ticket as a story or bug.
 4. STOP. Present the implementation to the user and ask for approval. Do NOT continue.
 
-Then proceed via the shared structural-cycle COMMIT procedure with phase suffix `CHORE`.
+Then proceed via the shared structural-cycle TEST, then the shared structural-cycle COMMIT procedure with phase suffix `CHORE`.
