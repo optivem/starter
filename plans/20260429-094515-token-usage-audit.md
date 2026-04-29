@@ -10,28 +10,15 @@ The two open audit plans (`plans/20260429-094515-token-usage-audit.md` + `plans/
 
 **(A) Cross-cutting design decisions** — each unblocks multiple plan items:
 
-1. `atdd-chore` intake-only vs full-cycle? (token-usage **NDC #1** + process-audit **NDC #2**)
-2. Who owns `CT - GREEN - STUBS`? Create `atdd-stub`, fold into `atdd-driver`, or fold into `atdd-test`? (process-audit **NDC #1**)
-3. `<Ticket>` vs `<Scenario>` in CT commit messages — does CT batch per ticket or loop per scenario? (process-audit **NDC #5** + deferred process-rule-change **#10**)
-4. Dangling TODO at `at-green-system.md:36` — delete or fill with the legacy-handling rule (token-usage **stale #2** + process-audit deferred **#9**)
+1. Who owns `CT - GREEN - STUBS`? Create `atdd-stub`, fold into `atdd-driver`, or fold into `atdd-test`? (process-audit **NDC #1**)
+2. `<Ticket>` vs `<Scenario>` in CT commit messages — does CT batch per ticket or loop per scenario? (process-audit **NDC #5** + deferred process-rule-change **#10**)
+3. Dangling TODO at `at-green-system.md:36` — delete or fill with the legacy-handling rule (token-usage **stale #2** + process-audit deferred **#9**)
 
-**Recommended order:** start with **A1** — highest leverage. Answering it unblocks the structural-cycle Phase-to-Agent rows in `cycles.md` (currently punting to a needs-decision), lets the token-usage `@include` cleanup finally land (~112 LE/ticket if intake-only), and frames the answer to **A3** by making the unit-of-work explicit.
+**Recommended order:** any. The remaining items are independent — pick whichever you want to resolve next.
 
 ## Needs-decision — tradeoffs (NOT auto-applied)
 
-### 1. Is `atdd-chore.md` an intake-only agent or does it execute the Chore Cycle?
-
-**Observation:** `atdd-chore.md` body (lines 14-28) reads like an intake agent — it classifies, scans for legacy coverage, presents to the user, and STOPs. Yet it `@include`s `shared-commit-confirmation.md`, `shared-phase-progression.md`, and `task-and-chore-cycles.md` — docs that only matter if the agent actually executes WRITE / COMMIT phases. By symmetry, the comparable intake-only agents `atdd-story.md` and `atdd-bug.md` `@include` nothing.
-
-**Tradeoff:**
-- **Option A — Intake-only.** Match the symmetric design with `atdd-story` / `atdd-bug`. Drop the three `@include`s, saving ~28 + 3 + 81 = ~112 lines per chore ticket. Some other agent (orchestrator? a future `atdd-chore-executor`?) runs CHORE - WRITE / CHORE - COMMIT.
-- **Option B — Intake + execution.** `atdd-chore.md` does the full cycle. Keep the includes; add explicit body text describing CHORE - WRITE → CHORE - COMMIT mechanics (currently absent — body STOPs at step 7 line 28).
-
-**Question for the user:** Which design is intended? If A, who runs CHORE - WRITE / COMMIT? `cycles.md` Phase-to-Agent Mapping does not list any agent for the Chore Cycle (or for any of the three Task Cycles).
-
----
-
-### 2. Is `atdd-task.md` similarly intake-or-execution?
+### 1. Is `atdd-task.md` similarly intake-or-execution?
 
 **Observation:** Same shape as `atdd-chore` but more ambiguous. `atdd-task.md` body lines 31-60 do describe execution mechanics (identify the changing layer, implement change, run suites, report). It includes `task-and-chore-cycles.md`, which has the WRITE/COMMIT phases. Yet the body never quotes `task-and-chore-cycles.md`'s phase names (`SYSTEM API REDESIGN - WRITE`, etc.) — it describes its own steps in parallel.
 
@@ -44,7 +31,7 @@ The two open audit plans (`plans/20260429-094515-token-usage-audit.md` + `plans/
 
 ---
 
-### 3. Should `atdd-task.md` keep `@include` of the entire `glossary.md`?
+### 2. Should `atdd-task.md` keep `@include` of the entire `glossary.md`?
 
 **Observation:** `atdd-task.md` references one term from the glossary — *interface change* (line 44, in the driver-interface guardrail). Including the whole 62-line glossary to support one cross-reference is high-cost.
 
@@ -57,7 +44,7 @@ The two open audit plans (`plans/20260429-094515-token-usage-audit.md` + `plans/
 
 ---
 
-### 4. Should `atdd-test.md` and `atdd-dsl.md` `@include` `dsl-core.md` (8 lines)?
+### 3. Should `atdd-test.md` and `atdd-dsl.md` `@include` `dsl-core.md` (8 lines)?
 
 **Observation:** `dsl-core.md` is 8 lines. Including it from two agents costs 16 line-equivalents per ticket. The agent bodies do reference it ("DSL Core Rules from `dsl-core.md`", "Apply test file rules from `test.md` and DSL Core Rules from `dsl-core.md`"). At 8 lines, this is cheap.
 
