@@ -332,15 +332,12 @@ The `diagram-generator` agent's contract also inverts (read YAML → write Merma
 
 ## Implementation order
 
-1. **Inventory mechanical surface area.**
-   - Read every agent under `.claude/agents/atdd/` and tag each section as *mechanical* (rule-based, deterministic) or *creative*.
-   - Tally tokens spent on orchestration vs content per agent, to confirm the savings claim quantitatively before refactoring.
-2. **Encode the process flow.**
+1. **Encode the process flow.**
    - Translate the AT cycle, CT sub-process, and Structural Cycle flows from `cycles.md` into a single YAML file: `docs/atdd/process/process-flow.yaml` with the BPMN-shaped schema sketched in §Proposed architecture (nodes typed `start_event` / `end_event` / `service_task` / `user_task` / `gateway` / `call_activity`; sequence flows with `when:` predicates; `user_task` nodes carrying `agent:` + `phase_doc:` bindings).
    - Update `diagram-generator`'s contract: read YAML, write `diagram-process.md` Mermaid. Shrink the agent body accordingly (most prose-to-diagram heuristics become unnecessary).
    - **Add the unit-test suite** (`gh-optivem/internal/atdd/runtime/statemachine/transitions_test.go`) — one test per sequence flow, plus negative tests. Force decisions on the process-audit gaps (CT exit re-evaluation, smoke-test resume path, structural-cycle escape, Legacy Coverage Cycle interim spec) by writing a test for each — they can no longer remain TBDs.
    - Restructure per-phase docs (`at-red-test.md`, `at-red-dsl.md`, `at-green-system.md`, etc.) to drop "what runs next" prose and focus on substance: the phase's purpose, what it produces, conventions, example diffs, review criteria, anti-patterns. Orchestration prose moves out (into the YAML); phase substance moves in.
-3. **Build the Go packages in order of impact, all under `gh-optivem`:**
+2. **Build the Go packages in order of impact, all under `gh-optivem`:**
    - `internal/atdd/runtime/statemachine/` — the engine (functor pattern, ~200 LOC). Exposed for diagnostics as `gh optivem atdd debug next-phase`. Highest call count, biggest token win.
    - `internal/atdd/runtime/gates/` — gateway evaluators (one Go function per `binding:` in the YAML). Exposed as `gh optivem atdd debug gate <name>`.
    - `internal/atdd/runtime/verify/` — phase-verification middleware (decorators around each `NodeFn`). Internal only — no CLI surface, not even under `debug`.
@@ -348,10 +345,10 @@ The `diagram-generator` agent's contract also inverts (read YAML → write Merma
    - `internal/atdd/runtime/board/` + `internal/atdd/runtime/release/` — board/pick logic and release/cleanup. Exposed as `gh optivem atdd debug pick-top-ready` and `gh optivem atdd debug release`.
    - `internal/atdd/runtime/driver/` + `cmd/optivem/atdd_*.go` — the top-level driver loop and the user-facing `gh optivem atdd implement-ticket` and `gh optivem atdd manage-project` subcommands (the only commands shown in `--help` by default; the `debug` parent is `Hidden: true`).
    - `internal/atdd/runtime/override/` — override-hook decorator scaffolding (no CLI surface yet; v1 wraps every node, v2 exposes `--extra` / `--replace` / `--interactive` flags on `implement-ticket`).
-4. **Slim the kept agents.** For each remaining agent, strip orchestration prose and `@includes` of cross-phase docs. Each agent body should describe only its WRITE / REVIEW / COMMIT mechanics for its phase.
-5. **Update slash-commands.** Repoint `atdd:atdd-implement-ticket` and `atdd:atdd-manage-project` at `gh optivem atdd implement-ticket` and `gh optivem atdd manage-project` respectively. The slash commands become thin wrappers that pass through `--issue`, `--project`, `--autonomous`, `--rehearsal`, `--no-memory`, etc. to the binary.
-6. **Run a real ticket end-to-end** with the new driver, capture token usage, and compare against the same ticket replayed via the agent-only path. Decision gate: ship only if tokens drop ≥ 30% and all human-in-the-loop gates still fire.
-7. **Delete demoted agents** only after one full week of green pipeline runs through the new driver.
+3. **Slim the kept agents.** For each remaining agent, strip orchestration prose and `@includes` of cross-phase docs. Each agent body should describe only its WRITE / REVIEW / COMMIT mechanics for its phase.
+4. **Update slash-commands.** Repoint `atdd:atdd-implement-ticket` and `atdd:atdd-manage-project` at `gh optivem atdd implement-ticket` and `gh optivem atdd manage-project` respectively. The slash commands become thin wrappers that pass through `--issue`, `--project`, `--autonomous`, `--rehearsal`, `--no-memory`, etc. to the binary.
+5. **Run a real ticket end-to-end** with the new driver, capture token usage, and compare against the same ticket replayed via the agent-only path. Decision gate: ship only if tokens drop ≥ 30% and all human-in-the-loop gates still fire.
+6. **Delete demoted agents** only after one full week of green pipeline runs through the new driver.
 
 ## Decisions made
 
