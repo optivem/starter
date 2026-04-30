@@ -237,7 +237,7 @@ jobs:
             API_URL=$(jq -r --arg lbl "$label" '.systems[] | select(.label == $lbl) | .components[1].url' "$SYSTEM_JSON" | sed 's|/health$||')
             ERP_URL=$(jq -r --arg lbl "$label" '.systems[] | select(.label == $lbl) | .externalSystems[] | select(.name | test("ERP")) | .url' "$SYSTEM_JSON" | sed 's|/health$||')
             CLOCK_URL=$(jq -r --arg lbl "$label" '.systems[] | select(.label == $lbl) | .externalSystems[] | select(.name | test("Clock")) | .url' "$SYSTEM_JSON" | sed 's|/health$||')
-            TAX_URL=$(echo "$ERP_URL" | sed 's|/erp$|/tax|')
+            TAX_URL="${ERP_URL%/erp}/tax"
             {
               echo "MYSHOP_UI_BASE_URL_${SUFFIX}=${UI_URL}"
               echo "MYSHOP_API_BASE_URL_${SUFFIX}=${API_URL}"
