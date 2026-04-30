@@ -1,5 +1,7 @@
 # Switch bump-patch-version signal from ghcr-image to git-tag
 
+🤖 **Picked up by agent** — `Valentina_Desk` at `2026-04-30T06:05:38Z`
+
 ## Decision
 
 Use `git-tag` as the release-decision signal for every `bump-patch-versions` invocation. The git tag is the authoritative "this version was released" record; GHCR images remain a downstream artifact of the same release event (docker tagging is **not** deleted).
