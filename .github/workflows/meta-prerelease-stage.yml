@@ -36,6 +36,12 @@ jobs:
       skip-reason: ${{ steps.gate.outputs.skip-reason }}
       trigger-name: ${{ steps.trigger.outputs.name }}
     steps:
+      - name: Print Inputs
+        run: |
+          echo "event=${{ github.event_name }} schedule='${{ github.event.schedule }}'"
+          echo "debug-skip-tests=${{ inputs.debug-skip-tests }}"
+          echo "fail-fast=${{ inputs.fail-fast }}"
+
       - name: Resolve Trigger Name
         id: trigger
         shell: bash
