@@ -76,6 +76,8 @@ jobs:
       - name: Read Base Version
         id: read-base-version
         uses: optivem/actions/read-base-version@v1
+        with:
+          file: system/multitier/java/VERSION
 
       - name: Check System Release Already Published
         id: check-tag
@@ -326,6 +328,8 @@ jobs:
       - name: Read Base System Version
         id: read-version
         uses: optivem/actions/read-base-version@v1
+        with:
+          file: system/multitier/java/VERSION
 
       - name: Compose Prerelease Version
         id: rc-version
