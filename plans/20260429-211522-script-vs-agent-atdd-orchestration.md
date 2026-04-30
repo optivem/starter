@@ -8,8 +8,8 @@ Distinguish **repetitive / mechanical** work from **creative** work in the ATDD 
 2. Creative steps (writing Gherkin, DSL, drivers, production code, reviewing) remain as agents, where judgment is actually needed.
 3. Token usage drops sharply: agents stop re-loading orchestration logic into context every run, and the script no longer pays for an LLM round-trip to decide "which phase is next?".
 4. Flow control becomes reproducible and debuggable — a script trace replaces a transcript.
-5. **Orchestration becomes unit-testable.** Today, "given AT-RED-DSL committed and `External Driver Interface Changed = yes`, the next phase is CT-RED-TEST" is verified by reading an agent transcript. Once that transition lives in `atdd-next-phase.sh` (or a Python state-machine evaluator), it's a pure function of (current phase, flags) → next phase, and a test suite can pin every branch — including the gap-finding branches the `process-audit` agent has flagged in `plans/20260429-100633-process-audit.md` (CT exit, structural-cycle escape, smoke-test fail resume path). LLM-driven orchestration cannot be unit tested; deterministic orchestration must be.
-6. **Docs become about *substance*, not orchestration.** Today `cycles.md`, the per-phase docs, and the agent bodies all carry "after X, do Y" prose. Once the state machine is the single source of orchestration truth (encoded once, generated outward), every other doc is freed to describe *what the phase is for* and *what good output looks like* — conventions, examples, review criteria, anti-patterns. The per-phase doc stops being "step 4 of 11"; it becomes "what AT-RED-DSL is, what it produces, how to recognise a good DSL diff, what mistakes to avoid". That's the content agents actually need at WRITE time, and it's the content humans actually need when reading the docs.
+5. **Orchestration becomes unit-testable.** Today, "given AT-RED-DSL committed and `External Driver Interface Changed = yes`, the next phase is CT-RED-TEST" is verified by reading an agent transcript. Once that transition lives in a Go process-flow evaluator, it's a pure function of (current node, flags) → next node, and a test suite can pin every branch — including the gap-finding branches the `process-audit` agent has flagged in `plans/20260429-100633-process-audit.md` §"Missing branches / gaps — NOT auto-applied" items 1, 2, 4 (CT exit, smoke-test fail resume path, structural-cycle escape). LLM-driven orchestration cannot be unit tested; deterministic orchestration must be.
+6. **Docs become about *substance*, not orchestration.** Today `cycles.md`, the per-phase docs, and the agent bodies all carry "after X, do Y" prose. Once the process flow is the single source of orchestration truth (encoded once in YAML, Mermaid-and-prose generated outward), every other doc is freed to describe *what the phase is for* and *what good output looks like* — conventions, examples, review criteria, anti-patterns. The per-phase doc stops being "step 4 of 11"; it becomes "what AT-RED-DSL is, what it produces, how to recognise a good DSL diff, what mistakes to avoid". That's the content agents actually need at WRITE time, and it's the content humans actually need when reading the docs.
 
 This follows Anthropic's "Building effective agents" framing: **workflows** (predetermined paths) are code; **agents** are reserved for steps where the path itself depends on judgment.
 
@@ -36,26 +36,48 @@ Phase sequencing — "after `atdd-test` COMMIT, run `atdd-dsl` WRITE; after AT-R
 
 ## Proposed split
 
-### Demote to scripts (Bash or Python under `bin/atdd/` or a new `atdd/` package)
+### Demote to Go subcommands (single binary `optivem`, packages under `gh-optivem/internal/atdd/runtime/`)
 
-1. **`atdd-orchestrator`** → `atdd-pick-ticket.sh`
+Each demoted agent maps to a subcommand of the existing `optivem` binary (`gh-optivem`), backed by a package under `gh-optivem/internal/atdd/runtime/`. The user-facing surface mirrors today's slash commands so discoverability transfers; helper subcommands sit underneath for debugging individual phases.
+
+**Public top-level subcommands** (replace today's slash commands; stable API contract):
+
+| Slash command | New | Replaces agent | Backed by |
+|---|---|---|---|
+| `/atdd:atdd-implement-ticket` | `gh optivem atdd implement-ticket --issue 42` | `atdd-orchestrator` (single-issue mode) | `internal/atdd/runtime/driver/` |
+| `/atdd:atdd-manage-project` | `gh optivem atdd manage-project [--project ...]` | `atdd-orchestrator` (board mode) | calls `pick-top-ready` then `implement-ticket` |
+
+**Diagnostic subcommands under `gh optivem atdd debug …`** (porcelain/plumbing split — invokable for debugging, not part of the stable API). All listed below are wired in Cobra under a parent `Use: "debug"` command marked `Hidden: true`, so they don't appear in `gh optivem atdd --help` unless the user passes `--help-all`. The driver calls these helpers internally as it walks the process flow; users can invoke them standalone to reproduce a single phase in isolation. The `Hidden: true` flag signals "not a stable contract" — argument shapes can change without notice.
+
+The two-tier split keeps the daily-use surface small (2 commands) while preserving the debuggability that comes from each helper being invokable on its own.
+
+1. **`atdd-orchestrator` (board-pick logic)** → `gh optivem atdd debug pick-top-ready` (`internal/atdd/runtime/board/`)
    - Pure `gh` calls: read project, find Ready column, pick top, move to In Progress (bottom).
-   - Specific-issue mode: `gh issue view`, validate state, optionally move card.
    - Repo resolution: read `README.md` for project link; fall back to `git remote get-url origin`.
-   - The only step that needs an LLM is the *first* "a or b?" prompt when neither flag is supplied — and that's `read -p` in a script.
-2. **`atdd-dispatcher`** → `atdd-classify.sh`
-   - The fast path (single canonical label) is already a pure rule and covers most tickets. Implement it as a script that reads `gh issue view --json projectItems,labels` and emits a classification.
-   - Only when signals conflict or are missing does the script call out to an `atdd-classify-fallback` agent (small, single-purpose, body-shape only). 90%+ of tickets never hit the LLM.
-3. **`atdd-release`** → `atdd-release.sh`
-   - `@Disabled` removal is a deterministic edit. Commit + `gh issue close` are deterministic. Keep the "ask before commit" gate as an interactive script prompt — it's already mechanical (the agent body just enforces a fixed checklist).
-4. **Phase progression** (cross-cutting) → `atdd-next-phase.sh`
-   - Reads `cycles.md`-encoded transition rules (made executable: a YAML or JSON state-machine file derived from `cycles.md`).
+   - The only step that might need an LLM is the *first* "a or b?" prompt when neither flag is supplied — and that's `bufio.Scanner` on stdin.
+
+2. **`atdd-dispatcher`** → `gh optivem atdd debug classify --issue 42` (`internal/atdd/runtime/classify/`)
+   - The fast path (single canonical label) is already a pure rule and covers most tickets. Implement it in Go: shell out to `gh issue view --json projectItems,labels`, unmarshal, apply the rule, emit a classification.
+   - Only when signals conflict or are missing does the subcommand call out to an `atdd-classify-fallback` agent (small, single-purpose, body-shape only). 90%+ of tickets never hit the LLM.
+
+3. **`atdd-release`** → `gh optivem atdd debug release --issue 42` (`internal/atdd/runtime/release/`)
+   - `@Disabled` removal is a deterministic edit (regex over the in-scope test files). Commit + `gh issue close` are deterministic. Keep the "ask before commit" gate as an interactive prompt — it's already mechanical (the agent body just enforces a fixed checklist).
+
+4. **Phase progression** (cross-cutting) → `gh optivem atdd debug next-phase` (`internal/atdd/runtime/statemachine/`)
+   - Reads the YAML process-flow encoding (see Proposed architecture).
    - Given current phase + a small set of flags (`DSL Interface Changed`, `External Driver Interface Changed`, `System Driver Interface Changed`), emits the next phase to run.
    - Replaces the "what do I run next?" LLM round-trip with a table lookup.
-5. **Gate checks** → `atdd-gate.sh`
-   - "Did the previous phase commit?" — `git log -1 --format=%s | grep -qE '^AT - RED - TEST - COMMIT'` or equivalent.
-   - "Are tests passing?" — `./gradlew test` etc., already mechanical.
-   - "Is the pipeline green?" — `gh run list … --json conclusion` already mechanical.
+
+5. **Gateway evaluators (= BPMN exclusive gateways)** → `gh optivem atdd debug gate <name>` (`internal/atdd/runtime/gates/`)
+   - Each gateway node in the YAML (`type: gateway`) is bound to a Go function: `GATE_DSL` → `gates.DSLChanged(ctx)`, `GATE_EXT_DRIVER` → `gates.ExternalDriverChanged(ctx)`, etc.
+   - The CLI subcommand evaluates one binding standalone — useful for debugging "why did the driver follow the No edge from GATE_DSL?".
+
+6. **Phase verifications (pre-/post-conditions)** → middleware in `internal/atdd/runtime/verify/` (no CLI surface, not even under `debug`)
+   - Pre-/post-condition guards wrapping each node's run: "before AT_RED_DSL_WRITE, HEAD must match `^AT - RED - TEST - COMMIT`"; "after AT_RED_TEST_COMMIT, HEAD must match `^AT - RED - TEST - COMMIT`".
+   - Implemented as decorator middleware in the driver loop (same pattern as the override hook).
+   - Not invocable standalone — they're not standalone questions, only meaningful in the context of an advancing pipeline.
+
+External-state polls (e.g. "is the GitHub Actions pipeline green for the latest commit?") are *not* gates — they're the body of mechanical wait-tasks like `WAIT_FOR_PIPELINE`. They live inside `internal/atdd/runtime/actions/` as the implementation of the corresponding service task, not as a separate concept.
 
 ### Keep as agents
 
@@ -66,25 +88,219 @@ Every WRITE / REVIEW phase agent stays:
 - `atdd-test`, `atdd-dsl`, `atdd-driver` — code authoring + review.
 - `atdd-backend`, `atdd-frontend` — production code authoring.
 
-These agents become **smaller** because they no longer carry orchestration prose: no "after you finish, hand off to X". The driving script invokes them with the inputs they need and consumes the COMMIT output.
+These agents become **smaller** because they no longer carry orchestration prose: no "after you finish, hand off to X". The Go driver invokes them with the inputs they need and consumes the COMMIT output.
 
 ### A new top-level driver
 
-`atdd run --issue=NN` (or `atdd run --board`) replaces the user's current "invoke the orchestrator agent" mental model:
+`gh optivem atdd implement-ticket --issue 42` (and `gh optivem atdd manage-project` for board mode) replaces the user's current "invoke the orchestrator agent" mental model. `gh-optivem` is a `gh` extension, so users invoke it as `gh optivem ...`; internally the Cobra binary is named `optivem`, and code paths reference it by that name.
 
 ```
-atdd run --issue=42
-  → atdd-pick-ticket.sh    (script)
-  → atdd-classify.sh       (script, may call atdd-classify-fallback agent)
-  → atdd-{story|bug|task|chore}  (agent — creative)
-  → loop:
-      atdd-next-phase.sh    (script)
-      atdd-gate.sh          (script)
-      atdd-{test|dsl|driver|backend|frontend}  (agent — creative)
-  → atdd-release.sh         (script, with one human-confirmation gate)
+gh optivem atdd implement-ticket --issue 42
+  → validate issue + move to In Progress         (internal: actions/board)
+  → classify (internal call into runtime/classify)(also exposed as: gh optivem atdd debug classify --issue 42)
+  → atdd-{story|bug|task|chore}                   (agent — creative)
+  → driver loop (walks the process flow):
+      next-phase via statemachine.Next            (debug-exposed: gh optivem atdd debug next-phase)
+      gateway evaluation via gates.<binding>      (debug-exposed: gh optivem atdd debug gate <name>)
+      phase verification middleware               (internal-only)
+      atdd-{test|dsl|driver|backend|frontend}     (agent — creative; user_task in BPMN terms)
+  → release (internal call into runtime/release)  (also exposed as: gh optivem atdd debug release --issue 42, with one human-confirmation gate)
 ```
 
-The script owns the **state machine**; agents own the **artefacts**.
+Internal calls don't shell out to the binary recursively — they go through the Go package directly. The `debug` subcommands are thin wrappers around the same packages, exposed for standalone diagnosis.
+
+The driver owns the **process flow**; agents own the **artefacts**.
+
+## Proposed architecture
+
+### Language and location
+
+- **Language: Go.** Single static binary, no runtime dependency on the consumer's machine, easy YAML parsing in stdlib via `gopkg.in/yaml.v3`, easy `os/exec` for `gh` / `git`, easy unit testing for the process-flow evaluator. Ships as one artefact, distributed via the existing `gh-optivem` plugin.
+- **Location: `gh-optivem` from day one.** `gh-optivem` is already a Cobra-based Go binary (`Use: "optivem"`), already has an `internal/atdd/install.go` for scaffold-time setup, and already builds locally as `gh-optivem.exe` with plain `go build`. Iteration is fast — no detour through `shop` is needed. New runtime code lives at `gh-optivem/internal/atdd/runtime/` (subpackages: `driver`, `statemachine`, `gates`, `verify`, `actions`, `agents`, `override`, `board`, `classify`, `release`), kept separate from the existing install-time `internal/atdd/install.go` to avoid mixing the two concerns. The user-facing entrypoint is `gh optivem atdd …` (since `gh-optivem` is a `gh` extension; `gh` strips the prefix and delegates to the Cobra root command `optivem`).
+- **Reading from the consumer's CWD.** The binary reads the YAML process-flow file and the per-phase docs from the consumer's working directory (`docs/atdd/process/process-flow.yaml`, `docs/atdd/process/<phase>.md`). The flow definition is part of each consumer's repo, not bundled in the binary. This is a *good* constraint to lock in from day one: it forces the binary to be repo-agnostic, which it has to be to ship via `gh-optivem`.
+
+### Process flow: YAML-canonical, Mermaid-derived view
+
+The single source of truth for orchestration is **`docs/atdd/process/process-flow.yaml`** — a small machine-readable file (~30 nodes, ~50 sequence flows). The Mermaid diagram in `diagram-process.md` is regenerated from the YAML by the `diagram-generator` agent, so it stays in lock-step but is a *view*, not the truth. The per-phase prose docs (`at-red-test.md`, `at-red-dsl.md`, …) are hand-edited and describe the *substance* of each phase — purpose, conventions, examples, review criteria, anti-patterns — exactly what an agent needs at WRITE time and what a human needs when reading the docs. Orchestration (the "what runs next?" prose) moves out of the per-phase docs entirely; phase substance moves in. This realises motivation §6.
+
+#### BPMN vocabulary, not FSM vocabulary
+
+The flow is process-shaped, not state-shaped: nodes represent *activities* (work happens in them) with *gateways* (branch points). This isn't a finite-state machine in the classic sense — there are no "external events" that fire transitions; control passes when an activity completes. We borrow BPMN's vocabulary because it fits, but we don't use a BPMN engine — the runtime is a small hand-coded Go graph traversal (see "Engine design" below).
+
+| Our element | BPMN equivalent | What it does |
+|---|---|---|
+| `START` | Start event | Pipeline entry point |
+| `END` | End event | Pipeline terminus |
+| Mechanical node (`PICK_TOP_READY`, `MOVE_TO_IN_PROGRESS`, `CLOSE_ISSUE`, `WAIT_FOR_PIPELINE`) | Service task | Auto-execute Go function from `internal/atdd/runtime/actions/`; no agent dispatch |
+| Creative node (`AT_RED_TEST_WRITE`, `AT_GREEN_BACKEND`) | User task | Dispatches the bound agent and waits for its COMMIT output |
+| REVIEW phase | User task with human approval | Blocks on stdin until user approves; same shape as creative node but the agent's role is "present what was just written" |
+| Decision diamond (`GATE_DSL`, `GATE_EXT_DRIVER`) | Exclusive gateway (XOR) | Calls the bound `gates.<name>(ctx)` function and follows the matching outgoing edge |
+| CT sub-process | Call activity | Embedded sub-flow with its own start/end; control returns to the parent's next sequence flow on completion. Resolves the process-audit gap on CT termination semantics |
+| Per-scenario loop | Loop activity (or sequence flow returning to AT-RED-TEST) | Iterates while `// TODO:` scenarios remain |
+
+We do **not** adopt: BPMN XML (verbose; YAML is shorter), workflow engines (Camunda/Zeebe/Flowable assume long-running multi-actor processes), or boundary events (timeouts on stuck phases — noted as a v2 candidate in Open Questions).
+
+#### YAML schema (sketch)
+
+```yaml
+nodes:
+  - id: START
+    type: start_event
+  - id: PICK_TOP_READY
+    type: service_task
+    action: pick_top_ready          # → actions.PickTopReady(ctx)
+  - id: MOVE_TO_IN_PROGRESS
+    type: service_task
+    action: move_to_in_progress
+  - id: AT_RED_TEST_WRITE
+    type: user_task
+    agent: atdd-test
+    phase_doc: docs/atdd/process/at-red-test.md
+  - id: AT_RED_TEST_COMMIT
+    type: service_task
+    action: commit_phase
+  - id: GATE_DSL
+    type: gateway
+    binding: dsl_changed             # → gates.DSLChanged(ctx)
+  - id: AT_RED_DSL_WRITE
+    type: user_task
+    agent: atdd-dsl
+    phase_doc: docs/atdd/process/at-red-dsl.md
+  - id: AT_GREEN_SYSTEM
+    type: user_task
+    agent: atdd-backend
+    phase_doc: docs/atdd/process/at-green-system.md
+  - id: CT_SUBPROCESS
+    type: call_activity
+    flow: docs/atdd/process/ct-subflow.yaml
+  - id: END
+    type: end_event
+
+sequence_flows:
+  - {from: START,                to: PICK_TOP_READY}
+  - {from: PICK_TOP_READY,       to: MOVE_TO_IN_PROGRESS}
+  - {from: MOVE_TO_IN_PROGRESS,  to: AT_RED_TEST_WRITE}
+  - {from: AT_RED_TEST_WRITE,    to: AT_RED_TEST_COMMIT}
+  - {from: AT_RED_TEST_COMMIT,   to: GATE_DSL}
+  - {from: GATE_DSL,             to: AT_RED_DSL_WRITE,  when: "dsl_changed == true"}
+  - {from: GATE_DSL,             to: AT_GREEN_SYSTEM,   when: "dsl_changed == false"}
+  # …more flows; CT_SUBPROCESS slots in after AT_RED_DSL_COMMIT when external_driver_changed == true…
+  - {from: AT_GREEN_SYSTEM,      to: END}
+```
+
+This is the entire orchestration spec. ~30 nodes for the AT cycle + CT sub-process + per-scenario loop. Every transition is a YAML row that the unit-test suite can assert against.
+
+#### Mermaid view, regenerated
+
+The `diagram-generator` agent's contract inverts: instead of reading prose to produce Mermaid, it reads `process-flow.yaml` to produce Mermaid. The diagram in `diagram-process.md` is a derived artefact — visual debugging without the YAML being load-bearing in two places. The agent body shrinks accordingly (most of it currently describes prose-to-diagram heuristics that are no longer needed).
+
+Per-phase prose docs (`at-red-test.md`, etc.) remain hand-edited but are now *validated* against the YAML by an `gh optivem atdd doctor` subcommand (v2 nice-to-have): every `user_task` has a matching `phase_doc:` file, every gateway `binding:` resolves to a registered Go function, every node ID is unique. Doctor failures are wired into CI.
+
+#### Unit test contract
+
+`gh-optivem/internal/atdd/runtime/statemachine/transitions_test.go` — one test per documented sequence flow, plus negative tests for transitions that should *not* exist. Synthetic inputs `(currentNode, flagState) → expectedNextNode`. The open process-audit gaps (CT exit re-evaluation, smoke-test resume path, structural-cycle escape) become concrete test cases — they cannot remain TBDs once the suite is green. The Legacy Coverage Cycle's TBD interim phases get a single explicit test case for whatever interim spec the user lands on (e.g. "the orchestrator stops and asks the user"), forcing a decision at write-time.
+
+### Engine design: hand-coded functor pattern (no library)
+
+#### Library vs hand-coded — why hand-coded
+
+Two library categories were considered and rejected:
+
+- **Go FSM libraries** (`looplab/fsm`, `qmuntal/stateless`). Designed for *object has state, transitions on external events* (a TCP connection's lifecycle, an order's status). Wrong shape for our model: in our case each node *is itself* an action that runs to completion and produces a result that picks the next edge. Adapting an FSM library to "node-as-activity" semantics costs more than the ~200 lines of graph traversal we'd write directly. The interesting logic isn't "what's the next state?" (a one-line table lookup) — it's "what does *this* node do?" (gate evaluation, agent dispatch, shell call). Libraries help with the former; we mostly need the latter.
+- **BPMN engines** (Camunda, Zeebe, Flowable, Activiti). Designed for *long-running, multi-actor, persisted* processes — durable execution across process restarts, role-based task queues, compensation handlers, transaction boundaries, message correlation, visual modelling tools for non-developers. We have one ticket end-to-end in one terminal session, one human, one developer editing the flow definition directly. The engines are 1000× the weight we need; their persistence and concurrency models add complexity we'd have to actively work around.
+
+**Conclusion:** borrow BPMN's *vocabulary and thinking* (above), hand-code the runtime. The whole engine is ~200 lines of Go.
+
+#### Core types
+
+In `gh-optivem/internal/atdd/runtime/statemachine/`:
+
+```go
+type Outcome struct {
+    Bool   bool   // for gateway nodes: which edge to take
+    Commit string // for user_task nodes: phase commit SHA
+    Err    error  // STOP and surface to the user
+}
+
+type NodeFn func(*Context) Outcome
+
+type Node struct {
+    ID   string
+    Kind NodeKind  // StartEvent | EndEvent | ServiceTask | UserTask | Gateway | CallActivity
+    Fn   NodeFn    // the functor
+}
+
+type Edge struct {
+    From string
+    To   string
+    When func(Outcome) bool  // gateway edges check Bool against `when:` predicate; sequential edges always-true
+}
+
+type Flow struct {
+    Nodes map[string]Node
+    Edges []Edge
+    Start string
+}
+
+func (f *Flow) Run(ctx *Context) error {
+    cur := f.Start
+    for cur != "" {
+        out := f.Nodes[cur].Fn(ctx)
+        if out.Err != nil { return out.Err }
+        cur = f.nextEdge(cur, out).To
+    }
+    return nil
+}
+```
+
+Each kind of node registers a `NodeFn` — idiomatic Go function value, not a class with `.execute()`:
+
+```go
+gates.DSLChanged       = func(ctx *Context) Outcome { /* read flags / diff */ return Outcome{Bool: ...} }
+actions.PickTopReady   = func(ctx *Context) Outcome { /* gh project ... */ }
+agents.AtddTestWrite   = func(ctx *Context) Outcome { return dispatch("atdd-test", ctx) }
+```
+
+#### Why split "what the node does" from "where to go next"
+
+`Fn` returns an `Outcome`, not the next node. Routing lives in the edge list, not inside each node. This keeps gateway nodes clean (their job is "compute one boolean", nothing more) and lets the unit-test suite assert routing without mocking node bodies. It also matches BPMN's separation of *activity* and *sequence flow*: the activity does the work; the flows around it decide where control goes.
+
+#### Decorator pattern for cross-cutting concerns
+
+Phase verifications (B in the gate split) and the future override hook are middleware decorators wrapping each `Fn`:
+
+```go
+func WithVerify(orig NodeFn, nodeID string) NodeFn {
+    return func(ctx *Context) Outcome {
+        if err := verify.Pre(ctx, nodeID); err != nil { return Outcome{Err: err} }
+        out := orig(ctx)
+        if out.Err == nil { verify.Post(ctx, nodeID, out) }
+        return out
+    }
+}
+
+func WithOverride(orig NodeFn, nodeID string) NodeFn { /* see Per-step override hook */ }
+```
+
+At driver startup, walk the node map and rewrap every `Fn` with the decorators that apply. Verifications are always on; the override decorator is always wrapped (so v2 only adds CLI parsing, not engine plumbing).
+
+#### Resume detection
+
+The driver resolves the start node before the loop begins:
+1. Default: `flow.Start` (the YAML `START` node).
+2. If the working tree contains `@Disabled` markers with known phase prefixes (existing convention from `cycles.md`), resolve to the corresponding node ID instead — the pipeline picks up where a previous session left off.
+
+Resume is computed once at driver startup, not re-evaluated mid-flow, so it doesn't intrude on the engine's hot path.
+
+### Per-step override hook (FUTURE — out of scope for v1, but design must allow it)
+
+Before each node executes, the driver checks for a per-node override:
+- **CLI form:** `gh optivem atdd implement-ticket --issue 42 --extra AT_RED_DSL_WRITE="Use record types instead of classes"` → extra text is appended to the agent prompt for that one dispatch.
+- **Replace form:** `--replace AT_RED_DSL_WRITE="<full prompt>"` → swaps the default prompt entirely (escape hatch for debugging or one-off departures).
+- **Interactive form:** `gh optivem atdd implement-ticket --issue 42 --interactive` → before every creative node, the driver prints `About to dispatch atdd-dsl. Press Enter to proceed, or type extra instructions:` and reads stdin.
+- **Mechanical override:** for mechanical nodes, `--override PICK_TOP_READY="<shell snippet>"` runs the snippet instead of the default function. Discouraged but useful for local experimentation.
+
+The hook lives in `gh-optivem/internal/atdd/runtime/override/` and wraps every node dispatch in the driver loop. v1 ships with the hook present but no CLI surface — you cannot pass overrides yet, but the wrapping is in place so v2 only needs to expose flags.
 
 ## Token-cost argument (the part the user cares about)
 
@@ -96,7 +312,7 @@ Every current agent invocation re-loads:
 
 For a single ticket flowing test → dsl → driver → backend, that's ~5 agent invocations *each* re-loading the cycle prose. After the split:
 
-- `atdd-pick-ticket.sh`, `atdd-classify.sh`, `atdd-next-phase.sh`, `atdd-gate.sh`, `atdd-release.sh` — **0 tokens**.
+- `runtime/board`, `runtime/classify` (fast path), `runtime/statemachine`, `runtime/gates`, `runtime/verify`, `runtime/release` — **0 tokens** (pure Go). All are also exposed under `gh optivem atdd debug …` for standalone diagnostics; same code, same zero-token cost.
 - Each remaining agent loads only its own narrow phase doc (e.g. `at-red-test.md`), not `cycles.md` + glossary + diagram-process.
 
 Estimate (rough, to confirm with a real run): ~40–60% reduction in tokens per ticket, concentrated in the orchestration overhead that's currently paid every phase.
@@ -104,10 +320,9 @@ Estimate (rough, to confirm with a real run): ~40–60% reduction in tokens per 
 ## Risks / things this plan must not break
 
 1. **`atdd-orchestrator`'s GitHub MCP tool use.** Some of its `gh project` interactions go via the GitHub MCP server, not plain `gh`. Confirm that everything it does is reachable via `gh` CLI before demoting — if any read needs MCP, leave that read as an agent call (or expose it via a small `gh project` wrapper).
-2. **Cycle rules drift.** Today, `cycles.md` is the single source of truth and agents read it as prose. Once the state machine is encoded in YAML/JSON, that file becomes a *second* source. Either:
-   - Generate the state-machine file from `cycles.md` (a parser script), or
-   - Make the state-machine file authoritative and regenerate the cycles.md ASCII diagrams from it.
-   Don't keep two hand-edited copies.
+2. **Cycle rules drift.** Today, `cycles.md` carries both orchestration prose ("after X, do Y") and phase substance ("what AT-RED-DSL is for"). After the rewrite, those two responsibilities split: orchestration moves into `process-flow.yaml` (single source of truth, the only place transitions are encoded); per-phase substance stays in the per-phase docs (`at-red-test.md`, etc.); `cycles.md` itself either shrinks to a high-level overview or gets retired in favour of the diagram + per-phase docs (see Open Questions). The risk: someone re-introduces orchestration prose into a per-phase doc out of habit. Mitigation: the `gh optivem atdd doctor` subcommand (v2) checks for this; in the meantime, the `token-usage-audit` agent flags it.
+
+The `diagram-generator` agent's contract also inverts (read YAML → write Mermaid, instead of read prose → write Mermaid). The agent body shrinks accordingly. This is a non-trivial contract change — call it out in the rewrite of that agent's body.
 3. **Human-in-the-loop gates.** The repo has firm "ask before commit" / "ask before running system tests" rules in user memory. Scripts must surface these prompts on stdin/stdout, not silently `gh issue close`.
 4. **The `atdd-orchestrator` ↔ `atdd-dispatcher` handoff convention** (orchestrator hands off the issue number only; dispatcher re-fetches) is already lean — preserve that property. The script equivalent should pass the issue number as an arg, not the issue body.
 5. **Discoverability.** `Skill` invocations like `atdd:atdd-implement-ticket` and `atdd:atdd-manage-project` need to point at the new script entrypoints, or the user-facing slash-commands break.
@@ -118,26 +333,39 @@ Estimate (rough, to confirm with a real run): ~40–60% reduction in tokens per 
 1. **Inventory mechanical surface area.**
    - Read every agent under `.claude/agents/atdd/` and tag each section as *mechanical* (rule-based, deterministic) or *creative*.
    - Tally tokens spent on orchestration vs content per agent, to confirm the savings claim quantitatively before refactoring.
-2. **Encode the state machine.**
-   - Translate the AT cycle, CT sub-process, and Structural Cycle flows from `cycles.md` into a single YAML file (`docs/atdd/process/state-machine.yaml`) with phase-id + flag-conditions + next-phase-id.
-   - Add a generator script that produces the ASCII diagram in `cycles.md` and the Mermaid in `diagram-process.md` from this YAML — keeps the prose / state-machine in lock-step.
-   - **Add a unit-test suite for the state machine.** One test per documented transition, plus negative tests for transitions that should *not* exist. The open process-audit questions (CT-exit flag re-evaluation, structural-cycle fix-loop escape, smoke-test fail resume path, Legacy Coverage Cycle interim spec) become *test gaps* that the suite forces a decision on rather than letting them sit as TBDs in prose.
-   - Restructure per-phase docs (`at-red-test.md`, `at-red-dsl.md`, `at-green-system.md`, etc.) to drop "what runs next" and focus on substance: the phase's purpose, what it produces, conventions, example diffs, review criteria, anti-patterns. Orchestration prose moves out; phase substance moves in.
-3. **Build the scripts in order of impact:**
-   - `atdd-next-phase.sh` (highest call count, biggest win).
-   - `atdd-gate.sh`.
-   - `atdd-classify.sh` (with `atdd-classify-fallback` agent for the conflict path).
-   - `atdd-pick-ticket.sh`.
-   - `atdd-release.sh`.
-   - `atdd run` top-level driver tying them together.
+2. **Encode the process flow.**
+   - Translate the AT cycle, CT sub-process, and Structural Cycle flows from `cycles.md` into a single YAML file: `docs/atdd/process/process-flow.yaml` with the BPMN-shaped schema sketched in §Proposed architecture (nodes typed `start_event` / `end_event` / `service_task` / `user_task` / `gateway` / `call_activity`; sequence flows with `when:` predicates; `user_task` nodes carrying `agent:` + `phase_doc:` bindings).
+   - Update `diagram-generator`'s contract: read YAML, write `diagram-process.md` Mermaid. Shrink the agent body accordingly (most prose-to-diagram heuristics become unnecessary).
+   - **Add the unit-test suite** (`gh-optivem/internal/atdd/runtime/statemachine/transitions_test.go`) — one test per sequence flow, plus negative tests. Force decisions on the process-audit gaps (CT exit re-evaluation, smoke-test resume path, structural-cycle escape, Legacy Coverage Cycle interim spec) by writing a test for each — they can no longer remain TBDs.
+   - Restructure per-phase docs (`at-red-test.md`, `at-red-dsl.md`, `at-green-system.md`, etc.) to drop "what runs next" prose and focus on substance: the phase's purpose, what it produces, conventions, example diffs, review criteria, anti-patterns. Orchestration prose moves out (into the YAML); phase substance moves in.
+3. **Build the Go packages in order of impact, all under `gh-optivem`:**
+   - `internal/atdd/runtime/statemachine/` — the engine (functor pattern, ~200 LOC). Exposed for diagnostics as `gh optivem atdd debug next-phase`. Highest call count, biggest token win.
+   - `internal/atdd/runtime/gates/` — gateway evaluators (one Go function per `binding:` in the YAML). Exposed as `gh optivem atdd debug gate <name>`.
+   - `internal/atdd/runtime/verify/` — phase-verification middleware (decorators around each `NodeFn`). Internal only — no CLI surface, not even under `debug`.
+   - `internal/atdd/runtime/classify/` — fast-path classifier + `atdd-classify-fallback` agent for conflict cases. Exposed as `gh optivem atdd debug classify`.
+   - `internal/atdd/runtime/board/` + `internal/atdd/runtime/release/` — board/pick logic and release/cleanup. Exposed as `gh optivem atdd debug pick-top-ready` and `gh optivem atdd debug release`.
+   - `internal/atdd/runtime/driver/` + `cmd/optivem/atdd_*.go` — the top-level driver loop and the user-facing `gh optivem atdd implement-ticket` and `gh optivem atdd manage-project` subcommands (the only commands shown in `--help` by default; the `debug` parent is `Hidden: true`).
+   - `internal/atdd/runtime/override/` — override-hook decorator scaffolding (no CLI surface yet; v1 wraps every node, v2 exposes `--extra` / `--replace` / `--interactive` flags on `implement-ticket`).
 4. **Slim the kept agents.** For each remaining agent, strip orchestration prose and `@includes` of cross-phase docs. Each agent body should describe only its WRITE / REVIEW / COMMIT mechanics for its phase.
-5. **Update slash-commands.** Repoint `atdd:atdd-implement-ticket` and `atdd:atdd-manage-project` at `atdd run …`.
+5. **Update slash-commands.** Repoint `atdd:atdd-implement-ticket` and `atdd:atdd-manage-project` at `gh optivem atdd implement-ticket` and `gh optivem atdd manage-project` respectively. The slash commands become thin wrappers that pass through `--issue`, `--project`, `--autonomous`, `--rehearsal`, `--no-memory`, etc. to the binary.
 6. **Run a real ticket end-to-end** with the new driver, capture token usage, and compare against the same ticket replayed via the agent-only path. Decision gate: ship only if tokens drop ≥ 30% and all human-in-the-loop gates still fire.
 7. **Delete demoted agents** only after one full week of green pipeline runs through the new driver.
 
+## Decisions made
+
+1. **Language:** Go. Single static binary, ships via the existing `gh-optivem` plugin.
+2. **Location:** `gh-optivem` from day one — no detour through `shop`. Runtime code at `gh-optivem/internal/atdd/runtime/` (kept separate from existing scaffold-time `internal/atdd/install.go`). User-facing entrypoint is `gh optivem atdd …`.
+3. **Process-flow encoding:** YAML-canonical (`docs/atdd/process/process-flow.yaml`); Mermaid diagram regenerated from YAML; per-phase prose docs hand-edited but validated against the YAML.
+4. **Vocabulary:** BPMN-shaped (process flow with activities and gateways), not FSM. Borrow vocabulary, don't import a BPMN engine.
+5. **Engine:** hand-coded functor pattern, ~200 lines of Go. No FSM library, no workflow engine. (Rationale in §Engine design.)
+6. **CLI surface (porcelain/plumbing split):** `gh optivem atdd implement-ticket` and `gh optivem atdd manage-project` are the only public commands, mirroring today's slash commands. Diagnostic helpers (`pick-top-ready`, `classify`, `next-phase`, `gate`, `release`) live under a hidden parent `gh optivem atdd debug …` (Cobra `Hidden: true`) — invokable for debugging, not part of the stable API contract.
+7. **Override hook:** decorator middleware shipped in v1 with no CLI surface; v2 adds `--extra` / `--replace` / `--interactive` flags.
+8. **"Gate" three-way split:** gateway nodes (BPMN exclusive gateways) are first-class YAML nodes with CLI surface; phase verifications are internal middleware; external-state polls are bodies of mechanical wait-tasks.
+
 ## Open questions for the user
 
-1. Do you want the script driver to live in `bin/` (Bash) or in a new `atdd/` Python package? Bash is closer to existing tooling; Python is easier for the state-machine evaluator and YAML parsing.
-2. Should `atdd-classify` always try the fast path in script and only escalate to an LLM on conflict, or should every classification still go through an agent for traceability? (My recommendation: fast-path-in-script, since the dispatcher doc already documents that path as deterministic.)
-3. Is `cycles.md` allowed to become *generated* from a YAML state machine, or must it remain the hand-edited canonical source? This is the biggest doc-architecture decision in the plan.
-4. Are there phases of the AT/CT cycle you consider "creative" that I've classified as mechanical (or vice versa)? The split above is my read — worth a sanity-check before any code moves.
+1. **Classify fallback policy:** should the classifier (called internally by `implement-ticket`; exposed as `gh optivem atdd debug classify`) always try the fast path in Go and only escalate to the `atdd-classify-fallback` agent on conflict, or should every classification still go through an agent for traceability? (My recommendation: fast-path-in-Go, since the dispatcher doc already documents that path as deterministic.)
+2. **Mechanical vs creative split:** are there phases of the AT/CT cycle you consider "creative" that I've classified as mechanical (or vice versa)? The split in §Current state is my read — worth a sanity-check before any code moves.
+3. **Boundary events for v2?** BPMN supports timeouts and error escalations as boundary events on activities ("if this user_task has been waiting >30 min, escalate"). Useful for stuck pipelines but adds engine complexity. Deferred to v2 unless you want them in v1.
+4. **`cycles.md` after the rewrite.** Once orchestration moves to YAML and substance moves to per-phase docs, `cycles.md` itself has very little left. Options: (a) shrink to a high-level overview pointing at the YAML and per-phase docs; (b) retire it entirely; (c) regenerate it from the YAML as a human-readable description. My lean: (a) — useful landing page for new readers.
+5. **Click-through to `gh-optivem` plumbing.** Adding `optivem atdd …` as a new top-level subcommand family in `gh-optivem/main.go` requires Cobra wiring (a `Use: "atdd"` parent command + each helper as a child). That's the same pattern as the existing `optivem test`, `optivem run`, etc. — should be straightforward but worth confirming the conventions used in `gh-optivem`'s `runner_commands.go` before adding ours.
