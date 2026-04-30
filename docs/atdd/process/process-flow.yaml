@@ -1,0 +1,587 @@
+# ATDD Pipeline — Orchestration Flow
+#
+# Single source of truth for cycle-level orchestration. Encodes the AT cycle,
+# the CT sub-process, the External System Onboarding sub-process, the shared
+# structural cycle (used by system-api-task / system-ui-task / chore), the
+# external-api-task wrapper, and the (TBD) Legacy Coverage cycle as named flows
+# of typed nodes connected by sequence flows.
+#
+# Per-phase WRITE/COMMIT mechanics (e.g. the inner compile/run/disable loop of
+# AT - RED - TEST) are *not* encoded here — they live in the per-phase docs
+# (at-red-test.md, at-red-dsl.md, ...) and stay agent-internal. The YAML
+# describes the orchestrator's view: what dispatches next, gated by which flag.
+#
+# Node types (BPMN-shaped vocabulary):
+#   start_event    Flow entry.
+#   end_event      Flow terminus.
+#   service_task   Mechanical action; the Go runtime auto-executes
+#                  actions.<action> with no agent dispatch.
+#   user_task      Creative work; the Go runtime dispatches the named agent
+#                  and waits for its COMMIT output. A user_task with
+#                  `agent: human` is a STOP — no dispatch, just block on
+#                  human input.
+#   gateway        XOR decision; the Go runtime calls gates.<binding>(ctx)
+#                  and follows the outgoing edge whose `when:` predicate
+#                  matches the returned value.
+#   call_activity  Embedded sub-flow; control returns to the parent flow's
+#                  next sequence flow on completion.
+#
+# Sequence flows:
+#   {from: A, to: B}                       Unconditional.
+#   {from: A, to: B, when: "<predicate>"}  Outgoing edge from a gateway.
+#                                          Predicates are evaluated against
+#                                          the value returned by the gateway's
+#                                          `binding:` function.
+#
+# Optional fields:
+#   description:   Free-text node label; rendered in the Mermaid diagram.
+#   role:          `review` (human-review STOP — yellow styling)
+#                  or `implement` (substantive engineering work — blue styling).
+#                  Drives diagram-generator output only; not consumed by the runtime.
+#   params:        Map of name→value substituted into the called flow's nodes
+#                  at dispatch time (used by call_activity to parameterise
+#                  the shared structural_cycle).
+#
+# Open gaps preserved as TBDs (do not silently resolve):
+#   - legacy_coverage flow: single TBD node; full mechanics deferred per
+#     glossary.md ("The Legacy Coverage Cycle's own internal phases are TBD").
+#   - ct_green_stubs node: agent set to `atdd-stubs`; ownership is TBD per the
+#     process-audit gap on stubs ownership (see plans/20260429-100633-process-audit.md).
+
+flows:
+
+  # ===========================================================================
+  # main
+  # Entry flow for `gh optivem atdd implement-ticket --issue N` and
+  # `gh optivem atdd manage-project`. Drives intake, dispatches to the
+  # type-specific cycle, and ends at TICKET STATUS - IN ACCEPTANCE.
+  # ===========================================================================
+  main:
+    start: START
+    nodes:
+      - id: START
+        type: start_event
+
+      - id: PICK_TOP_READY
+        type: service_task
+        action: pick_top_ready
+        description: "Pick top Ready ticket"
+
+      - id: MOVE_TO_IN_PROGRESS
+        type: service_task
+        action: move_to_in_progress
+        description: "Move ticket to In Progress (bottom of lane)"
+
+      - id: CLASSIFY
+        type: service_task
+        action: classify_ticket
+        description: "Classify ticket (fast path; ask user on conflict)"
+
+      - id: GATE_TICKET_TYPE
+        type: gateway
+        binding: ticket_type
+        description: "Ticket Type?"
+
+      - id: ATDD_STORY
+        type: user_task
+        agent: atdd-story
+        phase_doc: docs/atdd/process/intake-story.md  # to be created in step 1b
+        description: "atdd-story (intake)"
+
+      - id: ATDD_BUG
+        type: user_task
+        agent: atdd-bug
+        phase_doc: docs/atdd/process/intake-bug.md
+        description: "atdd-bug (intake)"
+
+      - id: ATDD_TASK
+        type: user_task
+        agent: atdd-task
+        phase_doc: docs/atdd/process/intake-task.md
+        description: "atdd-task (intake)"
+
+      - id: ATDD_CHORE
+        type: user_task
+        agent: atdd-chore
+        phase_doc: docs/atdd/process/intake-chore.md
+        description: "atdd-chore (intake)"
+
+      - id: STOP_INTAKE
+        type: user_task
+        agent: human
+        role: review
+        description: "STOP - HUMAN REVIEW — approve scenarios"
+
+      - id: GATE_LEGACY
+        type: gateway
+        binding: legacy_coverage_section_present
+        description: "Legacy Coverage section present?"
+
+      - id: LEGACY_CYCLE
+        type: call_activity
+        flow: legacy_coverage
+
+      - id: GATE_CHANGE_DRIVEN
+        type: gateway
+        binding: change_driven_ac_produced
+        description: "Change-driven AC produced?"
+
+      - id: AT_CYCLE
+        type: call_activity
+        flow: at_cycle
+
+      - id: SYSAPI_CYCLE
+        type: call_activity
+        flow: structural_cycle
+        params:
+          phase: "SYSTEM API REDESIGN"
+          agent: atdd-task
+          phase_doc: docs/atdd/process/sysapi-redesign.md
+          subtype: system-api-redesign
+
+      - id: SYSUI_CYCLE
+        type: call_activity
+        flow: structural_cycle
+        params:
+          phase: "SYSTEM UI REDESIGN"
+          agent: atdd-task
+          phase_doc: docs/atdd/process/sysui-redesign.md
+          subtype: system-ui-redesign
+
+      - id: EXTAPI_CYCLE
+        type: call_activity
+        flow: external_api_task_cycle
+
+      - id: CHORE_CYCLE
+        type: call_activity
+        flow: structural_cycle
+        params:
+          phase: CHORE
+          agent: atdd-chore
+          phase_doc: docs/atdd/process/chore.md
+
+      - id: TICKET_IN_ACCEPTANCE
+        type: service_task
+        action: move_to_in_acceptance
+        description: "Tick checklist + move issue to IN ACCEPTANCE"
+
+      - id: END
+        type: end_event
+
+    sequence_flows:
+      - {from: START,                to: PICK_TOP_READY,         when: "mode == board"}
+      - {from: START,                to: MOVE_TO_IN_PROGRESS,    when: "mode == specific_issue"}
+      - {from: PICK_TOP_READY,       to: MOVE_TO_IN_PROGRESS}
+      - {from: MOVE_TO_IN_PROGRESS,  to: CLASSIFY}
+      - {from: CLASSIFY,             to: GATE_TICKET_TYPE}
+      - {from: GATE_TICKET_TYPE,     to: ATDD_STORY,             when: "ticket_type == story"}
+      - {from: GATE_TICKET_TYPE,     to: ATDD_BUG,               when: "ticket_type == bug"}
+      - {from: GATE_TICKET_TYPE,     to: ATDD_TASK,              when: "ticket_type in [system-api-task, system-ui-task, external-api-task]"}
+      - {from: GATE_TICKET_TYPE,     to: ATDD_CHORE,             when: "ticket_type == chore"}
+      - {from: ATDD_STORY,           to: STOP_INTAKE}
+      - {from: ATDD_BUG,             to: STOP_INTAKE}
+      - {from: ATDD_TASK,            to: STOP_INTAKE}
+      - {from: ATDD_CHORE,           to: STOP_INTAKE}
+      - {from: STOP_INTAKE,          to: GATE_LEGACY}
+      - {from: GATE_LEGACY,          to: LEGACY_CYCLE,           when: "legacy_coverage_section_present == true"}
+      - {from: GATE_LEGACY,          to: GATE_CHANGE_DRIVEN,     when: "legacy_coverage_section_present == false"}
+      - {from: LEGACY_CYCLE,         to: GATE_CHANGE_DRIVEN}
+      - {from: GATE_CHANGE_DRIVEN,   to: AT_CYCLE,               when: "ticket_type in [story, bug]"}
+      - {from: GATE_CHANGE_DRIVEN,   to: SYSAPI_CYCLE,           when: "ticket_type == system-api-task"}
+      - {from: GATE_CHANGE_DRIVEN,   to: SYSUI_CYCLE,            when: "ticket_type == system-ui-task"}
+      - {from: GATE_CHANGE_DRIVEN,   to: EXTAPI_CYCLE,           when: "ticket_type == external-api-task"}
+      - {from: GATE_CHANGE_DRIVEN,   to: CHORE_CYCLE,            when: "ticket_type == chore"}
+      - {from: AT_CYCLE,             to: TICKET_IN_ACCEPTANCE}
+      - {from: SYSAPI_CYCLE,         to: TICKET_IN_ACCEPTANCE}
+      - {from: SYSUI_CYCLE,          to: TICKET_IN_ACCEPTANCE}
+      - {from: EXTAPI_CYCLE,         to: TICKET_IN_ACCEPTANCE}
+      - {from: CHORE_CYCLE,          to: TICKET_IN_ACCEPTANCE}
+      - {from: TICKET_IN_ACCEPTANCE, to: END}
+
+  # ===========================================================================
+  # at_cycle
+  # AT Cycle — driven by change-driven AC (story / bug).
+  # Embeds the CT sub-process when External Driver interfaces change.
+  # Embeds at_green_system as its terminal sub-flow.
+  # ===========================================================================
+  at_cycle:
+    start: AT_RED_TEST
+    nodes:
+      - id: AT_RED_TEST
+        type: user_task
+        agent: atdd-test
+        phase_doc: docs/atdd/process/at-red-test.md
+        description: "AT - RED - TEST"
+
+      - id: GATE_DSL_AT
+        type: gateway
+        binding: dsl_interface_changed
+        description: "DSL Interface Changed?"
+
+      - id: AT_RED_DSL
+        type: user_task
+        agent: atdd-dsl
+        phase_doc: docs/atdd/process/at-red-dsl.md
+        description: "AT - RED - DSL"
+
+      - id: GATE_EXT_AT
+        type: gateway
+        binding: external_system_driver_interface_changed
+        description: "External System Driver Interface Changed?"
+
+      - id: CT_SUBPROCESS
+        type: call_activity
+        flow: ct_subprocess
+
+      - id: GATE_SYS_AT
+        type: gateway
+        binding: system_driver_interface_changed
+        description: "System Driver Interface Changed?"
+
+      - id: AT_RED_SYSTEM_DRIVER
+        type: user_task
+        agent: atdd-driver
+        phase_doc: docs/atdd/process/at-red-system-driver.md
+        description: "AT - RED - SYSTEM DRIVER"
+
+      - id: AT_GREEN_SYSTEM
+        type: call_activity
+        flow: at_green_system
+
+      - id: AT_END
+        type: end_event
+
+    sequence_flows:
+      - {from: AT_RED_TEST,          to: GATE_DSL_AT}
+      - {from: GATE_DSL_AT,          to: AT_GREEN_SYSTEM,        when: "dsl_interface_changed == false"}
+      - {from: GATE_DSL_AT,          to: AT_RED_DSL,             when: "dsl_interface_changed == true"}
+      - {from: AT_RED_DSL,           to: GATE_EXT_AT}
+      - {from: GATE_EXT_AT,          to: CT_SUBPROCESS,          when: "external_system_driver_interface_changed == true"}
+      - {from: GATE_EXT_AT,          to: GATE_SYS_AT,            when: "external_system_driver_interface_changed == false"}
+      - {from: CT_SUBPROCESS,        to: GATE_SYS_AT}
+      - {from: GATE_SYS_AT,          to: AT_RED_SYSTEM_DRIVER,   when: "system_driver_interface_changed == true"}
+      - {from: GATE_SYS_AT,          to: AT_GREEN_SYSTEM,        when: "system_driver_interface_changed == false"}
+      - {from: AT_RED_SYSTEM_DRIVER, to: AT_GREEN_SYSTEM}
+      - {from: AT_GREEN_SYSTEM,      to: AT_END}
+
+  # ===========================================================================
+  # at_green_system
+  # AT - GREEN - SYSTEM — backend + frontend WRITE, human review, release COMMIT.
+  # Per cycles.md "Phase-to-Agent Mapping": atdd-backend handles API channel,
+  # atdd-frontend handles UI channel, the orchestrator owns REVIEW STOP, and
+  # atdd-release runs the COMMIT step.
+  # ===========================================================================
+  at_green_system:
+    start: ATDD_BACKEND
+    nodes:
+      - id: ATDD_BACKEND
+        type: user_task
+        agent: atdd-backend
+        phase_doc: docs/atdd/process/at-green-system.md
+        description: "AT - GREEN - SYSTEM - WRITE (backend)"
+
+      - id: ATDD_FRONTEND
+        type: user_task
+        agent: atdd-frontend
+        phase_doc: docs/atdd/process/at-green-system.md
+        description: "AT - GREEN - SYSTEM - WRITE (frontend)"
+
+      - id: STOP_GREEN_REVIEW
+        type: user_task
+        agent: human
+        role: review
+        description: "STOP - HUMAN REVIEW — approve implementation"
+
+      - id: ATDD_RELEASE
+        type: user_task
+        agent: atdd-release
+        phase_doc: docs/atdd/process/at-green-system.md
+        description: "AT - GREEN - SYSTEM - COMMIT (atdd-release)"
+
+      - id: GS_END
+        type: end_event
+
+    sequence_flows:
+      - {from: ATDD_BACKEND,      to: ATDD_FRONTEND}
+      - {from: ATDD_FRONTEND,     to: STOP_GREEN_REVIEW}
+      - {from: STOP_GREEN_REVIEW, to: ATDD_RELEASE}
+      - {from: ATDD_RELEASE,      to: GS_END}
+
+  # ===========================================================================
+  # ct_subprocess
+  # Contract Test Sub-Process — entered when External Driver interfaces
+  # change. Calls External System Onboarding first to ensure a Driver and
+  # Test Instance exist.
+  # ===========================================================================
+  ct_subprocess:
+    start: ONBOARDING
+    nodes:
+      - id: ONBOARDING
+        type: call_activity
+        flow: external_system_onboarding
+
+      - id: CT_RED_TEST
+        type: user_task
+        agent: atdd-test
+        phase_doc: docs/atdd/process/ct-red-test.md
+        description: "CT - RED - TEST"
+
+      - id: GATE_DSL_CT
+        type: gateway
+        binding: dsl_interface_changed
+        description: "DSL Interface Changed?"
+
+      - id: CT_RED_DSL
+        type: user_task
+        agent: atdd-dsl
+        phase_doc: docs/atdd/process/ct-red-dsl.md
+        description: "CT - RED - DSL"
+
+      - id: GATE_EXT_CT
+        type: gateway
+        binding: external_system_driver_interface_changed
+        description: "External System Driver Interface Changed?"
+
+      - id: CT_RED_EXTERNAL_DRIVER
+        type: user_task
+        agent: atdd-driver
+        phase_doc: docs/atdd/process/ct-red-external-driver.md
+        description: "CT - RED - EXTERNAL DRIVER"
+
+      - id: CT_GREEN_STUBS
+        # Ownership TBD per process-audit gap on stubs ownership.
+        # Placeholder agent name; resolve before the Go runtime ships.
+        type: user_task
+        agent: atdd-stubs
+        phase_doc: docs/atdd/process/ct-green-stubs.md
+        description: "CT - GREEN - STUBS"
+
+      - id: CT_END
+        type: end_event
+
+    sequence_flows:
+      - {from: ONBOARDING,             to: CT_RED_TEST}
+      - {from: CT_RED_TEST,            to: GATE_DSL_CT}
+      - {from: GATE_DSL_CT,            to: CT_GREEN_STUBS,         when: "dsl_interface_changed == false"}
+      - {from: GATE_DSL_CT,            to: CT_RED_DSL,             when: "dsl_interface_changed == true"}
+      - {from: CT_RED_DSL,             to: GATE_EXT_CT}
+      - {from: GATE_EXT_CT,            to: CT_GREEN_STUBS,         when: "external_system_driver_interface_changed == false"}
+      - {from: GATE_EXT_CT,            to: CT_RED_EXTERNAL_DRIVER, when: "external_system_driver_interface_changed == true"}
+      - {from: CT_RED_EXTERNAL_DRIVER, to: CT_GREEN_STUBS}
+      - {from: CT_GREEN_STUBS,         to: CT_END}
+
+  # ===========================================================================
+  # external_system_onboarding
+  # One-time-per-external-system prerequisite to CT - RED - TEST. Resolves two
+  # orthogonal questions (does a Driver exist? is a Test Instance accessible?)
+  # before per-scenario contract testing starts. Returns immediately if the
+  # Driver already exists.
+  #
+  # Implementation steps are currently agent-less (`agent: human`) — there is
+  # no dedicated atdd-onboarding agent today; replace once one exists.
+  # `role: implement` flags substantive engineering work for diagram styling.
+  # ===========================================================================
+  external_system_onboarding:
+    start: GATE_DRIVER_EXISTS
+    nodes:
+      - id: GATE_DRIVER_EXISTS
+        type: gateway
+        binding: external_system_driver_exists
+        description: "External System Driver exists?"
+
+      - id: GATE_INSTANCE_ACCESSIBLE
+        type: gateway
+        binding: external_system_test_instance_accessible
+        description: "Test Instance accessible?"
+
+      - id: PROVISION
+        type: user_task
+        agent: human
+        role: implement
+        description: "Provision dockerized stand-in"
+
+      - id: DEFINE_IFACE
+        type: user_task
+        agent: human
+        role: implement
+        description: "Define minimal Driver interface"
+
+      - id: IMPL_DRIVER
+        type: user_task
+        agent: human
+        role: implement
+        description: "Implement Driver impl for Smoke Test"
+
+      - id: WRITE_SMOKE
+        type: user_task
+        agent: human
+        role: implement
+        description: "Write single Smoke Test"
+
+      - id: RUN_SMOKE
+        type: service_task
+        action: run_smoke_test
+        description: "Run Smoke Test"
+
+      - id: GATE_SMOKE_PASS
+        type: gateway
+        binding: smoke_test_passes
+        description: "Smoke Test passes?"
+
+      - id: ASK_SUPPORT
+        type: user_task
+        agent: human
+        role: review
+        description: "Ask user for support and STOP"
+
+      - id: STOP_ONBOARD_REVIEW
+        type: user_task
+        agent: human
+        role: review
+        description: "STOP - HUMAN REVIEW — approve onboarding artifacts"
+
+      - id: COMMIT_ONBOARD
+        type: service_task
+        action: commit_onboarding
+        description: "COMMIT: External System Onboarding | <name>"
+
+      - id: ONBOARD_END
+        type: end_event
+
+    sequence_flows:
+      - {from: GATE_DRIVER_EXISTS,      to: ONBOARD_END,             when: "external_system_driver_exists == true"}
+      - {from: GATE_DRIVER_EXISTS,      to: GATE_INSTANCE_ACCESSIBLE, when: "external_system_driver_exists == false"}
+      - {from: GATE_INSTANCE_ACCESSIBLE, to: DEFINE_IFACE,            when: "external_system_test_instance_accessible == true"}
+      - {from: GATE_INSTANCE_ACCESSIBLE, to: PROVISION,               when: "external_system_test_instance_accessible == false"}
+      - {from: PROVISION,               to: DEFINE_IFACE}
+      - {from: DEFINE_IFACE,            to: IMPL_DRIVER}
+      - {from: IMPL_DRIVER,             to: WRITE_SMOKE}
+      - {from: WRITE_SMOKE,             to: RUN_SMOKE}
+      - {from: RUN_SMOKE,               to: GATE_SMOKE_PASS}
+      - {from: GATE_SMOKE_PASS,         to: ASK_SUPPORT,             when: "smoke_test_passes == false"}
+      - {from: GATE_SMOKE_PASS,         to: STOP_ONBOARD_REVIEW,     when: "smoke_test_passes == true"}
+      - {from: STOP_ONBOARD_REVIEW,     to: COMMIT_ONBOARD}
+      - {from: COMMIT_ONBOARD,          to: ONBOARD_END}
+
+  # ===========================================================================
+  # structural_cycle
+  # Shared by system-api-task, system-ui-task, and chore via call_activity
+  # `params:`. The Go runtime substitutes ${phase}, ${agent}, ${phase_doc} at
+  # dispatch time. The TEST gate (full | compile | skip) is asked upfront —
+  # nothing inside TEST runs until the user chooses.
+  # ===========================================================================
+  structural_cycle:
+    start: STRUCT_WRITE
+    nodes:
+      - id: STRUCT_WRITE
+        type: user_task
+        agent: ${agent}
+        phase_doc: ${phase_doc}
+        description: "${phase} - WRITE"
+
+      - id: STOP_STRUCT_REVIEW
+        type: user_task
+        agent: human
+        role: review
+        description: "STOP - HUMAN REVIEW — approve implementation"
+
+      - id: GATE_TEST_MODE
+        type: gateway
+        binding: structural_test_mode
+        description: "TEST mode? (full | compile | skip)"
+
+      - id: COMPILE
+        type: service_task
+        action: compile_in_scope
+        description: "Compile in-scope projects"
+
+      - id: SAMPLE
+        type: service_task
+        action: run_sample_suite
+        description: "Run sample suite"
+
+      - id: DRIFT
+        type: service_task
+        action: print_drift_warning
+        description: "Print drift warning if applicable"
+
+      - id: STOP_STRUCT_TEST
+        type: user_task
+        agent: human
+        role: review
+        description: "STOP - HUMAN REVIEW — review TEST results"
+
+      - id: ASK_COMMIT
+        type: service_task
+        action: ask_can_i_commit
+        description: "Ask: Can I commit?"
+
+      - id: COMMIT_STRUCT
+        type: service_task
+        action: commit_phase
+        params:
+          phase: ${phase}
+        description: "COMMIT: <Ticket> | ${phase}"
+
+      - id: TICK
+        type: service_task
+        action: tick_checklist
+        description: "Tick checklist items"
+
+      - id: STRUCT_END
+        type: end_event
+
+    sequence_flows:
+      - {from: STRUCT_WRITE,       to: STOP_STRUCT_REVIEW}
+      - {from: STOP_STRUCT_REVIEW, to: GATE_TEST_MODE}
+      - {from: GATE_TEST_MODE,     to: ASK_COMMIT,        when: "structural_test_mode == skip"}
+      - {from: GATE_TEST_MODE,     to: COMPILE,           when: "structural_test_mode in [compile, full]"}
+      - {from: COMPILE,            to: SAMPLE,            when: "structural_test_mode == full"}
+      - {from: COMPILE,            to: DRIFT,             when: "structural_test_mode == compile"}
+      - {from: SAMPLE,             to: DRIFT}
+      - {from: DRIFT,              to: STOP_STRUCT_TEST}
+      - {from: STOP_STRUCT_TEST,   to: ASK_COMMIT}
+      - {from: ASK_COMMIT,         to: COMMIT_STRUCT}
+      - {from: COMMIT_STRUCT,      to: TICK}
+      - {from: TICK,               to: STRUCT_END}
+
+  # ===========================================================================
+  # external_api_task_cycle
+  # Thin wrapper — has no standalone WRITE/REVIEW/TEST/COMMIT; routes entirely
+  # through the CT sub-process. Per cycles.md "External API Task Cycle".
+  # ===========================================================================
+  external_api_task_cycle:
+    start: EXTAPI_CT
+    nodes:
+      - id: EXTAPI_CT
+        type: call_activity
+        flow: ct_subprocess
+
+      - id: EXTAPI_END
+        type: end_event
+
+    sequence_flows:
+      - {from: EXTAPI_CT, to: EXTAPI_END}
+
+  # ===========================================================================
+  # legacy_coverage
+  # TBD per glossary.md ("The Legacy Coverage Cycle's own internal phases are
+  # TBD") and process-audit gap on Legacy Coverage Cycle interim spec.
+  # The placeholder is a single human-review STOP so the runtime can dispatch
+  # something sensible until the spec lands; replace once cycles.md fills the
+  # internal flow.
+  # ===========================================================================
+  legacy_coverage:
+    start: LEGACY_TBD
+    nodes:
+      - id: LEGACY_TBD
+        type: user_task
+        agent: human
+        role: review
+        description: "STOP - HUMAN REVIEW — Legacy Coverage Cycle TBD"
+
+      - id: LEGACY_END
+        type: end_event
+
+    sequence_flows:
+      - {from: LEGACY_TBD, to: LEGACY_END}
