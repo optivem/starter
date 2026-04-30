@@ -1,5 +1,7 @@
 # Script vs agent: separate mechanical orchestration from creative work in the ATDD pipeline
 
+🤖 **Picked up by agent** — `Valentina_Desk` at `2026-04-30T07:09:08Z`
+
 ## Motivation
 
 Distinguish **repetitive / mechanical** work from **creative** work in the ATDD pipeline so that:
