@@ -1,5 +1,8 @@
 name: prerelease-pipeline-multitier-typescript
 
+run-name: >-
+  prerelease-pipeline-multitier-typescript${{ inputs.level && inputs.level != 'qa' && format(' [level:{0}]', inputs.level) || '' }}${{ inputs.skip-local-stage && ' [skip-local]' || '' }}${{ inputs.skip-commit-stage && ' [skip-commit]' || '' }}${{ inputs.skip-acceptance-legacy && ' [skip-acceptance-legacy]' || '' }}${{ inputs.debug-skip-tests && ' [debug-skip-tests]' || '' }}${{ inputs.commit-sha && ' [pinned-sha]' || '' }}
+
 on:
   workflow_dispatch:
     inputs:
