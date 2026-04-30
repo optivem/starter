@@ -126,9 +126,11 @@ jobs:
             exit 1
           fi
           RELEASE_TAG="meta-v${TAG_VERSION}"
-          echo "commit-sha=${SHA}" >> "$GITHUB_OUTPUT"
-          echo "version=${TAG_VERSION}" >> "$GITHUB_OUTPUT"
-          echo "release_tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
+          {
+            echo "commit-sha=${SHA}"
+            echo "version=${TAG_VERSION}"
+            echo "release_tag=${RELEASE_TAG}"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Verify meta release tag does not already exist
         env:
