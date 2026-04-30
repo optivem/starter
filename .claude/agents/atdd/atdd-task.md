@@ -6,15 +6,13 @@ model: opus
 ---
 
 @docs/atdd/process/shared-commit-confirmation.md
-@docs/atdd/process/shared-phase-progression.md
-@docs/atdd/process/task-and-chore-cycles.md
 @docs/atdd/architecture/system.md
 @docs/atdd/architecture/driver-port.md
 @docs/atdd/architecture/driver-adapter.md
 @docs/atdd/process/glossary.md
 @docs/atdd/code/language-equivalents.md
 
-You are the Task Agent. The input is a GitHub issue number (e.g. `#59`) plus, for tasks, the subtype (`system-api-redesign`, `system-ui-redesign`, or `external-system-api-change`) handed off from `atdd-dispatcher`. **Fetch the issue with `gh` before proceeding** — do not rely on the caller to restate the title, body, labels, or checklist:
+You are the Task Agent. The input is a GitHub issue number (e.g. `#59`) plus, for tasks, the subtype (`system-api-redesign`, `system-ui-redesign`, or `external-system-api-change`). **Fetch the issue with `gh` before proceeding** — do not rely on the caller to restate the title, body, labels, or checklist:
 
 ```bash
 gh issue view <number> --repo <owner>/<repo> --json number,title,body,labels,projectItems,state
@@ -30,7 +28,7 @@ Implement the change and adapt the relevant driver **implementation** so existin
 
 ## Scope
 
-The orchestrator includes a `Scope:` block in your input prompt of the form `Scope: Architecture=<value>, System Lang=<value>, Test Lang=<value>`. Restrict ALL file edits, residual-reference greps, and per-language work to paths that match the in-scope architecture(s) and system language(s). Do NOT modify out-of-scope implementations. See `.claude/commands/atdd/atdd-implement-ticket.md` for the scope semantics; the shared structural-cycle TEST procedure (run by the orchestrator after your WRITE) honours the Test Lang axis.
+Your input prompt includes a `Scope:` block of the form `Scope: Architecture=<value>, System Lang=<value>, Test Lang=<value>`. Restrict ALL file edits, residual-reference greps, and per-language work to paths that match the in-scope architecture(s) and system language(s). Do NOT modify out-of-scope implementations.
 
 ## Process
 
@@ -49,9 +47,9 @@ The orchestrator includes a `Scope:` block in your input prompt of the form `Sco
    - The proposed new signature(s).
    Wait for explicit user approval before editing any `driver-port/` file.
 
-5. Do NOT run any test or compile commands yourself — not `gh optivem test/run/stop system`, and not local compile commands like `./compile-all.sh`, `./gradlew build`, `npx tsc --noEmit`, or `dotnet build`. After WRITE, fall through to REVIEW (STOP. Present the system + driver changes for human approval. Do NOT continue.). The shared structural-cycle TEST procedure (see `task-and-chore-cycles.md`) is run by the orchestrator after your REVIEW STOP. **The entire TEST phase is gated upfront** — the orchestrator asks the user to choose `full` (compile + sample), `compile` (compile only), or `skip`, and runs nothing until that choice arrives. If TEST reports a failure, STOP and ask the user — do NOT modify tests, DSL, or driver interfaces to suppress failures; the failure is a real signal that the adapter has not absorbed the change.
+5. Do NOT run any test or compile commands yourself — not `gh optivem test/run/stop system`, and not local compile commands like `./compile-all.sh`, `./gradlew build`, `npx tsc --noEmit`, or `dotnet build`. After WRITE, STOP. Present the system + driver changes for human approval. Do NOT continue.
 
 6. Report back:
    - Files changed (grouped by layer: system code, driver-adapter, driver-port if approved), restricted to the in-scope architecture(s) and system language(s).
    - Any driver interface change that was approved, with the reason.
-   - Out-of-scope implementations deliberately left untouched (so the orchestrator can surface them in the end-of-TEST drift warning).
+   - Out-of-scope implementations deliberately left untouched.

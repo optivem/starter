@@ -6,7 +6,6 @@ model: opus
 ---
 
 @docs/atdd/process/shared-commit-confirmation.md
-@docs/atdd/process/shared-phase-progression.md
 @docs/atdd/process/at-cycle-conventions.md
 @docs/atdd/process/ct-cycle-conventions.md
 @docs/atdd/process/at-red-system-driver.md
@@ -21,4 +20,4 @@ You are the Driver Agent. Follow the phase specified in the input:
 
 Apply Driver Port Rules from `driver-port.md`.
 
-Report back exactly as the phase requires. After WRITE, fall through to REVIEW and STOP for human approval. STOP whenever a phase says STOP.
+Report back exactly as the phase requires. After WRITE, fall through to REVIEW and STOP for human approval.

@@ -1,6 +1,6 @@
 # Script vs agent: separate mechanical orchestration from creative work in the ATDD pipeline
 
-🤖 **Picked up by agent** — `Valentina_Desk` at `2026-04-30T09:13:21Z`
+🤖 **Picked up by agent** — `Valentina_Desk` at `2026-04-30T09:57:50Z`
 
 ## Token-efficient execution strategy (recommended)
 
@@ -363,9 +363,8 @@ Session 1 of the rollout (the foundation chunk in §Token-efficient execution st
    - `internal/atdd/runtime/verify/` — write the real `PreFn` / `PostFn` checks (e.g. "before AT_RED_DSL_WRITE, HEAD must match `^AT - RED - TEST - COMMIT`").
 3. **Driver + cmd wiring** (Session 3). `internal/atdd/runtime/driver/` (the top-level loop wiring engine.RunFlow with bound registries, override hooks, and verify decorators) + a new `gh-optivem/atdd_commands.go` exposing `gh optivem atdd implement-ticket --issue N` and `gh optivem atdd manage-project` (and the hidden `debug` parent for the diagnostic helpers). One line into `main.go` rootCmd.
 4. **Update slash-commands** (Session 3). Repoint `atdd:atdd-implement-ticket` and `atdd:atdd-manage-project` at `gh optivem atdd implement-ticket` and `gh optivem atdd manage-project`. Pass through `--issue`, `--project`, `--autonomous`, `--rehearsal`, `--no-memory`, etc.
-5. **Slim the kept agents** (Session 5). For each remaining agent (`atdd-story`, `atdd-bug`, `atdd-task`, `atdd-chore`, `atdd-test`, `atdd-dsl`, `atdd-driver`, `atdd-backend`, `atdd-frontend`), strip orchestration prose and cross-phase `@includes`. Each agent body should describe only its WRITE / REVIEW / COMMIT mechanics for its phase. Parallelizable across subagents (one per agent file).
-6. **Run a real ticket end-to-end** with the new driver, capture token usage, and compare against the same ticket replayed via the agent-only path. Decision gate: ship only if tokens drop ≥ 30% and all human-in-the-loop gates still fire. _User-driven; cannot be executed by an agent batch._
-7. **Delete demoted agents** only after one full week of green pipeline runs through the new driver. _User-driven._
+5. **Run a real ticket end-to-end** with the new driver, capture token usage, and compare against the same ticket replayed via the agent-only path. Decision gate: ship only if tokens drop ≥ 30% and all human-in-the-loop gates still fire. _User-driven; cannot be executed by an agent batch._
+6. **Delete demoted agents** only after one full week of green pipeline runs through the new driver. _User-driven._
 
 ## Decisions made
 
