@@ -270,7 +270,7 @@ jobs:
         # Linux apt-get packages for Chromium. Browser binaries themselves are
         # downloaded by the gradle `installPlaywright` task that the `test` task
         # depends on (see system-test/java/build.gradle).
-        run: npx playwright@1.44.0 install-deps chromium
+        run: npx playwright install-deps chromium
         working-directory: system-test/java
 
       - name: Install gh-optivem CLI extension

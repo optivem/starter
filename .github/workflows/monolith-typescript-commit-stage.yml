@@ -18,6 +18,10 @@ on:
         required: false
         type: string
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
 env:
   COMMIT_SHA: ${{ inputs.commit-sha || github.sha }}
 

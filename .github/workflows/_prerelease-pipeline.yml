@@ -51,6 +51,10 @@ on:
         type: boolean
         default: false
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
 env:
   COMMIT_SHA: ${{ inputs.commit-sha || github.sha }}
 
