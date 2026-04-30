@@ -3,6 +3,11 @@
 # Loaded by `gh optivem atdd …` (gh-optivem ≥ the version that introduced
 # internal/atdd/runtime/config/). Absent file is fine — the driver falls
 # back to README scraping and then to git-remote-based project discovery.
+#
+# Agent dispatch: by default the driver auto-launches each ATDD agent via
+# the `claude` CLI when it hits a user_task node. Add `--manual-agents` to
+# the `gh optivem atdd …` invocation if you want the v1 two-window
+# workflow instead (useful for diagnosing dispatch misroutes).
 
 project:
   # Canonical project URL. Skipping this triggers the README/git-remote

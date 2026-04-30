@@ -1,5 +1,16 @@
 # Consolidate per-(arch, lang) stage workflows into reusable workflows
 
+🤖 **Picked up by agent** — `Valentina_Desk` at `2026-04-30T14:37:20Z`
+
+## Decisions (resolved 2026-04-30)
+
+The four open questions previously listed at the bottom of this plan have been answered:
+
+1. **gh-optivem scaffolder strategy → Option A (copy both files).** Student repo gets caller + reusable verbatim, applies existing text-replacements to both. 16 stage files in student repos (8 callers + 8 reusables). Small Go change in `gh-optivem`.
+2. **Suite-name canonicalisation → `contract-stub-isolated`.** Java/.NET/legacy/multitier-dotnet already use this. Both TypeScript drift sites — `monolith-typescript-acceptance-stage.yml:310` and `multitier-typescript-acceptance-stage.yml:302` — get renamed to match in Phase 0 before consolidation begins.
+3. **Runtime setup factoring → shop-local composite action.** Lives in shop at `.github/actions/setup-language-toolchain/` (and `.github/actions/install-gh-optivem/`), NOT in sibling `optivem/actions`. Rationale: keeps the toolchain-setup definition inside shop where it can be modified in the same PR as the consumers; gh-optivem copies the `.github/actions/` directory into student repos at scaffold time so students inherit it locally rather than picking up another `@v1` cross-repo dependency. Trade-off accepted: this is a new pattern for shop (no other `.github/actions/` exists today) and inverts the prevailing org convention of consolidating composite actions in `optivem/actions`. The benefit is a self-contained shop and student-repo experience for the toolchain-setup concern specifically.
+4. **`_prerelease-pipeline.yml` migration → Yes, same Phase 1 scope.** Phase 1 also migrates `_prerelease-pipeline.yml`'s embedded compile blocks (lines 113–179) to call the new `setup-language-toolchain` action. After Phase 1 there is exactly one toolchain-setup path in shop.
+
 ## Decision
 
 Replace each family of 6 near-duplicate stage workflows (3 languages × 2 architectures) with **one reusable workflow + 6 thin caller files**. Apply this to every stage family that is currently duplicated 6×: acceptance-stage, acceptance-stage-cloud, acceptance-stage-legacy, qa-stage, qa-stage-cloud, prod-stage, prod-stage-cloud, qa-signoff (8 families × 6 ≈ 48 files → 8 reusables + 48 thin callers, plus ~2 composite actions for runtime setup).
@@ -68,8 +79,8 @@ Shop already uses this pattern: `_prerelease-pipeline.yml` (workflow_call, takes
 - `.github/workflows/_acceptance-stage-cloud.yml` — same inputs, cloud-deploy variant.
 - `.github/workflows/_acceptance-stage-legacy.yml` — same inputs, legacy sample variant.
 - `.github/workflows/_qa-stage.yml`, `_qa-stage-cloud.yml`, `_prod-stage.yml`, `_prod-stage-cloud.yml`, `_qa-signoff.yml` — same pattern.
-- `optivem/actions/setup-language-toolchain/` — composite action that switches on `language: java|dotnet|typescript` and installs the appropriate toolchain + Playwright system deps + caches. Replaces the per-language ~25–35-line setup block.
-- `optivem/actions/install-gh-optivem/` — composite action for `gh extension install optivem/gh-optivem` (currently duplicated in every workflow).
+- `.github/actions/setup-language-toolchain/action.yml` — **shop-local** composite action that switches on `language: java|dotnet|typescript` and installs the appropriate toolchain + Playwright system deps + caches. Replaces the per-language ~25–35-line setup block. Consumed via `uses: ./.github/actions/setup-language-toolchain` from `_<stage>.yml` reusables and from `_prerelease-pipeline.yml`.
+- `.github/actions/install-gh-optivem/action.yml` — **shop-local** composite action for `gh extension install optivem/gh-optivem` (currently duplicated in every workflow).
 
 ### New thin callers (added alongside existing files; ~20 lines each)
 
@@ -175,11 +186,13 @@ In `gh-optivem/internal/steps/apply_template.go`:
   }
   ```
 
-- The fixup-replacement helpers (`monolithContentReplacements`, `multitierContentReplacements`) need no changes — the substrings they target (`monolith-system-java`, `system/monolith/java/VERSION`, etc.) only appear in the reusable's body, which gets copied verbatim into the student repo and then text-replaced. The thin caller has only short literal values (e.g. `language: java`) which are also covered by the existing rules.
+- **Per Decision 3 (shop-local action), the scaffolder ALSO copies `.github/actions/setup-language-toolchain/action.yml` and `.github/actions/install-gh-optivem/action.yml` into the student repo at the same relative paths.** The relative `uses: ./.github/actions/setup-language-toolchain` reference in the copied reusable then resolves correctly inside the student repo without rewriting. This is a new code path in `apply_template.go` — today the scaffolder copies workflow files only, not actions. Likely needs a new `monolithLocalActions()` / `multitierLocalActions()` helper or equivalent. Verify against `verifyActionsReferencesIntact` (currently checks `optivem/actions` cross-repo refs survive — the new local-action refs are a different, in-repo path so should not trigger that safety check, but worth re-running after the change to confirm).
+
+- The fixup-replacement helpers (`monolithContentReplacements`, `multitierContentReplacements`) need no changes — the substrings they target (`monolith-system-java`, `system/monolith/java/VERSION`, etc.) only appear in the reusable's body, which gets copied verbatim into the student repo and then text-replaced. The thin caller has only short literal values (e.g. `language: java`) which are also covered by the existing rules. The action.yml files contain only language-agnostic toolchain setup steps and should not contain any (arch, lang)-specific substrings, so the fixup helpers should leave them alone.
 
 - `forbiddenTemplateRefs()` (the post-scaffold validator) needs no changes for the same reason — the substrings remain forbidden, and they should still appear nowhere in the scaffolded output.
 
-- New plan needed in `gh-optivem` repo to track its side of this work, including a manual-test-runner-shop run that scaffolds all 6 (arch, lang) combos and verifies actionlint passes on each.
+- New plan needed in `gh-optivem` repo to track its side of this work, including a manual-test-runner-shop run that scaffolds all 6 (arch, lang) combos and verifies actionlint passes on each AND that the local action paths resolve in the scaffolded repos.
 
 ### Coordination with the existing `templates/` move
 
@@ -189,29 +202,35 @@ Plan `20260430-055950-move-scaffold-workflows-to-templates-subdir.md` moves 8 sc
 
 Each phase ends in a green CI run on shop and a successful `gh-optivem/scripts/manual-test-runner-shop.sh` (which scaffolds and validates a sample student repo).
 
-### Phase 0 — Verification baseline
+### Phase 0 — Verification baseline + suite-name canonicalisation fix
 
 1. Run `./test-all.sh` and capture which stages pass today.
 2. Run `gh-optivem/scripts/manual-test-runner-shop.sh` to scaffold all 6 (arch, lang) combos and capture baseline (e.g. actionlint, sample test pass).
-3. Document the suite-name drift bug (`contract-isolated-stub` vs `contract-stub-isolated`) as a separate ticket — fix it BEFORE consolidation so the consolidated reusable inherits the canonical name without question.
+3. Fix the suite-name drift: canonical name is `contract-stub-isolated`. Rename the TypeScript drift sites:
+   - `monolith-typescript-acceptance-stage.yml:310` — change `contract-isolated-stub` → `contract-stub-isolated`.
+   - `multitier-typescript-acceptance-stage.yml:302` — same rename.
+   - Update any other matching `--suite contract-isolated-stub` references discovered by a repo-wide grep before renaming.
+   - Verify the renamed suite still resolves in `system-test/typescript/tests-latest.json` (the suite must be defined under the canonical name there too — check whether that file lists `contract-stub-isolated` or `contract-isolated-stub`, and align the test-suite manifest if needed).
+   - Land this as its own PR before Phase 1 begins so the rest of the consolidation inherits the canonical name without question.
 
-### Phase 1 — Create `setup-language-toolchain` composite action (in `optivem/actions`)
+### Phase 1 — Create shop-local `setup-language-toolchain` action + migrate `_prerelease-pipeline.yml`
 
-Build the composite action that the new `_*.yml` reusables will consume. **Does not edit the existing 48 stage workflows** — they keep their inline setup blocks until they are deleted at cutover.
+Build the **shop-local** composite action that the new `_*.yml` reusables will consume. **Does not edit the existing 48 stage workflows** — they keep their inline setup blocks until they are deleted at cutover.
 
-- Implement composite action with branches for `java`, `dotnet`, `typescript`.
+- Create `.github/actions/setup-language-toolchain/action.yml` with branches for `java`, `dotnet`, `typescript`.
 - Inputs: `language`, `working-directory` (where to cache key off), `playwright` (boolean, default true).
 - Encapsulates: `Setup .NET` / `Setup Java` / `Setup Node` / `Setup Gradle` / `Pre-warm Gradle Wrapper` / `Cache NuGet` / `Cache Playwright` / `Compile System Tests` / `Install Playwright System Dependencies` blocks.
-- Same phase: create `install-gh-optivem` composite action.
-- Validate the composite actions via the test harness in `optivem/actions` before any consumer exists.
+- Create `.github/actions/install-gh-optivem/action.yml` for the (currently duplicated) `gh extension install optivem/gh-optivem` step.
+- **Migrate `_prerelease-pipeline.yml`'s embedded compile blocks (lines 113–179) to call `uses: ./.github/actions/setup-language-toolchain`** in the same PR. This is the only consumer until Phase 2; it serves as the validation that the action works end-to-end inside shop's prerelease pipeline.
+- Validation strategy: since the action is shop-local (no `optivem/actions` test harness), validate by running shop's prerelease pipeline against the migrated `_prerelease-pipeline.yml` and confirming a green run before opening Phase 2.
 
-End of Phase 1: two new composite actions exist in `optivem/actions`. Shop is unchanged.
+End of Phase 1: two new shop-local composite actions exist; `_prerelease-pipeline.yml` consumes `setup-language-toolchain`; the 48 existing stage workflows are unchanged.
 
 ### Phase 2 — Pilot one stage family (acceptance-stage), parallel rollout
 
 Add the new reusable + 6 new thin callers alongside the existing 6 acceptance-stage workflows. **Existing `{arch}-{lang}-acceptance-stage.yml` files are untouched.**
 
-1. Author `_acceptance-stage.yml` mirroring `monolith-java-acceptance-stage.yml`, with inputs, consuming `setup-language-toolchain`.
+1. Author `_acceptance-stage.yml` mirroring `monolith-java-acceptance-stage.yml`, with inputs, consuming `uses: ./.github/actions/setup-language-toolchain` (the shop-local action created in Phase 1) and `uses: ./.github/actions/install-gh-optivem`.
 2. Add 6 `new-{arch}-{lang}-acceptance-stage.yml` thin callers (`workflow_dispatch` only — no `schedule:` yet).
 3. Trigger each `new-*` caller manually via `workflow_dispatch` and confirm a green run. The 6 existing unprefixed workflows continue running on their hourly schedule in parallel; compare outcomes.
 4. Optional: in a gh-optivem feature branch, run `manual-test-runner-shop.sh` against the `new-*` files to validate the scaffolder side end-to-end. Do NOT merge gh-optivem changes yet.
@@ -233,7 +252,10 @@ Per stage family (one PR each, or one mega-PR — author choice):
 1. Delete the 6 existing `{arch}-{lang}-{stage}.yml` files.
 2. Rename the 6 `new-{arch}-{lang}-{stage}.yml` files to `{arch}-{lang}-{stage}.yml`. In each renamed file, drop the `new-` prefix from `name:` and `concurrency.group`, and add the `schedule:` trigger that the deleted workflow had.
 3. In the same PR (or as the next PR before any new schedule fires), update `_prerelease-pipeline.yml` and `_meta-prerelease-pipeline.yml` to call the new `_qa-stage.yml` etc. via `uses:` (replacing today's calls into the per-(arch,lang) workflows).
-4. Land the `gh-optivem` Option-A changes (extend `monolithPipelineWorkflows` / `multitierPipelineWorkflows` to include the `_<stage>.yml` reusables). Run `manual-test-runner-shop.sh` for all 6 (arch, lang) combos to confirm scaffolded student repos still produce green CI.
+4. Land the `gh-optivem` Option-A changes:
+   - Extend `monolithPipelineWorkflows` / `multitierPipelineWorkflows` to include the `_<stage>.yml` reusables.
+   - **Also extend the scaffolder to copy `.github/actions/setup-language-toolchain/` and `.github/actions/install-gh-optivem/` into the student repo** (these are shop-local actions per Decision 3 and must travel with the workflows that consume them).
+   - Run `manual-test-runner-shop.sh` for all 6 (arch, lang) combos to confirm scaffolded student repos still produce green CI.
 
 End of Phase 4: 8 reusables + 48 thin callers, no `new-` prefix anywhere, and the existing 48 workflows are gone.
 
@@ -245,7 +267,4 @@ End of Phase 4: 8 reusables + 48 thin callers, no `new-` prefix anywhere, and th
 
 ## Open questions for the author
 
-1. **Pedagogy weight on Option A vs B.** If 16 stage files in student repos (8 callers + 8 reusables) is acceptable for teaching, Option A is clearly preferred. If you want students to see exactly one workflow per stage as a teaching simplification, Option B (scaffold-time inline) is needed and the gh-optivem effort is meaningfully larger.
-2. **Suite-name canonicalisation.** Before consolidating, decide canonical names: is it `contract-stub-isolated` (Java/.NET) or `contract-isolated-stub` (TypeScript)? The TypeScript drift suggests the rest of the codebase agrees on `…-stub-isolated`; pick that and rename TypeScript before consolidating.
-3. **Composite action vs reusable workflow for runtime setup.** Phase 1 proposes a composite action; another option is to put the setup steps inside `_acceptance-stage.yml` directly, gated by `if: inputs.language == ...` (the same pattern `_prerelease-pipeline.yml` uses today). Composite action is more reusable across workflows that are NOT stages (e.g. one-off lint/verify workflows that also need a toolchain), but is one more layer. Recommendation: composite action, because at least 8 stage families will reuse it, and any new ad-hoc workflow gets the same setup path.
-4. **Whether to also migrate `_prerelease-pipeline.yml`'s embedded compile blocks** (lines 113–179) to call the same composite action. Yes — same Phase 1 scope, just don't forget it.
+All four open questions have been resolved — see the **Decisions (resolved 2026-04-30)** section near the top of this document.
