@@ -1,6 +1,28 @@
 # Script vs agent: separate mechanical orchestration from creative work in the ATDD pipeline
 
-🤖 **Picked up by agent** — `Valentina_Desk` at `2026-04-30T07:09:08Z`
+🤖 **Picked up by agent** — `Valentina_Desk` at `2026-04-30T08:21:35Z`
+
+## Token-efficient execution strategy (recommended)
+
+This plan is too large for a single agent batch. Push it through in **separate `/execute-plan` sessions**, scoped per chunk below — each session starts with a small context, reads only the files it needs, deletes its items from this plan, and exits. That keeps the conversation transcript from accumulating across the full ~5000+ LOC of new Go + ~9 agent rewrites + ~10 doc rewrites.
+
+**Recommended chunk order** (each its own `/execute-plan` session, batch-then-review mode):
+
+1. **Session 1 — Foundation (this session).** Items: 2.statemachine engine + YAML loader; 1a transitions_test.go; 1c regenerate diagram-process.md; 2.override decorator scaffold; 2.gates + 2.verify interface skeletons. Pure-logic Go + tests; no external integration. Delivers a runnable engine that pins the YAML.
+2. **Session 2 — Real `gh` integration.** Items: 2.classify (fast path + LLM fallback); 2.board (project read / pick top / move column); 2.release (regex `@Disabled` removal + commit + close). Each shells out to `gh`; needs to be written against real outputs from your project. One session because they share the `gh` shell-wrapper layer.
+3. **Session 3 — Driver + cmd wiring.** Items: 2.driver (the loop); cmd/optivem atdd subcommands; item 4 slash-command repointing. Depends on sessions 1 + 2 being in place.
+4. **Session 4 — Per-phase doc rewrites.** Item 1b. Substantive content judgment (purpose / conventions / examples / anti-patterns per phase). Best done as a single focused doc-edit session — possibly with sub-tasks delegated to a subagent for parallel rewrites of independent docs.
+5. **Session 5 — Slim kept agents.** Item 3. 9 agent files; each strip is independent; **parallelize via subagents** (one subagent per agent file) — the main session stays small, each subagent gets isolated context for its one file.
+6. **Sessions 6–7 — Items 5 + 6** (token-measurement decision; one-week soak). Out of scope for an agent batch; user-driven.
+
+**Why fresh sessions beat one mega-batch.** Within a 5-min window, prompt caching keeps a single session warm, but the cached prefix grows with every read and edit. By item 6+ in a single batch, every tool call is replaying tens of thousands of tokens of prior tool output. Splitting on natural seams (engine → integration → driver → docs → agents) means each session's prefix stays small and the cache is never wasted on irrelevant prior work.
+
+**Within a session, secondary token levers:**
+- Read files once, use `Edit` afterward (not re-read).
+- Delegate bulk independent rewrites (item 1b docs, item 3 agents) to subagents — subagent context is isolated from the main conversation.
+- Avoid running build/test loops mid-conversation when a final `compile-all.sh` at the end suffices.
+
+**Hand-off contract.** At the end of every session in this plan, the agent will re-state these next-step instructions explicitly — what to `/clear`, which session is next, and the exact `/execute-plan` invocation to run. The user does not need to remember the chunk order; it lives in this plan file and gets re-surfaced at every hand-off.
 
 ## Motivation
 
@@ -330,24 +352,22 @@ The `diagram-generator` agent's contract also inverts (read YAML → write Merma
 5. **Discoverability.** `Skill` invocations like `atdd:atdd-implement-ticket` and `atdd:atdd-manage-project` need to point at the new script entrypoints, or the user-facing slash-commands break.
 6. **Agent-body audit.** Once orchestration prose is removed from agent bodies, the `token-usage-audit` agent should re-run to verify each agent body now only carries phase-specific WRITE/REVIEW/COMMIT mechanics — nothing about "hand off to X".
 
-## Implementation order
+## Implementation order — remaining
 
-1. **Finish encoding the process flow.** YAML (`docs/atdd/process/process-flow.yaml`) and the diagram-generator contract update are done; remaining:
-   - **Add the unit-test suite** (`gh-optivem/internal/atdd/runtime/statemachine/transitions_test.go`) — one test per sequence flow, plus negative tests. Force decisions on the process-audit gaps (CT exit re-evaluation, smoke-test resume path, structural-cycle escape, Legacy Coverage Cycle interim spec) by writing a test for each — they can no longer remain TBDs.
-   - Restructure per-phase docs (`at-red-test.md`, `at-red-dsl.md`, `at-green-system.md`, etc.) to drop "what runs next" prose and focus on substance: the phase's purpose, what it produces, conventions, example diffs, review criteria, anti-patterns. Orchestration prose moves out (into the YAML); phase substance moves in.
-   - Regenerate `docs/atdd/process/diagram-process.md` from the YAML via the updated `diagram-generator` agent (the on-disk diagram is currently stale w.r.t. its new YAML source).
-2. **Build the Go packages in order of impact, all under `gh-optivem`:**
-   - `internal/atdd/runtime/statemachine/` — the engine (functor pattern, ~200 LOC). Exposed for diagnostics as `gh optivem atdd debug next-phase`. Highest call count, biggest token win.
-   - `internal/atdd/runtime/gates/` — gateway evaluators (one Go function per `binding:` in the YAML). Exposed as `gh optivem atdd debug gate <name>`.
-   - `internal/atdd/runtime/verify/` — phase-verification middleware (decorators around each `NodeFn`). Internal only — no CLI surface, not even under `debug`.
-   - `internal/atdd/runtime/classify/` — fast-path classifier + `atdd-classify-fallback` agent for conflict cases. Exposed as `gh optivem atdd debug classify`.
-   - `internal/atdd/runtime/board/` + `internal/atdd/runtime/release/` — board/pick logic and release/cleanup. Exposed as `gh optivem atdd debug pick-top-ready` and `gh optivem atdd debug release`.
-   - `internal/atdd/runtime/driver/` + `cmd/optivem/atdd_*.go` — the top-level driver loop and the user-facing `gh optivem atdd implement-ticket` and `gh optivem atdd manage-project` subcommands (the only commands shown in `--help` by default; the `debug` parent is `Hidden: true`).
-   - `internal/atdd/runtime/override/` — override-hook decorator scaffolding (no CLI surface yet; v1 wraps every node, v2 exposes `--extra` / `--replace` / `--interactive` flags on `implement-ticket`).
-3. **Slim the kept agents.** For each remaining agent, strip orchestration prose and `@includes` of cross-phase docs. Each agent body should describe only its WRITE / REVIEW / COMMIT mechanics for its phase.
-4. **Update slash-commands.** Repoint `atdd:atdd-implement-ticket` and `atdd:atdd-manage-project` at `gh optivem atdd implement-ticket` and `gh optivem atdd manage-project` respectively. The slash commands become thin wrappers that pass through `--issue`, `--project`, `--autonomous`, `--rehearsal`, `--no-memory`, etc. to the binary.
-5. **Run a real ticket end-to-end** with the new driver, capture token usage, and compare against the same ticket replayed via the agent-only path. Decision gate: ship only if tokens drop ≥ 30% and all human-in-the-loop gates still fire.
-6. **Delete demoted agents** only after one full week of green pipeline runs through the new driver.
+Session 1 of the rollout (the foundation chunk in §Token-efficient execution strategy) shipped: the statemachine engine (~470 LOC including loader, predicate evaluator, run loop), the transitions test suite (83 subtests), the regenerated `diagram-process.md` and `diagram-phase-details.md`, and registry/middleware scaffolds for gates / actions / agents / verify / override. What's left:
+
+1. **Per-phase doc rewrites** (Session 4). Restructure `at-red-test.md`, `at-red-dsl.md`, `at-red-system-driver.md`, `at-green-system.md`, `ct-red-test.md`, `ct-red-dsl.md`, `ct-red-external-driver.md`, `ct-green-stubs.md`, `task-and-chore-cycles.md` to drop "what runs next" prose (now lives in the YAML) and focus on substance: the phase's purpose, what it produces, conventions, example diffs, review criteria, anti-patterns. Best done as a single focused session, possibly with sub-tasks delegated to subagents for parallel rewrites of independent docs.
+2. **Real Go bindings** (Session 2). The registries are in place; the implementations aren't:
+   - `internal/atdd/runtime/gates/` — write the bound functions for every `binding:` in the YAML (`dsl_interface_changed`, `external_system_driver_interface_changed`, `system_driver_interface_changed`, `ticket_type`, `legacy_coverage_section_present`, `change_driven_ac_produced`, `external_system_driver_exists`, `external_system_test_instance_accessible`, `smoke_test_passes`, `structural_test_mode`). Each reads from `git diff` / file presence / user prompts as appropriate. Exposed as `gh optivem atdd debug gate <name>`.
+   - `internal/atdd/runtime/actions/` — write the action implementations for every `action:` in the YAML (`pick_top_ready`, `move_to_in_progress`, `classify_ticket`, `move_to_in_acceptance`, `run_smoke_test`, `commit_onboarding`, `compile_in_scope`, `run_sample_suite`, `print_drift_warning`, `ask_can_i_commit`, `commit_phase`, `tick_checklist`). Each shells out to `gh` / `git` / `docker compose` as appropriate.
+   - `internal/atdd/runtime/verify/` — write the real `PreFn` / `PostFn` checks (e.g. "before AT_RED_DSL_WRITE, HEAD must match `^AT - RED - TEST - COMMIT`").
+   - `internal/atdd/runtime/classify/` — fast-path classifier on the canonical Type label; `atdd-classify-fallback` agent only on conflict. Local `classify.log` audit trail. Exposed as `gh optivem atdd debug classify`.
+   - `internal/atdd/runtime/board/` + `internal/atdd/runtime/release/` — board/pick logic and `@Disabled` removal + commit + close. Exposed as `gh optivem atdd debug pick-top-ready` and `gh optivem atdd debug release`.
+3. **Driver + cmd wiring** (Session 3). `internal/atdd/runtime/driver/` (the top-level loop wiring engine.RunFlow with bound registries, override hooks, and verify decorators) + a new `gh-optivem/atdd_commands.go` exposing `gh optivem atdd implement-ticket --issue N` and `gh optivem atdd manage-project` (and the hidden `debug` parent for the diagnostic helpers). One line into `main.go` rootCmd.
+4. **Update slash-commands** (Session 3). Repoint `atdd:atdd-implement-ticket` and `atdd:atdd-manage-project` at `gh optivem atdd implement-ticket` and `gh optivem atdd manage-project`. Pass through `--issue`, `--project`, `--autonomous`, `--rehearsal`, `--no-memory`, etc.
+5. **Slim the kept agents** (Session 5). For each remaining agent (`atdd-story`, `atdd-bug`, `atdd-task`, `atdd-chore`, `atdd-test`, `atdd-dsl`, `atdd-driver`, `atdd-backend`, `atdd-frontend`), strip orchestration prose and cross-phase `@includes`. Each agent body should describe only its WRITE / REVIEW / COMMIT mechanics for its phase. Parallelizable across subagents (one per agent file).
+6. **Run a real ticket end-to-end** with the new driver, capture token usage, and compare against the same ticket replayed via the agent-only path. Decision gate: ship only if tokens drop ≥ 30% and all human-in-the-loop gates still fire. _User-driven; cannot be executed by an agent batch._
+7. **Delete demoted agents** only after one full week of green pipeline runs through the new driver. _User-driven._
 
 ## Decisions made
 
