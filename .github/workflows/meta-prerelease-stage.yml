@@ -115,6 +115,7 @@ jobs:
           fi
 
           echo "Files changed since $LAST_RELEASE:"
+          # shellcheck disable=SC2001 # ^-anchored line-prefix needs sed; parameter expansion can't do per-line transforms
           sed 's/^/  /' <<< "$changed"
           echo
 
@@ -127,6 +128,7 @@ jobs:
             echo "has-real-changes=false" >> "$GITHUB_OUTPUT"
           else
             echo "Real (non-VERSION) source changes detected:"
+            # shellcheck disable=SC2001 # ^-anchored line-prefix needs sed; parameter expansion can't do per-line transforms
             sed 's/^/  /' <<< "$non_version"
             echo "has-real-changes=true" >> "$GITHUB_OUTPUT"
           fi
