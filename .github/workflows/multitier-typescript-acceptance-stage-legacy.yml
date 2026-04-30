@@ -222,9 +222,9 @@ jobs:
           key: playwright-${{ runner.os }}-${{ hashFiles('system-test/typescript/package-lock.json') }}
 
       - name: Install Playwright System Dependencies
-        timeout-minutes: 5
+        timeout-minutes: 10
         working-directory: system-test/typescript
-        run: npx playwright install-deps
+        run: npx playwright install-deps chromium
 
       - name: Install gh-optivem CLI extension
         env:

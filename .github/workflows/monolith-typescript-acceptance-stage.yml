@@ -254,12 +254,12 @@ jobs:
 
       - name: Install Playwright System Dependencies
         if: ${{ !inputs.debug-skip-tests }}
-        timeout-minutes: 5
+        timeout-minutes: 10
         working-directory: system-test/typescript
         # Linux-only system packages (apt-get) for Chromium. Browser binaries
         # themselves come from `npx playwright install chromium`, which the
         # CLI runs as a setupCommand from tests-latest.json.
-        run: npx playwright install-deps
+        run: npx playwright install-deps chromium
 
       - name: Install gh-optivem CLI extension
         if: ${{ !inputs.debug-skip-tests }}

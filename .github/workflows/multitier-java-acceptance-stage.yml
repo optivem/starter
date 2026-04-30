@@ -267,8 +267,8 @@ jobs:
 
       - name: Install Playwright System Dependencies
         if: ${{ !inputs.debug-skip-tests }}
-        timeout-minutes: 5
-        run: npx playwright install-deps
+        timeout-minutes: 10
+        run: npx playwright@1.44.0 install-deps chromium
         working-directory: system-test/java
 
       - name: Install gh-optivem CLI extension

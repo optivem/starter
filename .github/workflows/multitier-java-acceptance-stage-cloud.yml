@@ -429,14 +429,14 @@ jobs:
           key: playwright-${{ runner.os }}-${{ hashFiles('system-test/java/build.gradle') }}
 
       - name: Install Playwright Browsers
-        timeout-minutes: 5
+        timeout-minutes: 10
         if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: npx playwright install chromium
         working-directory: system-test/java
 
       - name: Install Playwright System Dependencies
-        timeout-minutes: 5
-        run: npx playwright install-deps
+        timeout-minutes: 10
+        run: npx playwright@1.44.0 install-deps chromium
         working-directory: system-test/java
 
       - name: Run Acceptance Tests - UI Channel
@@ -505,14 +505,14 @@ jobs:
           key: playwright-${{ runner.os }}-${{ hashFiles('system-test/java/build.gradle') }}
 
       - name: Install Playwright Browsers
-        timeout-minutes: 5
+        timeout-minutes: 10
         if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: npx playwright install chromium
         working-directory: system-test/java
 
       - name: Install Playwright System Dependencies
-        timeout-minutes: 5
-        run: npx playwright install-deps
+        timeout-minutes: 10
+        run: npx playwright@1.44.0 install-deps chromium
         working-directory: system-test/java
 
       - name: Run Acceptance Tests (Isolated) - UI Channel
@@ -668,14 +668,14 @@ jobs:
           key: playwright-${{ runner.os }}-${{ hashFiles('system-test/java/build.gradle') }}
 
       - name: Install Playwright Browsers
-        timeout-minutes: 5
+        timeout-minutes: 10
         if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: npx playwright install chromium
         working-directory: system-test/java
 
       - name: Install Playwright System Dependencies
-        timeout-minutes: 5
-        run: npx playwright install-deps
+        timeout-minutes: 10
+        run: npx playwright@1.44.0 install-deps chromium
         working-directory: system-test/java
 
       - name: Run E2E Tests - UI Channel

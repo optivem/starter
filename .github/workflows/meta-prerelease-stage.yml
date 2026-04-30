@@ -1,5 +1,8 @@
 name: meta-prerelease-stage
 
+run-name: >-
+  meta-prerelease-stage${{ inputs.debug-skip-tests && ' [debug-skip-tests]' || '' }}${{ inputs.fail-fast && ' [fail-fast]' || '' }}
+
 on:
   schedule:
     - cron: '0 */3 * * *'  # Every 3 hours — gated, only runs if there are new commits since the last run
@@ -16,11 +19,6 @@ on:
         required: false
         type: boolean
         default: false
-      pipeline-timeout-seconds:
-        description: 'Hard timeout (seconds) for each Phase 2 variant pipeline run before giving up. Default 14400 (4h).'
-        required: false
-        type: string
-        default: '14400'
 
 concurrency:
   group: meta-prerelease-stage
@@ -151,7 +149,6 @@ jobs:
       skip-local: false
       debug-skip-tests: ${{ inputs.debug-skip-tests || false }}
       fail-fast: ${{ inputs.fail-fast || false }}
-      pipeline-timeout-seconds: ${{ inputs.pipeline-timeout-seconds || '14400' }}
 
   tag-meta-rc:
     # Tag SHA as meta-rc once `run` (per-flavor pipeline + cross-lang regression
