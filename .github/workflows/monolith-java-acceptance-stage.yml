@@ -10,7 +10,7 @@ on:
         required: false
         type: string
       debug-skip-tests:
-        description: 'DEBUG ONLY: bypass deployments + acceptance tests and tag the RC anyway. Produces an RC tag indistinguishable from a tested one. Use only when iterating on the meta-prerelease pipeline plumbing — never on a real release path.'
+        description: 'DEBUG ONLY: bypass acceptance tests and tag the RC anyway. Produces an RC tag indistinguishable from a tested one. Use only when iterating on the meta-prerelease pipeline plumbing — never on a real release path.'
         required: false
         type: boolean
         default: false
@@ -270,7 +270,7 @@ jobs:
         # Linux apt-get packages for Chromium. Browser binaries themselves are
         # downloaded by the gradle `installPlaywright` task that the `test` task
         # depends on (see system-test/java/build.gradle).
-        run: npx playwright@1.44.0 install-deps chromium
+        run: npx playwright install-deps chromium
         working-directory: system-test/java
 
       - name: Install gh-optivem CLI extension

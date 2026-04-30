@@ -389,7 +389,7 @@ jobs:
 
       - name: Install Playwright System Dependencies
         timeout-minutes: 10
-        run: npx playwright@1.44.0 install-deps chromium
+        run: npx playwright install-deps chromium
         working-directory: system-test/java
 
       - name: Run Acceptance Tests - UI Channel
@@ -465,7 +465,7 @@ jobs:
 
       - name: Install Playwright System Dependencies
         timeout-minutes: 10
-        run: npx playwright@1.44.0 install-deps chromium
+        run: npx playwright install-deps chromium
         working-directory: system-test/java
 
       - name: Run Acceptance Tests (Isolated) - UI Channel
@@ -628,7 +628,7 @@ jobs:
 
       - name: Install Playwright System Dependencies
         timeout-minutes: 10
-        run: npx playwright@1.44.0 install-deps chromium
+        run: npx playwright install-deps chromium
         working-directory: system-test/java
 
       - name: Run E2E Tests - UI Channel

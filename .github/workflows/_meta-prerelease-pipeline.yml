@@ -29,7 +29,7 @@ on:
         type: boolean
         default: false
       debug-skip-tests:
-        description: 'DEBUG ONLY: run the full meta pipeline (commit + pipeline + per-flavor prereleases) but bypass the slow acceptance-stage tests, the acceptance-stage-legacy run, and cross-lang regression. Flavor rcs and meta-rc are still minted, so meta-release-stage can promote afterward. Use only when iterating on the meta-prerelease pipeline plumbing — never on a real release path.'
+        description: 'DEBUG ONLY: run the full meta pipeline (commit + pipeline + per-flavor prereleases) but bypass the slow acceptance-stage tests, the acceptance-stage-legacy run, the local-mode job, and cross-lang regression. Flavor rcs and meta-rc are still minted, so meta-release-stage can promote afterward. Use only when iterating on the meta-prerelease pipeline plumbing — never on a real release path.'
         required: false
         type: boolean
         default: false
@@ -47,6 +47,10 @@ on:
       commit_sha:
         description: 'SHA the verification ran against. Equals the trigger SHA unless the check job auto-bumped via meta-bump-all, in which case it is the post-bump main HEAD. Callers that tag artifacts (e.g. meta-prerelease-stage tagging meta-rc) should use this rather than github.sha so the tag lands on the SHA that was actually verified.'
         value: ${{ jobs.check.outputs.commit_sha }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   # Single gate before any downstream jobs:
