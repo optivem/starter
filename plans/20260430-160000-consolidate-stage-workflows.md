@@ -1,13 +1,13 @@
 # Consolidate per-(arch, lang) stage workflows into reusable workflows
 
-🤖 **Picked up by agent** — `Valentina_Desk` at `2026-04-30T14:37:20Z`
+🤖 **Picked up by agent** — `Valentina_Desk` at `2026-04-30T14:42:17Z`
 
 ## Decisions (resolved 2026-04-30)
 
 The four open questions previously listed at the bottom of this plan have been answered:
 
 1. **gh-optivem scaffolder strategy → Option A (copy both files).** Student repo gets caller + reusable verbatim, applies existing text-replacements to both. 16 stage files in student repos (8 callers + 8 reusables). Small Go change in `gh-optivem`.
-2. **Suite-name canonicalisation → `contract-stub-isolated`.** Java/.NET/legacy/multitier-dotnet already use this. Both TypeScript drift sites — `monolith-typescript-acceptance-stage.yml:310` and `multitier-typescript-acceptance-stage.yml:302` — get renamed to match in Phase 0 before consolidation begins.
+2. **Suite-name canonicalisation → `contract-stub-isolated`.** Java/.NET/legacy/multitier-dotnet already use this. The TypeScript drift sites have been aligned to match (acceptance-stage `--suite` flags + step names + `system-test/typescript/tests-latest.json` suite id + README); the cloud-stage job-names retain the legacy `test-contract-isolated-stub:` form for now (functional but cosmetically diverged — to be addressed when `_acceptance-stage-cloud.yml` is authored in Phase 3).
 3. **Runtime setup factoring → shop-local composite action.** Lives in shop at `.github/actions/setup-language-toolchain/` (and `.github/actions/install-gh-optivem/`), NOT in sibling `optivem/actions`. Rationale: keeps the toolchain-setup definition inside shop where it can be modified in the same PR as the consumers; gh-optivem copies the `.github/actions/` directory into student repos at scaffold time so students inherit it locally rather than picking up another `@v1` cross-repo dependency. Trade-off accepted: this is a new pattern for shop (no other `.github/actions/` exists today) and inverts the prevailing org convention of consolidating composite actions in `optivem/actions`. The benefit is a self-contained shop and student-repo experience for the toolchain-setup concern specifically.
 4. **`_prerelease-pipeline.yml` migration → Yes, same Phase 1 scope.** Phase 1 also migrates `_prerelease-pipeline.yml`'s embedded compile blocks (lines 113–179) to call the new `setup-language-toolchain` action. After Phase 1 there is exactly one toolchain-setup path in shop.
 
@@ -201,17 +201,6 @@ Plan `20260430-055950-move-scaffold-workflows-to-templates-subdir.md` moves 8 sc
 ## Phased rollout
 
 Each phase ends in a green CI run on shop and a successful `gh-optivem/scripts/manual-test-runner-shop.sh` (which scaffolds and validates a sample student repo).
-
-### Phase 0 — Verification baseline + suite-name canonicalisation fix
-
-1. Run `./test-all.sh` and capture which stages pass today.
-2. Run `gh-optivem/scripts/manual-test-runner-shop.sh` to scaffold all 6 (arch, lang) combos and capture baseline (e.g. actionlint, sample test pass).
-3. Fix the suite-name drift: canonical name is `contract-stub-isolated`. Rename the TypeScript drift sites:
-   - `monolith-typescript-acceptance-stage.yml:310` — change `contract-isolated-stub` → `contract-stub-isolated`.
-   - `multitier-typescript-acceptance-stage.yml:302` — same rename.
-   - Update any other matching `--suite contract-isolated-stub` references discovered by a repo-wide grep before renaming.
-   - Verify the renamed suite still resolves in `system-test/typescript/tests-latest.json` (the suite must be defined under the canonical name there too — check whether that file lists `contract-stub-isolated` or `contract-isolated-stub`, and align the test-suite manifest if needed).
-   - Land this as its own PR before Phase 1 begins so the rest of the consolidation inherits the canonical name without question.
 
 ### Phase 1 — Create shop-local `setup-language-toolchain` action + migrate `_prerelease-pipeline.yml`
 

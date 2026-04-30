@@ -65,7 +65,7 @@ Substitute `docker/typescript/multitier/system.json` for the multitier architect
 | `acceptance-isolated-api` | Isolated acceptance tests - API channel |
 | `acceptance-isolated-ui` | Isolated acceptance tests - UI channel |
 | `contract-stub` | Contract tests (stub) |
-| `contract-isolated-stub` | Isolated contract tests (stub) |
+| `contract-stub-isolated` | Isolated contract tests (stub) |
 | `contract-real` | Contract tests (real) |
 | `e2e-api` | E2E tests (real) - API channel |
 | `e2e-ui` | E2E tests (real) - UI channel |

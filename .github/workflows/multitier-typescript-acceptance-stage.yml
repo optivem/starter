@@ -299,9 +299,9 @@ jobs:
         if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test system --suite contract-stub --no-setup --no-build --no-start --system docker/typescript/multitier/system.json --tests system-test/typescript/tests-latest.json
 
-      - name: contract-isolated-stub
+      - name: contract-stub-isolated
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite contract-isolated-stub --no-setup --no-build --no-start --system docker/typescript/multitier/system.json --tests system-test/typescript/tests-latest.json
+        run: gh optivem test system --suite contract-stub-isolated --no-setup --no-build --no-start --system docker/typescript/multitier/system.json --tests system-test/typescript/tests-latest.json
 
       - name: contract-real
         if: ${{ !inputs.debug-skip-tests }}

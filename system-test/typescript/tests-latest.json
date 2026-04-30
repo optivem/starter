@@ -69,7 +69,7 @@
       "sampleTest": "shouldBeAbleToGetTime"
     },
     {
-      "id": "contract-isolated-stub",
+      "id": "contract-stub-isolated",
       "name": "latest - Contract Isolated (stub)",
       "command": "npx playwright test --project=external-system-contract-test --workers=1 --grep '@isolated' 'tests/latest/contract/.*-stub-.*\\.spec\\.ts'",
       "env": { "EXTERNAL_SYSTEM_MODE": "stub" },
