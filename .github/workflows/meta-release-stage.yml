@@ -1,5 +1,8 @@
 name: meta-release-stage
 
+run-name: >-
+  meta-release-stage${{ inputs.meta_rc_tag && format(' [rc:{0}]', inputs.meta_rc_tag) || '' }}
+
 # Promotes a meta-rc to a final meta release by:
 #   1. Resolving the meta-rc tag and extracting its version + SHA
 #   2. Finding each flavor's latest QA-approved RC at that version
