@@ -1,33 +1,31 @@
-Pick the top ticket from the GitHub project board and implement it using the multi-agent ATDD workflow defined in `docs/atdd/process/workflow.md`.
+Pick the top ticket from the GitHub project board and run it through the ATDD pipeline driver.
 
 Input: $ARGUMENTS
 
-**Autonomous mode:** if `--autonomous` is present, pass it through to `/atdd-implement-ticket` so all human approval touchpoints are skipped.
+This skill is a thin wrapper over `gh optivem atdd manage-project`. The driver picks the top item from the Ready column, moves it to In Progress, and walks `docs/atdd/process/process-flow.yaml` end to end — same shape as `/atdd:atdd-implement-ticket` once the issue is resolved.
 
-**GitHub project:** optionally specify `--project <org/number-or-url>` to identify which GitHub project board to use (e.g. `--project optivem/3`). If not specified, the manager-agent will attempt to discover it from the git remote of the current repository.
+**Autonomous mode:** if `--autonomous` is present, pass it through to the driver — gates skip human-approval STOPs. Agent-dispatch pauses still apply because v1 of the driver does not auto-launch agents.
 
-**Repositories:** optionally specify `--test-repos` and `--system-repos` to control which repositories the pipeline operates on:
-- `--test-repos <repo1>,<repo2>,...` — the test repositories to implement in (e.g. `shop`)
-- `--system-repos <repo1>,<repo2>,...` — the system (backend/frontend) repositories (e.g. `shop`)
-<!-- TODO(gh-optivem): multirepo support — install-time substitution should produce repo lists matching the consumer's scaffold: `<repo>-backend`,`<repo>-frontend` (multitier), `<repo>-system` (multirepo monolith), or just `<repo>` (monorepo). v1 install is monorepo-only. -->
+**GitHub project:** optionally specify `--project <url>` to identify which GitHub project board to use (e.g. `--project https://github.com/orgs/optivem/projects/3`). Pass it through to the driver verbatim. If not specified, the driver discovers the project via `README.md` first, then `git remote get-url origin`.
 
-If not specified, pass them through to the manager-agent and let it determine the appropriate repositories from the GitHub issue context (labels, title, existing code, etc.).
+## Run the driver
 
-## Steps
+```
+gh optivem atdd manage-project [--project <url>] [--autonomous]
+```
 
-1. Launch **manager-agent** with any `--project`, `--test-repos`, and `--system-repos` values (or without them if not provided). It will:
-   - Resolve the GitHub project (from the argument, or by discovering it from the git remote)
-   - Read the GitHub project board
-   - Pick the top card in the Ready column
-   - Move it to In Progress
-   - If repos were not specified, determine the appropriate test and system repositories from the issue context
-   - Return the issue number and the resolved repository lists
+The driver:
+1. Resolves the project URL.
+2. Reads the Ready column and picks the top item.
+3. Moves it to In Progress.
+4. Walks the same flow as `/atdd:atdd-implement-ticket`: service tasks inline, user tasks paused at `DISPATCH: <agent>` banners.
 
-2. Pass the issue number, resolved repository lists, and `--autonomous` (if provided) to `/atdd-implement-ticket` and run the full pipeline to completion.
+When the driver pauses at a `DISPATCH:` banner, dispatch the named agent via the Task tool using the prompt template documented in `/atdd:atdd-implement-ticket` ("Run the driver" → "DISPATCH"). Wait for the agent's COMMIT, then return to the driver's terminal and press Enter.
 
-   Note: `/atdd-implement-ticket` runs its own Run Mode Confirmation gate (memory ON/OFF, rehearsal ON/OFF) at the start, so the run mode is surfaced for user approval there — this skill does not duplicate that confirmation.
+This skill does not duplicate the Run Mode Confirmation or Scope Confirmation gates — `/atdd:atdd-implement-ticket` runs them once the issue is known. For board-mode runs, the gates surface in the same session immediately after the driver picks the ticket.
 
 ## Rules
 
-- If the Ready column is empty, stop and report it to the user.
-- If the pipeline is blocked at any point, stop and present the blocker to the user before continuing — even in autonomous mode.
+- If the Ready column is empty, the driver exits with a "nothing to do" message — surface it and stop.
+- If the driver exits non-zero, surface the error and stop. Do not auto-retry — even in autonomous mode.
+- If a Task-tool agent reports it cannot proceed, type `abort` at the driver's prompt to halt cleanly.

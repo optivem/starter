@@ -1,18 +1,16 @@
 # Script vs agent: separate mechanical orchestration from creative work in the ATDD pipeline
 
-🤖 **Picked up by agent** — `Valentina_Desk` at `2026-04-30T11:44:03Z`
-
 ## Token-efficient execution strategy (recommended)
 
 This plan is too large for a single agent batch. Push it through in **separate `/execute-plan` sessions**, scoped per chunk below — each session starts with a small context, reads only the files it needs, deletes its items from this plan, and exits. That keeps the conversation transcript from accumulating across the full ~5000+ LOC of new Go + ~9 agent rewrites + ~10 doc rewrites.
 
 **Recommended chunk order** (each its own `/execute-plan` session, batch-then-review mode):
 
-1. **Session 1 — Foundation (this session).** Items: 2.statemachine engine + YAML loader; 1a transitions_test.go; 1c regenerate diagram-process.md; 2.override decorator scaffold; 2.gates + 2.verify interface skeletons. Pure-logic Go + tests; no external integration. Delivers a runnable engine that pins the YAML.
-2. **Session 2 — Real `gh` integration.** Items: 2.classify (fast path + LLM fallback); 2.board (project read / pick top / move column); 2.release (regex `@Disabled` removal + commit + close). Each shells out to `gh`; needs to be written against real outputs from your project. One session because they share the `gh` shell-wrapper layer.
-3. **Session 3 — Driver + cmd wiring.** Items: 2.driver (the loop); cmd/optivem atdd subcommands; item 4 slash-command repointing. Depends on sessions 1 + 2 being in place.
+1. ✅ **Session 1 — Foundation (shipped).** Statemachine engine + YAML loader; transitions_test.go; diagram-process.md regen; override decorator scaffold; gates + verify interface skeletons.
+2. ✅ **Session 2 — Real `gh` integration (shipped).** classify (fast path + LLM fallback); board (project read / pick top / move column); release (regex `@Disabled` removal + commit + close).
+3. ✅ **Session 3 — Driver + cmd wiring (shipped).** `internal/atdd/runtime/driver/` loop; `gh optivem atdd implement-ticket` / `manage-project` / hidden `debug` Cobra commands; slash-command repointing.
 4. **Session 4 — Per-phase doc rewrites.** Item 1b. Substantive content judgment (purpose / conventions / examples / anti-patterns per phase). Best done as a single focused doc-edit session — possibly with sub-tasks delegated to a subagent for parallel rewrites of independent docs.
-5. **Session 5 — Slim kept agents.** Item 3. 9 agent files; each strip is independent; **parallelize via subagents** (one subagent per agent file) — the main session stays small, each subagent gets isolated context for its one file.
+5. ✅ **Session 5 — Slim kept agents (shipped).** Agent bodies stripped of orchestration prose now owned by the Go driver.
 6. **Sessions 6–7 — Items 5 + 6** (token-measurement decision; one-week soak). Out of scope for an agent batch; user-driven.
 
 **Why fresh sessions beat one mega-batch.** Within a 5-min window, prompt caching keeps a single session warm, but the cached prefix grows with every read and edit. By item 6+ in a single batch, every tool call is replaying tens of thousands of tokens of prior tool output. Splitting on natural seams (engine → integration → driver → docs → agents) means each session's prefix stays small and the cache is never wasted on irrelevant prior work.
@@ -354,13 +352,11 @@ The `diagram-generator` agent's contract also inverts (read YAML → write Merma
 
 ## Implementation order — remaining
 
-Sessions 1 + 2 shipped: the statemachine engine, transitions test suite, regenerated diagrams, and registry/middleware scaffolds (Session 1); plus the real Go bindings for `gates/`, `actions/`, and `verify/` with hermetic unit tests (Session 2). What's left:
+Sessions 1, 2, 3, and 5 shipped: the statemachine engine, transitions test suite, regenerated diagrams, and registry/middleware scaffolds (Session 1); the real Go bindings for `gates/`, `actions/`, and `verify/` with hermetic unit tests (Session 2); the driver loop, Cobra commands (`gh optivem atdd implement-ticket`, `manage-project`, hidden `debug` helpers), and slash-command repointing (Session 3); and the slim agent bodies stripped of orchestration prose (Session 5). What's left:
 
 1. **Per-phase doc rewrites** (Session 4). Restructure `at-red-test.md`, `at-red-dsl.md`, `at-red-system-driver.md`, `at-green-system.md`, `ct-red-test.md`, `ct-red-dsl.md`, `ct-red-external-driver.md`, `ct-green-stubs.md`, `task-and-chore-cycles.md` to drop "what runs next" prose (now lives in the YAML) and focus on substance: the phase's purpose, what it produces, conventions, example diffs, review criteria, anti-patterns. Best done as a single focused session, possibly with sub-tasks delegated to subagents for parallel rewrites of independent docs.
-2. **Driver + cmd wiring** (Session 3). `internal/atdd/runtime/driver/` (the top-level loop wiring engine.RunFlow with bound registries, override hooks, and verify decorators) + a new `gh-optivem/atdd_commands.go` exposing `gh optivem atdd implement-ticket --issue N` and `gh optivem atdd manage-project` (and the hidden `debug` parent for the diagnostic helpers). One line into `main.go` rootCmd.
-3. **Update slash-commands** (Session 3). Repoint `atdd:atdd-implement-ticket` and `atdd:atdd-manage-project` at `gh optivem atdd implement-ticket` and `gh optivem atdd manage-project`. Pass through `--issue`, `--project`, `--autonomous`, `--rehearsal`, `--no-memory`, etc.
-4. **Run a real ticket end-to-end** with the new driver, capture token usage, and compare against the same ticket replayed via the agent-only path. Decision gate: ship only if tokens drop ≥ 30% and all human-in-the-loop gates still fire. _User-driven; cannot be executed by an agent batch._
-5. **Delete demoted agents** only after one full week of green pipeline runs through the new driver. _User-driven._
+2. **Run a real ticket end-to-end** with the new driver, capture token usage, and compare against the same ticket replayed via the agent-only path. Decision gate: ship only if tokens drop ≥ 30% and all human-in-the-loop gates still fire. _User-driven; cannot be executed by an agent batch._
+3. **Delete demoted agents** only after one full week of green pipeline runs through the new driver. _User-driven._
 
 ## Decisions made
 
