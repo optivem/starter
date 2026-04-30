@@ -53,9 +53,7 @@ on:
 
 permissions: {}
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+# Concurrency is set on callers; declaring it here would collide and deadlock (github.workflow resolves to the caller).
 
 env:
   COMMIT_SHA: ${{ inputs.commit-sha || github.sha }}
