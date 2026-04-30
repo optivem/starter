@@ -37,7 +37,6 @@ jobs:
         with:
           environment: monolith-dotnet-qa
           ref-prefix: monolith-dotnet-v
-          exclude-ref-prefix: monolith-dotnet-cloud-v
 
       - name: Check RC Exists
         if: inputs.version != ''
