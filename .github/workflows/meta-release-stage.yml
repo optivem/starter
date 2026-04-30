@@ -372,6 +372,8 @@ jobs:
   bump-patch-version:
     needs: tag-meta-release
     if: ${{ needs.tag-meta-release.result == 'success' }}
+    permissions:
+      contents: write
     uses: ./.github/workflows/bump-patch-version-meta.yml
     secrets: inherit
 

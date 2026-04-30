@@ -70,6 +70,10 @@ concurrency:
 
 jobs:
   run:
+    permissions:
+      contents: read
+      actions: write
+      packages: read
     uses: ./.github/workflows/_meta-prerelease-pipeline.yml
     secrets: inherit
     with:

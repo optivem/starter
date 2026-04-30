@@ -541,6 +541,9 @@ jobs:
   cross-lang:
     needs: [check, commit]
     if: ${{ always() && !failure() && !cancelled() && !inputs.debug-skip-tests && inputs.variant == 'all' && contains(fromJSON('["acceptance","qa"]'), inputs.level) }}
+    permissions:
+      contents: read
+      packages: read
     uses: ./.github/workflows/cross-lang-system-verification.yml
     secrets: inherit
     with:
