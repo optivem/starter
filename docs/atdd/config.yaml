@@ -1,0 +1,15 @@
+# ATDD pipeline configuration for the shop repo.
+#
+# Loaded by `gh optivem atdd …` (gh-optivem ≥ the version that introduced
+# internal/atdd/runtime/config/). Absent file is fine — the driver falls
+# back to README scraping and then to git-remote-based project discovery.
+
+project:
+  # Canonical project URL. Skipping this triggers the README/git-remote
+  # fallback, which is ambiguous when multiple projects match the repo
+  # name (shop, eshop, ATDD Accelerator eShop all match "shop").
+  url: https://github.com/orgs/optivem/projects/20
+
+  # Human-readable project title. When set, the driver displays it in the
+  # "Resolved issue" line without an extra `gh project view` round-trip.
+  name: Shop Project
