@@ -35,7 +35,7 @@ jobs:
         with:
           version-files: |
             [
-              {"path": "VERSION", "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/monolith-system-dotnet"}
+              {"path": "VERSION", "signal": "git-tag", "value": "monolith-dotnet-v"}
             ]
 
       - name: Build Commit Payload

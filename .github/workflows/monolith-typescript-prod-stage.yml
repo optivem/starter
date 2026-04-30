@@ -184,22 +184,6 @@ jobs:
           tag: ${{ steps.promote.outputs.version }}
           token: ${{ secrets.WORKFLOW_TOKEN }}
 
-      - name: Generate Release Notes
-        id: release-notes
-        uses: optivem/actions/generate-release-notes@v1
-        with:
-          prerelease-version: ${{ needs.check.outputs.version }}
-          release-version: ${{ steps.promote.outputs.version }}
-          artifact-urls: ${{ steps.tag-images.outputs.tagged-image-urls }}
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ steps.promote.outputs.version }}
-          name: ${{ steps.release-notes.outputs.title }}
-          body_path: ${{ steps.release-notes.outputs.notes-file }}
-          prerelease: false
-
       - name: Read Component Base Versions
         id: read-component-versions
         uses: optivem/actions/read-base-versions@v1
@@ -222,9 +206,27 @@ jobs:
           image-tags: ${{ steps.compose-component-tags.outputs.tags }}
           token: ${{ secrets.GHCR_TOKEN }}
 
+      - name: Generate Release Notes
+        id: release-notes
+        uses: optivem/actions/generate-release-notes@v1
+        with:
+          prerelease-version: ${{ needs.check.outputs.version }}
+          release-version: ${{ steps.promote.outputs.version }}
+          artifact-urls: ${{ steps.tag-images.outputs.tagged-image-urls }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.promote.outputs.version }}
+          name: ${{ steps.release-notes.outputs.title }}
+          body_path: ${{ steps.release-notes.outputs.notes-file }}
+          prerelease: false
+
   bump-patch-version:
     needs: run
     if: ${{ !failure() && !cancelled() && needs.run.result == 'success' }}
+    permissions:
+      contents: write
     uses: ./.github/workflows/bump-patch-version.yml
     secrets: inherit
 

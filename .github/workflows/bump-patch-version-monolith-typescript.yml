@@ -35,7 +35,7 @@ jobs:
         with:
           version-files: |
             [
-              {"path": "VERSION", "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/monolith-system-typescript"}
+              {"path": "VERSION", "signal": "git-tag", "value": "monolith-typescript-v"}
             ]
 
       - name: Build Commit Payload
