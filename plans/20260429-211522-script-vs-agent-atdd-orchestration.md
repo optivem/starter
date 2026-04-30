@@ -1,6 +1,6 @@
 # Script vs agent: separate mechanical orchestration from creative work in the ATDD pipeline
 
-🤖 **Picked up by agent** — `Valentina_Desk` at `2026-04-30T08:21:35Z`
+🤖 **Picked up by agent** — `Valentina_Desk` at `2026-04-30T09:13:21Z`
 
 ## Token-efficient execution strategy (recommended)
 
@@ -361,8 +361,6 @@ Session 1 of the rollout (the foundation chunk in §Token-efficient execution st
    - `internal/atdd/runtime/gates/` — write the bound functions for every `binding:` in the YAML (`dsl_interface_changed`, `external_system_driver_interface_changed`, `system_driver_interface_changed`, `ticket_type`, `legacy_coverage_section_present`, `change_driven_ac_produced`, `external_system_driver_exists`, `external_system_test_instance_accessible`, `smoke_test_passes`, `structural_test_mode`). Each reads from `git diff` / file presence / user prompts as appropriate. Exposed as `gh optivem atdd debug gate <name>`.
    - `internal/atdd/runtime/actions/` — write the action implementations for every `action:` in the YAML (`pick_top_ready`, `move_to_in_progress`, `classify_ticket`, `move_to_in_acceptance`, `run_smoke_test`, `commit_onboarding`, `compile_in_scope`, `run_sample_suite`, `print_drift_warning`, `ask_can_i_commit`, `commit_phase`, `tick_checklist`). Each shells out to `gh` / `git` / `docker compose` as appropriate.
    - `internal/atdd/runtime/verify/` — write the real `PreFn` / `PostFn` checks (e.g. "before AT_RED_DSL_WRITE, HEAD must match `^AT - RED - TEST - COMMIT`").
-   - `internal/atdd/runtime/classify/` — fast-path classifier on the canonical Type label; `atdd-classify-fallback` agent only on conflict. Local `classify.log` audit trail. Exposed as `gh optivem atdd debug classify`.
-   - `internal/atdd/runtime/board/` + `internal/atdd/runtime/release/` — board/pick logic and `@Disabled` removal + commit + close. Exposed as `gh optivem atdd debug pick-top-ready` and `gh optivem atdd debug release`.
 3. **Driver + cmd wiring** (Session 3). `internal/atdd/runtime/driver/` (the top-level loop wiring engine.RunFlow with bound registries, override hooks, and verify decorators) + a new `gh-optivem/atdd_commands.go` exposing `gh optivem atdd implement-ticket --issue N` and `gh optivem atdd manage-project` (and the hidden `debug` parent for the diagnostic helpers). One line into `main.go` rootCmd.
 4. **Update slash-commands** (Session 3). Repoint `atdd:atdd-implement-ticket` and `atdd:atdd-manage-project` at `gh optivem atdd implement-ticket` and `gh optivem atdd manage-project`. Pass through `--issue`, `--project`, `--autonomous`, `--rehearsal`, `--no-memory`, etc.
 5. **Slim the kept agents** (Session 5). For each remaining agent (`atdd-story`, `atdd-bug`, `atdd-task`, `atdd-chore`, `atdd-test`, `atdd-dsl`, `atdd-driver`, `atdd-backend`, `atdd-frontend`), strip orchestration prose and cross-phase `@includes`. Each agent body should describe only its WRITE / REVIEW / COMMIT mechanics for its phase. Parallelizable across subagents (one per agent file).
