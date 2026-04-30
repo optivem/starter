@@ -38,12 +38,17 @@ on:
         type: boolean
         default: false
 
+permissions: {}
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   verify:
+    permissions:
+      contents: read
+      actions: write
     uses: ./.github/workflows/_prerelease-pipeline.yml
     secrets: inherit
     with:

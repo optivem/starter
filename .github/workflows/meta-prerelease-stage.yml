@@ -20,6 +20,8 @@ on:
         type: boolean
         default: false
 
+permissions: {}
+
 concurrency:
   group: meta-prerelease-stage
   cancel-in-progress: false

@@ -24,6 +24,8 @@ on:
         required: false
         default: false
 
+permissions: {}
+
 jobs:
   cleanup:
     runs-on: ubuntu-latest

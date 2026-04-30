@@ -16,6 +16,8 @@ on:
           - approved
           - rejected
 
+permissions: {}
+
 concurrency:
   group: monolith-java-qa-signoff
 

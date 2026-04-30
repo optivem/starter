@@ -8,6 +8,8 @@ on:
         required: false
         type: string
 
+permissions: {}
+
 concurrency:
   group: multitier-java-acceptance-stage-cloud
 
@@ -312,6 +314,8 @@ jobs:
   test-smoke-real:
     needs: [deploy-frontend, deploy-backend, deploy-external-real]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -341,6 +345,8 @@ jobs:
   test-smoke-stub:
     needs: [deploy-frontend, deploy-backend, deploy-external-stub]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -370,6 +376,8 @@ jobs:
   test-acceptance-api:
     needs: [deploy-frontend, deploy-backend, deploy-external-real]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -399,6 +407,8 @@ jobs:
   test-acceptance-ui:
     needs: [deploy-frontend, deploy-backend, deploy-external-real]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -446,6 +456,8 @@ jobs:
   test-acceptance-isolated-api:
     needs: [deploy-frontend, deploy-backend, deploy-external-real]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -475,6 +487,8 @@ jobs:
   test-acceptance-isolated-ui:
     needs: [deploy-frontend, deploy-backend, deploy-external-real]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -522,6 +536,8 @@ jobs:
   test-contract-stub:
     needs: [deploy-frontend, deploy-backend, deploy-external-stub]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -551,6 +567,8 @@ jobs:
   test-contract-isolated-stub:
     needs: [deploy-frontend, deploy-backend, deploy-external-stub]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -580,6 +598,8 @@ jobs:
   test-contract-real:
     needs: [deploy-frontend, deploy-backend, deploy-external-real]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -609,6 +629,8 @@ jobs:
   test-e2e-api:
     needs: [deploy-frontend, deploy-backend, deploy-external-real]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -638,6 +660,8 @@ jobs:
   test-e2e-ui:
     needs: [deploy-frontend, deploy-backend, deploy-external-real]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6

@@ -48,6 +48,8 @@ on:
         description: 'SHA the verification ran against. Equals the trigger SHA unless the check job auto-bumped via meta-bump-all, in which case it is the post-bump main HEAD. Callers that tag artifacts (e.g. meta-prerelease-stage tagging meta-rc) should use this rather than github.sha so the tag lands on the SHA that was actually verified.'
         value: ${{ jobs.check.outputs.commit_sha }}
 
+permissions: {}
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: false
@@ -448,6 +450,9 @@ jobs:
       matrix:
         variant: [monolith-java, monolith-dotnet, monolith-typescript, multitier-java, multitier-dotnet, multitier-typescript]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - if: ${{ inputs.variant == 'all' || inputs.variant == matrix.variant }}
         uses: optivem/actions/trigger-and-wait-for-workflow@v1
@@ -488,11 +493,15 @@ jobs:
             workflow: multitier-frontend-react-commit-stage.yml
             variants: '["all","multitier-java","multitier-dotnet","multitier-typescript"]'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - if: ${{ contains(fromJSON(matrix.variants), inputs.variant) }}
         uses: optivem/actions/trigger-and-wait-for-workflow@v1
         with:
           workflow: ${{ matrix.workflow }}
+          poll-interval: '60'
           workflow-inputs: '{"commit-sha": "${{ needs.check.outputs.commit_sha }}"}'
 
   # Phase 2: Run all pipelines in parallel. Each pipeline produces RC tags namespaced
@@ -509,6 +518,9 @@ jobs:
       matrix:
         variant: [monolith-java, monolith-dotnet, monolith-typescript, multitier-java, multitier-dotnet, multitier-typescript]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - if: ${{ inputs.variant == 'all' || inputs.variant == matrix.variant }}
         uses: optivem/actions/trigger-and-wait-for-workflow@v1

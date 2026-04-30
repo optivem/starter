@@ -9,6 +9,8 @@ on:
         type: string
         default: ''
 
+permissions: {}
+
 concurrency:
   group: monolith-java-qa-stage-cloud
 

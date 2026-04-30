@@ -17,6 +17,8 @@ on:
   workflow_call:
   workflow_dispatch:
 
+permissions: {}
+
 concurrency:
   group: multitier-backend-dotnet-bump-patch-version
 
