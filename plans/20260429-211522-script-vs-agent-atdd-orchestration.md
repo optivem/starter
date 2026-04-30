@@ -1,5 +1,7 @@
 # Script vs agent: separate mechanical orchestration from creative work in the ATDD pipeline
 
+🤖 **Picked up by agent** — `Valentina_Desk` at `2026-04-30T12:18:07Z`
+
 ## Token-efficient execution strategy (recommended)
 
 This plan is too large for a single agent batch. Push it through in **separate `/execute-plan` sessions**, scoped per chunk below — each session starts with a small context, reads only the files it needs, deletes its items from this plan, and exits. That keeps the conversation transcript from accumulating across the full ~5000+ LOC of new Go + ~9 agent rewrites + ~10 doc rewrites.
@@ -9,7 +11,7 @@ This plan is too large for a single agent batch. Push it through in **separate `
 1. ✅ **Session 1 — Foundation (shipped).** Statemachine engine + YAML loader; transitions_test.go; diagram-process.md regen; override decorator scaffold; gates + verify interface skeletons.
 2. ✅ **Session 2 — Real `gh` integration (shipped).** classify (fast path + LLM fallback); board (project read / pick top / move column); release (regex `@Disabled` removal + commit + close).
 3. ✅ **Session 3 — Driver + cmd wiring (shipped).** `internal/atdd/runtime/driver/` loop; `gh optivem atdd implement-ticket` / `manage-project` / hidden `debug` Cobra commands; slash-command repointing.
-4. **Session 4 — Per-phase doc rewrites.** Item 1b. Substantive content judgment (purpose / conventions / examples / anti-patterns per phase). Best done as a single focused doc-edit session — possibly with sub-tasks delegated to a subagent for parallel rewrites of independent docs.
+4. ✅ **Session 4 — Per-phase doc rewrites (shipped).** All 9 per-phase docs (`at-red-test.md`, `at-red-dsl.md`, `at-red-system-driver.md`, `at-green-system.md`, `ct-red-test.md`, `ct-red-dsl.md`, `ct-red-external-driver.md`, `ct-green-stubs.md`, `task-and-chore-cycles.md`) restructured to drop orchestration prose and add Purpose / What it produces / Conventions / Example / Review checklist / Anti-patterns sections.
 5. ✅ **Session 5 — Slim kept agents (shipped).** Agent bodies stripped of orchestration prose now owned by the Go driver.
 6. **Sessions 6–7 — Items 5 + 6** (token-measurement decision; one-week soak). Out of scope for an agent batch; user-driven.
 
@@ -352,11 +354,10 @@ The `diagram-generator` agent's contract also inverts (read YAML → write Merma
 
 ## Implementation order — remaining
 
-Sessions 1, 2, 3, and 5 shipped: the statemachine engine, transitions test suite, regenerated diagrams, and registry/middleware scaffolds (Session 1); the real Go bindings for `gates/`, `actions/`, and `verify/` with hermetic unit tests (Session 2); the driver loop, Cobra commands (`gh optivem atdd implement-ticket`, `manage-project`, hidden `debug` helpers), and slash-command repointing (Session 3); and the slim agent bodies stripped of orchestration prose (Session 5). What's left:
+Sessions 1, 2, 3, 4, and 5 shipped: the statemachine engine, transitions test suite, regenerated diagrams, and registry/middleware scaffolds (Session 1); the real Go bindings for `gates/`, `actions/`, and `verify/` with hermetic unit tests (Session 2); the driver loop, Cobra commands (`gh optivem atdd implement-ticket`, `manage-project`, hidden `debug` helpers), and slash-command repointing (Session 3); the per-phase doc rewrites dropping orchestration prose and adding Purpose / What it produces / Conventions / Example / Review checklist / Anti-patterns (Session 4); and the slim agent bodies stripped of orchestration prose (Session 5). What's left — all user-driven:
 
-1. **Per-phase doc rewrites** (Session 4). Restructure `at-red-test.md`, `at-red-dsl.md`, `at-red-system-driver.md`, `at-green-system.md`, `ct-red-test.md`, `ct-red-dsl.md`, `ct-red-external-driver.md`, `ct-green-stubs.md`, `task-and-chore-cycles.md` to drop "what runs next" prose (now lives in the YAML) and focus on substance: the phase's purpose, what it produces, conventions, example diffs, review criteria, anti-patterns. Best done as a single focused session, possibly with sub-tasks delegated to subagents for parallel rewrites of independent docs.
-2. **Run a real ticket end-to-end** with the new driver, capture token usage, and compare against the same ticket replayed via the agent-only path. Decision gate: ship only if tokens drop ≥ 30% and all human-in-the-loop gates still fire. _User-driven; cannot be executed by an agent batch._
-3. **Delete demoted agents** only after one full week of green pipeline runs through the new driver. _User-driven._
+1. **Run a real ticket end-to-end** with the new driver, capture token usage, and compare against the same ticket replayed via the agent-only path. Decision gate: ship only if tokens drop ≥ 30% and all human-in-the-loop gates still fire. _User-driven; cannot be executed by an agent batch._
+2. **Delete demoted agents** only after one full week of green pipeline runs through the new driver. _User-driven._
 
 ## Decisions made
 
