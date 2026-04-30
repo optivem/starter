@@ -1,7 +1,7 @@
-name: multitier-backend-typescript-bump-patch-version
+name: multitier-backend-java-bump-patch-version
 
-# Per-flavor scaffold source for bump-patch-version (multitier-multirepo backend typescript).
-# See bump-patch-version-multitier-backend-dotnet.yml for full notes.
+# Per-flavor scaffold source for bump-patch-version (multitier-multirepo backend java).
+# See multitier-backend-dotnet-bump-patch-version.yml for full notes.
 
 on:
   workflow_call:
@@ -10,7 +10,7 @@ on:
 permissions: {}
 
 concurrency:
-  group: multitier-backend-typescript-bump-patch-version
+  group: multitier-backend-java-bump-patch-version
 
 jobs:
   bump:
@@ -28,7 +28,7 @@ jobs:
         with:
           version-files: |
             [
-              {"path": "system/multitier/backend-typescript/VERSION", "value": "multitier-backend-typescript-v"}
+              {"path": "system/multitier/backend-java/VERSION", "value": "multitier-backend-java-v"}
             ]
 
       - name: Build Commit Payload

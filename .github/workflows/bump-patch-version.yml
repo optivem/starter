@@ -2,7 +2,7 @@ name: bump-patch-version
 
 # All-multitier-components bumper. Bumps each of the 4 multitier component
 # VERSION files when its matching tag advances. In shop, no longer called
-# from prod-stages (per-flavor `bump-patch-version-multitier-<lang>.yml`
+# from prod-stages (per-flavor `multitier-<lang>-bump-patch-version.yml`
 # bumpers handle the system bundle + component cascade). Kept as a manual
 # recovery tool and as a scaffold source for student multitier scaffolds.
 # Race-safe (Contents API with SHA preconditions). Idempotent.

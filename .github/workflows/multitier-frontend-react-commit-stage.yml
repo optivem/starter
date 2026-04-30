@@ -105,7 +105,8 @@ jobs:
         run: npm run build
         working-directory: system/multitier/frontend-react
 
-      # TODO: Implement
+      # TODO: No frontend test suite is wired up yet (no `test` script in package.json).
+      # Add jest/vitest + components tests, then replace this with `npm test`.
       - name: Run Unit Tests
         run: echo "TODO - not yet implemented"
 

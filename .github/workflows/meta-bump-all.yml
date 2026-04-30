@@ -20,21 +20,21 @@ jobs:
     uses: ./.github/workflows/bump-patch-version-meta.yml
 
   bump-monolith-java:
-    uses: ./.github/workflows/bump-patch-version-monolith-java.yml
+    uses: ./.github/workflows/monolith-java-bump-patch-version.yml
 
   bump-monolith-dotnet:
-    uses: ./.github/workflows/bump-patch-version-monolith-dotnet.yml
+    uses: ./.github/workflows/monolith-dotnet-bump-patch-version.yml
 
   bump-monolith-typescript:
-    uses: ./.github/workflows/bump-patch-version-monolith-typescript.yml
+    uses: ./.github/workflows/monolith-typescript-bump-patch-version.yml
 
   bump-multitier-java:
-    uses: ./.github/workflows/bump-patch-version-multitier-java.yml
+    uses: ./.github/workflows/multitier-java-bump-patch-version.yml
 
   bump-multitier-dotnet:
     needs: bump-multitier-java
-    uses: ./.github/workflows/bump-patch-version-multitier-dotnet.yml
+    uses: ./.github/workflows/multitier-dotnet-bump-patch-version.yml
 
   bump-multitier-typescript:
     needs: bump-multitier-dotnet
-    uses: ./.github/workflows/bump-patch-version-multitier-typescript.yml
+    uses: ./.github/workflows/multitier-typescript-bump-patch-version.yml

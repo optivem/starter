@@ -559,7 +559,7 @@ jobs:
           BASE_URL: ${{ needs.deploy-app.outputs.app-url }}
           EXTERNAL_BASE_URL: ${{ needs.deploy-external-stub.outputs.external-url }}
 
-  test-contract-isolated-stub:
+  test-contract-stub-isolated:
     needs: [deploy-app, deploy-external-stub]
     runs-on: ubuntu-latest
     permissions:
@@ -703,7 +703,7 @@ jobs:
           EXTERNAL_BASE_URL: ${{ needs.deploy-external-real.outputs.external-url }}
 
   promote:
-    needs: [check, deploy-app, test-smoke-real, test-smoke-stub, test-acceptance-api, test-acceptance-ui, test-acceptance-isolated-api, test-acceptance-isolated-ui, test-contract-stub, test-contract-isolated-stub, test-contract-real, test-e2e-api, test-e2e-ui]
+    needs: [check, deploy-app, test-smoke-real, test-smoke-stub, test-acceptance-api, test-acceptance-ui, test-acceptance-isolated-api, test-acceptance-isolated-ui, test-contract-stub, test-contract-stub-isolated, test-contract-real, test-e2e-api, test-e2e-ui]
     runs-on: ubuntu-latest
     permissions:
       contents: read

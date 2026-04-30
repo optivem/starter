@@ -227,6 +227,7 @@ jobs:
           command: cd system-test/java && ./gradlew --version
 
       - name: Cache Playwright Browsers
+        id: cache-playwright
         uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright

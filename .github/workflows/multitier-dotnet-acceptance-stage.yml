@@ -257,6 +257,7 @@ jobs:
           restore-keys: nuget-${{ runner.os }}-
 
       - name: Cache Playwright Browsers
+        id: cache-playwright
         if: ${{ !inputs.debug-skip-tests }}
         uses: actions/cache@v5
         with:
@@ -265,7 +266,8 @@ jobs:
 
       - name: Compile System Tests
         if: ${{ !inputs.debug-skip-tests }}
-        # Required so playwright.ps1 (in build output) exists for install-deps.
+        # .NET-only pre-build: Java/TS pre-build implicitly via setupCommands.
+        # Required here so playwright.ps1 (in build output) exists for install-deps.
         run: dotnet build
         working-directory: system-test/dotnet
 

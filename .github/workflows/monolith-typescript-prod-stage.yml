@@ -229,7 +229,7 @@ jobs:
     if: ${{ !failure() && !cancelled() && needs.run.result == 'success' }}
     permissions:
       contents: write
-    uses: ./.github/workflows/bump-patch-version-monolith-typescript.yml
+    uses: ./.github/workflows/monolith-typescript-bump-patch-version.yml
     secrets: inherit
 
   summary:

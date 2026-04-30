@@ -5,11 +5,13 @@ on:
     branches: [ "main" ]
     paths:
         - 'system/monolith/typescript/**'
+        - '!system/monolith/typescript/VERSION'
         - '.github/workflows/monolith-typescript-commit-stage.yml'
   pull_request:
     branches: [ "main" ]
     paths:
         - 'system/monolith/typescript/**'
+        - '!system/monolith/typescript/VERSION'
         - '.github/workflows/monolith-typescript-commit-stage.yml'
   workflow_dispatch:
     inputs:
@@ -67,6 +69,7 @@ jobs:
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     outputs:
+      component-version: ${{ steps.read-version.outputs.base-version }}
       image-digest-url: ${{ steps.digest-url.outputs.value }}
     steps:
       - name: Checkout Repository
@@ -80,6 +83,12 @@ jobs:
         uses: optivem/actions/check-sha-on-branch@v1
         with:
           commit-sha: ${{ env.COMMIT_SHA }}
+
+      - name: Read Base Component Version
+        id: read-version
+        uses: optivem/actions/read-base-version@v1
+        with:
+          file: system/monolith/typescript/VERSION
 
       - name: Setup Node
         uses: actions/setup-node@v6
@@ -96,9 +105,9 @@ jobs:
         run: npm run build
         working-directory: system/monolith/typescript
 
-      # TODO: Implement
       - name: Run Unit Tests
-        run: echo "TODO - not yet implemented"
+        run: npm test
+        working-directory: system/monolith/typescript
 
       # TODO: Implement
       - name: Run Narrow Integration Tests
@@ -126,13 +135,6 @@ jobs:
             -Dsonar.projectName=shop-monolith-typescript
             -Dsonar.organization=optivem
             -Dsonar.sources=src
-
-      - name: Read Base Component Version
-        if: steps.verify-main.outputs.on-branch == 'true'
-        id: read-version
-        uses: optivem/actions/read-base-version@v1
-        with:
-          file: system/monolith/typescript/VERSION
 
       - name: Compose Dev Version
         if: steps.verify-main.outputs.on-branch == 'true'

@@ -254,6 +254,7 @@ jobs:
           restore-keys: nuget-${{ runner.os }}-
 
       - name: Cache Playwright Browsers
+        id: cache-playwright
         if: ${{ !inputs.debug-skip-tests }}
         uses: actions/cache@v5
         with:
@@ -262,9 +263,9 @@ jobs:
 
       - name: Compile System Tests
         if: ${{ !inputs.debug-skip-tests }}
-        # Required so playwright.ps1 (in the build output) exists for the
-        # next install-deps step. The CLI's setupCommands (dotnet clean +
-        # build) re-run this incrementally, which is fast.
+        # .NET-only pre-build: Java/TS pre-build implicitly via setupCommands.
+        # Required here so playwright.ps1 (in the build output) exists for
+        # the next install-deps step.
         run: dotnet build
         working-directory: system-test/dotnet
 
@@ -377,8 +378,31 @@ jobs:
           tag: ${{ needs.run.outputs.version }}
           token: ${{ secrets.WORKFLOW_TOKEN }}
 
+  sonar:
+    needs: run
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ env.COMMIT_SHA }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Run Sonar Analysis
+        working-directory: system-test/dotnet
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: pwsh ./Run-Sonar.ps1
+
   summary:
-    needs: [preflight, check, run, publish-tag]
+    needs: [preflight, check, run, publish-tag, sonar]
     if: always()
     runs-on: ubuntu-latest
     permissions:

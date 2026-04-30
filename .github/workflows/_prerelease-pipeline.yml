@@ -114,7 +114,7 @@ jobs:
         if: inputs.language == 'typescript' || inputs.architecture == 'multitier'
         uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 22.x
 
       - name: Setup Java
         if: inputs.language == 'java'

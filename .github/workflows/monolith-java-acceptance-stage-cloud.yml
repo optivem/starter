@@ -517,7 +517,7 @@ jobs:
         run: ./gradlew test -Dversion=latest -Dtype=contract -DexcludeTags=isolated -DexternalSystemMode=stub -Denvironment=acceptance -DbaseUrl=${{ needs.deploy-app.outputs.app-url }} -DexternalBaseUrl=${{ needs.deploy-external-stub.outputs.external-url }}
         working-directory: system-test/java
 
-  test-contract-isolated-stub:
+  test-contract-stub-isolated:
     needs: [deploy-app, deploy-external-stub]
     runs-on: ubuntu-latest
     permissions:
@@ -660,7 +660,7 @@ jobs:
         working-directory: system-test/java
 
   promote:
-    needs: [check, deploy-app, test-smoke-real, test-smoke-stub, test-acceptance-api, test-acceptance-ui, test-acceptance-isolated-api, test-acceptance-isolated-ui, test-contract-stub, test-contract-isolated-stub, test-contract-real, test-e2e-api, test-e2e-ui]
+    needs: [check, deploy-app, test-smoke-real, test-smoke-stub, test-acceptance-api, test-acceptance-ui, test-acceptance-isolated-api, test-acceptance-isolated-ui, test-contract-stub, test-contract-stub-isolated, test-contract-real, test-e2e-api, test-e2e-ui]
     runs-on: ubuntu-latest
     permissions:
       contents: read

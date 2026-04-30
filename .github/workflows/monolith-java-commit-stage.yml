@@ -5,11 +5,13 @@ on:
     branches: [ "main" ]
     paths:
         - 'system/monolith/java/**'
+        - '!system/monolith/java/VERSION'
         - '.github/workflows/monolith-java-commit-stage.yml'
   pull_request:
     branches: [ "main" ]
     paths:
         - 'system/monolith/java/**'
+        - '!system/monolith/java/VERSION'
         - '.github/workflows/monolith-java-commit-stage.yml'
   workflow_dispatch:
     inputs:
@@ -67,6 +69,7 @@ jobs:
     env:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
     outputs:
+      component-version: ${{ steps.read-version.outputs.base-version }}
       image-digest-url: ${{ steps.digest-url.outputs.value }}
     steps:
       - name: Checkout Repository
@@ -80,6 +83,12 @@ jobs:
         uses: optivem/actions/check-sha-on-branch@v1
         with:
           commit-sha: ${{ env.COMMIT_SHA }}
+
+      - name: Read Base Component Version
+        id: read-version
+        uses: optivem/actions/read-base-version@v1
+        with:
+          file: system/monolith/java/VERSION
 
       - name: Setup Java
         uses: actions/setup-java@v5
@@ -125,13 +134,6 @@ jobs:
         if: steps.verify-main.outputs.on-branch == 'true' && env.SONAR_TOKEN != ''
         run: ./gradlew build sonar --info
         working-directory: system/monolith/java
-
-      - name: Read Base Component Version
-        if: steps.verify-main.outputs.on-branch == 'true'
-        id: read-version
-        uses: optivem/actions/read-base-version@v1
-        with:
-          file: system/monolith/java/VERSION
 
       - name: Compose Dev Version
         if: steps.verify-main.outputs.on-branch == 'true'

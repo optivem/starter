@@ -200,7 +200,6 @@ jobs:
               {"key": "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-frontend-react:${{ needs.check.outputs.version }}",
                "file": "system/multitier/frontend-react/VERSION"}
             ]
-          token: ${{ secrets.REPO_TOKEN }}
 
       - name: Compose Component Tags
         id: compose-component-tags
@@ -258,7 +257,7 @@ jobs:
     if: ${{ !failure() && !cancelled() && needs.run.result == 'success' }}
     permissions:
       contents: write
-    uses: ./.github/workflows/bump-patch-version-multitier-java.yml
+    uses: ./.github/workflows/multitier-java-bump-patch-version.yml
     secrets: inherit
 
   summary:
