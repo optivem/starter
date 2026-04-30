@@ -11,6 +11,8 @@ on:
   workflow_call:
   workflow_dispatch:
 
+permissions: {}
+
 concurrency:
   group: monolith-typescript-bump-patch-version
 

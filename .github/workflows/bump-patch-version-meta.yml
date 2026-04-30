@@ -12,6 +12,8 @@ on:
   workflow_call:
   workflow_dispatch:
 
+permissions: {}
+
 concurrency:
   group: my-shop-bump-patch-version-meta
 

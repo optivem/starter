@@ -20,6 +20,8 @@ on:
         required: false
         type: string
 
+permissions: {}
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
@@ -215,6 +217,7 @@ jobs:
     needs: [check, run]
     if: always()
     runs-on: ubuntu-latest
+    permissions: {}
     steps:
     - name: Format Artifacts
       id: format-artifacts

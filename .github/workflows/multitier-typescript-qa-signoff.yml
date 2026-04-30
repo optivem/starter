@@ -16,6 +16,8 @@ on:
           - approved
           - rejected
 
+permissions: {}
+
 concurrency:
   group: multitier-typescript-qa-signoff
 

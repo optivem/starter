@@ -23,6 +23,8 @@ on:
         required: true
         type: string
 
+permissions: {}
+
 concurrency:
   group: cross-lang-system-verification
   cancel-in-progress: false

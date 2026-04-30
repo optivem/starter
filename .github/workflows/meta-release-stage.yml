@@ -29,6 +29,8 @@ on:
         default: ''
         type: string
 
+permissions: {}
+
 concurrency:
   group: meta-release-stage
   cancel-in-progress: false
@@ -197,6 +199,9 @@ jobs:
   promote-monolith-java:
     needs: check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
         with:
@@ -207,6 +212,9 @@ jobs:
   promote-monolith-dotnet:
     needs: check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
         with:
@@ -217,6 +225,9 @@ jobs:
   promote-monolith-typescript:
     needs: check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
         with:
@@ -227,6 +238,9 @@ jobs:
   promote-multitier-java:
     needs: check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
         with:
@@ -237,6 +251,9 @@ jobs:
   promote-multitier-dotnet:
     needs: check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
         with:
@@ -247,6 +264,9 @@ jobs:
   promote-multitier-typescript:
     needs: check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
     steps:
       - uses: optivem/actions/trigger-and-wait-for-workflow@v1
         with:
@@ -352,6 +372,8 @@ jobs:
   bump-patch-version:
     needs: tag-meta-release
     if: ${{ needs.tag-meta-release.result == 'success' }}
+    permissions:
+      contents: write
     uses: ./.github/workflows/bump-patch-version-meta.yml
     secrets: inherit
 
@@ -363,6 +385,8 @@ jobs:
     needs: [check, tag-meta-release]
     if: ${{ needs.tag-meta-release.result == 'success' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v6
         with:
@@ -380,13 +404,11 @@ jobs:
           gh_retry workflow run gh-acceptance-stage.yml \
             --repo optivem/gh-optivem \
             -f shop-tag="${SHOP_TAG}" \
-            -f verify-level=release \
             -f acceptance-mode=condensed
           {
             echo "## Dispatched gh-acceptance-stage"
             echo ""
             echo "- Target repo: [optivem/gh-optivem](https://github.com/optivem/gh-optivem/actions/workflows/gh-acceptance-stage.yml)"
             echo "- shop-tag: \`${SHOP_TAG}\`"
-            echo "- verify-level: \`release\`"
             echo "- acceptance-mode: \`condensed\`"
           } >> "$GITHUB_STEP_SUMMARY"

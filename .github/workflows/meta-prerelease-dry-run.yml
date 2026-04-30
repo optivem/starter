@@ -62,12 +62,18 @@ on:
 
 # Shared concurrency group with meta-prerelease-stage so dry-runs and whole runs
 # serialize rather than stepping on each other.
+permissions: {}
+
 concurrency:
   group: meta-prerelease-stage
   cancel-in-progress: false
 
 jobs:
   run:
+    permissions:
+      contents: read
+      actions: write
+      packages: read
     uses: ./.github/workflows/_meta-prerelease-pipeline.yml
     secrets: inherit
     with:

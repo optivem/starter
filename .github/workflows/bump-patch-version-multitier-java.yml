@@ -12,6 +12,8 @@ on:
   workflow_call:
   workflow_dispatch:
 
+permissions: {}
+
 concurrency:
   group: multitier-java-bump-patch-version
 

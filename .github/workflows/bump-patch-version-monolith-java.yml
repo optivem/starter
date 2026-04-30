@@ -10,6 +10,8 @@ on:
   workflow_call:
   workflow_dispatch:
 
+permissions: {}
+
 concurrency:
   group: monolith-java-bump-patch-version
 

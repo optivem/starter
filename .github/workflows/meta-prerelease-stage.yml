@@ -20,6 +20,8 @@ on:
         type: boolean
         default: false
 
+permissions: {}
+
 concurrency:
   group: meta-prerelease-stage
   cancel-in-progress: false
@@ -141,6 +143,10 @@ jobs:
   run:
     needs: check
     if: needs.check.outputs.should-run == 'true'
+    permissions:
+      contents: read
+      actions: write
+      packages: read
     uses: ./.github/workflows/_meta-prerelease-pipeline.yml
     secrets: inherit
     with:

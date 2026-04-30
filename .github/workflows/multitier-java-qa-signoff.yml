@@ -16,6 +16,8 @@ on:
           - approved
           - rejected
 
+permissions: {}
+
 concurrency:
   group: multitier-java-qa-signoff
 

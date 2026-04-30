@@ -13,6 +13,8 @@ on:
   workflow_call:
   workflow_dispatch:
 
+permissions: {}
+
 concurrency:
   group: multitier-typescript-bump-patch-version
 
