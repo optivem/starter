@@ -187,22 +187,6 @@ jobs:
           tag: ${{ steps.promote.outputs.version }}
           token: ${{ secrets.WORKFLOW_TOKEN }}
 
-      - name: Generate Release Notes
-        id: release-notes
-        uses: optivem/actions/generate-release-notes@v1
-        with:
-          prerelease-version: ${{ needs.check.outputs.version }}
-          release-version: ${{ steps.promote.outputs.version }}
-          artifact-urls: ${{ steps.tag-images.outputs.tagged-image-urls }}
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ steps.promote.outputs.version }}
-          name: ${{ steps.release-notes.outputs.title }}
-          body_path: ${{ steps.release-notes.outputs.notes-file }}
-          prerelease: false
-
       - name: Read Component Base Versions
         id: read-component-versions
         uses: optivem/actions/read-base-versions@v1
@@ -227,6 +211,45 @@ jobs:
         with:
           image-tags: ${{ steps.compose-component-tags.outputs.tags }}
           token: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Extract Component Versions for Git Tags
+        id: component-tag-versions
+        shell: bash
+        env:
+          VERSIONS: ${{ steps.read-component-versions.outputs.versions }}
+        run: |
+          backend=$(echo "$VERSIONS" | jq -r '.[] | select(.key | contains("multitier-backend-dotnet")) | .version')
+          frontend=$(echo "$VERSIONS" | jq -r '.[] | select(.key | contains("multitier-frontend-react")) | .version')
+          echo "backend=$backend" >> "$GITHUB_OUTPUT"
+          echo "frontend=$frontend" >> "$GITHUB_OUTPUT"
+
+      - name: Publish Backend Component Release Tag
+        uses: optivem/actions/publish-tag@v1
+        with:
+          tag: multitier-backend-dotnet-v${{ steps.component-tag-versions.outputs.backend }}
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+
+      - name: Publish Frontend Component Release Tag
+        uses: optivem/actions/publish-tag@v1
+        with:
+          tag: multitier-frontend-react-v${{ steps.component-tag-versions.outputs.frontend }}
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+
+      - name: Generate Release Notes
+        id: release-notes
+        uses: optivem/actions/generate-release-notes@v1
+        with:
+          prerelease-version: ${{ needs.check.outputs.version }}
+          release-version: ${{ steps.promote.outputs.version }}
+          artifact-urls: ${{ steps.tag-images.outputs.tagged-image-urls }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.promote.outputs.version }}
+          name: ${{ steps.release-notes.outputs.title }}
+          body_path: ${{ steps.release-notes.outputs.notes-file }}
+          prerelease: false
 
   bump-patch-version:
     needs: run

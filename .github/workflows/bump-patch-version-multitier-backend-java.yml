@@ -26,7 +26,7 @@ jobs:
         with:
           version-files: |
             [
-              {"path": "system/multitier/backend-java/VERSION", "signal": "ghcr-image", "value": "ghcr.io/${{ github.repository }}/multitier-backend-java"}
+              {"path": "system/multitier/backend-java/VERSION", "signal": "git-tag", "value": "multitier-backend-java-v"}
             ]
 
       - name: Build Commit Payload

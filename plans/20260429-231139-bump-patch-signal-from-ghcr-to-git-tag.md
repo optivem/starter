@@ -93,13 +93,6 @@ These templates are copied by gh-optivem into student multirepo repos at `gh opt
 
 ## Implementation order
 
-1. **Single shop commit** — combines:
-   - Per-component `publish-tag` steps in the 3 multitier prod-stages, using each component's own `VERSION` SemVer (e.g. `multitier-backend-typescript-v1.0.60`, `multitier-frontend-react-v1.3.47`).
-   - Step reorder in all 6 prod-stages (3 multitier + 3 monolith) per the new ordering: flavor-level docker tag → flavor-level git tag → per-component docker tag → per-component git tag (multitier only) → release-notes → `softprops/action-gh-release` (last, user-visible).
-   - Signal switch in the 11 `bump-patch-version-*.yml` files + `bump-patch-version.yml` (`ghcr-image` → `git-tag` with the values from the Scope table).
-   - The existing uncommitted `permissions: contents: write` blocks on the 6 `*-prod-stage.yml` `bump-patch-version` wrapper jobs (already in working copy — required so the called bump job can commit).
-
-   The first run after this commit is safe: any per-component bump that probes a not-yet-published git tag will simply no-op (`bump-patch-versions` skips entries whose signal artifact doesn't exist). Subsequent runs fire normally once the new prod-stage tags exist. Verify `publish-tag@v1` is idempotent on already-existing tags before commit; if not, fix it in the action.
 2. **Update gh-optivem fixup logic** — `systemPrefixDropReplacements` to also collapse 3-segment prefixes (`multitier-backend-{lang}-v` → `v`, `multitier-frontend-react-v` → `v`). Re-publish the CLI tag.
 3. **Cut a fresh shop tag** so `gh-acceptance-stage` can pick it up.
 4. **Re-run `gh-acceptance-stage` end-to-end.** Confirm prod-stage publishes all expected tags (flavor + 2 components) and bump-patch-version succeeds across all four matrix entries.
