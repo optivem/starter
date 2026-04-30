@@ -332,11 +332,10 @@ The `diagram-generator` agent's contract also inverts (read YAML → write Merma
 
 ## Implementation order
 
-1. **Encode the process flow.**
-   - Translate the AT cycle, CT sub-process, and Structural Cycle flows from `cycles.md` into a single YAML file: `docs/atdd/process/process-flow.yaml` with the BPMN-shaped schema sketched in §Proposed architecture (nodes typed `start_event` / `end_event` / `service_task` / `user_task` / `gateway` / `call_activity`; sequence flows with `when:` predicates; `user_task` nodes carrying `agent:` + `phase_doc:` bindings).
-   - Update `diagram-generator`'s contract: read YAML, write `diagram-process.md` Mermaid. Shrink the agent body accordingly (most prose-to-diagram heuristics become unnecessary).
+1. **Finish encoding the process flow.** YAML (`docs/atdd/process/process-flow.yaml`) and the diagram-generator contract update are done; remaining:
    - **Add the unit-test suite** (`gh-optivem/internal/atdd/runtime/statemachine/transitions_test.go`) — one test per sequence flow, plus negative tests. Force decisions on the process-audit gaps (CT exit re-evaluation, smoke-test resume path, structural-cycle escape, Legacy Coverage Cycle interim spec) by writing a test for each — they can no longer remain TBDs.
    - Restructure per-phase docs (`at-red-test.md`, `at-red-dsl.md`, `at-green-system.md`, etc.) to drop "what runs next" prose and focus on substance: the phase's purpose, what it produces, conventions, example diffs, review criteria, anti-patterns. Orchestration prose moves out (into the YAML); phase substance moves in.
+   - Regenerate `docs/atdd/process/diagram-process.md` from the YAML via the updated `diagram-generator` agent (the on-disk diagram is currently stale w.r.t. its new YAML source).
 2. **Build the Go packages in order of impact, all under `gh-optivem`:**
    - `internal/atdd/runtime/statemachine/` — the engine (functor pattern, ~200 LOC). Exposed for diagnostics as `gh optivem atdd debug next-phase`. Highest call count, biggest token win.
    - `internal/atdd/runtime/gates/` — gateway evaluators (one Go function per `binding:` in the YAML). Exposed as `gh optivem atdd debug gate <name>`.
