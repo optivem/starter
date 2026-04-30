@@ -57,14 +57,18 @@ jobs:
   #      .github/workflows/, system/, or system-test/ count as meaningful; VERSION
   #      bumps, docs, plans, and reports do not. workflow_dispatch always proceeds.
   #   3. Fail fast if any VERSION file's version has already been released.
-  #      Each VERSION file has one release signal (matching bump-versions.yml):
-  #      top-level VERSION probes the meta GitHub Release; every other VERSION
-  #      file probes its corresponding GHCR image tag. We also probe the six
-  #      per-flavor git tags `<prefix>-v<top-level-VERSION>` (which the per-
-  #      flavor `*-prod-stage.yml` workflows mint independently of meta-release),
-  #      since otherwise the per-pipeline `check-version` job in `_prerelease-
-  #      pipeline.yml` only catches the collision in Phase 2 — after Phase 0
-  #      (local stages) and Phase 1 (commit stages) have already burned ~30 min.
+  #      Each VERSION file has one release signal:
+  #        - top-level VERSION (meta) probes the `meta-v<n>` git tag.
+  #        - system/monolith/{lang}/VERSION probes the monolith-system-{lang} GHCR
+  #          image tag AND the `monolith-{lang}-v<n>` per-flavor git tag.
+  #        - system/multitier/{lang}/VERSION probes the `multitier-{lang}-v<n>`
+  #          per-flavor git tag (the system-bundle release).
+  #        - system/multitier/{component}/VERSION probes the multitier-{component}
+  #          GHCR image tag.
+  #      Probing all six per-flavor final-release tags up-front catches collisions
+  #      that the per-pipeline `check-version` in `_prerelease-pipeline.yml` would
+  #      otherwise only see in Phase 2 — after Phase 0 (local stages) and Phase 1
+  #      (commit stages) have already burned ~30 min.
   check:
     runs-on: ubuntu-latest
     permissions:
@@ -150,6 +154,12 @@ jobs:
           set -euo pipefail
           {
             echo "meta=$(tr -d '[:space:]' < VERSION)"
+            echo "ml_dotnet=$(tr -d '[:space:]' < system/monolith/dotnet/VERSION)"
+            echo "ml_java=$(tr -d '[:space:]' < system/monolith/java/VERSION)"
+            echo "ml_typescript=$(tr -d '[:space:]' < system/monolith/typescript/VERSION)"
+            echo "mt_dotnet=$(tr -d '[:space:]' < system/multitier/dotnet/VERSION)"
+            echo "mt_java=$(tr -d '[:space:]' < system/multitier/java/VERSION)"
+            echo "mt_typescript=$(tr -d '[:space:]' < system/multitier/typescript/VERSION)"
             echo "mt_be_dotnet=$(tr -d '[:space:]' < system/multitier/backend-dotnet/VERSION)"
             echo "mt_be_java=$(tr -d '[:space:]' < system/multitier/backend-java/VERSION)"
             echo "mt_be_typescript=$(tr -d '[:space:]' < system/multitier/backend-typescript/VERSION)"
@@ -169,16 +179,16 @@ jobs:
         uses: optivem/actions/check-ghcr-packages-exist@v1
         with:
           image-urls: |
-            ghcr.io/${{ github.repository }}/monolith-system-dotnet:v${{ steps.read-versions.outputs.meta }}
-            ghcr.io/${{ github.repository }}/monolith-system-java:v${{ steps.read-versions.outputs.meta }}
-            ghcr.io/${{ github.repository }}/monolith-system-typescript:v${{ steps.read-versions.outputs.meta }}
+            ghcr.io/${{ github.repository }}/monolith-system-dotnet:v${{ steps.read-versions.outputs.ml_dotnet }}
+            ghcr.io/${{ github.repository }}/monolith-system-java:v${{ steps.read-versions.outputs.ml_java }}
+            ghcr.io/${{ github.repository }}/monolith-system-typescript:v${{ steps.read-versions.outputs.ml_typescript }}
             ghcr.io/${{ github.repository }}/multitier-backend-dotnet:v${{ steps.read-versions.outputs.mt_be_dotnet }}
             ghcr.io/${{ github.repository }}/multitier-backend-java:v${{ steps.read-versions.outputs.mt_be_java }}
             ghcr.io/${{ github.repository }}/multitier-backend-typescript:v${{ steps.read-versions.outputs.mt_be_typescript }}
             ghcr.io/${{ github.repository }}/multitier-frontend-react:v${{ steps.read-versions.outputs.mt_fe_react }}
 
-      # Per-flavor final-release git tags `<prefix>-v<top-level-VERSION>` are
-      # minted independently of meta-release by the per-flavor `*-prod-stage.yml`
+      # Per-flavor final-release git tags `<prefix>-v<flavor-VERSION>` are minted
+      # independently of meta-release by the per-flavor `*-prod-stage.yml`
       # workflows, so a slot can be taken without `meta-v<n>` existing yet. Probe
       # all six up-front so we fail before Phase 0/1 instead of in Phase 2.
       # Tags were fetched by the checkout above (fetch-depth: 0).
@@ -187,14 +197,27 @@ jobs:
         if: ${{ steps.decide.outputs.should_run == 'true' }}
         shell: bash
         env:
-          META: ${{ steps.read-versions.outputs.meta }}
+          ML_JAVA: ${{ steps.read-versions.outputs.ml_java }}
+          ML_DOTNET: ${{ steps.read-versions.outputs.ml_dotnet }}
+          ML_TYPESCRIPT: ${{ steps.read-versions.outputs.ml_typescript }}
+          MT_JAVA: ${{ steps.read-versions.outputs.mt_java }}
+          MT_DOTNET: ${{ steps.read-versions.outputs.mt_dotnet }}
+          MT_TYPESCRIPT: ${{ steps.read-versions.outputs.mt_typescript }}
         run: |
           set -euo pipefail
           found=()
           for prefix in monolith-java monolith-dotnet monolith-typescript multitier-java multitier-dotnet multitier-typescript; do
-            tag="${prefix}-v${META}"
+            case "$prefix" in
+              monolith-java)        ver="$ML_JAVA";        path="system/monolith/java/VERSION" ;;
+              monolith-dotnet)      ver="$ML_DOTNET";      path="system/monolith/dotnet/VERSION" ;;
+              monolith-typescript)  ver="$ML_TYPESCRIPT";  path="system/monolith/typescript/VERSION" ;;
+              multitier-java)       ver="$MT_JAVA";        path="system/multitier/java/VERSION" ;;
+              multitier-dotnet)     ver="$MT_DOTNET";      path="system/multitier/dotnet/VERSION" ;;
+              multitier-typescript) ver="$MT_TYPESCRIPT";  path="system/multitier/typescript/VERSION" ;;
+            esac
+            tag="${prefix}-v${ver}"
             if git rev-parse --verify --quiet "refs/tags/${tag}" >/dev/null; then
-              found+=("${tag} (from VERSION)")
+              found+=("${tag} (from ${path})")
             fi
           done
           if [ "${#found[@]}" -eq 0 ]; then
@@ -216,14 +239,14 @@ jobs:
         run: |
           set -euo pipefail
           # Rebuild "<image-suffix>:<tag> (from <VERSION-path>)" display strings client-side.
-          # monolith-* images are pinned by the top-level VERSION; multitier-* images each
-          # have their own VERSION under system/multitier/{component}/VERSION.
+          # monolith-system-* images are pinned by system/monolith/{lang}/VERSION;
+          # multitier-* images each have their own VERSION under system/multitier/{component}/VERSION.
           found=$(jq -c '
             [
               .[] | select(.exists == true) |
               (.image | sub("^ghcr.io/[^/]+/[^/]+/"; "")) as $suffix |
-              (if ($suffix | startswith("monolith-"))
-               then "VERSION"
+              (if ($suffix | startswith("monolith-system-"))
+               then "system/monolith/" + ($suffix | sub("^monolith-system-"; "")) + "/VERSION"
                else "system/multitier/" + ($suffix | sub("^multitier-"; "")) + "/VERSION"
                end) as $provenance |
               "\($suffix):\(.tag) (from \($provenance))"
@@ -243,13 +266,13 @@ jobs:
               echo ""
               jq -r '.[] | "- `\(.)`"' <<< "$found"
               echo ""
-              echo "Auto-dispatching the [meta-bump-all workflow](${BUMP_URL}) to advance every VERSION file (meta + monolith × 3 + multitier — each child is idempotent), then re-checking before fanning out to local/commit/pipeline."
+              echo "Auto-dispatching the [meta-bump-all workflow](${BUMP_URL}) to advance every VERSION file (meta + 3 monolith flavors + 3 multitier flavors + multitier components — each child is idempotent), then re-checking before fanning out to local/commit/pipeline."
             } >> "$GITHUB_STEP_SUMMARY"
             found_flat=$(jq -r 'join(", ")' <<< "$found")
             echo "::notice::Version slot taken: ${found_flat}. Auto-dispatching meta-bump-all and re-checking."
             echo "needs_bump=true" >> "$GITHUB_OUTPUT"
           else
-            echo "All artifacts available for current VERSION values across meta + monoliths + components + per-flavor tags. OK to proceed."
+            echo "All artifacts available for current VERSION values across meta + flavors + components + per-flavor tags. OK to proceed."
             echo "needs_bump=false" >> "$GITHUB_OUTPUT"
           fi
 
@@ -280,6 +303,12 @@ jobs:
           set -euo pipefail
           {
             echo "meta=$(tr -d '[:space:]' < VERSION)"
+            echo "ml_dotnet=$(tr -d '[:space:]' < system/monolith/dotnet/VERSION)"
+            echo "ml_java=$(tr -d '[:space:]' < system/monolith/java/VERSION)"
+            echo "ml_typescript=$(tr -d '[:space:]' < system/monolith/typescript/VERSION)"
+            echo "mt_dotnet=$(tr -d '[:space:]' < system/multitier/dotnet/VERSION)"
+            echo "mt_java=$(tr -d '[:space:]' < system/multitier/java/VERSION)"
+            echo "mt_typescript=$(tr -d '[:space:]' < system/multitier/typescript/VERSION)"
             echo "mt_be_dotnet=$(tr -d '[:space:]' < system/multitier/backend-dotnet/VERSION)"
             echo "mt_be_java=$(tr -d '[:space:]' < system/multitier/backend-java/VERSION)"
             echo "mt_be_typescript=$(tr -d '[:space:]' < system/multitier/backend-typescript/VERSION)"
@@ -299,9 +328,9 @@ jobs:
         uses: optivem/actions/check-ghcr-packages-exist@v1
         with:
           image-urls: |
-            ghcr.io/${{ github.repository }}/monolith-system-dotnet:v${{ steps.read-versions-post-bump.outputs.meta }}
-            ghcr.io/${{ github.repository }}/monolith-system-java:v${{ steps.read-versions-post-bump.outputs.meta }}
-            ghcr.io/${{ github.repository }}/monolith-system-typescript:v${{ steps.read-versions-post-bump.outputs.meta }}
+            ghcr.io/${{ github.repository }}/monolith-system-dotnet:v${{ steps.read-versions-post-bump.outputs.ml_dotnet }}
+            ghcr.io/${{ github.repository }}/monolith-system-java:v${{ steps.read-versions-post-bump.outputs.ml_java }}
+            ghcr.io/${{ github.repository }}/monolith-system-typescript:v${{ steps.read-versions-post-bump.outputs.ml_typescript }}
             ghcr.io/${{ github.repository }}/multitier-backend-dotnet:v${{ steps.read-versions-post-bump.outputs.mt_be_dotnet }}
             ghcr.io/${{ github.repository }}/multitier-backend-java:v${{ steps.read-versions-post-bump.outputs.mt_be_java }}
             ghcr.io/${{ github.repository }}/multitier-backend-typescript:v${{ steps.read-versions-post-bump.outputs.mt_be_typescript }}
@@ -312,14 +341,27 @@ jobs:
         if: ${{ steps.verify-pre-bump.outputs.needs_bump == 'true' }}
         shell: bash
         env:
-          META: ${{ steps.read-versions-post-bump.outputs.meta }}
+          ML_JAVA: ${{ steps.read-versions-post-bump.outputs.ml_java }}
+          ML_DOTNET: ${{ steps.read-versions-post-bump.outputs.ml_dotnet }}
+          ML_TYPESCRIPT: ${{ steps.read-versions-post-bump.outputs.ml_typescript }}
+          MT_JAVA: ${{ steps.read-versions-post-bump.outputs.mt_java }}
+          MT_DOTNET: ${{ steps.read-versions-post-bump.outputs.mt_dotnet }}
+          MT_TYPESCRIPT: ${{ steps.read-versions-post-bump.outputs.mt_typescript }}
         run: |
           set -euo pipefail
           found=()
           for prefix in monolith-java monolith-dotnet monolith-typescript multitier-java multitier-dotnet multitier-typescript; do
-            tag="${prefix}-v${META}"
+            case "$prefix" in
+              monolith-java)        ver="$ML_JAVA";        path="system/monolith/java/VERSION" ;;
+              monolith-dotnet)      ver="$ML_DOTNET";      path="system/monolith/dotnet/VERSION" ;;
+              monolith-typescript)  ver="$ML_TYPESCRIPT";  path="system/monolith/typescript/VERSION" ;;
+              multitier-java)       ver="$MT_JAVA";        path="system/multitier/java/VERSION" ;;
+              multitier-dotnet)     ver="$MT_DOTNET";      path="system/multitier/dotnet/VERSION" ;;
+              multitier-typescript) ver="$MT_TYPESCRIPT";  path="system/multitier/typescript/VERSION" ;;
+            esac
+            tag="${prefix}-v${ver}"
             if git rev-parse --verify --quiet "refs/tags/${tag}" >/dev/null; then
-              found+=("${tag} (from VERSION)")
+              found+=("${tag} (from ${path})")
             fi
           done
           if [ "${#found[@]}" -eq 0 ]; then
@@ -343,8 +385,8 @@ jobs:
             [
               .[] | select(.exists == true) |
               (.image | sub("^ghcr.io/[^/]+/[^/]+/"; "")) as $suffix |
-              (if ($suffix | startswith("monolith-"))
-               then "VERSION"
+              (if ($suffix | startswith("monolith-system-"))
+               then "system/monolith/" + ($suffix | sub("^monolith-system-"; "")) + "/VERSION"
                else "system/multitier/" + ($suffix | sub("^multitier-"; "")) + "/VERSION"
                end) as $provenance |
               "\($suffix):\(.tag) (from \($provenance))"

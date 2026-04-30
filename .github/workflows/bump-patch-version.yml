@@ -1,17 +1,11 @@
 name: bump-patch-version
 
-# Component-level VERSION bumper for shop's multitier flavors. Triggered automatically
-# at the end of each multitier flavor's prod-stage when a release has been cut, or
-# manually by a developer (workflow_dispatch) to recover from a missed auto-run.
-#
-# Meta-level (root VERSION via meta-v signal) bumps are handled separately by
-# `bump-patch-version-meta.yml` (called from meta-release-stage). Monolith flavors in
-# shop intentionally have no entries here — shop's monolith VERSION is the meta
-# version, owned by meta-release-stage. Student-repo monolith and multitier flavors
-# get their own per-flavor scaffold variants (`bump-patch-version-{arch}-{lang}.yml`).
-#
-# Uses the GitHub Contents API with SHA preconditions — no `git push`, no main-branch race.
-# Idempotent: only bumps a VERSION file if its matching release tag exists on the remote.
+# All-multitier-components bumper. Bumps each of the 4 multitier component
+# VERSION files when its matching tag advances. In shop, no longer called
+# from prod-stages (per-flavor `bump-patch-version-multitier-<lang>.yml`
+# bumpers handle the system bundle + component cascade). Kept as a manual
+# recovery tool and as a scaffold source for student multitier scaffolds.
+# Race-safe (Contents API with SHA preconditions). Idempotent.
 
 on:
   workflow_call:
@@ -33,10 +27,10 @@ jobs:
         with:
           version-files: |
             [
-              {"path": "system/multitier/backend-dotnet/VERSION",    "signal": "git-tag", "value": "multitier-backend-dotnet-v"},
-              {"path": "system/multitier/backend-java/VERSION",      "signal": "git-tag", "value": "multitier-backend-java-v"},
-              {"path": "system/multitier/backend-typescript/VERSION","signal": "git-tag", "value": "multitier-backend-typescript-v"},
-              {"path": "system/multitier/frontend-react/VERSION",    "signal": "git-tag", "value": "multitier-frontend-react-v"}
+              {"path": "system/multitier/backend-dotnet/VERSION",    "value": "multitier-backend-dotnet-v"},
+              {"path": "system/multitier/backend-java/VERSION",      "value": "multitier-backend-java-v"},
+              {"path": "system/multitier/backend-typescript/VERSION","value": "multitier-backend-typescript-v"},
+              {"path": "system/multitier/frontend-react/VERSION",    "value": "multitier-frontend-react-v"}
             ]
 
       - name: Build Commit Payload

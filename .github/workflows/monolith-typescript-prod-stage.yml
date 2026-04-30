@@ -191,7 +191,7 @@ jobs:
           entries: |
             [
               {"key": "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/monolith-system-typescript:${{ needs.check.outputs.version }}",
-               "file": "VERSION"}
+               "file": "system/monolith/typescript/VERSION"}
             ]
 
       - name: Compose Component Tags
@@ -227,7 +227,7 @@ jobs:
     if: ${{ !failure() && !cancelled() && needs.run.result == 'success' }}
     permissions:
       contents: write
-    uses: ./.github/workflows/bump-patch-version.yml
+    uses: ./.github/workflows/bump-patch-version-monolith-typescript.yml
     secrets: inherit
 
   summary:

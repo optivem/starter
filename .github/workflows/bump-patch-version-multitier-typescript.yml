@@ -1,19 +1,13 @@
 name: multitier-typescript-bump-patch-version
 
-# Per-flavor scaffold source for bump-patch-version (multitier-typescript, backend typescript + frontend react).
-#
-# Used by gh-optivem during `gh optivem init` to provide the bump-patch-version
-# workflow for multitier-typescript student repos. After scaffold, this file
-# is renamed to `bump-patch-version.yml` and content rewrites collapse the
-# flavor prefix and image names (`multitier-backend-typescript` -> `backend`,
-# `multitier-frontend-react` -> `frontend`), and the version-file paths
-# (`system/multitier/backend-typescript` -> `backend`,
-# `system/multitier/frontend-react` -> `frontend`).
-#
-# Triggered automatically at the end of prod-stage when a release is cut, or
-# manually via workflow_dispatch to recover from a missed auto-run.
-# Race-safe (Contents API with SHA preconditions). Idempotent: only bumps a
-# VERSION file if its matching image tag is greater than the file's value.
+# Per-flavor bumper for multitier-typescript. Bumps
+# system/multitier/typescript/VERSION (system bundle) and cascades to
+# backend-typescript + frontend-react component VERSIONs when their tags
+# advance. Triggered by multitier-typescript-prod-stage (post-release) and
+# meta-bump-all (recovery). Frontend-react is shared across multitier flavors
+# so it may bump up to 3× per round of releases. Doubles as a scaffold source
+# for gh-optivem.
+# Race-safe (Contents API with SHA preconditions). Idempotent.
 
 on:
   workflow_call:
@@ -38,8 +32,9 @@ jobs:
         with:
           version-files: |
             [
-              {"path": "system/multitier/backend-typescript/VERSION", "signal": "git-tag", "value": "multitier-backend-typescript-v"},
-              {"path": "system/multitier/frontend-react/VERSION",     "signal": "git-tag", "value": "multitier-frontend-react-v"}
+              {"path": "system/multitier/typescript/VERSION",         "value": "multitier-typescript-v"},
+              {"path": "system/multitier/backend-typescript/VERSION", "value": "multitier-backend-typescript-v"},
+              {"path": "system/multitier/frontend-react/VERSION",     "value": "multitier-frontend-react-v"}
             ]
 
       - name: Build Commit Payload

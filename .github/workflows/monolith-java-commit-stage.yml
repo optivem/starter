@@ -125,7 +125,7 @@ jobs:
         id: read-version
         uses: optivem/actions/read-base-version@v1
         with:
-          file: VERSION
+          file: system/monolith/java/VERSION
 
       - name: Compose Dev Version
         if: steps.verify-main.outputs.on-branch == 'true'

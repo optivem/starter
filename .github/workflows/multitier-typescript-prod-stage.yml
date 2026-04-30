@@ -256,7 +256,7 @@ jobs:
     if: ${{ !failure() && !cancelled() && needs.run.result == 'success' }}
     permissions:
       contents: write
-    uses: ./.github/workflows/bump-patch-version.yml
+    uses: ./.github/workflows/bump-patch-version-multitier-typescript.yml
     secrets: inherit
 
   summary:

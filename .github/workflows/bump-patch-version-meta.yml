@@ -31,7 +31,7 @@ jobs:
         with:
           version-files: |
             [
-              {"path": "VERSION", "signal": "git-tag", "value": "meta-v"}
+              {"path": "VERSION", "value": "meta-v"}
             ]
 
       - name: Build Commit Payload

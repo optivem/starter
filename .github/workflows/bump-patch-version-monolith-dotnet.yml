@@ -1,16 +1,10 @@
 name: monolith-dotnet-bump-patch-version
 
-# Per-flavor scaffold source for bump-patch-version (monolith-dotnet).
-#
-# Used by gh-optivem during `gh optivem init` to provide the bump-patch-version
-# workflow for monolith-dotnet student repos. After scaffold, this file is
-# renamed to `bump-patch-version.yml` and content rewrites collapse the flavor
-# prefix and image name (`monolith-system-dotnet` -> `system`).
-#
-# Triggered automatically at the end of prod-stage when a release is cut, or
-# manually via workflow_dispatch to recover from a missed auto-run.
-# Race-safe (Contents API with SHA preconditions). Idempotent: only bumps a
-# VERSION file if its matching image tag is greater than the file's value.
+# Per-flavor bumper for monolith-dotnet. Bumps system/monolith/dotnet/VERSION
+# when monolith-dotnet-v<n> advances. Triggered by monolith-dotnet-prod-stage
+# (post-release) and meta-bump-all (recovery). Doubles as a scaffold source
+# for gh-optivem; after scaffold the path collapses to root VERSION.
+# Race-safe (Contents API with SHA preconditions). Idempotent.
 
 on:
   workflow_call:
@@ -35,7 +29,7 @@ jobs:
         with:
           version-files: |
             [
-              {"path": "VERSION", "signal": "git-tag", "value": "monolith-dotnet-v"}
+              {"path": "system/monolith/dotnet/VERSION", "value": "monolith-dotnet-v"}
             ]
 
       - name: Build Commit Payload

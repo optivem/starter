@@ -1,16 +1,11 @@
 name: monolith-typescript-bump-patch-version
 
-# Per-flavor scaffold source for bump-patch-version (monolith-typescript).
-#
-# Used by gh-optivem during `gh optivem init` to provide the bump-patch-version
-# workflow for monolith-typescript student repos. After scaffold, this file
-# is renamed to `bump-patch-version.yml` and content rewrites collapse the
-# flavor prefix and image name (`monolith-system-typescript` -> `system`).
-#
-# Triggered automatically at the end of prod-stage when a release is cut, or
-# manually via workflow_dispatch to recover from a missed auto-run.
-# Race-safe (Contents API with SHA preconditions). Idempotent: only bumps a
-# VERSION file if its matching image tag is greater than the file's value.
+# Per-flavor bumper for monolith-typescript. Bumps
+# system/monolith/typescript/VERSION when monolith-typescript-v<n> advances.
+# Triggered by monolith-typescript-prod-stage (post-release) and meta-bump-all
+# (recovery). Doubles as a scaffold source for gh-optivem; after scaffold the
+# path collapses to root VERSION.
+# Race-safe (Contents API with SHA preconditions). Idempotent.
 
 on:
   workflow_call:
@@ -35,7 +30,7 @@ jobs:
         with:
           version-files: |
             [
-              {"path": "VERSION", "signal": "git-tag", "value": "monolith-typescript-v"}
+              {"path": "system/monolith/typescript/VERSION", "value": "monolith-typescript-v"}
             ]
 
       - name: Build Commit Payload
