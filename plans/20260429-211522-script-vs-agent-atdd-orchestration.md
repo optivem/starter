@@ -1,6 +1,6 @@
 # Script vs agent: separate mechanical orchestration from creative work in the ATDD pipeline
 
-🤖 **Picked up by agent** — `Valentina_Desk` at `2026-04-30T10:32:08Z`
+🤖 **Picked up by agent** — `Valentina_Desk` at `2026-04-30T11:44:03Z`
 
 ## Token-efficient execution strategy (recommended)
 
