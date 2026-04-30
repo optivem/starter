@@ -1,7 +1,5 @@
 # Script vs agent: separate mechanical orchestration from creative work in the ATDD pipeline
 
-🤖 **Picked up by agent** — `Valentina_Desk` at `2026-04-30T12:18:07Z`
-
 ## Token-efficient execution strategy (recommended)
 
 This plan is too large for a single agent batch. Push it through in **separate `/execute-plan` sessions**, scoped per chunk below — each session starts with a small context, reads only the files it needs, deletes its items from this plan, and exits. That keeps the conversation transcript from accumulating across the full ~5000+ LOC of new Go + ~9 agent rewrites + ~10 doc rewrites.
