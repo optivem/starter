@@ -75,6 +75,8 @@ jobs:
       - name: Read Base Version
         id: read-base-version
         uses: optivem/actions/read-base-version@v1
+        with:
+          file: system/${{ inputs.architecture }}/${{ inputs.language }}/VERSION
 
       - name: Check Version Already Released
         id: check-release-tag

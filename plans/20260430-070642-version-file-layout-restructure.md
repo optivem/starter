@@ -1,7 +1,5 @@
 # VERSION File Layout Restructure Plan
 
-> **BLOCKED**: This plan is blocked by the git-tag plan (TODO: VJ: add file path).
-
 Restructure the shop repo's VERSION files so each system has its own version file, decoupling the implicit "root `VERSION` doubles as meta + monolith + multitier system version" pattern that has caused recurring issues and hacky workarounds.
 
 ---
@@ -106,49 +104,9 @@ Resolved during Step 1 audit; values written in Step 2.
 
 ## Implementation steps
 
-### Step 1 — Audit (read-only)
+### Step 7 — Verify — ⏳ Deferred
 
-Grep the shop repo for every reference to root `VERSION` (workflows, scripts, Dockerfiles, `system.json` files, docs). Classify each reference as:
-
-- **Meta usage** → keeps reading root `VERSION`.
-- **Monolith system usage** → must move to `system/monolith/<lang>/VERSION`.
-- **Multitier system usage** → must move to `system/multitier/<lang>/VERSION`.
-
-Also grep for every workflow that creates git tags. Confirm each tag-creation site emits one of the canonical patterns (`meta-v*`, `<arch>-<lang>-v*`, `<arch>-<component>-v*`) and flag any that still emit bare `v1.x.x` tags.
-
-Output of the audit feeds Steps 2–4 and helps answer Open Question 1 (initial values).
-
-### Step 2 — Create new VERSION files
-
-Create the six new per-system VERSION files (see D2) with the agreed initial values (see Open Question 1 — answer first).
-
-### Step 3 — Update read-sites
-
-For each non-meta reference to root `VERSION` found in Step 1, switch it to read the appropriate per-system VERSION. Affected categories likely include:
-
-- Acceptance / RC / QA-signoff / release stage workflows for monolith and multitier.
-- Image-build workflows that tag images using the system version.
-- `system.json` files under `docker/<lang>/{monolith,multitier}/`.
-- Any helper scripts under `scripts/` or `system-test/` that resolve "current system version."
-
-### Step 4 — Update bump workflows
-
-- Stop bumping root `VERSION` on flavour-release stages.
-- Modify (or create) `bump-patch-version-<arch>-<lang>` workflows to bump the per-system VERSION + cascade-bump component VERSIONs for multitier (per D4).
-- Keep root `VERSION` bumps wired only to whatever event drives meta-release.
-
-### Step 5 — Update gh-optivem scaffolding
-
-In the gh-optivem repo, change the scaffolding step that copies `shop/VERSION` → `scaffolded/VERSION` to instead source from `shop/system/<arch>/<lang>/VERSION` based on the scaffolding target.
-
-### Step 6 — Update documentation
-
-- `README.md` — version layout section if any.
-- `CLAUDE.md` — version-related guidance if any.
-- `docs/operations/*` — any docs describing how versions are bumped or read.
-- Architecture docs under `docs/atdd/` and `docs/design/` if they mention VERSION.
-
-### Step 7 — Verify
+Per-user direction (Q5): user will run verification manually when ready.
 
 - Run `./compile-all.sh` to confirm nothing broke at build time.
 - Trigger one acceptance stage per flavour (monolith-java, monolith-dotnet, monolith-typescript, multitier-java, multitier-dotnet, multitier-typescript) and confirm each reads its own VERSION.

@@ -273,7 +273,7 @@ jobs:
           entries: |
             [
               {"key": "ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/monolith-system-java:${{ needs.check.outputs.version }}",
-               "file": "VERSION"}
+               "file": "system/monolith/java/VERSION"}
             ]
 
       - name: Compose Component Tags

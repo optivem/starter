@@ -1,17 +1,10 @@
 name: meta-bump-all
 
-# Orchestrator that fans out to every bump-patch-version workflow in shop, advancing
-# every potentially-stale VERSION file (meta + 3 monolith flavors + multitier omnibus)
-# in a single click. Use after a release when the meta-prerelease pipeline reports
-# "Version already released" — saves dispatching each bump workflow individually.
-#
-# Sequencing: meta and the 3 monolith flavors all bump the same root VERSION file, so
-# they chain via `needs:` to avoid SHA-precondition races on the GitHub Contents API.
-# The multitier omnibus touches separate per-component VERSION files and runs in parallel.
-#
-# Each child is idempotent — runs that have nothing to bump exit clean — so this whole
-# orchestrator is safe to dispatch any time, including when only some VERSION files are
-# stale.
+# Recovery orchestrator: dispatches every bump-patch-version workflow to
+# advance any stale VERSION file (meta + 3 monolith + 3 multitier flavors).
+# Each child is idempotent. Multitier bumpers chain sequentially because
+# they all cascade-bump the shared system/multitier/frontend-react/VERSION;
+# monolith bumpers run in parallel (each touches a distinct file).
 
 on:
   workflow_dispatch:
@@ -26,17 +19,22 @@ jobs:
   bump-meta:
     uses: ./.github/workflows/bump-patch-version-meta.yml
 
-  bump-monolith-dotnet:
-    needs: bump-meta
-    uses: ./.github/workflows/bump-patch-version-monolith-dotnet.yml
-
   bump-monolith-java:
-    needs: bump-monolith-dotnet
     uses: ./.github/workflows/bump-patch-version-monolith-java.yml
 
+  bump-monolith-dotnet:
+    uses: ./.github/workflows/bump-patch-version-monolith-dotnet.yml
+
   bump-monolith-typescript:
-    needs: bump-monolith-java
     uses: ./.github/workflows/bump-patch-version-monolith-typescript.yml
 
-  bump-multitier:
-    uses: ./.github/workflows/bump-patch-version.yml
+  bump-multitier-java:
+    uses: ./.github/workflows/bump-patch-version-multitier-java.yml
+
+  bump-multitier-dotnet:
+    needs: bump-multitier-java
+    uses: ./.github/workflows/bump-patch-version-multitier-dotnet.yml
+
+  bump-multitier-typescript:
+    needs: bump-multitier-dotnet
+    uses: ./.github/workflows/bump-patch-version-multitier-typescript.yml

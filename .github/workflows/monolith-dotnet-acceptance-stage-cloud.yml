@@ -716,6 +716,8 @@ jobs:
       - name: Read Base System Version
         id: read-version
         uses: optivem/actions/read-base-version@v1
+        with:
+          file: system/monolith/dotnet/VERSION
 
       - name: Compose Prerelease Version
         id: rc-version
