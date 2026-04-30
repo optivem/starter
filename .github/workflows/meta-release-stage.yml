@@ -29,6 +29,8 @@ on:
         default: ''
         type: string
 
+permissions: {}
+
 concurrency:
   group: meta-release-stage
   cancel-in-progress: false
