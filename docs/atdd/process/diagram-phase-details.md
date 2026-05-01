@@ -17,7 +17,7 @@
 - `docs/atdd/process/shared-commit-confirmation.md`
 - `docs/atdd/process/shared-phase-progression.md`
 
-Cycle-level orchestration is in [diagram-process.md](diagram-process.md).
+Cycle-level orchestration is owned by `gh-optivem`; see the rendered [process-flow diagram](https://github.com/optivem/gh-optivem/blob/main/docs/process-flow-diagram.md).
 
 ## AT - RED - TEST Phase Detail
 

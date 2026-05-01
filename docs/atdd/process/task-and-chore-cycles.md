@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This doc defines the **WRITE**, **REVIEW**, **TEST**, and **COMMIT** mechanics for the four structural cycles triggered by ticket types `system-api-task`, `system-ui-task`, `external-api-task`, and `chore`. Cycle-level placement (which cycle dispatches when, and what comes after) is owned by the Go runtime via [process-flow.yaml](process-flow.yaml); see also [cycles.md](cycles.md). This file is the substance of what happens *inside* each phase.
+This doc defines the **WRITE**, **REVIEW**, **TEST**, and **COMMIT** mechanics for the four structural cycles triggered by ticket types `system-api-task`, `system-ui-task`, `external-api-task`, and `chore`. Cycle-level placement (which cycle dispatches when, and what comes after) is owned by the Go runtime in `gh-optivem` (canonical YAML embedded in the binary; see the rendered [process-flow diagram](https://github.com/optivem/gh-optivem/blob/main/docs/process-flow-diagram.md)); see also [cycles.md](cycles.md). This file is the substance of what happens *inside* each phase.
 
 It mirrors the role of the AT per-phase docs (`at-red-test.md`, `at-red-dsl.md`, `at-red-system-driver.md`, `at-green-system.md`) and the CT per-phase docs (`ct-red-test.md`, `ct-red-dsl.md`, `ct-red-external-driver.md`, `ct-green-stubs.md`) for behavioral cycles.
 
