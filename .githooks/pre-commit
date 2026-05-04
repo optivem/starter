@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Reject commits matching the accidental-rehearsal-leak shape:
+#   1. generic-default message ("sync changes", case-insensitive)
+#   2. diff touches system/** or system-test/**
+#   3. trailer contains a Claude co-author line
+# All three must match. Hand-typed "Sync changes" on docs is fine.
+# A meaningful message touching system/** with a Claude co-author is fine.
+# Background: d325a797 (reverted in 7ce32f0e) was a verbatim copy of
+# rehearsal/atdd-cli work landed on main as "Sync changes", breaking
+# legacy mod03 e2e tests across all three languages.
+set -euo pipefail
+
+msg_file="$(git rev-parse --git-path COMMIT_EDITMSG)"
+msg="$(cat "$msg_file" 2>/dev/null || true)"
+first_line="$(printf '%s\n' "$msg" | head -n1 | tr '[:upper:]' '[:lower:]' | xargs)"
+
+case "$first_line" in
+  "sync changes") generic=1 ;;
+  *) generic=0 ;;
+esac
+
+[[ $generic -eq 1 ]] || exit 0
+
+if ! git diff --cached --name-only | grep -Eq '^(system|system-test)/'; then
+  exit 0
+fi
+
+if ! printf '%s' "$msg" | grep -qiE '^Co-Authored-By:[[:space:]]*Claude'; then
+  exit 0
+fi
+
+cat >&2 <<'EOF'
+[pre-commit] Refusing commit.
+
+This commit matches the accidental-rehearsal-leak shape:
+  - generic message ("Sync changes")
+  - touches system/** or system-test/**
+  - has a Claude co-author trailer
+
+If this is intentional, write a meaningful commit message. If not, this
+is exactly the failure mode that produced d325a797 — abort and inspect.
+EOF
+exit 1

@@ -1,5 +1,15 @@
 # MyShop Repo Guidelines
 
+## Git hooks (one-time setup per clone)
+
+After cloning shop, run this once to enable the tracked pre-commit hook:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+The hook at `.githooks/pre-commit` rejects commits matching the accidental-rehearsal-leak shape (generic "Sync changes" message + touching `system/**` or `system-test/**` + Claude co-author trailer). It exists because of incident `d325a797` (reverted in `7ce32f0e`).
+
 ## Documentation: No GitHub Pages
 
 Never enable GitHub Pages on this repo or on repos scaffolded from it. Docs live as plain markdown under `docs/`; link to them from the README using relative paths (e.g. `[Architecture](docs/architecture.md)`). GitHub renders markdown and Mermaid natively on github.com, which is sufficient for the dev audience and avoids the Pages workflow, `id-token: write` permissions, and deploy-time failures.
