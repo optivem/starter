@@ -1,0 +1,38 @@
+name: Task
+description: A structural change — refactor, redesign, or implementation work with no new behavior. After filing, apply exactly one `subtype:*` label.
+type: Task
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **After filing, apply exactly one `subtype:*` label** so the runtime knows which structural cycle to dispatch:
+        - `subtype:system-interface-redesign` — redesign a system Driver Adapter (API, UI, mobile, CLI, ...).
+        - `subtype:external-system-interface-redesign` — redesign an External System Driver Adapter.
+        - `subtype:system-implementation-change` — change system internals with no test-stack artifact.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Why this ticket exists. One paragraph.
+    validations:
+      required: false
+  - type: textarea
+    id: checklist
+    attributes:
+      label: Checklist
+      description: Concrete checklist items describing the structural work to perform.
+      render: markdown
+      value: |
+        - [ ] <item>
+        - [ ] <item>
+        - [ ] <item>
+    validations:
+      required: true
+  - type: textarea
+    id: legacy-acceptance-criteria
+    attributes:
+      label: Legacy Acceptance Criteria
+      description: Backfill section for prior-format criteria. Leave empty if not applicable.
+      render: markdown
+    validations:
+      required: false

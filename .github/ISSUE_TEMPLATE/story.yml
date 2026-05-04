@@ -1,0 +1,32 @@
+name: Story
+description: A behavioral change — a new user-visible capability expressed as Given/When/Then scenarios.
+type: Story
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Why this ticket exists. One paragraph.
+    validations:
+      required: false
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: One or more Given/When/Then scenarios describing the behavior to deliver.
+      render: markdown
+      value: |
+        Scenario: <name>
+          Given <precondition>
+          When <action>
+          Then <observable outcome>
+    validations:
+      required: true
+  - type: textarea
+    id: legacy-acceptance-criteria
+    attributes:
+      label: Legacy Acceptance Criteria
+      description: Backfill section for prior-format criteria. Leave empty if not applicable.
+      render: markdown
+    validations:
+      required: false
