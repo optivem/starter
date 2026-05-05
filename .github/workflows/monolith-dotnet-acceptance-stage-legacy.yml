@@ -231,7 +231,7 @@ jobs:
         timeout-minutes: 10
         uses: Wandalen/wretry.action@v3
         with:
-          command: pwsh SystemTests/bin/Debug/net8.0/playwright.ps1 install-deps chromium
+          command: timeout 180 pwsh SystemTests/bin/Debug/net8.0/playwright.ps1 install-deps chromium
           current_path: system-test/dotnet
           attempt_limit: 3
           attempt_delay: 30000

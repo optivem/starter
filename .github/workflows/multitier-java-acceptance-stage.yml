@@ -274,7 +274,7 @@ jobs:
         timeout-minutes: 10
         uses: Wandalen/wretry.action@v3
         with:
-          command: npx playwright install-deps chromium
+          command: timeout 180 npx playwright install-deps chromium
           current_path: system-test/java
           attempt_limit: 3
           attempt_delay: 30000
