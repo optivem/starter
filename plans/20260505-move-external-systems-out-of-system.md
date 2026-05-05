@@ -1,8 +1,10 @@
 # Move `external-real-sim` and `external-stub` out of `system/` into top-level `external-systems/`
 
-**Status:** Proposed — awaiting user approval. **Cross-repo change** — touches both `shop` and `gh-optivem`. Validated locally before either PR merges.
+🤖 **Picked up by agent** — `Valentina_Desk` at `2026-05-05T09:30:51Z`
+
+**Status:** In progress — open questions resolved, executing Step 1. **Cross-repo change** — touches both `shop` and `gh-optivem`. Validated locally before either PR merges.
 **Created:** 2026-05-05.
-**Last revised:** 2026-05-05 (after sibling-repo audit; local-validation sequence adopted).
+**Last revised:** 2026-05-05 (after sibling-repo audit; local-validation sequence adopted; open questions resolved).
 
 ---
 
@@ -224,7 +226,9 @@ The cloud-stage workflows pull pre-built images from GHCR and don't reference so
 
 ## Open questions
 
-1. **Naming.** `external-systems/` (proposed) vs `externals/` (shorter) vs keeping under `system/` with a marker file. Default: `external-systems/`. Alternatives are mostly cosmetic; user to confirm.
-2. **GHCR image namespacing.** Should images be re-namespaced too (e.g. `ghcr.io/.../external-systems/external-stub`)? Out of scope — would couple registry layout to filesystem layout for no operational benefit, and force every cloud-stage workflow to change.
-3. **Optional `external-systems/README.md`.** A 5-line README pointing at `docs/atdd/process/cycles.md` would be a friendly landing for someone who wanders into the new folder. Skip unless the user wants it.
-4. ~~**`gh-optivem` release strategy.**~~ Resolved by adopting local-validation flow (Step 1) — neither lockstep merge nor transitional fallback is needed.
+All resolved (2026-05-05):
+
+1. **Naming** → `external-systems/` (confirmed by user).
+2. **GHCR image namespacing** → skip (image names stay as-is; out of scope).
+3. **`external-systems/README.md`** → skip (no stub README).
+4. **`gh-optivem` release strategy** → resolved by Step 1 local-validation flow.
