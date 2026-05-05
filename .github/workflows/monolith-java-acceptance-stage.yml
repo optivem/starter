@@ -14,6 +14,11 @@ on:
         required: false
         type: boolean
         default: false
+      force-run:
+        description: 'Bypass the no-changes run gate — execute the acceptance tests even when no artifacts or test/workflow changes are detected since the last RC tag. Meta-prerelease sets this so every dispatched run actually exercises the stage.'
+        required: false
+        type: boolean
+        default: false
 
 permissions: {}
 
@@ -142,7 +147,7 @@ jobs:
           skip-conditions: |
             [
               {"when": ${{ steps.check-tag.outputs.exists == 'true' }}, "reason": "Release in progress — version already tagged, awaiting post-release VERSION bump."},
-              {"when": ${{ steps.artifacts-changed.outputs.newer != 'true' && steps.test-changes.outputs.changed != 'true' }}, "reason": "No new artifacts since last run AND no test/workflow changes since last RC tag." }
+              {"when": ${{ inputs.force-run != true && steps.artifacts-changed.outputs.newer != 'true' && steps.test-changes.outputs.changed != 'true' }}, "reason": "No new artifacts since last run AND no test/workflow changes since last RC tag." }
             ]
 
   run:

@@ -14,6 +14,11 @@ on:
         required: false
         type: boolean
         default: false
+      force-run:
+        description: 'Bypass the no-changes run gate — execute the legacy acceptance tests even when no artifacts or test/workflow changes are detected since the last RC tag. Meta-prerelease sets this so every dispatched run actually exercises the stage.'
+        required: false
+        type: boolean
+        default: false
 
 permissions: {}
 
@@ -48,8 +53,8 @@ jobs:
       contents: read
       packages: read
     outputs:
-      should-run: ${{ steps.artifacts-changed.outputs.newer == 'true' || steps.test-changes.outputs.changed == 'true' }}
-      skip-reason: ${{ (steps.artifacts-changed.outputs.newer != 'true' && steps.test-changes.outputs.changed != 'true') && 'No new artifacts since last run AND no test/workflow changes since last RC tag.' || '' }}
+      should-run: ${{ inputs.force-run == true || steps.artifacts-changed.outputs.newer == 'true' || steps.test-changes.outputs.changed == 'true' }}
+      skip-reason: ${{ inputs.force-run != true && (steps.artifacts-changed.outputs.newer != 'true' && steps.test-changes.outputs.changed != 'true') && 'No new artifacts since last run AND no test/workflow changes since last RC tag.' || '' }}
       image-digest-urls: ${{ steps.find-latest.outputs.image-digest-urls }}
       latest-updated-at: ${{ steps.find-latest.outputs.latest-updated-at }}
       last-run-at: ${{ steps.last-run.outputs.timestamp }}

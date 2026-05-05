@@ -237,7 +237,7 @@ jobs:
           workflow: ${{ inputs.prefix }}-acceptance-stage.yml
           poll-interval: ${{ inputs.debug-skip-tests && '60' || '180' }}
           timeout-seconds: '7200'
-          workflow-inputs: '{"commit-sha": "${{ inputs.commit-sha }}", "debug-skip-tests": "${{ inputs.debug-skip-tests }}"}'
+          workflow-inputs: '{"commit-sha": "${{ inputs.commit-sha }}", "debug-skip-tests": "${{ inputs.debug-skip-tests }}", "force-run": "true"}'
 
       # Resolve the rc tag that actually points at the tested SHA — whether our
       # dispatched run created it or a concurrent scheduled run did. This makes
@@ -272,7 +272,7 @@ jobs:
           workflow: ${{ inputs.prefix }}-acceptance-stage-legacy.yml
           poll-interval: ${{ inputs.debug-skip-tests && '60' || '180' }}
           timeout-seconds: '7200'
-          workflow-inputs: '{"commit-sha": "${{ inputs.commit-sha }}", "debug-skip-tests": "${{ inputs.debug-skip-tests }}"}'
+          workflow-inputs: '{"commit-sha": "${{ inputs.commit-sha }}", "debug-skip-tests": "${{ inputs.debug-skip-tests }}", "force-run": "true"}'
 
   qa-stage:
     needs: [acceptance-stage, acceptance-stage-legacy]
