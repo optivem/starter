@@ -444,15 +444,6 @@ jobs:
         run: npx playwright install chromium
         working-directory: system-test/java
 
-      - name: Install Playwright System Dependencies
-        timeout-minutes: 10
-        uses: Wandalen/wretry.action@v3
-        with:
-          command: timeout 180 npx playwright install-deps chromium
-          current_path: system-test/java
-          attempt_limit: 3
-          attempt_delay: 30000
-
       - name: Run Acceptance Tests - UI Channel
         run: ./gradlew test -Dversion=latest -Dtype=acceptance -DexcludeTags=isolated -Dchannel=UI -DchannelMode=static -Denvironment=acceptance -DbaseUrl=${{ needs.deploy-frontend.outputs.app-url }} -DexternalBaseUrl=${{ needs.deploy-external-real.outputs.external-url }}
         working-directory: system-test/java
@@ -527,15 +518,6 @@ jobs:
         if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: npx playwright install chromium
         working-directory: system-test/java
-
-      - name: Install Playwright System Dependencies
-        timeout-minutes: 10
-        uses: Wandalen/wretry.action@v3
-        with:
-          command: timeout 180 npx playwright install-deps chromium
-          current_path: system-test/java
-          attempt_limit: 3
-          attempt_delay: 30000
 
       - name: Run Acceptance Tests (Isolated) - UI Channel
         run: ./gradlew test -Dversion=latest -Dtype=acceptance -DincludeTags=isolated -Dchannel=UI -DchannelMode=static -Denvironment=acceptance -DbaseUrl=${{ needs.deploy-frontend.outputs.app-url }} -DexternalBaseUrl=${{ needs.deploy-external-real.outputs.external-url }}
@@ -704,15 +686,6 @@ jobs:
         if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: npx playwright install chromium
         working-directory: system-test/java
-
-      - name: Install Playwright System Dependencies
-        timeout-minutes: 10
-        uses: Wandalen/wretry.action@v3
-        with:
-          command: timeout 180 npx playwright install-deps chromium
-          current_path: system-test/java
-          attempt_limit: 3
-          attempt_delay: 30000
 
       - name: Run E2E Tests - UI Channel
         run: ./gradlew test -Dversion=latest -Dtype=e2e -Dchannel=UI -DchannelMode=static -Denvironment=acceptance -DbaseUrl=${{ needs.deploy-frontend.outputs.app-url }} -DexternalBaseUrl=${{ needs.deploy-external-real.outputs.external-url }}

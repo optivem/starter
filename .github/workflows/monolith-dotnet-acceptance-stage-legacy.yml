@@ -232,14 +232,10 @@ jobs:
         run: dotnet build
         working-directory: system-test/dotnet
 
-      - name: Install Playwright System Dependencies
-        timeout-minutes: 10
-        uses: Wandalen/wretry.action@v3
-        with:
-          command: timeout 180 pwsh SystemTests/bin/Debug/net8.0/playwright.ps1 install-deps chromium
-          current_path: system-test/dotnet
-          attempt_limit: 3
-          attempt_delay: 30000
+      - name: Install Playwright Browser
+        if: steps.cache-playwright.outputs.cache-hit != 'true'
+        working-directory: system-test/dotnet
+        run: pwsh SystemTests/bin/Debug/net8.0/playwright.ps1 install chromium
 
       - name: Install gh-optivem CLI extension
         env:

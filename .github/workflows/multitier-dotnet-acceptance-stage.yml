@@ -272,19 +272,10 @@ jobs:
       - name: Compile System Tests
         if: ${{ !inputs.debug-skip-tests }}
         # .NET-only pre-build: Java/TS pre-build implicitly via setupCommands.
-        # Required here so playwright.ps1 (in build output) exists for install-deps.
+        # Required here so playwright.ps1 (in build output) exists for the
+        # suite's testInstallCommand to invoke.
         run: dotnet build
         working-directory: system-test/dotnet
-
-      - name: Install Playwright System Dependencies
-        if: ${{ !inputs.debug-skip-tests }}
-        timeout-minutes: 10
-        uses: Wandalen/wretry.action@v3
-        with:
-          command: timeout 180 pwsh SystemTests/bin/Debug/net8.0/playwright.ps1 install-deps chromium
-          current_path: system-test/dotnet
-          attempt_limit: 3
-          attempt_delay: 30000
 
       - name: Install gh-optivem CLI extension
         if: ${{ !inputs.debug-skip-tests }}

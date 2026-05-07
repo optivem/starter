@@ -263,16 +263,6 @@ jobs:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('system-test/typescript/package-lock.json') }}
 
-      - name: Install Playwright System Dependencies
-        if: ${{ !inputs.debug-skip-tests }}
-        timeout-minutes: 10
-        uses: Wandalen/wretry.action@v3
-        with:
-          command: timeout 180 npx playwright install-deps chromium
-          current_path: system-test/typescript
-          attempt_limit: 3
-          attempt_delay: 30000
-
       - name: Install gh-optivem CLI extension
         if: ${{ !inputs.debug-skip-tests }}
         env:
