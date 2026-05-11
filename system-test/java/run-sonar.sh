@@ -22,6 +22,6 @@ fi
 
 echo "Running SonarScanner for Java system tests..."
 
-./gradlew sonar --info "-Dsonar.token=$TOKEN"
+./gradlew classes testClasses sonar --info "-Dsonar.token=$TOKEN"
 
 echo "Sonar analysis complete."
