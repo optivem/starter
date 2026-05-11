@@ -27,5 +27,5 @@ external_systems:
         path: external-systems/external-stub
         repo: optivem/shop
     simulators:
-        path: external-real-sim
+        path: external-systems/external-real-sim
         repo: optivem/shop
