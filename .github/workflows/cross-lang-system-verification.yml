@@ -253,10 +253,23 @@ jobs:
           grep -E '^(MYSHOP|ERP|CLOCK|TAX)_' "$GITHUB_ENV" || true
           echo "::endgroup::"
 
+      - name: Setup ${{ matrix.test-lang }} latest test harness
+        # `gh optivem test setup` runs setupCommands from the matching
+        # tests.yaml (latest). The SUT lifecycle is owned by
+        # deploy-docker-compose above, so no `gh optivem run system` is
+        # needed before the suites.
+        run: gh optivem test setup --test-config system-test/${{ matrix.test-lang }}/tests.yaml
+
       - name: Run ${{ matrix.test-lang }} latest system tests vs ${{ matrix.system-lang }} SUT
-        # --no-build / --no-start: SUT lifecycle is owned by deploy-docker-compose
-        # above. The runner just executes setupCommands + suites from tests.yaml.
-        run: gh optivem test system --no-build --no-start --system-config docker/${{ matrix.system-lang }}/${{ matrix.arch }}/systems.yaml --test-config system-test/${{ matrix.test-lang }}/tests.yaml
+        run: gh optivem test system --system-config docker/${{ matrix.system-lang }}/${{ matrix.arch }}/systems.yaml --test-config system-test/${{ matrix.test-lang }}/tests.yaml
+
+      - name: Setup ${{ matrix.test-lang }} legacy test harness
+        # `gh optivem test setup` runs setupCommands from tests.legacy.yaml
+        # before the legacy suites. `if: always()` so a latest-suite failure
+        # does NOT short-circuit legacy setup — see the legacy-test step below
+        # for the rationale.
+        if: always()
+        run: gh optivem test setup --test-config system-test/${{ matrix.test-lang }}/tests.legacy.yaml
 
       - name: Run ${{ matrix.test-lang }} legacy system tests vs ${{ matrix.system-lang }} SUT
         # Legacy suites are pinned to historical module versions. We run them against
@@ -265,4 +278,4 @@ jobs:
         # short-circuit legacy: both signals are reported independently in the job log,
         # and the matrix entry surfaces red if either is red.
         if: always()
-        run: gh optivem test system --no-build --no-start --system-config docker/${{ matrix.system-lang }}/${{ matrix.arch }}/systems.yaml --test-config system-test/${{ matrix.test-lang }}/tests.legacy.yaml
+        run: gh optivem test system --system-config docker/${{ matrix.system-lang }}/${{ matrix.arch }}/systems.yaml --test-config system-test/${{ matrix.test-lang }}/tests.legacy.yaml

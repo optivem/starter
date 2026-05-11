@@ -61,6 +61,7 @@ run_phase() {
   (
     cd "$REPO_ROOT" \
       && GH_OPTIVEM_CONFIG="$config" gh optivem run  system \
+      && GH_OPTIVEM_CONFIG="$config" gh optivem test setup \
       && GH_OPTIVEM_CONFIG="$config" gh optivem test system
   ) || status="FAILED"
   local end

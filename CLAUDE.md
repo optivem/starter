@@ -33,6 +33,7 @@ After compilation passes, run system tests with `--sample` for each affected lan
 ```pwsh
 $env:GH_OPTIVEM_CONFIG = "gh-optivem-monolith-<language>.yaml"
 gh optivem run  system
+gh optivem test setup
 gh optivem test system --sample
 gh optivem stop system
 ```

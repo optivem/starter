@@ -197,8 +197,17 @@ jobs:
       - name: Start system
         run: gh optivem run system
 
+      - name: Setup test harness (latest)
+        run: gh optivem test setup
+
       - name: Run System Tests - Latest (Sample)
         run: gh optivem test system --sample
+
+      - name: Setup test harness (legacy)
+        if: ${{ !inputs.skip-acceptance-legacy }}
+        env:
+          GH_OPTIVEM_CONFIG: gh-optivem-${{ inputs.architecture }}-${{ inputs.language }}-legacy.yaml
+        run: gh optivem test setup
 
       - name: Run System Tests - Legacy (Sample)
         if: ${{ !inputs.skip-acceptance-legacy }}

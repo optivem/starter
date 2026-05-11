@@ -38,6 +38,9 @@ $env:GH_OPTIVEM_CONFIG = "gh-optivem-<architecture>-<language>.yaml"
 # Bring up the docker-compose stacks
 gh optivem run  system
 
+# Prepare the test harness (npm ci / gradle compile / dotnet build, depending on language)
+gh optivem test setup
+
 # Run the latest suites
 gh optivem test system
 
@@ -48,10 +51,11 @@ gh optivem test system --sample
 gh optivem stop system
 ```
 
-For the legacy suites, switch the env var to the `-legacy` sibling:
+For the legacy suites, switch the env var to the `-legacy` sibling and re-run setup (legacy has its own setupCommands block):
 
 ```pwsh
 $env:GH_OPTIVEM_CONFIG = "gh-optivem-<architecture>-<language>-legacy.yaml"
+gh optivem test setup
 gh optivem test system
 ```
 
