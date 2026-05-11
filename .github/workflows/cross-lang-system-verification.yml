@@ -260,28 +260,26 @@ jobs:
       # runtime: one for latest tests, one for legacy. The runner reads
       # them via GH_OPTIVEM_CONFIG. Minimal schema — only the fields
       # actually consulted by `test setup` / `test system` are populated.
+      #
+      # Templates live at .github/workflows/templates/cross-lang-<arch>.yaml.tmpl
+      # (one per architecture, since monolith vs multitier have disjoint
+      # system.* shapes per gh-optivem's projectconfig schema). Placeholders
+      # are filled by envsubst (preinstalled on ubuntu-latest).
       - name: Generate cross-lang gh-optivem.yaml files
+        env:
+          SYSTEM_LANG: ${{ matrix.system-lang }}
+          TEST_LANG: ${{ matrix.test-lang }}
         run: |
           mkdir -p .gh-optivem-cross-lang
+          template=".github/workflows/templates/cross-lang-${{ matrix.arch }}.yaml.tmpl"
           for variant in latest legacy; do
-            test_config="system-test/${{ matrix.test-lang }}/tests.yaml"
-            [ "$variant" = legacy ] && test_config="system-test/${{ matrix.test-lang }}/tests.legacy.yaml"
-            cat > ".gh-optivem-cross-lang/${variant}.yaml" <<EOF
-          project:
-            url: https://github.com/orgs/optivem/projects/20
-          repo_strategy: mono-repo
-          system:
-            architecture: ${{ matrix.arch }}
-            config: docker/${{ matrix.system-lang }}/${{ matrix.arch }}/systems.yaml
-            path: system/${{ matrix.arch }}/${{ matrix.system-lang }}
-            repo: optivem/shop
-            lang: ${{ matrix.system-lang }}
-          system_test:
-            path: system-test/${{ matrix.test-lang }}
-            config: ${test_config}
-            repo: optivem/shop
-            lang: ${{ matrix.test-lang }}
-          EOF
+            TEST_CONFIG="system-test/${TEST_LANG}/tests.yaml"
+            [ "$variant" = legacy ] && TEST_CONFIG="system-test/${TEST_LANG}/tests.legacy.yaml"
+            export TEST_CONFIG
+            # shellcheck disable=SC2016
+            envsubst '${SYSTEM_LANG} ${TEST_LANG} ${TEST_CONFIG}' \
+              < "$template" \
+              > ".gh-optivem-cross-lang/${variant}.yaml"
           done
 
       - name: Setup ${{ matrix.test-lang }} latest test harness

@@ -1,0 +1,14 @@
+project:
+  url: https://github.com/orgs/optivem/projects/20
+repo_strategy: mono-repo
+system:
+  architecture: monolith
+  config: docker/${SYSTEM_LANG}/monolith/systems.yaml
+  path: system/monolith/${SYSTEM_LANG}
+  repo: optivem/shop
+  lang: ${SYSTEM_LANG}
+system_test:
+  path: system-test/${TEST_LANG}
+  config: ${TEST_CONFIG}
+  repo: optivem/shop
+  lang: ${TEST_LANG}
