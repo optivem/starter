@@ -1,6 +1,8 @@
 project:
     url: https://github.com/orgs/optivem/projects/20
 repo_strategy: mono-repo
+sonar:
+    organization: optivem
 system:
     architecture: multitier
     config: docker/dotnet/multitier/systems.yaml
@@ -8,15 +10,18 @@ system:
         path: system/multitier/backend-dotnet
         repo: optivem/shop
         lang: dotnet
+        sonar_project: optivem_shop-backend
     frontend:
         path: system/multitier/frontend-react
         repo: optivem/shop
         lang: typescript
+        sonar_project: optivem_shop-frontend
 system_test:
     path: system-test/dotnet
     config: system-test/dotnet/tests.yaml
     repo: optivem/shop
     lang: dotnet
+    sonar_project: optivem_shop-system-test
 external_systems:
     stubs:
         path: external-systems/external-stub

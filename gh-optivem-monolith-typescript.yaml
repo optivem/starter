@@ -1,17 +1,21 @@
 project:
     url: https://github.com/orgs/optivem/projects/20
 repo_strategy: mono-repo
+sonar:
+    organization: optivem
 system:
     architecture: monolith
     config: docker/typescript/monolith/systems.yaml
     path: system/monolith/typescript
     repo: optivem/shop
     lang: typescript
+    sonar_project: optivem_shop-system
 system_test:
     path: system-test/typescript
     config: system-test/typescript/tests.yaml
     repo: optivem/shop
     lang: typescript
+    sonar_project: optivem_shop-system-test
 external_systems:
     stubs:
         path: external-systems/external-stub
