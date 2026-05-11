@@ -43,7 +43,7 @@ export function loadConfiguration(overrides?: ConfigOverrides): TestConfig {
 
   // Env var overrides let the cross-lang verification workflow point this
   // test process at a different language's SUT without touching the JSON files.
-  // Suffix matches externalSystemMode so stub/real suites in one tests-latest.json
+  // Suffix matches externalSystemMode so stub/real suites in one tests.yaml
   // run can each get their own URL set.
   const suffix = '_' + externalSystemMode.toUpperCase();
   config.myShop.frontendUrl = getEnvVarOrDefault('MYSHOP_UI_BASE_URL' + suffix, config.myShop.frontendUrl);

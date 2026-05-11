@@ -3,20 +3,20 @@ project:
 repo_strategy: mono-repo
 system:
     architecture: multitier
-    config: docker/typescript/multitier/systems.yaml
+    config: docker/java/multitier/systems.yaml
     backend:
-        path: system/multitier/backend-typescript
+        path: system/multitier/backend-java
         repo: optivem/shop
-        lang: typescript
+        lang: java
     frontend:
         path: system/multitier/frontend-react
         repo: optivem/shop
         lang: typescript
 system_test:
-    path: system-test/typescript
-    config: system-test/typescript/tests.yaml
+    path: system-test/java
+    config: system-test/java/tests.legacy.yaml
     repo: optivem/shop
-    lang: typescript
+    lang: java
 external_systems:
     stubs:
         path: external-systems/external-stub

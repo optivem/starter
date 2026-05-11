@@ -19,7 +19,7 @@ public class ConfigurationLoader {
 
         // Env var overrides let the cross-lang verification workflow point this
         // test JAR at a different language's SUT without touching the YAML files.
-        // Suffix matches externalSystemMode so stub/real suites in one tests-latest.json
+        // Suffix matches externalSystemMode so stub/real suites in one tests.yaml
         // run can each get their own URL set.
         var suffix = "_" + externalSystemMode.name().toUpperCase();
         var myShopUiBaseUrl = getEnvVarOrDefault("MYSHOP_UI_BASE_URL" + suffix,

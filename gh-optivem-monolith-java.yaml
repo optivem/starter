@@ -3,11 +3,13 @@ project:
 repo_strategy: mono-repo
 system:
     architecture: monolith
+    config: docker/java/monolith/systems.yaml
     path: system/monolith/java
     repo: optivem/shop
     lang: java
 system_test:
     path: system-test/java
+    config: system-test/java/tests.yaml
     repo: optivem/shop
     lang: java
 external_systems:

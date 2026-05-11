@@ -17,6 +17,7 @@ test-results/
 
 # Claude
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 
 # Scratch
 .tmp/

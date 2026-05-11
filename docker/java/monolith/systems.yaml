@@ -1,0 +1,55 @@
+# systems — the SUT stand-ups this language's pipeline knows how to bring up.
+#
+# Each entry pairs:
+#   - composeFile: docker-compose file the runner hands to `docker compose`
+#   - containerName: project name prefix (`-p`); isolates this label's
+#     containers from sibling labels running in parallel
+#   - components: health-check probes the runner waits on after `compose up`
+#   - externalSystems: health-check probes for the vendored real-sim / stub
+#     external systems wired to this label
+#
+# `label: real` brings up the monolith against vendored real-sims (mimicking
+# the real third-party APIs at production fidelity). `label: stub` swaps
+# those real-sims for WireMock stubs (deterministic responses, for
+# acceptance / contract test isolation).
+#
+# YAML conventions: indent with spaces only — yaml.v3 rejects tabs. Quote
+# any value that could be misread as a YAML scalar (`yes` / `no`, country
+# codes like `NO`); yaml.v3 defaults to YAML 1.2 where the Norway problem
+# is fixed, but quoting is still the safe habit.
+
+systems:
+  - label: real
+    composeFile: docker-compose.local.real.yml
+    containerName: my-shop-real
+    components:
+      - name: Monolith
+        url: http://localhost:3111
+        containerName: system
+      - name: Monolith API
+        url: http://localhost:8111/health
+        containerName: system
+    externalSystems:
+      - name: ERP API (Real)
+        url: http://localhost:9111/erp/health
+        containerName: external-real
+      - name: Clock API (Real)
+        url: http://localhost:9111/clock/health
+        containerName: external-real
+  - label: stub
+    composeFile: docker-compose.local.stub.yml
+    containerName: my-shop-stub
+    components:
+      - name: Monolith
+        url: http://localhost:3112
+        containerName: system
+      - name: Monolith API
+        url: http://localhost:8112/health
+        containerName: system
+    externalSystems:
+      - name: ERP API (Stub)
+        url: http://localhost:9112/erp/health
+        containerName: external-stub
+      - name: Clock API (Stub)
+        url: http://localhost:9112/clock/health
+        containerName: external-stub

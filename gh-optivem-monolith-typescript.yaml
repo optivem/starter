@@ -3,11 +3,13 @@ project:
 repo_strategy: mono-repo
 system:
     architecture: monolith
+    config: docker/typescript/monolith/systems.yaml
     path: system/monolith/typescript
     repo: optivem/shop
     lang: typescript
 system_test:
     path: system-test/typescript
+    config: system-test/typescript/tests.yaml
     repo: optivem/shop
     lang: typescript
 external_systems:

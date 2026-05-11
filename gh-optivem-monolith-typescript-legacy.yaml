@@ -2,19 +2,14 @@ project:
     url: https://github.com/orgs/optivem/projects/20
 repo_strategy: mono-repo
 system:
-    architecture: multitier
-    config: docker/typescript/multitier/systems.yaml
-    backend:
-        path: system/multitier/backend-typescript
-        repo: optivem/shop
-        lang: typescript
-    frontend:
-        path: system/multitier/frontend-react
-        repo: optivem/shop
-        lang: typescript
+    architecture: monolith
+    config: docker/typescript/monolith/systems.yaml
+    path: system/monolith/typescript
+    repo: optivem/shop
+    lang: typescript
 system_test:
     path: system-test/typescript
-    config: system-test/typescript/tests.yaml
+    config: system-test/typescript/tests.legacy.yaml
     repo: optivem/shop
     lang: typescript
 external_systems:

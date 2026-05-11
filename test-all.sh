@@ -48,9 +48,8 @@ OVERALL_START=$(date +%s)
 run_phase() {
   local lang="$1"
   local phase="$2"
-  local tests_file="$3"
-  local system_json="$REPO_ROOT/docker/$lang/$ARCH/systems.json"
-  local tests_json="$REPO_ROOT/system-test/$lang/$tests_file"
+  local variant_suffix="$3"
+  local config="gh-optivem-$ARCH-$lang$variant_suffix.yaml"
 
   echo
   echo "=================================================================="
@@ -61,8 +60,8 @@ run_phase() {
   local status="PASSED"
   (
     cd "$REPO_ROOT" \
-      && gh optivem run system --system-config "$system_json" \
-      && gh optivem test system --system-config "$system_json" --test-config "$tests_json"
+      && GH_OPTIVEM_CONFIG="$config" gh optivem run  system \
+      && GH_OPTIVEM_CONFIG="$config" gh optivem test system
   ) || status="FAILED"
   local end
   end=$(date +%s)
@@ -70,8 +69,8 @@ run_phase() {
 }
 
 for lang in "${LANGS[@]}"; do
-  run_phase "$lang" "Latest" "tests-latest.json"
-  run_phase "$lang" "Legacy" "tests-legacy.json"
+  run_phase "$lang" "Latest" ""
+  run_phase "$lang" "Legacy" "-legacy"
 done
 
 OVERALL_END=$(date +%s)

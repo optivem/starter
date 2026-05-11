@@ -9,7 +9,7 @@ system:
     lang: dotnet
 system_test:
     path: system-test/dotnet
-    config: system-test/dotnet/tests.yaml
+    config: system-test/dotnet/tests.legacy.yaml
     repo: optivem/shop
     lang: dotnet
 external_systems:

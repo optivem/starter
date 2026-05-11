@@ -14,7 +14,7 @@ system:
         lang: typescript
 system_test:
     path: system-test/typescript
-    config: system-test/typescript/tests.yaml
+    config: system-test/typescript/tests.legacy.yaml
     repo: optivem/shop
     lang: typescript
 external_systems:

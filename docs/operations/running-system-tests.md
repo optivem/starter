@@ -28,29 +28,35 @@ This is the preferred entry point for verifying cross-language changes.
 
 ## Single language — `gh optivem test system`
 
-From the repo root, substituting `<language>` ∈ {java, dotnet, typescript}:
+Point `GH_OPTIVEM_CONFIG` at the variant yaml at the repo root, then run the
+commands without per-flag overrides. Substitute `<language>` ∈ {java, dotnet,
+typescript} and `<architecture>` ∈ {monolith, multitier}:
 
-```bash
-# Bring up the docker-compose stacks for the chosen architecture
-gh optivem run system --system-config docker/<language>/monolith/systems.json
+```pwsh
+$env:GH_OPTIVEM_CONFIG = "gh-optivem-<architecture>-<language>.yaml"
+
+# Bring up the docker-compose stacks
+gh optivem run  system
 
 # Run the latest suites
-gh optivem test system --system-config docker/<language>/monolith/systems.json --test-config system-test/<language>/tests-latest.json
-
-# Or the legacy suites
-gh optivem test system --system-config docker/<language>/monolith/systems.json --test-config system-test/<language>/tests-legacy.json
+gh optivem test system
 
 # Or a fast smoke (one sample per suite)
-gh optivem test system --system-config docker/<language>/monolith/systems.json --test-config system-test/<language>/tests-latest.json --sample
+gh optivem test system --sample
 
 # Stop when done
-gh optivem stop system --system-config docker/<language>/monolith/systems.json
+gh optivem stop system
+```
+
+For the legacy suites, switch the env var to the `-legacy` sibling:
+
+```pwsh
+$env:GH_OPTIVEM_CONFIG = "gh-optivem-<architecture>-<language>-legacy.yaml"
+gh optivem test system
 ```
 
 Use this when iterating on a single language, or for the `--sample`
 pre-commit verification described in [CLAUDE.md](../../CLAUDE.md).
-
-Substitute `docker/<language>/multitier/systems.json` for the multitier architecture.
 
 Do **not** substitute `./gradlew test`, `mvn test`, `dotnet test`, or `npm
 test` — these wrappers manage Docker containers and per-suite environment

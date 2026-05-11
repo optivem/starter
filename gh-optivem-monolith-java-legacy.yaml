@@ -2,19 +2,14 @@ project:
     url: https://github.com/orgs/optivem/projects/20
 repo_strategy: mono-repo
 system:
-    architecture: multitier
-    config: docker/java/multitier/systems.yaml
-    backend:
-        path: system/multitier/backend-java
-        repo: optivem/shop
-        lang: java
-    frontend:
-        path: system/multitier/frontend-react
-        repo: optivem/shop
-        lang: typescript
+    architecture: monolith
+    config: docker/java/monolith/systems.yaml
+    path: system/monolith/java
+    repo: optivem/shop
+    lang: java
 system_test:
     path: system-test/java
-    config: system-test/java/tests.yaml
+    config: system-test/java/tests.legacy.yaml
     repo: optivem/shop
     lang: java
 external_systems:
