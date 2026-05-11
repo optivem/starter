@@ -12,7 +12,7 @@ system:
         repo: optivem/shop
         lang: typescript
 system_test:
-    path: system-test
+    path: system-test/java
     repo: optivem/shop
     lang: java
 external_systems:
