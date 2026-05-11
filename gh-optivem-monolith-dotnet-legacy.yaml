@@ -9,13 +9,13 @@ system:
     path: system/monolith/dotnet
     repo: optivem/shop
     lang: dotnet
-    sonar_project: optivem_shop-system
+    sonar_project: optivem_shop-monolith-dotnet
 system_test:
     path: system-test/dotnet
     config: system-test/dotnet/tests.legacy.yaml
     repo: optivem/shop
     lang: dotnet
-    sonar_project: optivem_shop-system-test
+    sonar_project: optivem_shop-tests-dotnet
 external_systems:
     stubs:
         path: external-systems/external-stub

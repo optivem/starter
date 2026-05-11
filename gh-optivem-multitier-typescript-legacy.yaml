@@ -10,18 +10,18 @@ system:
         path: system/multitier/backend-typescript
         repo: optivem/shop
         lang: typescript
-        sonar_project: optivem_shop-backend
+        sonar_project: optivem_shop-multitier-backend-typescript
     frontend:
         path: system/multitier/frontend-react
         repo: optivem/shop
         lang: typescript
-        sonar_project: optivem_shop-frontend
+        sonar_project: optivem_shop-multitier-frontend-react
 system_test:
     path: system-test/typescript
     config: system-test/typescript/tests.legacy.yaml
     repo: optivem/shop
     lang: typescript
-    sonar_project: optivem_shop-system-test
+    sonar_project: optivem_shop-tests-typescript
 external_systems:
     stubs:
         path: external-systems/external-stub
