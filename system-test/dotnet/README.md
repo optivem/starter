@@ -14,46 +14,46 @@ All commands are run from the repo root.
 Bring up the system stack (real + stub) for the chosen architecture:
 
 ```bash
-gh optivem run system --system-config docker/dotnet/monolith/system.json
+gh optivem run system --system-config docker/dotnet/monolith/systems.json
 ```
 
 Run all latest test suites:
 
 ```bash
-gh optivem test system --system-config docker/dotnet/monolith/system.json --test-config system-test/dotnet/tests-latest.json
+gh optivem test system --system-config docker/dotnet/monolith/systems.json --test-config system-test/dotnet/tests-latest.json
 ```
 
 Run legacy test suites:
 
 ```bash
-gh optivem test system --system-config docker/dotnet/monolith/system.json --test-config system-test/dotnet/tests-legacy.json
+gh optivem test system --system-config docker/dotnet/monolith/systems.json --test-config system-test/dotnet/tests-legacy.json
 ```
 
 Run only sample tests (one per suite, fast smoke):
 
 ```bash
-gh optivem test system --system-config docker/dotnet/monolith/system.json --test-config system-test/dotnet/tests-latest.json --sample
+gh optivem test system --system-config docker/dotnet/monolith/systems.json --test-config system-test/dotnet/tests-latest.json --sample
 ```
 
 Run a specific suite by ID:
 
 ```bash
-gh optivem test system --system-config docker/dotnet/monolith/system.json --test-config system-test/dotnet/tests-latest.json --suite acceptance-api
+gh optivem test system --system-config docker/dotnet/monolith/systems.json --test-config system-test/dotnet/tests-latest.json --suite acceptance-api
 ```
 
 Rebuild container images before bringing the system up:
 
 ```bash
-gh optivem build system --system-config docker/dotnet/monolith/system.json
+gh optivem build system --system-config docker/dotnet/monolith/systems.json
 ```
 
 Stop the system when done:
 
 ```bash
-gh optivem stop system --system-config docker/dotnet/monolith/system.json
+gh optivem stop system --system-config docker/dotnet/monolith/systems.json
 ```
 
-Substitute `docker/dotnet/multitier/system.json` for the multitier architecture.
+Substitute `docker/dotnet/multitier/systems.json` for the multitier architecture.
 
 ## Available Suite IDs
 

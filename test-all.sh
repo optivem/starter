@@ -49,7 +49,7 @@ run_phase() {
   local lang="$1"
   local phase="$2"
   local tests_file="$3"
-  local system_json="$REPO_ROOT/docker/$lang/$ARCH/system.json"
+  local system_json="$REPO_ROOT/docker/$lang/$ARCH/systems.json"
   local tests_json="$REPO_ROOT/system-test/$lang/$tests_file"
 
   echo

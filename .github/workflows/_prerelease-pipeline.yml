@@ -192,18 +192,18 @@ jobs:
         run: gh extension install optivem/gh-optivem
 
       # Bring up the docker-compose stacks defined in
-      # docker/<lang>/<arch>/system.json (real + stub) and wait for health.
+      # docker/<lang>/<arch>/systems.json (real + stub) and wait for health.
       - name: Start system
-        run: gh optivem run system --system-config docker/${{ inputs.language }}/${{ inputs.architecture }}/system.json
+        run: gh optivem run system --system-config docker/${{ inputs.language }}/${{ inputs.architecture }}/systems.json
 
       # Run system tests (sample) — latest
       - name: Run System Tests - Latest (Sample)
-        run: gh optivem test system --system-config docker/${{ inputs.language }}/${{ inputs.architecture }}/system.json --test-config system-test/${{ inputs.language }}/tests-latest.json --sample
+        run: gh optivem test system --system-config docker/${{ inputs.language }}/${{ inputs.architecture }}/systems.json --test-config system-test/${{ inputs.language }}/tests-latest.json --sample
 
       # Run system tests (sample) — legacy
       - name: Run System Tests - Legacy (Sample)
         if: ${{ !inputs.skip-acceptance-legacy }}
-        run: gh optivem test system --system-config docker/${{ inputs.language }}/${{ inputs.architecture }}/system.json --test-config system-test/${{ inputs.language }}/tests-legacy.json --sample
+        run: gh optivem test system --system-config docker/${{ inputs.language }}/${{ inputs.architecture }}/systems.json --test-config system-test/${{ inputs.language }}/tests-legacy.json --sample
 
   commit-stage:
     needs: [check-version, local]

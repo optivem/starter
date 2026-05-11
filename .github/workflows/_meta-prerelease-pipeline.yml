@@ -530,7 +530,7 @@ jobs:
   # Cross-language behavior-parity regression check. Runs in parallel with `pipeline`
   # above — both need `commit` because cross-lang pulls the `sha-<sha>` images that
   # the commit stages publish (resolve-docker-image-digests would 404 otherwise).
-  # Pinned to the same SHA so workflow files / system.json / tests config match the
+  # Pinned to the same SHA so workflow files / systems.json / tests config match the
   # commit being verified.
   #
   # Gated on variant == 'all' because cross-lang exercises all 6 (arch, lang) SUTs

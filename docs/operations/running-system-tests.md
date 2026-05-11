@@ -32,25 +32,25 @@ From the repo root, substituting `<language>` ∈ {java, dotnet, typescript}:
 
 ```bash
 # Bring up the docker-compose stacks for the chosen architecture
-gh optivem run system --system-config docker/<language>/monolith/system.json
+gh optivem run system --system-config docker/<language>/monolith/systems.json
 
 # Run the latest suites
-gh optivem test system --system-config docker/<language>/monolith/system.json --test-config system-test/<language>/tests-latest.json
+gh optivem test system --system-config docker/<language>/monolith/systems.json --test-config system-test/<language>/tests-latest.json
 
 # Or the legacy suites
-gh optivem test system --system-config docker/<language>/monolith/system.json --test-config system-test/<language>/tests-legacy.json
+gh optivem test system --system-config docker/<language>/monolith/systems.json --test-config system-test/<language>/tests-legacy.json
 
 # Or a fast smoke (one sample per suite)
-gh optivem test system --system-config docker/<language>/monolith/system.json --test-config system-test/<language>/tests-latest.json --sample
+gh optivem test system --system-config docker/<language>/monolith/systems.json --test-config system-test/<language>/tests-latest.json --sample
 
 # Stop when done
-gh optivem stop system --system-config docker/<language>/monolith/system.json
+gh optivem stop system --system-config docker/<language>/monolith/systems.json
 ```
 
 Use this when iterating on a single language, or for the `--sample`
 pre-commit verification described in [CLAUDE.md](../../CLAUDE.md).
 
-Substitute `docker/<language>/multitier/system.json` for the multitier architecture.
+Substitute `docker/<language>/multitier/systems.json` for the multitier architecture.
 
 Do **not** substitute `./gradlew test`, `mvn test`, `dotnet test`, or `npm
 test` — these wrappers manage Docker containers and per-suite environment
