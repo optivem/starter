@@ -285,3 +285,9 @@ By severity:
   - Naming / cosmetic: 3 (DIFF-7 suite name swap, DIFF-8 node-version, DIFF-10 file name convention)
   - Documentation only: 1 (DIFF-12 — drift exists but is justified, needs a comment)
   - Action version mismatches: 0 (all uses-pinned actions are at the same version across languages)
+
+---
+
+> **Note (2026-05-11):** references to `Run-Sonar.ps1` above are historical.
+> The PS1 scripts were replaced by `run-sonar.sh` (`./run-sonar.sh` invocation
+> in workflows) per `gh-optivem/plans/20260511-1830-bash-sonar-invocation.md`.

@@ -396,7 +396,7 @@ jobs:
         working-directory: system-test/java
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: pwsh ./Run-Sonar.ps1
+        run: ./run-sonar.sh
 
   summary:
     needs: [preflight, check, run, publish-tag, sonar]
