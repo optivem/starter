@@ -276,6 +276,7 @@ jobs:
             TEST_CONFIG="system-test/${TEST_LANG}/tests.yaml"
             [ "$variant" = legacy ] && TEST_CONFIG="system-test/${TEST_LANG}/tests.legacy.yaml"
             export TEST_CONFIG
+            # shellcheck disable=SC2016
             envsubst '${SYSTEM_LANG} ${TEST_LANG} ${TEST_CONFIG}' \
               < "$template" \
               > ".gh-optivem-cross-lang/${variant}.yaml"
