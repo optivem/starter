@@ -30,10 +30,11 @@ If you only touched a single project, you can run that project's compile command
 
 After compilation passes, run system tests with `--sample` for each affected language before committing. From the repo root, substituting `<language>` ∈ {java, dotnet, typescript}:
 
-```bash
-gh optivem run system --system-config docker/<language>/monolith/systems.yaml
-gh optivem test system --system-config docker/<language>/monolith/systems.yaml --test-config system-test/<language>/tests.yaml --sample
-gh optivem stop system --system-config docker/<language>/monolith/systems.yaml
+```pwsh
+$env:GH_OPTIVEM_CONFIG = "gh-optivem-monolith-<language>.yaml"
+gh optivem run  system
+gh optivem test system --sample
+gh optivem stop system
 ```
 
 This runs one sample test per suite across all test categories (smoke, acceptance, contract, e2e) to catch regressions without running the full suite. All sample tests must pass before committing.

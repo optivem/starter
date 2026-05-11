@@ -13,6 +13,10 @@
 # repo root — no changes to this script. To run a single variant on its
 # own use `gh optivem compile -c gh-optivem-<arch>-<lang>.yaml` directly.
 #
+# `*-legacy.yaml` variants are excluded — they share `system.config` and
+# `system.path` with their non-legacy sibling and differ only in the
+# `system_test.config` pointer, so compile is pure duplicate work.
+#
 # Exits non-zero on any failure (zero-failures policy). Continues past the
 # first failure so a single run reports every broken variant.
 
@@ -21,9 +25,9 @@ set -uo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")" && pwd)"
 cd "$REPO_ROOT"
 
-shopt -s nullglob
-configs=(gh-optivem-*.yaml)
-shopt -u nullglob
+shopt -s nullglob extglob
+configs=(gh-optivem-!(*-legacy).yaml)
+shopt -u nullglob extglob
 
 if [ ${#configs[@]} -eq 0 ]; then
   echo "ERROR: no gh-optivem-*.yaml files found in $REPO_ROOT" >&2

@@ -161,6 +161,7 @@ jobs:
       contents: read
       packages: write
     env:
+      GH_OPTIVEM_CONFIG: gh-optivem-multitier-java.yaml
       ENVIRONMENT: acceptance
     outputs:
       version: ${{ steps.rc-version.outputs.version }}
@@ -282,48 +283,37 @@ jobs:
 
       - name: smoke-stub
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite smoke-stub --no-build --no-start --system-config docker/java/multitier/systems.yaml --test-config system-test/java/tests.yaml
-
+        run: gh optivem test system --suite smoke-stub --no-build --no-start
       - name: smoke-real
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite smoke-real --no-setup --no-build --no-start --system-config docker/java/multitier/systems.yaml --test-config system-test/java/tests.yaml
-
+        run: gh optivem test system --suite smoke-real --no-setup --no-build --no-start
       - name: acceptance-api
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite acceptance-api --no-setup --no-build --no-start --system-config docker/java/multitier/systems.yaml --test-config system-test/java/tests.yaml
-
+        run: gh optivem test system --suite acceptance-api --no-setup --no-build --no-start
       - name: acceptance-ui
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite acceptance-ui --no-setup --no-build --no-start --system-config docker/java/multitier/systems.yaml --test-config system-test/java/tests.yaml
-
+        run: gh optivem test system --suite acceptance-ui --no-setup --no-build --no-start
       - name: acceptance-isolated-api
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite acceptance-isolated-api --no-setup --no-build --no-start --system-config docker/java/multitier/systems.yaml --test-config system-test/java/tests.yaml
-
+        run: gh optivem test system --suite acceptance-isolated-api --no-setup --no-build --no-start
       - name: acceptance-isolated-ui
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite acceptance-isolated-ui --no-setup --no-build --no-start --system-config docker/java/multitier/systems.yaml --test-config system-test/java/tests.yaml
-
+        run: gh optivem test system --suite acceptance-isolated-ui --no-setup --no-build --no-start
       - name: contract-stub
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite contract-stub --no-setup --no-build --no-start --system-config docker/java/multitier/systems.yaml --test-config system-test/java/tests.yaml
-
+        run: gh optivem test system --suite contract-stub --no-setup --no-build --no-start
       - name: contract-stub-isolated
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite contract-stub-isolated --no-setup --no-build --no-start --system-config docker/java/multitier/systems.yaml --test-config system-test/java/tests.yaml
-
+        run: gh optivem test system --suite contract-stub-isolated --no-setup --no-build --no-start
       - name: contract-real
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite contract-real --no-setup --no-build --no-start --system-config docker/java/multitier/systems.yaml --test-config system-test/java/tests.yaml
-
+        run: gh optivem test system --suite contract-real --no-setup --no-build --no-start
       - name: e2e-api
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite e2e-api --no-setup --no-build --no-start --system-config docker/java/multitier/systems.yaml --test-config system-test/java/tests.yaml
-
+        run: gh optivem test system --suite e2e-api --no-setup --no-build --no-start
       - name: e2e-ui
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite e2e-ui --no-setup --no-build --no-start --system-config docker/java/multitier/systems.yaml --test-config system-test/java/tests.yaml
-
+        run: gh optivem test system --suite e2e-ui --no-setup --no-build --no-start
       - name: Read Base System Version
         id: read-version
         uses: optivem/actions/read-base-version@v1

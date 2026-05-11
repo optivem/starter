@@ -37,22 +37,13 @@ Confirmed across all 12 files. No edits to shop yamls required.
 
 ## Plan items remaining
 
-### Phase 1 — smoke test (in this repo)
+### Phase 1 — smoke test (DONE — 2026-05-11)
 
-Confirm one variant pair end-to-end before fanning out workflow edits:
-
-```pwsh
-$env:GH_OPTIVEM_CONFIG = "gh-optivem-monolith-dotnet.yaml"
-gh optivem run  system
-gh optivem test system --sample
-gh optivem stop system
-```
-
-Same for the `-legacy` sibling. If both pick up the right tests config and pass, the schema + env-var wiring is verified end-to-end.
+Verified `$env:GH_OPTIVEM_CONFIG` end-to-end against `gh-optivem-monolith-dotnet.yaml` and its `-legacy` sibling. All 11 latest sample suites and all 26 legacy sample suites passed. Schema + env-var wiring confirmed.
 
 **Note:** the `gh` CLI used in workflows must be rebuilt with the patched gh-optivem. If the workflows pull a tagged release, bump the gh-optivem version after committing the CLI patch.
 
-### Phase 2 — migrate workflows
+### Phase 2 — migrate workflows (DONE — 2026-05-11)
 
 **2.1** Set `GH_OPTIVEM_CONFIG` once per workflow (at job level), drop both flags from every `gh optivem ... system` line.
 
@@ -90,7 +81,12 @@ jobs:
 
 **2.3** For each workflow, verify the `runs-on`/job topology fits a single env var (i.e. one workflow → one variant). If a workflow runs multiple variants in a matrix, the env var goes at the matrix step level instead of the job level.
 
-### Phase 3 — docs cleanup
+**Outcome:**
+- 12 single-variant acceptance-stage workflows: GH_OPTIVEM_CONFIG set at the run-job env block, both flag pairs stripped from every per-suite step.
+- `_prerelease-pipeline.yml` (`local` job): job-level env var pinned to the `<arch>-<lang>` variant; the legacy-sample step overrides at step level to the `-legacy` sibling.
+- `cross-lang-system-verification.yml`: **left flag-driven by design.** Each matrix entry independently mixes `system-lang` (for `--system-config`) and `test-lang` (for `--test-config`). Migrating to GH_OPTIVEM_CONFIG would require either 12 new cross-lang variant yamls (one per non-same-lang combination) or materializing a yaml per matrix entry at runtime — both more code than the explicit flag form, which also reads more clearly because the two language axes are visible on the same line.
+
+### Phase 3 — docs cleanup (DONE — 2026-05-11)
 
 **3.1** Update `CLAUDE.md` "System Test Verification" block — replace the three example commands with the env-var form. Current text:
 
@@ -111,7 +107,9 @@ gh optivem stop system
 
 **3.2** Check `docs/operations/running-system-tests.md` and `test-all.sh` for the same flag usage. Migrate to the env var pattern there too.
 
-### Phase 4 — compile-all.sh decision (deferred from earlier discussion)
+Both updated. `test-all.sh` now resolves `gh-optivem-<arch>-<lang>[-legacy].yaml` per phase and exports `GH_OPTIVEM_CONFIG` ahead of each `gh optivem ... system` call.
+
+### Phase 4 — compile-all.sh decision (DONE — 2026-05-11)
 
 `compile-all.sh` globs `gh-optivem-*.yaml`, which now picks up 12 files instead of 6 — and each `*-legacy.yaml` compiles the same code as its latest sibling. Options:
 
@@ -120,6 +118,8 @@ gh optivem stop system
 - **C.** Dedupe by hashing `system` fields. Most "correct" but over-engineered for one duplicate per variant.
 
 **Recommendation:** B. The legacy yamls exist to select a test-config, not to change the system code. The compile step is system-only — duplicating it is pure waste.
+
+**Applied:** option B. `compile-all.sh` glob narrowed to `gh-optivem-!(*-legacy).yaml` (extglob). Verified: 6 variants compile clean (~1:17 total).
 
 ## Validation
 
@@ -135,6 +135,7 @@ After all phases:
 - The flag-removal in workflows is mechanical (sed-able). Easy to revert per-workflow if any specific job has a hidden dependency on the flag form.
 - `--system-config` / `--test-config` stay supported by the CLI, so this migration is additive — old workflows / docs that miss the migration keep working.
 
-## Open question for the user
+## Open question for the user (RESOLVED — 2026-05-11)
 
-- Should `cross-lang-system-verification.yml` and `_prerelease-pipeline.yml` also migrate, or are they intentionally flag-driven (e.g. because they run multiple variants and the variant selection itself is the input)? Plan currently says "case-by-case look" — needs your call before Phase 2 executes those two.
+- `_prerelease-pipeline.yml` migrated: it's single-variant per invocation, so it fits the env-var model cleanly.
+- `cross-lang-system-verification.yml` left flag-driven: matrix dimensions independently select `system-lang` and `test-lang`, so the flag form is the right tool. See Phase 2 outcome note.
