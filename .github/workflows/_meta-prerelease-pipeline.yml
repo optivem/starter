@@ -47,6 +47,9 @@ on:
       commit_sha:
         description: 'SHA the verification ran against. Equals the trigger SHA unless the check job auto-bumped via meta-bump-all, in which case it is the post-bump main HEAD. Callers that tag artifacts (e.g. meta-prerelease-stage tagging meta-rc) should use this rather than github.sha so the tag lands on the SHA that was actually verified.'
         value: ${{ jobs.check.outputs.commit_sha }}
+      should_run:
+        description: 'Whether the inner gate decided to run. False on scheduled runs when nothing under .github/workflows/, system/, or system-test/ changed since the last meta-rc. Callers that mint tags off this verification (e.g. meta-prerelease-stage tagging meta-rc) must gate on this so they do not mint a redundant tag against an already-verified SHA.'
+        value: ${{ jobs.check.outputs.should_run }}
 
 permissions: {}
 
@@ -464,7 +467,7 @@ jobs:
   # fail-fast (input, default true) cancels siblings on first failure.
   commit:
     needs: check
-    if: ${{ always() && !failure() && !cancelled() && !inputs.skip-commit && contains(fromJSON('["commit","acceptance","qa"]'), inputs.level) }}
+    if: ${{ always() && !failure() && !cancelled() && needs.check.outputs.should_run == 'true' && !inputs.skip-commit && contains(fromJSON('["commit","acceptance","qa"]'), inputs.level) }}
     strategy:
       fail-fast: ${{ inputs.fail-fast }}
       matrix:
@@ -510,7 +513,7 @@ jobs:
   # fail-fast (input, default true) cancels siblings on first failure.
   pipeline:
     needs: [check, commit]
-    if: ${{ always() && !failure() && !cancelled() && contains(fromJSON('["acceptance","qa"]'), inputs.level) }}
+    if: ${{ always() && !failure() && !cancelled() && needs.check.outputs.should_run == 'true' && contains(fromJSON('["acceptance","qa"]'), inputs.level) }}
     strategy:
       fail-fast: ${{ inputs.fail-fast }}
       matrix:
@@ -538,7 +541,7 @@ jobs:
   # other matrix entries would 404 on digest resolution.
   cross-lang:
     needs: [check, commit]
-    if: ${{ always() && !failure() && !cancelled() && !inputs.debug-skip-tests && inputs.variant == 'all' && contains(fromJSON('["acceptance","qa"]'), inputs.level) }}
+    if: ${{ always() && !failure() && !cancelled() && needs.check.outputs.should_run == 'true' && !inputs.debug-skip-tests && inputs.variant == 'all' && contains(fromJSON('["acceptance","qa"]'), inputs.level) }}
     permissions:
       contents: read
       packages: read

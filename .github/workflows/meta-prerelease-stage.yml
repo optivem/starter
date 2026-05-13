@@ -178,7 +178,7 @@ jobs:
     # main HEAD. github.sha would be the pre-bump trigger SHA, which is no
     # longer the SHA that was actually verified.
     needs: [check, run]
-    if: ${{ !failure() && !cancelled() && needs.check.outputs.should-run == 'true' }}
+    if: ${{ !failure() && !cancelled() && needs.check.outputs.should-run == 'true' && needs.run.outputs.should_run == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
