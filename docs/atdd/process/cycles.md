@@ -140,7 +140,7 @@ These are independent: a Driver may exist without an accessible Test Instance, o
 
 1. **Check whether an External System Driver exists** for the system being integrated (interface + impl under `external/`). If yes → return immediately to the Contract Test Sub-Process; skip the rest of onboarding.
 2. **Check whether an External System Test Instance is accessible** (real sandbox or already-running dockerized stand-in). If yes → skip step 3.
-3. **Provision a dockerized stand-in** following the json-server pattern established in `external-systems/external-real-sim` (Node.js + json-server-based mock, runs in docker, mounted at a known port; the existing `external-real-sim` already emulates ERP, Tax, and Clock subsystems and is the reference shape for new stand-ins).
+3. **Provision a dockerized stand-in** following the json-server pattern established in `external-systems/simulators` (Node.js + json-server-based mock, runs in docker, mounted at a known port; the existing `simulators` directory already emulates ERP, Tax, and Clock subsystems and is the reference shape for new stand-ins).
 4. **Define a minimal External System Driver interface** — only the methods needed to support a single Smoke Test for this external system. Resist the urge to flesh out the full surface area; per-scenario interface growth happens in the CT loop.
 5. **Implement the Driver impl just enough for one Smoke Test** to compile and run against either the real Test Instance or the dockerized stand-in.
 6. **Write a single Smoke Test** for this External System.

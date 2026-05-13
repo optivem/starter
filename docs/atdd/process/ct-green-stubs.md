@@ -11,7 +11,7 @@ Bring the dockerized External System stub into contract-compatibility with the r
 
 ## Conventions
 
-- The dockerized stub follows the json-server pattern — see [`external-systems/external-real-sim`](../../../external-systems/external-real-sim) for the canonical reference (`mock-server.js`, `Dockerfile`).
+- The dockerized stub follows the json-server pattern — see [`external-systems/simulators`](../../../external-systems/simulators) for the canonical reference (`mock-server.js`, `Dockerfile`).
 - Stub data must reflect the real Test Instance's contract — same shapes, same status codes, same error semantics. Drift between stub and real instance breaks the CT cycle.
 - Suite selection (real vs stub): see [ct-cycle-conventions.md](ct-cycle-conventions.md). This phase exercises the stub side only.
 - Commit message format: see [ct-cycle-conventions.md](ct-cycle-conventions.md).

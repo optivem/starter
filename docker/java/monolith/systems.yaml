@@ -5,12 +5,12 @@
 #   - containerName: project name prefix (`-p`); isolates this label's
 #     containers from sibling labels running in parallel
 #   - components: health-check probes the runner waits on after `compose up`
-#   - externalSystems: health-check probes for the vendored real-sim / stub
+#   - externalSystems: health-check probes for the vendored simulators / stubs
 #     external systems wired to this label
 #
-# `label: real` brings up the monolith against vendored real-sims (mimicking
+# `label: real` brings up the SUT against vendored simulators (mimicking
 # the real third-party APIs at production fidelity). `label: stub` swaps
-# those real-sims for WireMock stubs (deterministic responses, for
+# those simulators for WireMock stubs (deterministic responses, for
 # acceptance / contract test isolation).
 #
 # YAML conventions: indent with spaces only — yaml.v3 rejects tabs. Quote
@@ -32,10 +32,10 @@ systems:
     externalSystems:
       - name: ERP API (Real)
         url: http://localhost:9111/erp/health
-        containerName: external-real
+        containerName: external-system-simulators
       - name: Clock API (Real)
         url: http://localhost:9111/clock/health
-        containerName: external-real
+        containerName: external-system-simulators
   - label: stub
     composeFile: docker-compose.local.stub.yml
     containerName: my-shop-stub
@@ -49,7 +49,7 @@ systems:
     externalSystems:
       - name: ERP API (Stub)
         url: http://localhost:9112/erp/health
-        containerName: external-stub
+        containerName: external-system-stubs
       - name: Clock API (Stub)
         url: http://localhost:9112/clock/health
-        containerName: external-stub
+        containerName: external-system-stubs

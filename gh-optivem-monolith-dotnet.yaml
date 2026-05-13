@@ -18,8 +18,8 @@ system_test:
     sonar_project: optivem_shop-tests-dotnet
 external_systems:
     stubs:
-        path: external-systems/external-stub
+        path: external-systems/stubs
         repo: optivem/shop
     simulators:
-        path: external-systems/external-real-sim
+        path: external-systems/simulators
         repo: optivem/shop
