@@ -12,6 +12,7 @@ public class Order
     public long Id { get; set; }
 
     [Required]
+    [MaxLength(255)]
     [Column("order_number")]
     public string OrderNumber { get; set; } = null!;
 
@@ -20,10 +21,12 @@ public class Order
     public DateTime OrderTimestamp { get; set; }
 
     [Required]
+    [MaxLength(255)]
     [Column("country")]
     public string Country { get; set; } = null!;
 
     [Required]
+    [MaxLength(255)]
     [Column("sku")]
     public string Sku { get; set; } = null!;
 
@@ -67,6 +70,7 @@ public class Order
     [Column("status")]
     public OrderStatus Status { get; set; }
 
+    [MaxLength(255)]
     [Column("applied_coupon_code")]
     public string? AppliedCouponCode { get; set; }
 }

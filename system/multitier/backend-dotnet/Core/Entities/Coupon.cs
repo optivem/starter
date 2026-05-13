@@ -12,6 +12,7 @@ public class Coupon
     public long Id { get; set; }
 
     [Required]
+    [MaxLength(255)]
     [Column("code")]
     public string Code { get; set; } = null!;
 

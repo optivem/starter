@@ -6,16 +6,16 @@ export class Order {
   @PrimaryGeneratedColumn('identity')
   id: number;
 
-  @Column({ name: 'order_number', unique: true, nullable: false })
+  @Column({ name: 'order_number', type: 'varchar', length: 255, unique: true, nullable: false })
   orderNumber: string;
 
   @Column({ name: 'order_timestamp', type: 'timestamptz', nullable: false })
   orderTimestamp: Date;
 
-  @Column({ name: 'country', nullable: false })
+  @Column({ name: 'country', type: 'varchar', length: 255, nullable: false, default: () => "'US'" })
   country: string;
 
-  @Column({ name: 'sku', nullable: false })
+  @Column({ name: 'sku', type: 'varchar', length: 255, nullable: false })
   sku: string;
 
   @Column({ name: 'quantity', nullable: false })
@@ -36,6 +36,7 @@ export class Order {
     precision: 10,
     scale: 2,
     nullable: false,
+    default: 0,
   })
   basePrice: number;
 
@@ -45,6 +46,7 @@ export class Order {
     precision: 5,
     scale: 4,
     nullable: false,
+    default: 0,
   })
   discountRate: number;
 
@@ -54,6 +56,7 @@ export class Order {
     precision: 10,
     scale: 2,
     nullable: false,
+    default: 0,
   })
   discountAmount: number;
 
@@ -63,6 +66,7 @@ export class Order {
     precision: 10,
     scale: 2,
     nullable: false,
+    default: 0,
   })
   subtotalPrice: number;
 
@@ -72,6 +76,7 @@ export class Order {
     precision: 5,
     scale: 4,
     nullable: false,
+    default: 0,
   })
   taxRate: number;
 
@@ -81,6 +86,7 @@ export class Order {
     precision: 10,
     scale: 2,
     nullable: false,
+    default: 0,
   })
   taxAmount: number;
 
@@ -93,12 +99,13 @@ export class Order {
   })
   totalPrice: number;
 
-  @Column({ name: 'status', nullable: false })
+  @Column({ name: 'status', type: 'varchar', length: 50, nullable: false })
   status: OrderStatus;
 
   @Column({
     name: 'applied_coupon_code',
     type: 'varchar',
+    length: 255,
     nullable: true,
     default: null,
   })

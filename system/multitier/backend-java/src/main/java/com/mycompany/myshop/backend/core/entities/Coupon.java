@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -39,6 +40,7 @@ public class Coupon {
     private Integer usageLimit;
 
     @Column(name = "used_count", nullable = false)
+    @ColumnDefault("0")
     private Integer usedCount;
 
     public Coupon(String code, BigDecimal discountRate, Instant validFrom, Instant validTo, Integer usageLimit, Integer usedCount) {

@@ -15,7 +15,7 @@ function ensureSchema(): Promise<void> {
     CREATE TABLE IF NOT EXISTS coupons (
       id BIGSERIAL PRIMARY KEY,
       code VARCHAR(255) NOT NULL UNIQUE,
-      discount_rate NUMERIC(10,4) NOT NULL,
+      discount_rate NUMERIC(5,4) NOT NULL,
       valid_from TIMESTAMPTZ,
       valid_to TIMESTAMPTZ,
       usage_limit INTEGER,
@@ -30,10 +30,10 @@ function ensureSchema(): Promise<void> {
       quantity INTEGER NOT NULL,
       unit_price NUMERIC(10,2) NOT NULL,
       base_price NUMERIC(10,2) NOT NULL DEFAULT 0,
-      discount_rate NUMERIC(10,4) NOT NULL DEFAULT 0,
+      discount_rate NUMERIC(5,4) NOT NULL DEFAULT 0,
       discount_amount NUMERIC(10,2) NOT NULL DEFAULT 0,
       subtotal_price NUMERIC(10,2) NOT NULL DEFAULT 0,
-      tax_rate NUMERIC(10,4) NOT NULL DEFAULT 0,
+      tax_rate NUMERIC(5,4) NOT NULL DEFAULT 0,
       tax_amount NUMERIC(10,2) NOT NULL DEFAULT 0,
       total_price NUMERIC(10,2) NOT NULL,
       applied_coupon_code VARCHAR(255),
@@ -143,8 +143,8 @@ export async function insertCoupon(coupon: {
 }): Promise<void> {
   await ensureSchema();
   await pool.query(
-    `INSERT INTO coupons (code, discount_rate, valid_from, valid_to, usage_limit)
-     VALUES ($1, $2, $3, $4, $5)`,
+    `INSERT INTO coupons (code, discount_rate, valid_from, valid_to, usage_limit, used_count)
+     VALUES ($1, $2, $3, $4, $5, 0)`,
     [coupon.code, coupon.discountRate, coupon.validFrom ?? null, coupon.validTo ?? null, coupon.usageLimit ?? null]
   );
 }
