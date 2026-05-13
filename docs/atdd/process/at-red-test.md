@@ -74,8 +74,8 @@ STOP. Present the tests to the user for review (the user may revise DSL usage). 
    c. **STOP.** Present the DSL changes and prototype implementations to the user for approval. Do NOT continue until approved.
 3. Run the tests and verify they fail with a **runtime** error (not a compile error):
    ```bash
-   gh optivem test system --suite <acceptance-api> --test <TestMethodName>
-   gh optivem test system --suite <acceptance-ui> --test <TestMethodName>
+   gh optivem test run --suite <acceptance-api> --test <TestMethodName>
+   gh optivem test run --suite <acceptance-ui> --test <TestMethodName>
    ```
 4. Mark the tests as disabled with reason `"AT - RED - TEST"` (see [language-equivalents.md](../code/language-equivalents.md)). Disable **only the change-driven scenarios** (categories 2 and 3 in the ordering above). Legacy-coverage scenarios (category 1) are test-last — they should pass on first run and must NOT be disabled. If a legacy-coverage test fails on first run, STOP and ask the user — that is a real bug, not an expected RED.
 5. COMMIT with message `<Ticket> | AT - RED - TEST`.

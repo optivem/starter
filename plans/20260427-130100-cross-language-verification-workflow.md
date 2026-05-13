@@ -30,8 +30,8 @@ This is purely a **regression check**. It does NOT tag images, publish git tags,
 - Matrix: `arch × test-lang × system-lang` (2 × 3 × 3 = 18) minus 3 same-lang exclude rules (each spans both archs, so 6 entries) = **12 combos**
 - Daily cron at 06:00 UTC, off-peak from per-lang stages
 - `workflow_dispatch` with optional `commit-sha` (atomically pins source + compose + tests + system.json)
-- Builds SUT from source via `gh optivem build system` against `docker/<system-lang>/<arch>/system.json` (which references `docker-compose.local.real.yml` — has `build:` directives, no GHCR pull)
-- Runs full `tests-latest.json` from the test-lang's `system-test/` directory via `gh optivem test system`
+- Builds SUT from source via `gh optivem system build` against `docker/<system-lang>/<arch>/system.json` (which references `docker-compose.local.real.yml` — has `build:` directives, no GHCR pull)
+- Runs full `tests-latest.json` from the test-lang's `system-test/` directory via `gh optivem test run`
 - Stops SUT in `if: always()` finalizer
 
 **Tradeoff vs pre-built images:**
@@ -56,7 +56,7 @@ The cross-lang workflow should refactor to **pull pre-built `sha-<sha>` images**
 
 **Decisions made during Phase 2 implementation:**
 - **Preflight `check-ghcr-packages-exist` deliberately omitted.** Cross-lang is intended to be invoked from `meta-prerelease-stage.yml` after per-(arch, lang) commit + acceptance stages have already produced the images. Missing images are a real error, not a "skip" condition — failing hard surfaces orchestration bugs immediately. Aligns with the project rule "GitHub Actions — `check-*` actions must NOT swallow errors": a `false` `exists` output would conflate "absent" with "couldn't tell" and bury misconfiguration.
-- **Test execution uses `gh optivem test system --no-build --no-start`.** SUT lifecycle is owned by `deploy-docker-compose`; the runner just executes `setupCommands` + suites from `tests-latest.json`. Confirmed safe in [tests.go prepareSystem](../../gh-optivem/internal/runner/tests.go) — when `--no-start` is set, the runner probes `system.json` URLs to verify the system is up, then runs tests.
+- **Test execution uses `gh optivem test run --no-build --no-start`.** SUT lifecycle is owned by `deploy-docker-compose`; the runner just executes `setupCommands` + suites from `tests-latest.json`. Confirmed safe in [tests.go prepareSystem](../../gh-optivem/internal/runner/tests.go) — when `--no-start` is set, the runner probes `system.json` URLs to verify the system is up, then runs tests.
 
 **Risk specific to Phase 2:**
 - Cross-lang testing pre-built images means failures could indicate (a) genuine cross-lang behavior drift OR (b) drift between source HEAD and the published image. Minor confusion, manageable via good error messaging in the test summary.
@@ -73,7 +73,7 @@ The cross-lang workflow should refactor to **pull pre-built `sha-<sha>` images**
 - ❌ Doubles wall time per matrix entry (~11 min → ~22 min). Acceptable: still well below the per-flavor pipeline's wall time, so no impact on `tag-meta-rc` latency.
 - ❌ A flaky legacy suite shows up as a red matrix entry, even if latest passed. Mitigation: `if: always()` on the legacy step so both signals always report independently in the job log.
 
-**Implementation:** added `Run ${{ matrix.test-lang }} legacy system tests vs ${{ matrix.system-lang }} SUT` step after the latest step in [cross-lang-system-verification.yml](../.github/workflows/cross-lang-system-verification.yml). Same `gh optivem test system --no-build --no-start` invocation, just `--test-config system-test/${{ matrix.test-lang }}/tests-legacy.json`.
+**Implementation:** added `Run ${{ matrix.test-lang }} legacy system tests vs ${{ matrix.system-lang }} SUT` step after the latest step in [cross-lang-system-verification.yml](../.github/workflows/cross-lang-system-verification.yml). Same `gh optivem test run --no-build --no-start` invocation, just `--test-config system-test/${{ matrix.test-lang }}/tests-legacy.json`.
 
 **Open questions answered:**
 - *Is legacy cross-lang parity a meaningful signal?* — In practice, yes for the same reasons as latest. Whether failures dominate as (a) genuine drift or (b) version-pin artifacts will become clear from a few real CI runs.

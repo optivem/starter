@@ -186,7 +186,7 @@ jobs:
         working-directory: system-test/dotnet
 
       # Install the gh-optivem CLI extension. The extension provides the
-      # `gh optivem run system` and `gh optivem test system` subcommands
+      # `gh optivem system start` and `gh optivem test run` subcommands
       # used to bring up the docker-compose stacks and run the test suites.
       - name: Install gh-optivem CLI extension
         env:
@@ -195,13 +195,13 @@ jobs:
 
       # Bring up the docker-compose stacks (real + stub) and wait for health.
       - name: Start system
-        run: gh optivem run system
+        run: gh optivem system start
 
       - name: Setup test harness (latest)
         run: gh optivem test setup
 
       - name: Run System Tests - Latest (Sample)
-        run: gh optivem test system --sample
+        run: gh optivem test run --sample
 
       - name: Setup test harness (legacy)
         if: ${{ !inputs.skip-acceptance-legacy }}
@@ -213,7 +213,7 @@ jobs:
         if: ${{ !inputs.skip-acceptance-legacy }}
         env:
           GH_OPTIVEM_CONFIG: gh-optivem-${{ inputs.architecture }}-${{ inputs.language }}-legacy.yaml
-        run: gh optivem test system --sample
+        run: gh optivem test run --sample
 
   commit-stage:
     needs: [check-version, local]

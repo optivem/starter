@@ -39,9 +39,9 @@ server.get('/erp/api/promotion', (req, res) => {
 2. Implement the dockerized External System stub changes — add or update routes, fixtures, or middleware so the stub honors the new contract.
 3. Run the External System Contract Tests against the stub. Rebuild the stub image and restart the SUT so the new behavior is in the running container, then invoke the test:
    ```bash
-   gh optivem build system --rebuild
-   gh optivem run system --restart
-   gh optivem test system --suite <suite-contract-stub> --test <TestMethodName>
+   gh optivem system build --rebuild
+   gh optivem system start --restart
+   gh optivem test run --suite <suite-contract-stub> --test <TestMethodName>
    ```
 4. Verify that the tests pass. If they fail, ask the user. STOP. Do NOT continue.
 
@@ -60,7 +60,7 @@ STOP. Present the stub implementation and the passing test output to the user an
 1. Confirm the `@Disabled` annotation (reason `"CT - RED - EXTERNAL DRIVER"`) has been removed from the tests.
 2. Run the contract tests one more time and verify they still pass:
    ```bash
-   gh optivem test system --suite <suite-contract-stub> --test <TestMethodName>
+   gh optivem test run --suite <suite-contract-stub> --test <TestMethodName>
    ```
 3. COMMIT with message `<Ticket> | CT - GREEN - STUBS`.
 

@@ -37,12 +37,12 @@ void promotion_endpoint_returns_default_no_promotion_state() {
    - If new DSL methods are needed, call them directly as if they exist — compile errors are expected.
 2. Verify the tests PASS against the Real External System (Test Instance):
    ```bash
-   gh optivem test system --suite <suite-contract-real> --test <TestMethodName>
+   gh optivem test run --suite <suite-contract-real> --test <TestMethodName>
    ```
    If they do not pass, that is a real contract problem — ask the user for support and STOP. Do NOT continue.
 3. Verify the tests FAIL against the dockerized Stub External System:
    ```bash
-   gh optivem test system --suite <suite-contract-stub> --test <TestMethodName>
+   gh optivem test run --suite <suite-contract-stub> --test <TestMethodName>
    ```
 4. Mark the tests as disabled with reason `"CT - RED - TEST"` (see [language-equivalents.md](../code/language-equivalents.md)).
 

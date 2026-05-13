@@ -166,7 +166,7 @@ For each language `L ∈ {dotnet, java, typescript}` and each topology `T ∈ {m
 
 ### Things that could go wrong
 
-1. **Missed compose file in shop** — caught immediately on first `gh optivem run system` (loud failure) and by the local scaffold smoke-test in Step 1.
+1. **Missed compose file in shop** — caught immediately on first `gh optivem system start` (loud failure) and by the local scaffold smoke-test in Step 1.
 2. **Stale doc link** in `ct-green-stubs.md` (relative href to non-existent path) — easy to verify with markdown preview after edit.
 3. **Stale embedded prompt** in `gh-optivem` — would only mislead readers, not break runtime.
 4. **Skipping local validation and merging shop first** — old gh-optivem binary keeps reading `<shop>/system/external-*` and silently skipping, so anyone who scaffolds between the two merges gets a broken repo. Mitigation: don't skip local validation. The whole point of Step 1 is to remove this risk before either PR exists.

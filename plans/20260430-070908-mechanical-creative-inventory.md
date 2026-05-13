@@ -143,7 +143,7 @@ No `@includes`. Sections:
 | shared-phase-progression | 69 | M | 100% |
 | at-cycle-conventions | 239 | M | 100% (commit message format, suite selection) |
 | ct-cycle-conventions | 477 | M | 100% (suite selection, sub-process trigger commentary) |
-| at-red-test | 710 | X | ~50% — WRITE substance (one-to-one Gherkin↔test, ordering rule, DSL extension protocol) is C; COMMIT mechanics (try-compile, STOP if DSL added, run `gh optivem test system`, mark disabled, COMMIT, STOP) is M |
+| at-red-test | 710 | X | ~50% — WRITE substance (one-to-one Gherkin↔test, ordering rule, DSL extension protocol) is C; COMMIT mechanics (try-compile, STOP if DSL added, run `gh optivem test run`, mark disabled, COMMIT, STOP) is M |
 | ct-red-test | 298 | X | ~50% (same shape, smaller) |
 | architecture/test | 182 | C | 0% — Positive vs Negative test-class rule + TODO ordering rule |
 | architecture/dsl-core | 392 | C | 0% — DSL implementation patterns |
@@ -187,7 +187,7 @@ Body: 100% dispatch. Includes:
 |---|---:|:-:|---:|
 | shared-commit-confirmation | 504 | M | 100% |
 | shared-phase-progression | 69 | M | 100% |
-| at-green-system | 483 | X | ~70% M — "enable disabled, run `gh optivem test system --rebuild`, fix until passing, REVIEW STOP, COMMIT, tick checklist, IN ACCEPTANCE"; ~30% C — backend implementation guidance |
+| at-green-system | 483 | X | ~70% M — "enable disabled, run `gh optivem test run --rebuild`, fix until passing, REVIEW STOP, COMMIT, tick checklist, IN ACCEPTANCE"; ~30% C — backend implementation guidance |
 
 **Mechanical share of includes:** ~919 / 1,056 = ~87%.
 

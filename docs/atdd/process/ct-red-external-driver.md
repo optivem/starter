@@ -44,7 +44,7 @@ Replace the `"TODO: Driver"` prototype with a real HTTP call to the external sys
    - Do NOT read external-system source code to figure out behavior; rely on the contract tests and the published external API contract.
 3. Run the contract tests against the stub and verify they fail with a runtime error (the stub does not yet implement the new contract):
    ```bash
-   gh optivem test system --suite <suite-contract-stub> --test <TestMethodName>
+   gh optivem test run --suite <suite-contract-stub> --test <TestMethodName>
    ```
 
 ## CT - RED - EXTERNAL DRIVER - REVIEW (STOP)

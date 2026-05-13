@@ -240,7 +240,7 @@ Either (a) add `id: cache-playwright` to all six (monolith + multitier) `Cache P
 
 **Files:**
 - `.github/workflows/monolith-dotnet-acceptance-stage.yml:263-269` — has `Compile System Tests` (`dotnet build` in `system-test/dotnet`).
-- `.github/workflows/monolith-java-acceptance-stage.yml` — no equivalent step. Compile happens implicitly via `setupCommands` when the first `gh optivem test system` runs (without `--no-setup`).
+- `.github/workflows/monolith-java-acceptance-stage.yml` — no equivalent step. Compile happens implicitly via `setupCommands` when the first `gh optivem test run` runs (without `--no-setup`).
 - `.github/workflows/monolith-typescript-acceptance-stage.yml` — no equivalent step. `npm ci` is implicit via `setupCommands`.
 
 **Details:**

@@ -50,9 +50,9 @@ A representative slice — backend handler and frontend page changed together fo
    a. Implement the backend changes.
    b. Rebuild the SUT image, restart the running container, then run acceptance tests for the API channel:
       ```bash
-      gh optivem build system --rebuild
-      gh optivem run system --restart
-      gh optivem test system --suite <acceptance-api> --test <TestMethodName>
+      gh optivem system build --rebuild
+      gh optivem system start --restart
+      gh optivem test run --suite <acceptance-api> --test <TestMethodName>
       ```
    c. If tests fail, fix the backend until the tests pass.
    d. If you cannot get the tests to pass, ask the user. Do NOT change tests, DSL, or Drivers to work around it.
@@ -60,9 +60,9 @@ A representative slice — backend handler and frontend page changed together fo
    a. Implement the frontend changes.
    b. Rebuild the SUT image, restart the running container, then run acceptance tests for the UI channel:
       ```bash
-      gh optivem build system --rebuild
-      gh optivem run system --restart
-      gh optivem test system --suite <acceptance-ui> --test <TestMethodName>
+      gh optivem system build --rebuild
+      gh optivem system start --restart
+      gh optivem test run --suite <acceptance-ui> --test <TestMethodName>
       ```
    c. If tests fail, fix the frontend until the tests pass.
    d. If you cannot get the tests to pass, ask the user. Do NOT change tests, DSL, or Drivers to work around it.

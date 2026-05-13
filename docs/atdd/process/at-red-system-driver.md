@@ -46,8 +46,8 @@ public RegisterCustomerResponse register(RegisterCustomerRequest request) {
 2. Implement the System Drivers — replace each "TODO: Driver" prototype with actual logic. Stay within `driver-port/` and `driver-adapter/` under `shop/`. Model new methods on existing Driver methods in the same file.
 3. Run the tests and verify they fail with a runtime error:
    ```bash
-   gh optivem test system --suite <acceptance-api> --test <TestMethodName>
-   gh optivem test system --suite <acceptance-ui> --test <TestMethodName>
+   gh optivem test run --suite <acceptance-api> --test <TestMethodName>
+   gh optivem test run --suite <acceptance-ui> --test <TestMethodName>
    ```
 
 ## AT - RED - SYSTEM DRIVER - REVIEW (STOP)

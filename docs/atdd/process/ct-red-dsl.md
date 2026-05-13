@@ -54,7 +54,7 @@ STOP. Present the DSL implementation, Driver interface changes, and the `externa
 1. For any new or changed External System Driver methods, add `"TODO: Driver"` prototypes that throw a not-implemented exception (see [language-equivalents.md](../code/language-equivalents.md)).
 2. Run the contract tests and verify they fail with a runtime error:
    ```bash
-   gh optivem test system --suite <suite-contract-stub> --test <TestMethodName>
+   gh optivem test run --suite <suite-contract-stub> --test <TestMethodName>
    ```
 3. Mark the tests as disabled with reason `"CT - RED - DSL"` (see [language-equivalents.md](../code/language-equivalents.md)).
 4. COMMIT with message `<Ticket> | CT - RED - DSL`.

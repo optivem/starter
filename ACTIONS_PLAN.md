@@ -324,6 +324,6 @@ Industry trend. Lower priority because GitHub has stronger controls on first-par
 10. **H0d** (drop or freeze VERSION-file bump commits) — lowest urgency of the architectural set; do last.
 11. **H3 Option A** (cron dispatcher) — if cron cost still matters after the above.
 
-Each step is its own PR. After each, run `gh optivem test system --sample` per CLAUDE.md before merging.
+Each step is its own PR. After each, run `gh optivem test run --sample` per CLAUDE.md before merging.
 
 Note on ordering: **H0 is high-severity but deliberately sequenced after the quick wins.** It is the most valuable change but also the most invasive. Do the cheap, isolated fixes first to bank reliability/security wins while H0 is being designed and rolled out incrementally.

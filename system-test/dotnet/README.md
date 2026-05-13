@@ -18,7 +18,7 @@ $env:GH_OPTIVEM_CONFIG = "gh-optivem-monolith-dotnet.yaml"
 Bring up the system stack (real + stub) for the chosen architecture:
 
 ```bash
-gh optivem run system
+gh optivem system start
 ```
 
 Prepare the test harness (dotnet clean + build of test sources):
@@ -30,7 +30,7 @@ gh optivem test setup
 Run all latest test suites:
 
 ```bash
-gh optivem test system
+gh optivem test run
 ```
 
 Run legacy test suites — switch the env var first, then re-run setup (legacy has its own setupCommands block):
@@ -38,31 +38,31 @@ Run legacy test suites — switch the env var first, then re-run setup (legacy h
 ```pwsh
 $env:GH_OPTIVEM_CONFIG = "gh-optivem-monolith-dotnet-legacy.yaml"
 gh optivem test setup
-gh optivem test system
+gh optivem test run
 ```
 
 Run only sample tests (one per suite, fast smoke):
 
 ```bash
-gh optivem test system --sample
+gh optivem test run --sample
 ```
 
 Run a specific suite by ID:
 
 ```bash
-gh optivem test system --suite acceptance-api
+gh optivem test run --suite acceptance-api
 ```
 
 Rebuild container images before bringing the system up:
 
 ```bash
-gh optivem build system
+gh optivem system build
 ```
 
 Stop the system when done:
 
 ```bash
-gh optivem stop system
+gh optivem system stop
 ```
 
 Substitute `gh-optivem-multitier-dotnet.yaml` for the multitier architecture.

@@ -60,9 +60,9 @@ run_phase() {
   local status="PASSED"
   (
     cd "$REPO_ROOT" \
-      && GH_OPTIVEM_CONFIG="$config" gh optivem run  system \
+      && GH_OPTIVEM_CONFIG="$config" gh optivem system start \
       && GH_OPTIVEM_CONFIG="$config" gh optivem test setup \
-      && GH_OPTIVEM_CONFIG="$config" gh optivem test system
+      && GH_OPTIVEM_CONFIG="$config" gh optivem test run
   ) || status="FAILED"
   local end
   end=$(date +%s)

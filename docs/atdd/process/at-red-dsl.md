@@ -68,8 +68,8 @@ STOP. Present the DSL implementation, Driver interface changes, and both flags t
    a. Implement Driver **prototypes** for the new/changed Driver methods — throw a `"TODO: Driver"` not-implemented exception in each (see [language-equivalents.md](../code/language-equivalents.md)).
 2. Run the tests and verify they fail with a runtime error:
    ```bash
-   gh optivem test system --suite <acceptance-api> --test <TestMethodName>
-   gh optivem test system --suite <acceptance-ui> --test <TestMethodName>
+   gh optivem test run --suite <acceptance-api> --test <TestMethodName>
+   gh optivem test run --suite <acceptance-ui> --test <TestMethodName>
    ```
 3. Mark the tests as disabled with reason `"AT - RED - DSL"` (see [language-equivalents.md](../code/language-equivalents.md)).
 4. Ensure that no test files are (accidentally) in the list of changed files.

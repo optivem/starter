@@ -13,7 +13,7 @@ It mirrors the role of the AT per-phase docs (`at-red-test.md`, `at-red-dsl.md`,
 - **Commit message format.** See [at-cycle-conventions.md](at-cycle-conventions.md). Every commit follows `<Ticket> | <Phase>`, optionally prefixed with `#<issue-number> | `. The phase suffix is the phase *prefix only* (e.g. `SYSTEM INTERFACE REDESIGN`) — never append `- WRITE`, `- REVIEW`, `- TEST`, or `- COMMIT`.
 - **Commit handoff.** See [cycles.md § Commit Handoff](cycles.md#commit-handoff). Agents do not run `git commit`; they exit with the working-tree delta and the wrapping CLI runs the human gate ("Can I commit?") and the commit.
 - **Phase progression.** See [shared-phase-progression.md](shared-phase-progression.md). Phases ending in STOP block on explicit user approval.
-- **TEST scope.** COMPILE always runs first (`./compile-all.sh`, `./gradlew build`, `npx tsc --noEmit`, or `dotnet build` for the in-scope projects). Sample-suite scope is then picked at the CHOOSE_TESTS menu (`[a]`ll / `[s]`ome suites / `[p]`ecific tests / `[n]`o tests / `[x]` reject) — never self-initiate `gh optivem test system --sample` before the operator answers. Compile or test RED routes through a human STOP (Enter dispatches the fix-agent, `abort` halts the cycle); the fix-agent never commits.
+- **TEST scope.** COMPILE always runs first (`./compile-all.sh`, `./gradlew build`, `npx tsc --noEmit`, or `dotnet build` for the in-scope projects). Sample-suite scope is then picked at the CHOOSE_TESTS menu (`[a]`ll / `[s]`ome suites / `[p]`ecific tests / `[n]`o tests / `[x]` reject) — never self-initiate `gh optivem test run --sample` before the operator answers. Compile or test RED routes through a human STOP (Enter dispatches the fix-agent, `abort` halts the cycle); the fix-agent never commits.
 
 ---
 
@@ -37,7 +37,7 @@ The structural-cycle TEST has two stages — COMPILE (always runs) and a sample-
    Choice?
    ```
 
-   Wait for an explicit answer. The selection is stored as a list of `gh optivem test system` invocations (`selected_test_commands`) and is re-used on retry — operators who want a different scope must abort and re-enter the cycle.
+   Wait for an explicit answer. The selection is stored as a list of `gh optivem test run` invocations (`selected_test_commands`) and is re-used on retry — operators who want a different scope must abort and re-enter the cycle.
 
 3. **RUN_TESTS.** Execute the selected commands (or no-op for `[n]`). The runner classifies the outcome as `ok`, `red`, or `infra` (infra halts the run upstream; `ok` advances to COMMIT; `red` jumps to step 5).
 

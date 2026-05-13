@@ -285,7 +285,7 @@ jobs:
       - name: Setup ${{ matrix.test-lang }} latest test harness
         # `gh optivem test setup` runs setupCommands from the matching
         # tests.yaml (latest). The SUT lifecycle is owned by
-        # deploy-docker-compose above, so no `gh optivem run system` is
+        # deploy-docker-compose above, so no `gh optivem system start` is
         # needed before the suites.
         env:
           GH_OPTIVEM_CONFIG: .gh-optivem-cross-lang/latest.yaml
@@ -294,7 +294,7 @@ jobs:
       - name: Run ${{ matrix.test-lang }} latest system tests vs ${{ matrix.system-lang }} SUT
         env:
           GH_OPTIVEM_CONFIG: .gh-optivem-cross-lang/latest.yaml
-        run: gh optivem test system
+        run: gh optivem test run
 
       - name: Setup ${{ matrix.test-lang }} legacy test harness
         # `gh optivem test setup` runs setupCommands from tests.legacy.yaml
@@ -315,4 +315,4 @@ jobs:
         if: always()
         env:
           GH_OPTIVEM_CONFIG: .gh-optivem-cross-lang/legacy.yaml
-        run: gh optivem test system
+        run: gh optivem test run

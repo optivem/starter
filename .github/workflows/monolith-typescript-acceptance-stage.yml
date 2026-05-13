@@ -265,7 +265,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh extension install optivem/gh-optivem
 
-      # Per-suite invocations of `gh optivem test system`. Each suite ID below
+      # Per-suite invocations of `gh optivem test run`. Each suite ID below
       # matches an entry in tests.yaml's suites[]. Splitting one step per
       # suite restores the GitHub Actions UI's per-suite green/red checkmarks
       # so a failure surfaces as a specific named step, not as a buried row
@@ -275,43 +275,43 @@ jobs:
       # playwright install) once for the whole batch; the per-suite `test
       # system` steps then run against the prepared workspace. The SUT itself
       # was already brought up earlier in the job by the Simulate Deployment
-      # / Wait for Systems steps, so no `gh optivem run system` is needed.
+      # / Wait for Systems steps, so no `gh optivem system start` is needed.
       - name: Setup Test Harness
         if: ${{ !inputs.debug-skip-tests }}
         run: gh optivem test setup
       - name: smoke-stub
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite smoke-stub
+        run: gh optivem test run --suite smoke-stub
       - name: smoke-real
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite smoke-real
+        run: gh optivem test run --suite smoke-real
       - name: acceptance-api
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite acceptance-api
+        run: gh optivem test run --suite acceptance-api
       - name: acceptance-ui
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite acceptance-ui
+        run: gh optivem test run --suite acceptance-ui
       - name: acceptance-isolated-api
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite acceptance-isolated-api
+        run: gh optivem test run --suite acceptance-isolated-api
       - name: acceptance-isolated-ui
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite acceptance-isolated-ui
+        run: gh optivem test run --suite acceptance-isolated-ui
       - name: contract-stub
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite contract-stub
+        run: gh optivem test run --suite contract-stub
       - name: contract-stub-isolated
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite contract-stub-isolated
+        run: gh optivem test run --suite contract-stub-isolated
       - name: contract-real
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite contract-real
+        run: gh optivem test run --suite contract-real
       - name: e2e-api
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite e2e-api
+        run: gh optivem test run --suite e2e-api
       - name: e2e-ui
         if: ${{ !inputs.debug-skip-tests }}
-        run: gh optivem test system --suite e2e-ui
+        run: gh optivem test run --suite e2e-ui
       - name: Read Base System Version
         id: read-version
         uses: optivem/actions/read-base-version@v1
