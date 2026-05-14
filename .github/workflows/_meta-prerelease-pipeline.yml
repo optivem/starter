@@ -549,3 +549,28 @@ jobs:
     secrets: inherit
     with:
       commit-sha: ${{ needs.check.outputs.commit_sha }}
+
+  # Cross-language schema drift check. Parallel sibling of `cross-lang` — same
+  # gate (needs `commit` for the `sha-<sha>` images; variant=='all' because
+  # drift exercises both Java and TS SUTs; same level gating).
+  #
+  # Brings up Java's `real`+`stub` compose stacks, runs the Java smoke-stub
+  # suite, tears the apps down with `down` (volumes survive), brings up
+  # TypeScript's `real`+`stub` stacks (which reuse the postgres-data volumes
+  # via the shared `my-shop-{real,stub}` compose project names), runs the TS
+  # smoke-stub suite. Both green ⇒ the canonical Flyway migration set
+  # produces a schema both stacks can read. .NET third leg deferred.
+  #
+  # Failure here trips tag-meta-rc's `!failure()` aggregate in
+  # meta-prerelease-stage.yml just like a cross-lang failure does, so a drift
+  # red blocks the meta-rc tag.
+  drift:
+    needs: [check, commit]
+    if: ${{ always() && !failure() && !cancelled() && needs.check.outputs.should_run == 'true' && !inputs.debug-skip-tests && inputs.variant == 'all' && contains(fromJSON('["acceptance","qa"]'), inputs.level) }}
+    permissions:
+      contents: read
+      packages: read
+    uses: ./.github/workflows/drift.yml
+    secrets: inherit
+    with:
+      commit-sha: ${{ needs.check.outputs.commit_sha }}

@@ -24,6 +24,13 @@ name: drift
 # both stacks read. The volume share via the `my-shop-stub` project name
 # is the explicit drift signal — schema interop in both real and stub mode
 # is a bonus. .NET third leg deferred.
+#
+# Image resolution: when called from `_meta-prerelease-pipeline.yml` (or
+# dispatched with a commit-sha), images are pinned to `sha-<commit-sha>`
+# digests via `optivem/actions/resolve-docker-image-digests@v1` — matches
+# the cross-lang pattern. Standalone / scheduled runs fall back to
+# `:latest`, which is what the per-stack commit stages tag for each fresh
+# build.
 
 on:
   schedule:
@@ -31,8 +38,14 @@ on:
   workflow_dispatch:
     inputs:
       commit-sha:
-        description: 'Git SHA to test (leave empty for latest image)'
+        description: 'Git SHA to test (leave empty for latest images)'
         required: false
+        type: string
+  workflow_call:
+    inputs:
+      commit-sha:
+        description: 'Git SHA to test — must point at a SHA whose commit-stage images exist in GHCR.'
+        required: true
         type: string
 
 permissions: {}
@@ -42,7 +55,11 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  COMMIT_SHA: ${{ inputs.commit-sha || github.sha }}
+  # When provided (workflow_call from pipeline, or explicit dispatch),
+  # pin every SUT image to its commit-stage `sha-<COMMIT_SHA>` digest.
+  # When absent (schedule / unprovided dispatch), resolve `:latest` —
+  # which the per-stack commit stages tag on every successful build.
+  RESOLVED_TAG: ${{ inputs.commit-sha && format('sha-{0}', inputs.commit-sha) || 'latest' }}
 
 jobs:
   monolith-drift:
@@ -69,7 +86,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          ref: ${{ env.COMMIT_SHA }}
+          ref: ${{ inputs.commit-sha || github.sha }}
 
       - name: Setup Java
         uses: actions/setup-java@v5
@@ -111,15 +128,43 @@ jobs:
             username: ${{ github.repository_owner }}
             password: ${{ secrets.GHCR_TOKEN }}
 
+      - name: Resolve Java monolith image digests
+        id: java-digests
+        uses: optivem/actions/resolve-docker-image-digests@v1
+        with:
+          base-image-urls: |
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/monolith-system-java
+          tag: ${{ env.RESOLVED_TAG }}
+
+      - name: Resolve TypeScript monolith image digests
+        id: ts-digests
+        uses: optivem/actions/resolve-docker-image-digests@v1
+        with:
+          base-image-urls: |
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/monolith-system-typescript
+          tag: ${{ env.RESOLVED_TAG }}
+
       # ---- Leg 1: Java SUT applies migrations, runs Java suite ----
 
-      - name: Bring up Java monolith real
-        run: docker compose -f docker-compose.pipeline.real.yml up -d
-        working-directory: docker/java/monolith
+      - name: Deploy Java monolith real
+        uses: optivem/actions/deploy-docker-compose@v1
+        with:
+          environment: drift
+          version: ${{ env.RESOLVED_TAG }}
+          image-urls: ${{ steps.java-digests.outputs.image-digest-urls }}
+          service-names: system
+          compose-file: docker-compose.pipeline.real.yml
+          working-directory: docker/java/monolith
 
-      - name: Bring up Java monolith stub
-        run: docker compose -f docker-compose.pipeline.stub.yml up -d
-        working-directory: docker/java/monolith
+      - name: Deploy Java monolith stub
+        uses: optivem/actions/deploy-docker-compose@v1
+        with:
+          environment: drift
+          version: ${{ env.RESOLVED_TAG }}
+          image-urls: ${{ steps.java-digests.outputs.image-digest-urls }}
+          service-names: system
+          compose-file: docker-compose.pipeline.stub.yml
+          working-directory: docker/java/monolith
 
       - name: Wait for Java SUT endpoints (real + stub)
         uses: optivem/actions/wait-for-endpoints@v1
@@ -154,13 +199,25 @@ jobs:
 
       # ---- Leg 2: TypeScript SUTs inherit the same migrated schemas ----
 
-      - name: Bring up TypeScript monolith real (reuses my-shop-real postgres-data)
-        run: docker compose -f docker-compose.pipeline.real.yml up -d
-        working-directory: docker/typescript/monolith
+      - name: Deploy TypeScript monolith real (reuses my-shop-real postgres-data)
+        uses: optivem/actions/deploy-docker-compose@v1
+        with:
+          environment: drift
+          version: ${{ env.RESOLVED_TAG }}
+          image-urls: ${{ steps.ts-digests.outputs.image-digest-urls }}
+          service-names: system
+          compose-file: docker-compose.pipeline.real.yml
+          working-directory: docker/typescript/monolith
 
-      - name: Bring up TypeScript monolith stub (reuses my-shop-stub postgres-data)
-        run: docker compose -f docker-compose.pipeline.stub.yml up -d
-        working-directory: docker/typescript/monolith
+      - name: Deploy TypeScript monolith stub (reuses my-shop-stub postgres-data)
+        uses: optivem/actions/deploy-docker-compose@v1
+        with:
+          environment: drift
+          version: ${{ env.RESOLVED_TAG }}
+          image-urls: ${{ steps.ts-digests.outputs.image-digest-urls }}
+          service-names: system
+          compose-file: docker-compose.pipeline.stub.yml
+          working-directory: docker/typescript/monolith
 
       - name: Wait for TypeScript SUT endpoints (real + stub)
         uses: optivem/actions/wait-for-endpoints@v1
@@ -216,7 +273,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          ref: ${{ env.COMMIT_SHA }}
+          ref: ${{ inputs.commit-sha || github.sha }}
 
       - name: Setup Java
         uses: actions/setup-java@v5
@@ -258,13 +315,47 @@ jobs:
             username: ${{ github.repository_owner }}
             password: ${{ secrets.GHCR_TOKEN }}
 
-      - name: Bring up Java multitier real
-        run: docker compose -f docker-compose.pipeline.real.yml up -d
-        working-directory: docker/java/multitier
+      - name: Resolve Java multitier image digests
+        id: java-digests
+        uses: optivem/actions/resolve-docker-image-digests@v1
+        with:
+          base-image-urls: |
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-frontend-react
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-backend-java
+          tag: ${{ env.RESOLVED_TAG }}
 
-      - name: Bring up Java multitier stub
-        run: docker compose -f docker-compose.pipeline.stub.yml up -d
-        working-directory: docker/java/multitier
+      - name: Resolve TypeScript multitier image digests
+        id: ts-digests
+        uses: optivem/actions/resolve-docker-image-digests@v1
+        with:
+          base-image-urls: |
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-frontend-react
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}/multitier-backend-typescript
+          tag: ${{ env.RESOLVED_TAG }}
+
+      - name: Deploy Java multitier real
+        uses: optivem/actions/deploy-docker-compose@v1
+        with:
+          environment: drift
+          version: ${{ env.RESOLVED_TAG }}
+          image-urls: ${{ steps.java-digests.outputs.image-digest-urls }}
+          service-names: |
+            frontend
+            backend
+          compose-file: docker-compose.pipeline.real.yml
+          working-directory: docker/java/multitier
+
+      - name: Deploy Java multitier stub
+        uses: optivem/actions/deploy-docker-compose@v1
+        with:
+          environment: drift
+          version: ${{ env.RESOLVED_TAG }}
+          image-urls: ${{ steps.java-digests.outputs.image-digest-urls }}
+          service-names: |
+            frontend
+            backend
+          compose-file: docker-compose.pipeline.stub.yml
+          working-directory: docker/java/multitier
 
       - name: Wait for Java SUT endpoints (real + stub)
         uses: optivem/actions/wait-for-endpoints@v1
@@ -295,13 +386,29 @@ jobs:
           docker compose -f docker-compose.pipeline.real.yml down
         working-directory: docker/java/multitier
 
-      - name: Bring up TypeScript multitier real (reuses my-shop-real postgres-data)
-        run: docker compose -f docker-compose.pipeline.real.yml up -d
-        working-directory: docker/typescript/multitier
+      - name: Deploy TypeScript multitier real (reuses my-shop-real postgres-data)
+        uses: optivem/actions/deploy-docker-compose@v1
+        with:
+          environment: drift
+          version: ${{ env.RESOLVED_TAG }}
+          image-urls: ${{ steps.ts-digests.outputs.image-digest-urls }}
+          service-names: |
+            frontend
+            backend
+          compose-file: docker-compose.pipeline.real.yml
+          working-directory: docker/typescript/multitier
 
-      - name: Bring up TypeScript multitier stub (reuses my-shop-stub postgres-data)
-        run: docker compose -f docker-compose.pipeline.stub.yml up -d
-        working-directory: docker/typescript/multitier
+      - name: Deploy TypeScript multitier stub (reuses my-shop-stub postgres-data)
+        uses: optivem/actions/deploy-docker-compose@v1
+        with:
+          environment: drift
+          version: ${{ env.RESOLVED_TAG }}
+          image-urls: ${{ steps.ts-digests.outputs.image-digest-urls }}
+          service-names: |
+            frontend
+            backend
+          compose-file: docker-compose.pipeline.stub.yml
+          working-directory: docker/typescript/multitier
 
       - name: Wait for TypeScript SUT endpoints (real + stub)
         uses: optivem/actions/wait-for-endpoints@v1
