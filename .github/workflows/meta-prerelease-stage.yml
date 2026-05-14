@@ -194,21 +194,43 @@ jobs:
           sha="${VERIFIED_SHA:-$ORIGINAL_SHA}"
           echo "value=$sha" >> "$GITHUB_OUTPUT"
           echo "Tagging meta-rc against SHA: $sha (original github.sha=$ORIGINAL_SHA)"
+      # fetch-depth: 0 so build-flavor-rc-manifest can see every flavor RC tag
+      # when probing for the latest qa-approved RC at each flavor.VERSION.
       - uses: actions/checkout@v6
         with:
           token: ${{ secrets.VERIFY_TOKEN }}
           ref: ${{ steps.sha.outputs.value }}
+          fetch-depth: 0
+      - name: Read Meta VERSION
+        id: meta-version
+        shell: bash
+        run: echo "value=$(tr -d '[:space:]' < VERSION)" >> "$GITHUB_OUTPUT"
+      # Build the per-flavor manifest BEFORE tagging. The meta-rc tag is
+      # annotated with this manifest as its body so meta-release-stage promotes
+      # exactly the RCs that were tested together — see
+      # plans/20260514-0652-shop-meta-release-manifest.md.
+      - name: Build per-flavor manifest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          META_RC: meta-v${{ steps.meta-version.outputs.value }}-rc.${{ github.run_number }}
+        run: |
+          set -euo pipefail
+          bash "${GITHUB_WORKSPACE}/.github/workflows/scripts/build-flavor-rc-manifest.sh" > manifest.json
+          echo "Manifest:"
+          cat manifest.json
       - name: Tag meta-rc
         env:
           VERIFIED_SHA: ${{ steps.sha.outputs.value }}
+          TAG: meta-v${{ steps.meta-version.outputs.value }}-rc.${{ github.run_number }}
         run: |
           set -euo pipefail
-          VERSION=$(tr -d '[:space:]' < VERSION)
-          TAG="meta-v${VERSION}-rc.${{ github.run_number }}"
-          echo "Creating tag ${TAG} on ${VERIFIED_SHA}"
+          echo "Creating annotated tag ${TAG} on ${VERIFIED_SHA}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag "$TAG" "${VERIFIED_SHA}"
+          # Annotated tag with manifest as body — meta-release-stage reads it
+          # back via `git cat-file -p <tag>` to know which RCs to promote.
+          git tag -a "$TAG" -F manifest.json "${VERIFIED_SHA}"
           git push origin "$TAG"
           echo "Tagged ${VERIFIED_SHA} as ${TAG}"
           TAG_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
@@ -217,4 +239,10 @@ jobs:
             echo ""
             echo "- Tag: [\`${TAG}\`](${TAG_URL})"
             echo "- Commit: [\`${VERIFIED_SHA::7}\`](${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/commit/${VERIFIED_SHA})"
+            echo ""
+            echo "### Manifest"
+            echo ""
+            echo '```json'
+            cat manifest.json
+            echo '```'
           } >> "$GITHUB_STEP_SUMMARY"

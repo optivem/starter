@@ -12,7 +12,7 @@ on:
       retention-days:
         description: 'Retention window for cleanup-prereleases (tags/releases/Docker tags older than N days)'
         required: false
-        default: '1'
+        default: '7'
       include-production:
         description: 'Also delete production deployments (overrides default protected-environments)'
         type: boolean
@@ -48,10 +48,13 @@ jobs:
           protected-environments: ${{ inputs.include-production && '' || '*-production,production' }}
           dry-run: ${{ inputs.dry-run || false }}
 
+      # 7-day retention ensures any flavor RC named in a not-yet-promoted meta-rc
+      # manifest survives long enough to be promoted. Covers long weekends and
+      # queued release runs. See plans/20260514-0652-shop-meta-release-manifest.md.
       - name: Cleanup Prereleases
         uses: optivem/actions/cleanup-prereleases@v1
         with:
-          retention-days: ${{ inputs.retention-days || '1' }}
+          retention-days: ${{ inputs.retention-days || '7' }}
           container-packages: shop/monolith-system-java,shop/monolith-system-dotnet,shop/monolith-system-typescript,shop/multitier-backend-java,shop/multitier-backend-dotnet,shop/multitier-backend-typescript,shop/multitier-frontend-react
           dry-run: ${{ inputs.dry-run || false }}
 
@@ -60,6 +63,6 @@ jobs:
       - name: Cleanup Orphan Manifests
         uses: optivem/actions/cleanup-ghcr-orphan-manifests@v1
         with:
-          retention-days: ${{ inputs.retention-days || '1' }}
+          retention-days: ${{ inputs.retention-days || '7' }}
           container-packages: shop/monolith-system-java,shop/monolith-system-dotnet,shop/monolith-system-typescript,shop/multitier-backend-java,shop/multitier-backend-dotnet,shop/multitier-backend-typescript,shop/multitier-frontend-react
           dry-run: ${{ inputs.dry-run || false }}

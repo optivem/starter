@@ -85,6 +85,44 @@ jobs:
       fail-fast: ${{ inputs.fail-fast }}
       pipeline-timeout-seconds: ${{ inputs.pipeline-timeout-seconds }}
 
+  # Exercise the manifest-builder code path WITHOUT tagging — catches bugs in
+  # the new manifest logic (Phase 1 of plans/20260514-0652-shop-meta-release-
+  # manifest.md) before they hit the production prerelease. Only runs on
+  # variant=all because the manifest requires a fresh qa-approved RC for every
+  # flavor; single-variant dry-runs only refresh one flavor.
+  build-manifest-artifact:
+    needs: run
+    if: ${{ success() && inputs.variant == 'all' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Build per-flavor manifest (dry-run preview)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          META_RC: dry-run-${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          bash "${GITHUB_WORKSPACE}/.github/workflows/scripts/build-flavor-rc-manifest.sh" > manifest.json
+          {
+            echo "## Manifest (dry-run preview)"
+            echo ""
+            echo "No tag is created in dry-run; this artifact lets you inspect what tag-meta-rc would embed."
+            echo ""
+            echo '```json'
+            cat manifest.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: meta-rc-manifest
+          path: manifest.json
+          if-no-files-found: error
+
   # Fire-and-forget: on successful dry-run, dispatch the real meta-prerelease-stage.
   # Cannot trigger-and-wait because both workflows share the meta-prerelease-stage
   # concurrency group — waiting here would deadlock the stage run.

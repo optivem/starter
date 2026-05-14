@@ -159,43 +159,75 @@ jobs:
             exit "$rc"
           fi
 
+      # Read the per-flavor RC manifest from the meta-rc tag's annotation body.
+      # Meta-prerelease tag-meta-rc embeds a JSON manifest naming the exact RCs
+      # it tested together; meta-release promotes exactly those, no version-name
+      # lookup. Eliminates the lockstep-drift failure mode described in
+      # plans/20260514-0652-shop-meta-release-manifest.md.
       - name: Find flavor RCs to promote
         id: flavor-rcs
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
-          VERSION: ${{ steps.resolve.outputs.version }}
+          RC_TAG: ${{ steps.rc.outputs.rc_tag }}
         run: |
           set -euo pipefail
           source "$GITHUB_WORKSPACE/.github/workflows/scripts/gh-retry.sh"
-          # Require a successful `qa/signoff` commit-status on the rc (QA gate). The
-          # strict regex on rc tags excludes any legacy status-suffix tags
-          # (-qa-approved, -qa-deployed, etc.) that may still be in the repo from
-          # before the migration.
-          escaped_version="${VERSION//./\\.}"
-          for flavor in monolith-java monolith-dotnet monolith-typescript multitier-java multitier-dotnet multitier-typescript; do
-            mapfile -t rc_tags < <(git tag --list "${flavor}-v${VERSION}-rc.*" \
-              | awk -v p="^${flavor}-v${escaped_version}-rc\\.[0-9]+$" '$0 ~ p' \
-              | awk -F'-rc[.]' '{print $NF " " $0}' \
-              | sort -k1,1 -nr \
-              | awk '{print $2}')
 
-            rc=""
-            for tag in "${rc_tags[@]}"; do
-              sha=$(git rev-parse "${tag}^{}" 2>/dev/null || git rev-parse "${tag}")
-              statuses=$(gh_retry api "repos/${REPO}/commits/${sha}/statuses" --paginate)
-              approved=$(echo "$statuses" | jq '[.[] | select(.context=="qa/signoff" and .state=="success")] | length')
-              if [[ "${approved:-0}" -gt 0 ]]; then
-                rc="${tag}"
-                break
+          tag_object=$(git cat-file -p "${RC_TAG}")
+          # Annotated-tag format is: header lines (object/type/tag/tagger),
+          # blank line, then the annotation body. Take everything after the
+          # first blank line.
+          manifest=$(awk 'BEGIN{body=0} /^$/ && !body{body=1; next} body{print}' <<<"$tag_object")
+          if [[ -z "$manifest" ]] || ! jq -e . >/dev/null 2>&1 <<<"$manifest"; then
+            echo "::error::Meta-rc tag ${RC_TAG} has no parseable manifest body. This release path requires the manifest written by tag-meta-rc; pre-manifest or lightweight tags must be deleted before deploying this stage."
+            exit 1
+          fi
+
+          # Enforce the canonical-6 contract: exactly the 6 known flavors must
+          # be present in the manifest (no missing, no extras).
+          canonical="monolith-java monolith-dotnet monolith-typescript multitier-java multitier-dotnet multitier-typescript"
+          mapfile -t manifest_flavors < <(jq -r '.flavors | keys[]' <<<"$manifest")
+          for f in "${manifest_flavors[@]}"; do
+            if ! printf '%s\n' $canonical | grep -qx "$f"; then
+              echo "::error::Manifest in ${RC_TAG} contains unexpected flavor '${f}'. Canonical set: ${canonical}"
+              exit 1
+            fi
+          done
+          for c in $canonical; do
+            if ! printf '%s\n' "${manifest_flavors[@]}" | grep -qx "$c"; then
+              echo "::error::Manifest in ${RC_TAG} is missing canonical flavor '${c}'. All 6 flavors are required."
+              exit 1
+            fi
+          done
+
+          for flavor in $canonical; do
+            rc=$(jq -r --arg f "$flavor" '.flavors[$f]' <<<"$manifest")
+            if [[ -z "$rc" || "$rc" == "null" ]]; then
+              echo "::error::Manifest in ${RC_TAG} has no value for flavor ${flavor}."
+              exit 1
+            fi
+            # Defensive: ensure the tag still exists (cleanup or manual delete
+            # could have removed it between prerelease and release).
+            if ! git rev-parse --verify --quiet "refs/tags/${rc}" >/dev/null; then
+              git fetch origin "refs/tags/${rc}:refs/tags/${rc}" 2>/dev/null || true
+              if ! git rev-parse --verify --quiet "refs/tags/${rc}" >/dev/null; then
+                echo "::error::Manifest references ${rc} but that tag no longer exists in origin. Was it cleaned up? Bump cleanup retention or re-run prerelease."
+                exit 1
               fi
-            done
-            if [[ -z "$rc" ]]; then
-              echo "::error::No QA-approved RC (qa/signoff commit-status with state=success) found for ${flavor} at v${VERSION}. Was the acceptance pipeline run to completion and qa-signoff dispatched?"
+            fi
+            # Defensive re-check: qa/signoff must STILL be success on the RC's
+            # commit. Revoke between prerelease and release is rare and
+            # intentional — hard fail and require human-driven re-prerelease.
+            sha=$(git rev-parse "${rc}^{}" 2>/dev/null || git rev-parse "${rc}")
+            statuses=$(gh_retry api "repos/${REPO}/commits/${sha}/statuses" --paginate)
+            approved=$(echo "$statuses" | jq '[.[] | select(.context=="qa/signoff" and .state=="success")] | length')
+            if [[ "${approved:-0}" -lt 1 ]]; then
+              echo "::error::Manifest references ${rc} but qa/signoff is no longer success on its commit (${sha}). Revoked between prerelease and release? Re-run prerelease to mint a fresh meta-rc."
               exit 1
             fi
             echo "${flavor}-rc=${rc}" >> "$GITHUB_OUTPUT"
-            echo "Found: ${rc}"
+            echo "Confirmed: ${rc}"
           done
 
   promote-monolith-java:
