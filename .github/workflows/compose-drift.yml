@@ -1,0 +1,63 @@
+name: compose-drift
+
+# Asserts the `db-migrate` Flyway sidecar service is byte-identical across
+# all 24 docker-compose files. The block is duplicated (per decision #6 of
+# `plans/20260513-1530-shop-canonical-db-schema-via-migrations.md` in the
+# gh-optivem repo) so the scaffolder stays a simple `cp`; this check is the
+# enforcement that the duplicates do not drift.
+
+on:
+  pull_request:
+    paths:
+      - 'docker/**/docker-compose.*.yml'
+      - '.github/workflows/compose-drift.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docker/**/docker-compose.*.yml'
+      - '.github/workflows/compose-drift.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: compose-drift-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  db-migrate-block:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Assert db-migrate service is identical across compose files
+        run: |
+          set -euo pipefail
+          mapfile -t COMPOSE_FILES < <(find docker -type f -name 'docker-compose.*.yml' | sort)
+          echo "Comparing ${#COMPOSE_FILES[@]} compose files."
+          if [ "${#COMPOSE_FILES[@]}" -ne 24 ]; then
+            echo "::error::Expected 24 compose files, found ${#COMPOSE_FILES[@]}."
+            exit 1
+          fi
+          # Normalise each file's db-migrate block to canonical YAML, hash it,
+          # then assert there's exactly one unique hash across all files.
+          UNIQUE_HASHES=$(
+            for f in "${COMPOSE_FILES[@]}"; do
+              yq -o=yaml '.services.db-migrate' "$f" | sha256sum | awk '{print $1}'
+            done | sort -u
+          )
+          UNIQUE_COUNT=$(echo "$UNIQUE_HASHES" | wc -l)
+          if [ "$UNIQUE_COUNT" -ne 1 ]; then
+            echo "::error::db-migrate service block differs across compose files (found $UNIQUE_COUNT distinct variants)."
+            echo "Per-file hashes:"
+            for f in "${COMPOSE_FILES[@]}"; do
+              h=$(yq -o=yaml '.services.db-migrate' "$f" | sha256sum | awk '{print $1}')
+              echo "  $h  $f"
+            done
+            echo
+            echo "To inspect a divergence, run:"
+            echo "  diff <(yq -o=yaml .services.db-migrate <FILE_A>) <(yq -o=yaml .services.db-migrate <FILE_B>)"
+            exit 1
+          fi
+          echo "All ${#COMPOSE_FILES[@]} compose files share an identical db-migrate block."

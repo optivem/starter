@@ -1,0 +1,296 @@
+name: drift
+
+# Cross-language schema drift jobs (decision #7 of
+# `plans/20260513-1530-shop-canonical-db-schema-via-migrations.md` in the
+# gh-optivem repo).
+#
+# Sequence per architecture:
+#   1. Bring up the Java stack (stub mode). Its db-migrate sidecar applies
+#      the canonical Flyway migration set to a fresh postgres-data volume.
+#   2. Run the Java smoke-stub suite against the Java SUT.
+#   3. `docker compose down` Java's stack — containers go away, the named
+#      postgres-data volume persists because we omit `-v`.
+#   4. Bring up the TypeScript stack. It shares the compose project name
+#      `my-shop-stub` so the existing postgres-data volume is reused.
+#      Flyway re-runs, finds flyway_schema_history already populated, and
+#      applies no new migrations. TS SUT boots against the same schema.
+#   5. Run the TypeScript smoke-stub suite against the TS SUT.
+#
+# Both suites green ⇒ the canonical migration set produces a schema that
+# both stacks can read. .NET third leg is deferred.
+
+on:
+  schedule:
+    - cron: '15 * * * *'  # Run every hour, offset to spread load.
+  workflow_dispatch:
+    inputs:
+      commit-sha:
+        description: 'Git SHA to test (leave empty for latest image)'
+        required: false
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: drift-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  COMMIT_SHA: ${{ inputs.commit-sha || github.sha }}
+
+jobs:
+  monolith-drift:
+    name: monolith — Java → TS schema interop
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Ensure Environment Variables Defined
+        uses: optivem/actions/validate-env-vars-defined@v1
+        with:
+          names: |
+            DOCKERHUB_USERNAME
+            DOCKERHUB_TOKEN
+            GHCR_TOKEN
+        env:
+          DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ env.COMMIT_SHA }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: temurin
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Install gh-optivem CLI extension
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh extension install optivem/gh-optivem
+
+      - name: Log in to Docker Hub
+        uses: Wandalen/wretry.action@v3
+        with:
+          action: docker/login-action@v4
+          attempt_limit: 3
+          attempt_delay: 10000
+          with: |
+            username: ${{ vars.DOCKERHUB_USERNAME }}
+            password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Log in to GHCR
+        uses: Wandalen/wretry.action@v3
+        with:
+          action: docker/login-action@v4
+          attempt_limit: 3
+          attempt_delay: 10000
+          with: |
+            registry: ghcr.io
+            username: ${{ github.repository_owner }}
+            password: ${{ secrets.GHCR_TOKEN }}
+
+      # ---- Leg 1: Java SUT applies migrations, runs Java suite ----
+
+      - name: Bring up Java monolith stub
+        run: docker compose -f docker-compose.pipeline.stub.yml up -d --wait
+        working-directory: docker/java/monolith
+
+      - name: Wait for Java SUT endpoints
+        uses: optivem/actions/wait-for-endpoints@v1
+        with:
+          endpoints: |
+            [
+              { "name": "MyShop UI", "url": "http://localhost:3112/" },
+              { "name": "MyShop API", "url": "http://localhost:8112/health" }
+            ]
+          compose-file: docker-compose.pipeline.stub.yml
+          working-directory: docker/java/monolith
+
+      - name: Setup Java test harness
+        env:
+          GH_OPTIVEM_CONFIG: gh-optivem-monolith-java.yaml
+        run: gh optivem test setup
+
+      - name: Run Java smoke-stub
+        env:
+          GH_OPTIVEM_CONFIG: gh-optivem-monolith-java.yaml
+        run: gh optivem test run --suite smoke-stub
+
+      # ---- Swap apps. Volumes persist because we omit `-v` on `down`. ----
+
+      - name: Stop Java stack (preserve postgres-data volume)
+        run: docker compose -f docker-compose.pipeline.stub.yml down
+        working-directory: docker/java/monolith
+
+      # ---- Leg 2: TypeScript SUT inherits the same migrated schema ----
+
+      - name: Bring up TypeScript monolith stub (reuses postgres-data volume)
+        run: docker compose -f docker-compose.pipeline.stub.yml up -d --wait
+        working-directory: docker/typescript/monolith
+
+      - name: Wait for TypeScript SUT endpoints
+        uses: optivem/actions/wait-for-endpoints@v1
+        with:
+          endpoints: |
+            [
+              { "name": "MyShop UI", "url": "http://localhost:3312/" },
+              { "name": "MyShop API", "url": "http://localhost:8312/health" }
+            ]
+          compose-file: docker-compose.pipeline.stub.yml
+          working-directory: docker/typescript/monolith
+
+      - name: Setup TypeScript test harness
+        env:
+          GH_OPTIVEM_CONFIG: gh-optivem-monolith-typescript.yaml
+        run: gh optivem test setup
+
+      - name: Run TypeScript smoke-stub
+        env:
+          GH_OPTIVEM_CONFIG: gh-optivem-monolith-typescript.yaml
+        run: gh optivem test run --suite smoke-stub
+
+      - name: Tear down TypeScript stack
+        if: always()
+        run: docker compose -f docker-compose.pipeline.stub.yml down -v
+        working-directory: docker/typescript/monolith
+
+  multitier-drift:
+    name: multitier — Java → TS schema interop
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - name: Ensure Environment Variables Defined
+        uses: optivem/actions/validate-env-vars-defined@v1
+        with:
+          names: |
+            DOCKERHUB_USERNAME
+            DOCKERHUB_TOKEN
+            GHCR_TOKEN
+        env:
+          DOCKERHUB_USERNAME: ${{ vars.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ env.COMMIT_SHA }}
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: 21
+          distribution: temurin
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Install gh-optivem CLI extension
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh extension install optivem/gh-optivem
+
+      - name: Log in to Docker Hub
+        uses: Wandalen/wretry.action@v3
+        with:
+          action: docker/login-action@v4
+          attempt_limit: 3
+          attempt_delay: 10000
+          with: |
+            username: ${{ vars.DOCKERHUB_USERNAME }}
+            password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Log in to GHCR
+        uses: Wandalen/wretry.action@v3
+        with:
+          action: docker/login-action@v4
+          attempt_limit: 3
+          attempt_delay: 10000
+          with: |
+            registry: ghcr.io
+            username: ${{ github.repository_owner }}
+            password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Bring up Java multitier stub
+        run: docker compose -f docker-compose.pipeline.stub.yml up -d --wait
+        working-directory: docker/java/multitier
+
+      - name: Wait for Java SUT endpoints
+        uses: optivem/actions/wait-for-endpoints@v1
+        with:
+          endpoints: |
+            [
+              { "name": "MyShop UI", "url": "http://localhost:3112/" },
+              { "name": "MyShop API", "url": "http://localhost:8112/health" }
+            ]
+          compose-file: docker-compose.pipeline.stub.yml
+          working-directory: docker/java/multitier
+
+      - name: Setup Java test harness
+        env:
+          GH_OPTIVEM_CONFIG: gh-optivem-multitier-java.yaml
+        run: gh optivem test setup
+
+      - name: Run Java smoke-stub
+        env:
+          GH_OPTIVEM_CONFIG: gh-optivem-multitier-java.yaml
+        run: gh optivem test run --suite smoke-stub
+
+      - name: Stop Java stack (preserve postgres-data volume)
+        run: docker compose -f docker-compose.pipeline.stub.yml down
+        working-directory: docker/java/multitier
+
+      - name: Bring up TypeScript multitier stub (reuses postgres-data volume)
+        run: docker compose -f docker-compose.pipeline.stub.yml up -d --wait
+        working-directory: docker/typescript/multitier
+
+      - name: Wait for TypeScript SUT endpoints
+        uses: optivem/actions/wait-for-endpoints@v1
+        with:
+          endpoints: |
+            [
+              { "name": "MyShop UI", "url": "http://localhost:3312/" },
+              { "name": "MyShop API", "url": "http://localhost:8312/health" }
+            ]
+          compose-file: docker-compose.pipeline.stub.yml
+          working-directory: docker/typescript/multitier
+
+      - name: Setup TypeScript test harness
+        env:
+          GH_OPTIVEM_CONFIG: gh-optivem-multitier-typescript.yaml
+        run: gh optivem test setup
+
+      - name: Run TypeScript smoke-stub
+        env:
+          GH_OPTIVEM_CONFIG: gh-optivem-multitier-typescript.yaml
+        run: gh optivem test run --suite smoke-stub
+
+      - name: Tear down TypeScript stack
+        if: always()
+        run: docker compose -f docker-compose.pipeline.stub.yml down -v
+        working-directory: docker/typescript/multitier

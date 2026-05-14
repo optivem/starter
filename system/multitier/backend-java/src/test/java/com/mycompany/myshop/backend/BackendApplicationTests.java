@@ -6,7 +6,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class BackendApplicationTests {
+class BackendApplicationTests extends AbstractIntegrationTest {
 
 	@Test
 	void contextLoads() {
