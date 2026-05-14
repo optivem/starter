@@ -132,7 +132,15 @@ jobs:
 
       - name: Run Code Analysis
         if: steps.verify-main.outputs.on-branch == 'true' && env.SONAR_TOKEN != ''
-        run: ./gradlew build sonar --info
+        run: |
+          ./gradlew build --info
+          attempts=0; max=3
+          until ./gradlew sonar --info; do
+            attempts=$((attempts+1))
+            if [ "$attempts" -ge "$max" ]; then exit 1; fi
+            echo "gradle sonar failed (attempt $attempts/$max); retrying in $((attempts*15))s"
+            sleep $((attempts*15))
+          done
         working-directory: system/monolith/java
 
       - name: Compose Dev Version
