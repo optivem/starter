@@ -132,7 +132,10 @@ jobs:
 
       - name: Run Code Analysis
         if: steps.verify-main.outputs.on-branch == 'true' && env.SONAR_TOKEN != ''
-        run: ./gradlew build sonar --info
+        run: |
+          source "$GITHUB_WORKSPACE/.github/workflows/scripts/sonar-retry.sh"
+          ./gradlew build
+          sonar_retry ./gradlew sonar --info
         working-directory: system/multitier/backend-java
 
       - name: Compose Dev Version
