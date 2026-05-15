@@ -225,13 +225,14 @@ jobs:
           TAG: meta-v${{ steps.meta-version.outputs.value }}-rc.${{ github.run_number }}
         run: |
           set -euo pipefail
+          source "$GITHUB_WORKSPACE/.github/workflows/scripts/git-retry.sh"
           echo "Creating annotated tag ${TAG} on ${VERIFIED_SHA}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Annotated tag with manifest as body — meta-release-stage reads it
           # back via `git cat-file -p <tag>` to know which RCs to promote.
           git tag -a "$TAG" -F manifest.json "${VERIFIED_SHA}"
-          git push origin "$TAG"
+          git_push_retry origin "$TAG"
           echo "Tagged ${VERIFIED_SHA} as ${TAG}"
           TAG_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
           {

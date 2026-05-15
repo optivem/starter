@@ -327,6 +327,7 @@ jobs:
         run: |
           set -euo pipefail
           source "$GITHUB_WORKSPACE/.github/workflows/scripts/gh-retry.sh"
+          source "$GITHUB_WORKSPACE/.github/workflows/scripts/git-retry.sh"
           echo "Creating tag ${RELEASE_TAG} on ${SHA}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
