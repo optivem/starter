@@ -124,14 +124,12 @@ jobs:
 
       - name: Run Code Analysis
         if: steps.verify-main.outputs.on-branch == 'true' && env.SONAR_TOKEN != ''
-        shell: bash
+        uses: optivem/actions/retry@main
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          set -euo pipefail
-          source "$GITHUB_WORKSPACE/.github/workflows/scripts/sonar-retry.sh"
-          cd system/multitier/frontend-react
-          sonar_retry bash ./run-sonar.sh
+        with:
+          working-directory: system/multitier/frontend-react
+          command: bash ./run-sonar.sh
 
       - name: Compose Dev Version
         if: steps.verify-main.outputs.on-branch == 'true'
@@ -167,15 +165,17 @@ jobs:
         if: steps.verify-main.outputs.on-branch == 'true'
         uses: docker/setup-buildx-action@v4
 
-      - name: Pre-pull base images
+      - name: Pre-pull base image node:22-alpine
         if: steps.verify-main.outputs.on-branch == 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          source "$GITHUB_WORKSPACE/.github/workflows/scripts/docker-retry.sh"
-          for image in node:22-alpine nginx:alpine; do
-            docker_retry pull "$image"
-          done
+        uses: optivem/actions/retry@main
+        with:
+          command: docker pull node:22-alpine
+
+      - name: Pre-pull base image nginx:alpine
+        if: steps.verify-main.outputs.on-branch == 'true'
+        uses: optivem/actions/retry@main
+        with:
+          command: docker pull nginx:alpine
 
       - name: Build and Push Docker Image
         if: steps.verify-main.outputs.on-branch == 'true'

@@ -214,13 +214,11 @@ jobs:
         run: npx playwright install chromium
 
       - name: Install gh-optivem CLI extension
-        shell: bash
+        uses: optivem/actions/retry@main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          source "$GITHUB_WORKSPACE/.github/workflows/scripts/gh-retry.sh"
-          gh_retry extension install optivem/gh-optivem
+        with:
+          command: gh extension install optivem/gh-optivem
 
       - name: Setup Test Harness
         run: gh optivem test setup

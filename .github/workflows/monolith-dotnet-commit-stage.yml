@@ -117,18 +117,32 @@ jobs:
         run: dotnet format MyCompany.MyShop.Monolith.sln --verify-no-changes
         working-directory: system/monolith/dotnet
 
-      - name: Run Code Analysis
+      - name: Install dotnet-sonarscanner
+        if: steps.verify-main.outputs.on-branch == 'true' && env.SONAR_TOKEN != ''
+        uses: optivem/actions/retry@main
+        with:
+          command: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Begin Sonar Analysis
         if: steps.verify-main.outputs.on-branch == 'true' && env.SONAR_TOKEN != ''
         # Ignore list extends multitier-backend-dotnet with e4 (css:S4654 wwwroot)
         # and e5 (csharpsquid:S1186 Pages/**) — Razor Pages-specific rules that
         # do not apply to the API-only backend.
         run: |
-          source "$GITHUB_WORKSPACE/.github/workflows/scripts/sonar-retry.sh"
-          dotnet tool install --global dotnet-sonarscanner
           dotnet sonarscanner begin /k:"optivem_shop-monolith-dotnet" /n:"shop-monolith-dotnet" /o:"optivem" /d:sonar.token="${SONAR_TOKEN}" /d:sonar.issue.ignore.multicriteria=e1,e2,e3,e4,e5,e6,e7 /d:sonar.issue.ignore.multicriteria.e1.ruleKey=csharpsquid:S2699 /d:sonar.issue.ignore.multicriteria.e1.resourceKey="Tests/**" /d:sonar.issue.ignore.multicriteria.e2.ruleKey=csharpsquid:S1118 /d:sonar.issue.ignore.multicriteria.e2.resourceKey="Program.cs" /d:sonar.issue.ignore.multicriteria.e3.ruleKey=csharpsquid:S2068 /d:sonar.issue.ignore.multicriteria.e3.resourceKey="appsettings.json" /d:sonar.issue.ignore.multicriteria.e4.ruleKey=css:S4654 /d:sonar.issue.ignore.multicriteria.e4.resourceKey="wwwroot/**" /d:sonar.issue.ignore.multicriteria.e5.ruleKey=csharpsquid:S1186 /d:sonar.issue.ignore.multicriteria.e5.resourceKey="Pages/**" /d:sonar.issue.ignore.multicriteria.e6.ruleKey=csharpsquid:S1075 /d:sonar.issue.ignore.multicriteria.e6.resourceKey="**/*" /d:sonar.issue.ignore.multicriteria.e7.ruleKey=csharpsquid:S3267 /d:sonar.issue.ignore.multicriteria.e7.resourceKey="**/*"
-          dotnet build
-          sonar_retry dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
         working-directory: system/monolith/dotnet
+
+      - name: Build for Sonar
+        if: steps.verify-main.outputs.on-branch == 'true' && env.SONAR_TOKEN != ''
+        run: dotnet build
+        working-directory: system/monolith/dotnet
+
+      - name: End Sonar Analysis
+        if: steps.verify-main.outputs.on-branch == 'true' && env.SONAR_TOKEN != ''
+        uses: optivem/actions/retry@main
+        with:
+          working-directory: system/monolith/dotnet
+          command: dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
 
       - name: Compose Dev Version
         if: steps.verify-main.outputs.on-branch == 'true'
@@ -164,15 +178,17 @@ jobs:
         if: steps.verify-main.outputs.on-branch == 'true'
         uses: docker/setup-buildx-action@v4
 
-      - name: Pre-pull base images
+      - name: Pre-pull base image mcr.microsoft.com/dotnet/sdk:8.0
         if: steps.verify-main.outputs.on-branch == 'true'
-        shell: bash
-        run: |
-          set -euo pipefail
-          source "$GITHUB_WORKSPACE/.github/workflows/scripts/docker-retry.sh"
-          for image in mcr.microsoft.com/dotnet/sdk:8.0 mcr.microsoft.com/dotnet/aspnet:8.0; do
-            docker_retry pull "$image"
-          done
+        uses: optivem/actions/retry@main
+        with:
+          command: docker pull mcr.microsoft.com/dotnet/sdk:8.0
+
+      - name: Pre-pull base image mcr.microsoft.com/dotnet/aspnet:8.0
+        if: steps.verify-main.outputs.on-branch == 'true'
+        uses: optivem/actions/retry@main
+        with:
+          command: docker pull mcr.microsoft.com/dotnet/aspnet:8.0
 
       - name: Build and Push Docker Image
         if: steps.verify-main.outputs.on-branch == 'true'

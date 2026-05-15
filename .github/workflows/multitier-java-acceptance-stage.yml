@@ -261,13 +261,11 @@ jobs:
 
       - name: Install gh-optivem CLI extension
         if: ${{ !inputs.debug-skip-tests }}
-        shell: bash
+        uses: optivem/actions/retry@main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          source "$GITHUB_WORKSPACE/.github/workflows/scripts/gh-retry.sh"
-          gh_retry extension install optivem/gh-optivem
+        with:
+          command: gh extension install optivem/gh-optivem
 
       # `gh optivem test setup` runs the setupCommands block (gradle clean +
       # compileJava + compileTestJava) once for the whole batch; the
@@ -382,14 +380,12 @@ jobs:
           command: cd system-test/java && ./gradlew --version
 
       - name: Run Sonar Analysis
-        shell: bash
+        uses: optivem/actions/retry@main
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          set -euo pipefail
-          source "$GITHUB_WORKSPACE/.github/workflows/scripts/sonar-retry.sh"
-          cd system-test/java
-          sonar_retry bash ./run-sonar.sh
+        with:
+          working-directory: system-test/java
+          command: bash ./run-sonar.sh
 
   summary:
     needs: [preflight, check, run, publish-tag, sonar]

@@ -264,13 +264,11 @@ jobs:
 
       - name: Install gh-optivem CLI extension
         if: ${{ !inputs.debug-skip-tests }}
-        shell: bash
+        uses: optivem/actions/retry@main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          source "$GITHUB_WORKSPACE/.github/workflows/scripts/gh-retry.sh"
-          gh_retry extension install optivem/gh-optivem
+        with:
+          command: gh extension install optivem/gh-optivem
 
       # `gh optivem test setup` runs the setupCommands block (dotnet clean +
       # build) once for the whole batch; the per-suite `test system` steps
@@ -373,14 +371,12 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Run Sonar Analysis
-        shell: bash
+        uses: optivem/actions/retry@main
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          set -euo pipefail
-          source "$GITHUB_WORKSPACE/.github/workflows/scripts/sonar-retry.sh"
-          cd system-test/dotnet
-          sonar_retry bash ./run-sonar.sh
+        with:
+          working-directory: system-test/dotnet
+          command: bash ./run-sonar.sh
 
   summary:
     needs: [preflight, check, run, publish-tag, sonar]
