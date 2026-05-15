@@ -101,13 +101,14 @@ jobs:
         with:
           fetch-depth: 0
       - name: Build per-flavor manifest (dry-run preview)
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-          META_RC: dry-run-${{ github.run_id }}
+        uses: ./.github/actions/build-flavor-rc-manifest
+        with:
+          output-file: manifest.json
+          meta-rc: dry-run-${{ github.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Summarize manifest
+        shell: bash
         run: |
-          set -euo pipefail
-          bash "${GITHUB_WORKSPACE}/.github/workflows/scripts/build-flavor-rc-manifest.sh" > manifest.json
           {
             echo "## Manifest (dry-run preview)"
             echo ""
@@ -133,18 +134,15 @@ jobs:
     permissions:
       actions: write
     steps:
-      - uses: actions/checkout@v6
-        with:
-          sparse-checkout: |
-            .github/workflows/scripts
-          sparse-checkout-cone-mode: false
       - name: Dispatch meta-prerelease-stage
+        uses: optivem/actions/retry@main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          command: gh workflow run meta-prerelease-stage.yml --repo "${{ github.repository }}"
+      - name: Summarize dispatch
+        shell: bash
         run: |
-          set -euo pipefail
-          source "$GITHUB_WORKSPACE/.github/workflows/scripts/gh-retry.sh"
-          gh_retry workflow run meta-prerelease-stage.yml --repo "${{ github.repository }}"
           {
             echo "## Dispatched meta-prerelease-stage"
             echo ""

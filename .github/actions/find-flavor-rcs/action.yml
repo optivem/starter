@@ -1,0 +1,102 @@
+name: 'Find flavor RCs from meta-rc manifest'
+description: |
+  Reads the JSON manifest embedded in the annotated meta-rc tag body and
+  resolves the per-flavor RC tag for each of the canonical 6 flavors.
+  Enforces canonical-6 contract (exactly the 6 known flavors present, no
+  missing, no extras) and defensively re-verifies that qa/signoff is still
+  success on each RC's commit before exporting it as an output.
+
+  Retry semantics: the whole step is wrapped in optivem/actions/retry@main.
+  A transient gh-api failure inside the per-flavor loop retries the entire
+  script from the top — the local ops (git cat-file, jq, git rev-parse) are
+  read-only and idempotent.
+
+inputs:
+  rc-tag:
+    description: 'Meta-rc tag to read the manifest from (annotated tag body).'
+    required: true
+  github-token:
+    description: 'Token used by gh api. Needs repo read access for commit statuses.'
+    required: true
+
+outputs:
+  monolith-java-rc:
+    description: 'Resolved monolith-java RC tag from the manifest.'
+    value: ${{ steps.resolve.outputs.monolith-java-rc }}
+  monolith-dotnet-rc:
+    description: 'Resolved monolith-dotnet RC tag from the manifest.'
+    value: ${{ steps.resolve.outputs.monolith-dotnet-rc }}
+  monolith-typescript-rc:
+    description: 'Resolved monolith-typescript RC tag from the manifest.'
+    value: ${{ steps.resolve.outputs.monolith-typescript-rc }}
+  multitier-java-rc:
+    description: 'Resolved multitier-java RC tag from the manifest.'
+    value: ${{ steps.resolve.outputs.multitier-java-rc }}
+  multitier-dotnet-rc:
+    description: 'Resolved multitier-dotnet RC tag from the manifest.'
+    value: ${{ steps.resolve.outputs.multitier-dotnet-rc }}
+  multitier-typescript-rc:
+    description: 'Resolved multitier-typescript RC tag from the manifest.'
+    value: ${{ steps.resolve.outputs.multitier-typescript-rc }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Resolve
+      id: resolve
+      uses: optivem/actions/retry@main
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        REPO: ${{ github.repository }}
+        RC_TAG: ${{ inputs.rc-tag }}
+      with:
+        command: |
+          bash -c '
+            set -euo pipefail
+
+            tag_object=$(git cat-file -p "${RC_TAG}")
+            manifest=$(awk "BEGIN{body=0} /^\$/ && !body{body=1; next} body{print}" <<<"$tag_object")
+            if [[ -z "$manifest" ]] || ! jq -e . >/dev/null 2>&1 <<<"$manifest"; then
+              echo "::error::Meta-rc tag ${RC_TAG} has no parseable manifest body. This release path requires the manifest written by tag-meta-rc; pre-manifest or lightweight tags must be deleted before deploying this stage."
+              exit 1
+            fi
+
+            canonical=(monolith-java monolith-dotnet monolith-typescript multitier-java multitier-dotnet multitier-typescript)
+            mapfile -t manifest_flavors < <(jq -r ".flavors | keys[]" <<<"$manifest")
+            for f in "${manifest_flavors[@]}"; do
+              if ! printf "%s\n" "${canonical[@]}" | grep -qx "$f"; then
+                echo "::error::Manifest in ${RC_TAG} contains unexpected flavor ${f}. Canonical set: ${canonical[*]}"
+                exit 1
+              fi
+            done
+            for c in "${canonical[@]}"; do
+              if ! printf "%s\n" "${manifest_flavors[@]}" | grep -qx "$c"; then
+                echo "::error::Manifest in ${RC_TAG} is missing canonical flavor ${c}. All 6 flavors are required."
+                exit 1
+              fi
+            done
+
+            for flavor in "${canonical[@]}"; do
+              rc=$(jq -r --arg f "$flavor" ".flavors[\$f]" <<<"$manifest")
+              if [[ -z "$rc" || "$rc" == "null" ]]; then
+                echo "::error::Manifest in ${RC_TAG} has no value for flavor ${flavor}."
+                exit 1
+              fi
+              if ! git rev-parse --verify --quiet "refs/tags/${rc}" >/dev/null; then
+                git fetch origin "refs/tags/${rc}:refs/tags/${rc}" 2>/dev/null || true
+                if ! git rev-parse --verify --quiet "refs/tags/${rc}" >/dev/null; then
+                  echo "::error::Manifest references ${rc} but that tag no longer exists in origin. Was it cleaned up? Bump cleanup retention or re-run prerelease."
+                  exit 1
+                fi
+              fi
+              sha=$(git rev-parse "${rc}^{}" 2>/dev/null || git rev-parse "${rc}")
+              statuses=$(gh api "repos/${REPO}/commits/${sha}/statuses" --paginate)
+              approved=$(echo "$statuses" | jq "[.[] | select(.context==\"qa/signoff\" and .state==\"success\")] | length")
+              if [[ "${approved:-0}" -lt 1 ]]; then
+                echo "::error::Manifest references ${rc} but qa/signoff is no longer success on its commit (${sha}). Revoked between prerelease and release? Re-run prerelease to mint a fresh meta-rc."
+                exit 1
+              fi
+              echo "${flavor}-rc=${rc}" >> "$GITHUB_OUTPUT"
+              echo "Confirmed: ${rc}"
+            done
+          '

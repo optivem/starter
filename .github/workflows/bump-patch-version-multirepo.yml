@@ -32,14 +32,21 @@ jobs:
     permissions: {}
     steps:
       - name: Dispatch sibling bumpers
+        # The for-loop is wrapped as a single retried command. On transient
+        # failure mid-loop, the whole loop re-runs from the start — re-dispatch
+        # of already-dispatched siblings is acceptable because the receiving
+        # bump-patch-version workflows debounce duplicate concurrent runs via
+        # their own concurrency group.
+        uses: optivem/actions/retry@main
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          source "$GITHUB_WORKSPACE/.github/workflows/scripts/gh-retry.sh"
-          siblings="__SIBLING_REPOS__"
-          for repo in $siblings; do
-            echo "Dispatching bump-patch-version.yml on $repo"
-            gh_retry workflow run bump-patch-version.yml --repo "$repo"
-          done
+        with:
+          command: |
+            bash -c '
+              set -euo pipefail
+              siblings="__SIBLING_REPOS__"
+              for repo in $siblings; do
+                echo "Dispatching bump-patch-version.yml on $repo"
+                gh workflow run bump-patch-version.yml --repo "$repo"
+              done
+            '

@@ -1,0 +1,48 @@
+name: 'Verify meta release tag does not exist'
+description: |
+  Existence probe with explicit 404 classification, retry semantics applied
+  via optivem/actions/retry@main. Fails with exit 1 if the tag already
+  exists (200 from the git/ref/tags API). Fails with the underlying error if
+  the API returned anything other than 200 or 404 — must not be conflated
+  with "available" because that would let a later step silently overwrite an
+  existing tag.
+
+inputs:
+  release-tag:
+    description: 'Tag to probe for existence under the current repo.'
+    required: true
+  github-token:
+    description: 'Token used by gh api. Needs repo read access.'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Probe
+      uses: optivem/actions/retry@main
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        RELEASE_TAG: ${{ inputs.release-tag }}
+        REPO: ${{ github.repository }}
+      with:
+        command: |
+          bash -c '
+            set -euo pipefail
+            err_file=$(mktemp)
+            if gh api "repos/${REPO}/git/ref/tags/${RELEASE_TAG}" >/dev/null 2>"$err_file"; then
+              rm -f "$err_file"
+              echo "::error::Release tag ${RELEASE_TAG} already exists — cannot overwrite"
+              exit 1
+            fi
+            rc=$?
+            err=$(cat "$err_file")
+            rm -f "$err_file"
+            if grep -Eqi "HTTP 404|Not Found" <<<"$err"; then
+              echo "Release tag ${RELEASE_TAG} is available"
+              exit 0
+            fi
+            # Re-emit the underlying gh stderr so retry@main can classify it
+            # against the transient / hard-fail regexes.
+            echo "$err" >&2
+            exit "$rc"
+          '

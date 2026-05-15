@@ -1,0 +1,84 @@
+name: 'Create meta release tag and GitHub release'
+description: |
+  Create the meta-release tag, push it, and create the corresponding GitHub
+  release. Handles the non-idempotency of `gh release create`: a transient
+  post-write failure on attempt 1 leaves the release created, so attempt 2
+  returns HTTP 422 "already_exists". We let the 422 surface (hard-fail policy
+  does not retry 4xx), then verify the release exists via `gh release view`
+  and treat that confirmation as success.
+
+  Local git operations (config, tag) are not retried — they cannot fail
+  transiently. Network operations (push, release create, release view) go
+  through optivem/actions/retry@main.
+
+inputs:
+  release-tag:
+    description: 'Meta release tag to create.'
+    required: true
+  commit-sha:
+    description: 'Commit SHA to tag.'
+    required: true
+  github-token:
+    description: 'Token used by gh / git push. Needs contents:write.'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create local tag
+      shell: bash
+      env:
+        RELEASE_TAG: ${{ inputs.release-tag }}
+        SHA: ${{ inputs.commit-sha }}
+      run: |
+        set -euo pipefail
+        echo "Creating tag ${RELEASE_TAG} on ${SHA}"
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git tag "$RELEASE_TAG" "$SHA"
+    - name: Push tag
+      uses: optivem/actions/retry@main
+      with:
+        command: git push origin "${{ inputs.release-tag }}"
+    - name: Create GitHub release (with 422 already-exists fallthrough)
+      uses: optivem/actions/retry@main
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        RELEASE_TAG: ${{ inputs.release-tag }}
+        SHA: ${{ inputs.commit-sha }}
+      with:
+        command: |
+          bash -c '
+            set -euo pipefail
+            echo "Creating GitHub release ${RELEASE_TAG}"
+            create_err=$(mktemp)
+            if gh release create "$RELEASE_TAG" \
+                --target "$SHA" \
+                --title "$RELEASE_TAG" \
+                --notes "Meta release aggregating all flavor releases at this version." 2>"$create_err"; then
+              cat "$create_err" >&2
+              rm -f "$create_err"
+              echo "Created release ${RELEASE_TAG}"
+              exit 0
+            fi
+            rc=$?
+            if grep -Eqi "already_exists|already exists" "$create_err"; then
+              # Confirm the release actually exists. Anything other than success
+              # here (incl. transient network) must surface and not be conflated
+              # with "exists".
+              if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+                echo "::notice::Release ${RELEASE_TAG} already exists (likely created by an earlier attempt) — treating as success"
+                rm -f "$create_err"
+                exit 0
+              fi
+              view_rc=$?
+              echo "::error::release create reported already-exists but gh release view ${RELEASE_TAG} failed (exit $view_rc)" >&2
+              cat "$create_err" >&2
+              rm -f "$create_err"
+              exit "$view_rc"
+            fi
+            # Re-emit underlying gh stderr so retry@main can classify it.
+            cat "$create_err" >&2
+            rm -f "$create_err"
+            exit "$rc"
+          '

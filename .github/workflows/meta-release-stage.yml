@@ -133,31 +133,10 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Verify meta release tag does not already exist
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ steps.resolve.outputs.release_tag }}
-        run: |
-          set -euo pipefail
-          source "$GITHUB_WORKSPACE/.github/workflows/scripts/gh-retry.sh"
-          # Existence probe — 200 = tag exists (fail), 404 = available, anything
-          # else (auth, scope, network) = real error and must not be conflated
-          # with "available" or we'd silently proceed and overwrite later.
-          probe_err=$(mktemp)
-          if gh_retry api "repos/${{ github.repository }}/git/ref/tags/${RELEASE_TAG}" >/dev/null 2>"$probe_err"; then
-            rm -f "$probe_err"
-            echo "::error::Release tag ${RELEASE_TAG} already exists — cannot overwrite"
-            exit 1
-          fi
-          rc=$?
-          err=$(cat "$probe_err")
-          rm -f "$probe_err"
-          if grep -Eqi 'HTTP 404|Not Found' <<<"$err"; then
-            echo "Release tag ${RELEASE_TAG} is available"
-          else
-            echo "::error::Existence probe for tag ${RELEASE_TAG} failed (exit $rc) with non-404 error:"
-            echo "$err" >&2
-            exit "$rc"
-          fi
+        uses: ./.github/actions/verify-meta-tag-does-not-exist
+        with:
+          release-tag: ${{ steps.resolve.outputs.release_tag }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       # Read the per-flavor RC manifest from the meta-rc tag's annotation body.
       # Meta-prerelease tag-meta-rc embeds a JSON manifest naming the exact RCs
@@ -166,69 +145,10 @@ jobs:
       # plans/20260514-0652-shop-meta-release-manifest.md.
       - name: Find flavor RCs to promote
         id: flavor-rcs
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-          RC_TAG: ${{ steps.rc.outputs.rc_tag }}
-        run: |
-          set -euo pipefail
-          source "$GITHUB_WORKSPACE/.github/workflows/scripts/gh-retry.sh"
-
-          tag_object=$(git cat-file -p "${RC_TAG}")
-          # Annotated-tag format is: header lines (object/type/tag/tagger),
-          # blank line, then the annotation body. Take everything after the
-          # first blank line.
-          manifest=$(awk 'BEGIN{body=0} /^$/ && !body{body=1; next} body{print}' <<<"$tag_object")
-          if [[ -z "$manifest" ]] || ! jq -e . >/dev/null 2>&1 <<<"$manifest"; then
-            echo "::error::Meta-rc tag ${RC_TAG} has no parseable manifest body. This release path requires the manifest written by tag-meta-rc; pre-manifest or lightweight tags must be deleted before deploying this stage."
-            exit 1
-          fi
-
-          # Enforce the canonical-6 contract: exactly the 6 known flavors must
-          # be present in the manifest (no missing, no extras).
-          canonical=(monolith-java monolith-dotnet monolith-typescript multitier-java multitier-dotnet multitier-typescript)
-          mapfile -t manifest_flavors < <(jq -r '.flavors | keys[]' <<<"$manifest")
-          for f in "${manifest_flavors[@]}"; do
-            if ! printf '%s\n' "${canonical[@]}" | grep -qx "$f"; then
-              echo "::error::Manifest in ${RC_TAG} contains unexpected flavor '${f}'. Canonical set: ${canonical[*]}"
-              exit 1
-            fi
-          done
-          for c in "${canonical[@]}"; do
-            if ! printf '%s\n' "${manifest_flavors[@]}" | grep -qx "$c"; then
-              echo "::error::Manifest in ${RC_TAG} is missing canonical flavor '${c}'. All 6 flavors are required."
-              exit 1
-            fi
-          done
-
-          for flavor in "${canonical[@]}"; do
-            rc=$(jq -r --arg f "$flavor" '.flavors[$f]' <<<"$manifest")
-            if [[ -z "$rc" || "$rc" == "null" ]]; then
-              echo "::error::Manifest in ${RC_TAG} has no value for flavor ${flavor}."
-              exit 1
-            fi
-            # Defensive: ensure the tag still exists (cleanup or manual delete
-            # could have removed it between prerelease and release).
-            if ! git rev-parse --verify --quiet "refs/tags/${rc}" >/dev/null; then
-              git fetch origin "refs/tags/${rc}:refs/tags/${rc}" 2>/dev/null || true
-              if ! git rev-parse --verify --quiet "refs/tags/${rc}" >/dev/null; then
-                echo "::error::Manifest references ${rc} but that tag no longer exists in origin. Was it cleaned up? Bump cleanup retention or re-run prerelease."
-                exit 1
-              fi
-            fi
-            # Defensive re-check: qa/signoff must STILL be success on the RC's
-            # commit. Revoke between prerelease and release is rare and
-            # intentional — hard fail and require human-driven re-prerelease.
-            sha=$(git rev-parse "${rc}^{}" 2>/dev/null || git rev-parse "${rc}")
-            statuses=$(gh_retry api "repos/${REPO}/commits/${sha}/statuses" --paginate)
-            approved=$(echo "$statuses" | jq '[.[] | select(.context=="qa/signoff" and .state=="success")] | length')
-            if [[ "${approved:-0}" -lt 1 ]]; then
-              echo "::error::Manifest references ${rc} but qa/signoff is no longer success on its commit (${sha}). Revoked between prerelease and release? Re-run prerelease to mint a fresh meta-rc."
-              exit 1
-            fi
-            echo "${flavor}-rc=${rc}" >> "$GITHUB_OUTPUT"
-            echo "Confirmed: ${rc}"
-          done
+        uses: ./.github/actions/find-flavor-rcs
+        with:
+          rc-tag: ${{ steps.rc.outputs.rc_tag }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   promote-monolith-java:
     needs: check
@@ -320,55 +240,11 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.VERIFY_TOKEN }}
       - name: Create meta release tag and GitHub release
-        env:
-          GH_TOKEN: ${{ secrets.VERIFY_TOKEN }}
-          RELEASE_TAG: ${{ needs.check.outputs.release_tag }}
-          SHA: ${{ needs.check.outputs.commit-sha }}
-        run: |
-          set -euo pipefail
-          source "$GITHUB_WORKSPACE/.github/workflows/scripts/gh-retry.sh"
-          source "$GITHUB_WORKSPACE/.github/workflows/scripts/git-retry.sh"
-          echo "Creating tag ${RELEASE_TAG} on ${SHA}"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag "$RELEASE_TAG" "$SHA"
-          git_push_retry origin "$RELEASE_TAG"
-          echo "Creating GitHub release ${RELEASE_TAG}"
-          # gh release create is non-idempotent — a transient post-write failure on attempt 1
-          # leaves the release created. On retry attempt 2+, gh returns HTTP 422 "already_exists".
-          # gh_retry's hard-fail policy (don't retry 4xx) lets that 422 surface; we then verify
-          # the release exists and treat it as success.
-          create_err=$(mktemp)
-          if gh_retry release create "$RELEASE_TAG" \
-              --target "$SHA" \
-              --title "$RELEASE_TAG" \
-              --notes "Meta release aggregating all flavor releases at this version." 2>"$create_err"; then
-            cat "$create_err" >&2
-          else
-            rc=$?
-            if grep -Eqi 'already_exists|already exists' "$create_err"; then
-              # Confirm the release actually exists. Any non-success here (incl.
-              # transient network) is a real error and must not be conflated
-              # with "exists".
-              view_err=$(mktemp)
-              if gh_retry release view "$RELEASE_TAG" >/dev/null 2>"$view_err"; then
-                rm -f "$view_err"
-                echo "::notice::Release ${RELEASE_TAG} already exists (likely created by an earlier attempt) — treating as success"
-              else
-                view_rc=$?
-                echo "::error::release create reported already-exists but 'gh release view ${RELEASE_TAG}' failed (exit $view_rc):" >&2
-                cat "$view_err" >&2
-                rm -f "$view_err" "$create_err"
-                exit "$view_rc"
-              fi
-            else
-              cat "$create_err" >&2
-              rm -f "$create_err"
-              exit "$rc"
-            fi
-          fi
-          rm -f "$create_err"
-          echo "Created tag and release ${RELEASE_TAG}"
+        uses: ./.github/actions/create-meta-release-tag
+        with:
+          release-tag: ${{ needs.check.outputs.release_tag }}
+          commit-sha: ${{ needs.check.outputs.commit-sha }}
+          github-token: ${{ secrets.VERIFY_TOKEN }}
 
       - name: Summary
         env:
@@ -423,23 +299,21 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v6
-        with:
-          sparse-checkout: |
-            .github/workflows/scripts
-          sparse-checkout-cone-mode: false
       - name: Dispatch gh-acceptance-stage in optivem/gh-optivem
+        uses: optivem/actions/retry@main
         env:
           GH_TOKEN: ${{ secrets.REPO_TOKEN }}
+        with:
+          command: >-
+            gh workflow run gh-acceptance-stage.yml
+            --repo optivem/gh-optivem
+            -f shop-tag=${{ needs.check.outputs.release_tag }}
+            -f acceptance-mode=condensed
+      - name: Summarize dispatch
+        shell: bash
+        env:
           SHOP_TAG: ${{ needs.check.outputs.release_tag }}
         run: |
-          set -euo pipefail
-          source "$GITHUB_WORKSPACE/.github/workflows/scripts/gh-retry.sh"
-          echo "Dispatching gh-acceptance-stage.yml with shop-tag=${SHOP_TAG}"
-          gh_retry workflow run gh-acceptance-stage.yml \
-            --repo optivem/gh-optivem \
-            -f shop-tag="${SHOP_TAG}" \
-            -f acceptance-mode=condensed
           {
             echo "## Dispatched gh-acceptance-stage"
             echo ""

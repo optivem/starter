@@ -210,29 +210,40 @@ jobs:
       # exactly the RCs that were tested together — see
       # plans/20260514-0652-shop-meta-release-manifest.md.
       - name: Build per-flavor manifest
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-          META_RC: meta-v${{ steps.meta-version.outputs.value }}-rc.${{ github.run_number }}
+        uses: ./.github/actions/build-flavor-rc-manifest
+        with:
+          output-file: manifest.json
+          meta-rc: meta-v${{ steps.meta-version.outputs.value }}-rc.${{ github.run_number }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Echo manifest
+        shell: bash
         run: |
-          set -euo pipefail
-          bash "${GITHUB_WORKSPACE}/.github/workflows/scripts/build-flavor-rc-manifest.sh" > manifest.json
           echo "Manifest:"
           cat manifest.json
-      - name: Tag meta-rc
+      - name: Create annotated meta-rc tag
         env:
           VERIFIED_SHA: ${{ steps.sha.outputs.value }}
           TAG: meta-v${{ steps.meta-version.outputs.value }}-rc.${{ github.run_number }}
+        shell: bash
         run: |
           set -euo pipefail
-          source "$GITHUB_WORKSPACE/.github/workflows/scripts/git-retry.sh"
           echo "Creating annotated tag ${TAG} on ${VERIFIED_SHA}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           # Annotated tag with manifest as body — meta-release-stage reads it
           # back via `git cat-file -p <tag>` to know which RCs to promote.
           git tag -a "$TAG" -F manifest.json "${VERIFIED_SHA}"
-          git_push_retry origin "$TAG"
+      - name: Push meta-rc tag
+        uses: optivem/actions/retry@main
+        with:
+          command: git push origin "meta-v${{ steps.meta-version.outputs.value }}-rc.${{ github.run_number }}"
+      - name: Tag meta-rc summary
+        env:
+          VERIFIED_SHA: ${{ steps.sha.outputs.value }}
+          TAG: meta-v${{ steps.meta-version.outputs.value }}-rc.${{ github.run_number }}
+        shell: bash
+        run: |
+          set -euo pipefail
           echo "Tagged ${VERIFIED_SHA} as ${TAG}"
           TAG_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
           {
