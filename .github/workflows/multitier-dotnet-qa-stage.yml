@@ -74,25 +74,17 @@ jobs:
           ref: ${{ needs.check.outputs.version }}
 
       - name: Log in to Docker Hub
-        uses: Wandalen/wretry.action@v3
+        uses: optivem/actions/docker-login@v1
         with:
-          action: docker/login-action@v4
-          attempt_limit: 3
-          attempt_delay: 10000
-          with: |
-            username: ${{ vars.DOCKERHUB_USERNAME }}
-            password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Log in to GHCR
-        uses: Wandalen/wretry.action@v3
+        uses: optivem/actions/docker-login@v1
         with:
-          action: docker/login-action@v4
-          attempt_limit: 3
-          attempt_delay: 10000
-          with: |
-            registry: ghcr.io
-            username: ${{ github.repository_owner }}
-            password: ${{ secrets.GHCR_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GHCR_TOKEN }}
 
       - name: Simulate Deployment (QA Environment)
         id: deploy
