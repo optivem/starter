@@ -123,14 +123,14 @@ jobs:
 
       - name: Run Code Analysis
         if: steps.verify-main.outputs.on-branch == 'true' && env.SONAR_TOKEN != ''
-        uses: SonarSource/sonarqube-scan-action@v7
-        with:
-          projectBaseDir: system/monolith/typescript
-          args: >
-            -Dsonar.projectKey=optivem_shop-monolith-typescript
-            -Dsonar.projectName=shop-monolith-typescript
-            -Dsonar.organization=optivem
-            -Dsonar.sources=src
+        shell: bash
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          set -euo pipefail
+          source "$GITHUB_WORKSPACE/.github/workflows/scripts/sonar-retry.sh"
+          cd system/monolith/typescript
+          sonar_retry bash ./run-sonar.sh
 
       - name: Compose Dev Version
         if: steps.verify-main.outputs.on-branch == 'true'
