@@ -117,6 +117,12 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: |
+            system/monolith/typescript/package-lock.json
+            system/multitier/backend-typescript/package-lock.json
+            system/multitier/frontend-react/package-lock.json
+            system-test/typescript/package-lock.json
 
       - name: Setup Java
         if: inputs.language == 'java'
@@ -125,11 +131,17 @@ jobs:
           distribution: temurin
           java-version: 21
 
+      - name: Setup Gradle
+        if: inputs.language == 'java'
+        uses: gradle/actions/setup-gradle@v6
+
       - name: Setup .NET
         if: inputs.language == 'dotnet'
         uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 8.0.x
+          cache: true
+          cache-dependency-path: '**/*.csproj'
 
       # Compile source — monolith
       - name: Compile System (monolith, typescript)
