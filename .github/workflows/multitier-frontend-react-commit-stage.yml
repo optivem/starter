@@ -139,6 +139,7 @@ jobs:
           base-version: ${{ steps.read-version.outputs.base-version }}
           suffix: dev
           build-number: ${{ github.run_number }}
+          prefix: multitier-frontend-react
 
       - name: Log in to GHCR
         if: steps.verify-main.outputs.on-branch == 'true'
