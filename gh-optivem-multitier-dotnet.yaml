@@ -30,3 +30,12 @@ external_systems:
     simulators:
         path: external-systems/simulators
         repo: optivem/shop
+paths:
+    driver_port: system-test/dotnet/Testkit.Driver.Port/shop
+    driver_adapter: system-test/dotnet/Testkit.Driver.Adapter/shop
+    external_system_driver_port: system-test/dotnet/Testkit.External.Port/shop
+    external_system_driver_adapter: system-test/dotnet/Testkit.External.Adapter/shop
+    at_test: system-test/dotnet/SystemTests/Latest/AcceptanceTests
+    dsl_port: system-test/dotnet/Testkit.Dsl.Port/shop
+    dsl_core: system-test/dotnet/Testkit.Dsl.Core/shop
+    ct_test: system-test/dotnet/SystemTests/Latest/ExternalSystemContractTests

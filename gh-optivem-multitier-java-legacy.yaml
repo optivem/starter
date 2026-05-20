@@ -30,3 +30,12 @@ external_systems:
     simulators:
         path: external-systems/simulators
         repo: optivem/shop
+paths:
+    driver_port: system-test/java/src/main/java/testkit/driver/port/shop
+    driver_adapter: system-test/java/src/main/java/testkit/driver/adapter/shop
+    external_system_driver_port: system-test/java/src/main/java/testkit/external/port/shop
+    external_system_driver_adapter: system-test/java/src/main/java/testkit/external/adapter/shop
+    at_test: system-test/java/src/test/java/shop/latest/acceptance
+    dsl_port: system-test/java/src/main/java/testkit/dsl/port/shop
+    dsl_core: system-test/java/src/main/java/testkit/dsl/core/shop
+    ct_test: system-test/java/src/test/java/shop/latest/contract
