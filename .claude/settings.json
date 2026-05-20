@@ -29,7 +29,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "powershell -Command \"[System.Media.SystemSounds]::Beep.Play()\""
+            "command": "powershell -Command \"(New-Object System.Media.SoundPlayer 'C:\\Windows\\Media\\notify.wav').PlaySync()\""
           }
         ]
       }
